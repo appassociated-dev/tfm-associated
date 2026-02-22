@@ -1,0 +1,28 @@
+# Archivos derivados del script de expansión de agentes
+CLAUDE.md
+GEMINI.md
+CLAUDE.local.md
+
+# Excluidos los directorios especificos de agentes
+
+#    Cuidado, si:
+#       - `.claude/` → tiene `agents/`, `commands/`, `rules/` que sí quieres versionar
+#           Cambiar .claude/ → .claude/skills/
+#       - `.gemini/` → tiene `settings.json` con `contextFileName` que sí quieres versionar
+#           Cambiar .gemini/ → .gemini/skills/
+#       - `.codex/` → `config.toml` con configuración del equipo, que sí quieres versionar
+#           Cambiar .codex/ → .codex/skills/
+.claude/
+.gemini/
+.codex/
+.github/skills/
+
+# Overrides locales
+AGENTS.override.md
+*.override.md
+
+# Skill packages compilados
+*.skill
+
+# Python cache
+**/__pycache__/
