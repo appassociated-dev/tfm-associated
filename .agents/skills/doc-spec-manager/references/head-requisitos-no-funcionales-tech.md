@@ -33,11 +33,11 @@ Este documento concreta los RNFs agnósticos definidos en KB-004 con las tecnolo
 
 | Capa | Tecnología | Versión |
 |------|------------|---------|
-| Backend | NestJS + TypeScript | 10.x / 5.x |
-| Frontend | React + Mantine | 18.x / 7.x |
-| Base de Datos | PostgreSQL + Prisma | 16.x / 5.x |
-| Testing | Vitest + Playwright | 2.x / 1.42.x |
-| Observabilidad | Sentry | 8.x |
+| Backend | NestJS + TypeScript | 11.x / 5.9.x |
+| Frontend | React + Mantine | 19.x / 8.x |
+| Base de Datos | PostgreSQL + Prisma | 18.x / 7.x |
+| Testing | Vitest + Playwright | 4.x / 1.58.x |
+| Observabilidad | Sentry | 10.x |
 | CI/CD | GitHub Actions | - |
 
 ---
@@ -53,7 +53,7 @@ Este documento concreta los RNFs agnósticos definidos en KB-004 con las tecnolo
 | RNF-003 | RNFT-003 | NestJS Guards + RBAC |
 | RNF-004 | RNFT-004 | Prisma + PostgreSQL multi-DB |
 | RNF-005 | RNFT-005 | Helmet + TLS |
-| RNF-006 | RNFT-006 | bcrypt + AES-256 |
+| RNF-006 | RNFT-006 | Argon2 + AES-256 |
 | RNF-007 | RNFT-007 | Prisma Middleware |
 | RNF-008 | RNFT-008 | Helmet + ValidationPipe |
 | RNF-015 | RNFT-015 | Vite + React + Lighthouse |

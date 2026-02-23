@@ -33,11 +33,11 @@ Este documento concreta los RNFs agnósticos definidos en KB-004 con las tecnolo
 
 | Capa | Tecnología | Versión |
 |------|------------|---------|
-| Backend | NestJS + TypeScript | 10.x / 5.x |
-| Frontend | React + Mantine | 18.x / 7.x |
-| Base de Datos | PostgreSQL + Prisma | 16.x / 5.x |
-| Testing | Vitest + Playwright | 2.x / 1.42.x |
-| Observabilidad | Sentry | 8.x |
+| Backend | NestJS + TypeScript | 11.x / 5.9.x |
+| Frontend | React + Mantine | 19.x / 8.x |
+| Base de Datos | PostgreSQL + Prisma | 18.x / 7.x |
+| Testing | Vitest + Playwright | 4.x / 1.58.x |
+| Observabilidad | Sentry | 10.x |
 | CI/CD | GitHub Actions | - |
 
 ---
@@ -360,7 +360,7 @@ app.use(helmet({
 
 ---
 
-### 2.6 RNFT-006: Cifrado con bcrypt y Prisma
+### 2.6 RNFT-006: Cifrado con Argon2 y Prisma
 
 **RNF Base:** RNF-006 (Cifrado de Datos Sensibles en Reposo)
 
@@ -368,16 +368,14 @@ app.use(helmet({
 
 ```typescript
 // auth.service.ts
-import * as bcrypt from 'bcrypt';
-
-const SALT_ROUNDS = 12;
+import * as argon2 from 'argon2';
 
 async hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, SALT_ROUNDS);
+  return argon2.hash(password);
 }
 
 async validatePassword(password: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(password, hash);
+  return argon2.verify(hash, password);
 }
 ```
 
@@ -414,7 +412,7 @@ encrypt(text: string): { encrypted: string; iv: string; tag: string } {
 
 | Campo | Método | Propósito |
 |-------|--------|-----------|
-| Contraseña | bcrypt (12 rounds) | Hash irreversible |
+| Contraseña | Argon2 (default params) | Hash irreversible |
 | IBAN | AES-256-GCM | Cifrado reversible |
 | DNI | AES-256-GCM | Cifrado reversible |
 
@@ -546,7 +544,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
+          vendor: ['react', 'react-dom', 'react-router'],
           mantine: ['@mantine/core', '@mantine/hooks'],
           query: ['@tanstack/react-query'],
         },
@@ -1302,7 +1300,7 @@ import { PostgreSqlContainer } from '@testcontainers/postgresql';
 let container: StartedPostgreSqlContainer;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer('postgres:16-alpine')
+  container = await new PostgreSqlContainer('postgres:18-alpine')
     .withDatabase('test_db')
     .start();
   
@@ -1521,7 +1519,7 @@ prisma/
 | RNF-003 | RNFT-003 | NestJS Guards + RBAC |
 | RNF-004 | RNFT-004 | Prisma + PostgreSQL multi-DB |
 | RNF-005 | RNFT-005 | Helmet + TLS |
-| RNF-006 | RNFT-006 | bcrypt + AES-256 |
+| RNF-006 | RNFT-006 | Argon2 + AES-256 |
 | RNF-007 | RNFT-007 | Prisma Middleware |
 | RNF-008 | RNFT-008 | Helmet + ValidationPipe |
 | RNF-015 | RNFT-015 | Vite + React + Lighthouse |

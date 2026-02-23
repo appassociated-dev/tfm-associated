@@ -119,7 +119,7 @@ El backend es donde reside la mayor complejidad del proyecto: 6 Bounded Contexts
 
 | Área | Contenido del CLAUDE.md |
 |------|------------------------|
-| Stack | TypeScript 5.x, NestJS 10.x, Prisma 5.x, PostgreSQL 16.x |
+| Stack | TypeScript 5.9.x, NestJS 11.x, Prisma 7.x, PostgreSQL 18.x |
 | Arquitectura | Clean Architecture por capas (ADR-009), módulos por BC (ADR-003) |
 | Patrones | CQRS (@nestjs/cqrs), Domain Events (ADR-008), Repository Pattern |
 | Multi-tenant | BD separada por tenant (ADR-002), PrismaTenantService, TenantMiddleware |
@@ -148,19 +148,19 @@ El backend es donde reside la mayor complejidad del proyecto: 6 Bounded Contexts
 #### **`web/`** — Frontend React + Mantine
 
 **¿Por qué existe?**
-El frontend es un workspace npm independiente (`web/`) con su propio stack (React 18, Mantine 7, Vite 5, React Query 5), convenciones de componentes, formularios, routing, estado, y requisitos de accesibilidad (WCAG AA). Un agente aquí no necesita saber de CQRS ni Prisma.
+El frontend es un workspace npm independiente (`web/`) con su propio stack (React 19, Mantine 8, Vite 7, React Query 5), convenciones de componentes, formularios, routing, estado, y requisitos de accesibilidad (WCAG AA). Un agente aquí no necesita saber de CQRS ni Prisma.
 
 **¿Qué abarca?**
 
 | Área | Contenido del CLAUDE.md |
 |------|------------------------|
-| Stack | React 18.x, TypeScript 5.x, Vite 5.x, Mantine 7.x |
+| Stack | React 19.x, TypeScript 5.9.x, Vite 7.x, Mantine 8.x |
 | State | React Query (server state), Zustand o Context (client state) |
-| Formularios | react-hook-form + Zod 3.x para validación |
-| Routing | React Router 6.x, layout routes, guards |
-| i18n | react-i18next 14.x |
+| Formularios | react-hook-form 7.x + Zod 4.x para validación |
+| Routing | react-router 7.x (paquete unificado), layout routes, guards |
+| i18n | react-i18next 16.x |
 | Accesibilidad | WCAG AA obligatorio (RNF-046), Mantine a11y |
-| PWA | Workbox 7.x, Service Worker (RNF-056) |
+| PWA | vite-plugin-pwa 1.x, Service Worker (RNF-056) |
 | Estructura | `web/src/features/{feature}/`, `web/src/shared/components/`, `web/src/shared/hooks/` |
 | Convenciones | Componentes funcionales, hooks custom, skeleton screens (RNF-050) |
 | Testing | Vitest (unit), React Testing Library |
@@ -178,7 +178,7 @@ Los tests E2E son transversales (cruzan `web/` y `api/`), requieren un stack pro
 
 | Área | Contenido del CLAUDE.md |
 |------|------------------------|
-| Stack | Playwright 1.42.x, Testcontainers |
+| Stack | Playwright 1.58.x, Testcontainers 11.x |
 | Scope | Flujos críticos cross-BC (inscripción, remesa SEPA, alta socio) |
 | Multi-tenant | Setup/teardown de tenants de prueba con BD aislada |
 | Convenciones | Page Objects, fixtures, data builders |
@@ -309,9 +309,9 @@ COMMANDS:
 ```
 CRITICAL RULES:
   - ALWAYS: Componentes funcionales con TypeScript
-  - ALWAYS: React Query para estado servidor (nunca fetch manual en componentes)
-  - ALWAYS: Validación de formularios con Zod
-  - ALWAYS: Mantine como UI kit (no mezclar con otros)
+  - ALWAYS: React Query (TanStack Query 5) para estado servidor (nunca fetch manual en componentes)
+  - ALWAYS: Validación de formularios con Zod 4 + react-hook-form 7
+  - ALWAYS: Mantine 8 como UI kit (no mezclar con otros)
   - ALWAYS: WCAG AA en todo componente (RNF-046)
   - ALWAYS: Skeleton screens durante carga (RNF-050)
   - ALWAYS: Soporte i18n (react-i18next) en todo texto visible
@@ -320,7 +320,7 @@ CRITICAL RULES:
   - NEVER: Componentes sin soporte de teclado
 
 DECISION TREES:
-  - ¿Nuevo formulario? → react-hook-form + Zod schema + Mantine inputs
+  - ¿Nuevo formulario? → react-hook-form 7 + Zod 4 schema + Mantine 8 inputs
   - ¿Datos del servidor? → useQuery/useMutation + API hook custom
   - ¿Nuevo feature? → web/src/features/{name}/ con page + components + hooks + api
 
@@ -385,6 +385,9 @@ COMMANDS:
 | `error-handling-patterns` | `wshobson/agents` | Gestión errores transversal (RNF-042) |
 | `code-review-excellence` | `wshobson/agents` | Revisión de código cross-scope |
 | `git-advanced-workflows` | `wshobson/agents` | Workflows Git (GitHub Flow) |
+| `eslint-prettier-config` | `patricio0312rev/skills` | Setup ESLint 9 + Prettier + Husky + lint-staged + commitlint |
+| `husky-test-coverage` | `shipshitdev/library` | Husky pre-commit con umbrales de cobertura Vitest |
+| `eslint-rules` | `thebushidocollective/han` | Reglas ESLint avanzadas, configuración y plugins |
 | `test-driven-development` | `obra/superpowers` | TDD como metodología obligatoria (como Prowler) |
 | `systematic-debugging` | `obra/superpowers` | Debugging metódico |
 | `verification-before-completion` | `obra/superpowers` | Verificación pre-commit |
@@ -402,7 +405,11 @@ COMMANDS:
 | `nestjs-best-practices` | `kadajett/agent-nestjs-skills` | Framework principal del backend |
 | `cqrs-implementation` | `wshobson/agents` | CQRS con @nestjs/cqrs (ADR-009) |
 | `event-store-design` | `wshobson/agents` | Domain Events (ADR-008) |
-| `prisma-expert` | `sickn33/antigravity-awesome-skills` | ORM + multi-tenant (ADR-002, ADR-005) |
+| `prisma-expert` | `sickn33/antigravity-awesome-skills` | ORM + multi-tenant, patrones generales (ADR-002, ADR-005) |
+| `prisma-client-api` | `prisma/skills` | API Prisma Client 7.x: CRUD, filtros, transacciones, raw SQL (oficial) |
+| `prisma-upgrade-v7` | `prisma/skills` | Guía migración v6→v7: ESM-only, `prisma.config.ts`, driver adapters (oficial) |
+| `prisma-database-setup` | `prisma/skills` | Configuración Prisma + PostgreSQL (oficial) |
+| `prisma-cli` | `prisma/skills` | Referencia comandos CLI Prisma 7.x (oficial) |
 | `postgresql-table-design` | `wshobson/agents` | Diseño tablas multi-tenant (RNF-004) |
 | `sql-optimization-patterns` | `wshobson/agents` | Optimización queries (RNF-015, RNF-018) |
 | `api-design-principles` | `wshobson/agents` | REST API (ADR-010) |
@@ -424,13 +431,19 @@ COMMANDS:
 
 | Skill | Repo | Justificación |
 |-------|------|---------------|
-| `vercel-react-best-practices` | `vercel-labs/agent-skills` | React best practices |
-| `vite` | `antfu/skills` | Build tool |
-| `tanstack-query` | `jezweb/claude-skills` | Data fetching + caché |
+| `vercel-react-best-practices` | `vercel-labs/agent-skills` | React 19 best practices |
+| `vite` | `antfu/skills` | Build tool Vite 7 |
+| `tanstack-query` | `jezweb/claude-skills` | Data fetching + caché + offline mode |
+| `mantine-dev` *(nuevo)* | `itechmeat/llm-code` | UI Kit Mantine 8.x — antes gap sin cobertura |
+| `zod-4` *(nuevo)* | `gentleman-programming/gentleman-skills` | Validación schemas Zod 4.x |
+| `react-hook-form-zod` *(nuevo)* | `jezweb/claude-skills` | Formularios RHF 7 + Zod 4, type-safe |
+| `sentry-react-setup` *(nuevo)* | `getsentry/sentry-agent-skills` | Sentry 10 React: error boundaries, replay, tracing |
 | `accessibility-compliance` | `wshobson/agents` | WCAG AA (RNF-046) |
+| `accessibility` | `jezweb/claude-skills` | WCAG, aria, contraste — complementa anterior |
 | `wcag-audit-patterns` | `wshobson/agents` | Auditorías a11y |
 | `responsive-design` | `wshobson/agents` | Diseño responsive + PWA (RNF-056) |
-| `design-system-patterns` | `wshobson/agents` | Sistema de diseño Mantine |
+| `pwa-development` *(nuevo)* | `alinaqi/claude-bootstrap` | vite-plugin-pwa, Service Worker, Workbox strategies, manifest, Lighthouse audit — **cubre RNF-056 completamente** |
+| `design-system-patterns` | `wshobson/agents` | Sistema de diseño Mantine 8 |
 | `react-state-management` | `wshobson/agents` | Gestión de estado |
 | `openapi-to-typescript` | `softaworks/agent-toolkit` | Tipos TS desde API spec |
 | `vitest` | `antfu/skills` | Testing unitario frontend |
@@ -517,14 +530,11 @@ Para cubrir los gaps identificados en el reporte de skills recomendados, se prop
 
 | Skill propuesto | Scope | Prioridad | Justificación |
 |-----------------|-------|-----------|---------------|
-| `associated-mantine` | web | Alta | No existe skill de Mantine. Convenciones de uso, theme, componentes custom |
-| `associated-sepa` | api | Alta | No existe skill SEPA. Normativa española, XML ISO 20022, mandatos |
-| `associated-multi-tenant` | api | Alta | Patrón core sin skill. BD separada, Prisma dinámico, aislamiento |
-| `associated-ddd` | api | Alta | DDD con TypeScript: Aggregates, VOs, invariantes, Domain Events |
-| `associated-zod-forms` | web | Media | Zod + react-hook-form + Mantine: validación y formularios |
-| `associated-sentry` | root | Media | Observabilidad con Sentry: NestJS + React, tracing, user context |
-| `associated-i18n` | web | Media | react-i18next: estructura traducciones, namespaces por BC |
-| `associated-pwa` | web | Baja | PWA con Workbox: Service Worker, offline, cache strategies |
+| `associated-sepa` | api | Alta | No existe skill SEPA. Normativa española, XML ISO 20022, mandatos CORE/B2B |
+| `associated-multi-tenant` | api | Alta | Patrón core sin skill completo. BD separada por tenant, PrismaTenantService dinámico, aislamiento (ADR-002) |
+| `associated-ddd` | api | Alta | DDD con TypeScript: Aggregates, VOs, invariantes de dominio, Domain Events específicos del proyecto |
+| `associated-i18n` | web | Media | react-i18next 16.x: estructura de namespaces por BC, formato fechas/números ES, detección de idioma |
+| `associated-sentry-nestjs` | api | Media | Observabilidad Sentry 10 lado NestJS (el lado React ya lo cubre `sentry-react-setup`): @sentry/nestjs, tracing multi-tenant, contexto de tenant en errores |
 
 ---
 
@@ -566,11 +576,11 @@ CLAUDE.md (root)
 ├── web/CLAUDE.md
 │   │
 │   │  Skills: vercel-react-best-practices, vite, tanstack-query,
-│   │  accessibility-compliance, wcag-audit-patterns, responsive-design,
-│   │  design-system-patterns, react-state-management, openapi-to-typescript,
-│   │  vitest, email-best-practices
-│   │  + associated-mantine, associated-zod-forms, associated-i18n,
-│   │    associated-pwa (propios)
+│   │  mantine-dev, zod-4, react-hook-form-zod, sentry-react-setup,
+│   │  accessibility-compliance, accessibility, wcag-audit-patterns,
+│   │  responsive-design, pwa-development, design-system-patterns,
+│   │  react-state-management, openapi-to-typescript, vitest, email-best-practices
+│   │  + associated-i18n (propios)
 │   │
 │   ├── src/features/{feature}/
 │   ├── src/shared/components/
@@ -594,8 +604,8 @@ CLAUDE.md (root)
 | Criterio de scope | Artefacto desplegable | Directorio físico con stack diferenciado |
 | Infra scope | Distribuido en root | **Absorbido en root** (sin directorio propio) |
 | Frontend scope | `ui/` | **`web/`** (alineado con scaffold) |
-| Total skills genéricos | 12 | ~40 (de skills.sh) |
-| Total skills específicos | 18 | 2 existentes + 8 propuestos |
+| Total skills genéricos | 12 | ~44 (de skills.sh, +4 nuevos) |
+| Total skills específicos | 18 | 3 existentes + 6 propuestos |
 | Auto-invoke entries (root) | ~15 | ~19 |
 | Documentación spec | Mínima | 627 archivos fragmentados (diferencial) |
 | Multi-agente | Sí (setup.sh) | Solo Claude (por ahora) |

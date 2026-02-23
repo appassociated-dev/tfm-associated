@@ -1,7 +1,7 @@
 # Stack Tecnológico
 
 **Proyecto:** Associated - ERP Ligero para Colectividades Españolas  
-**Versión:** 1.0  
+**Versión:** 1.1  
 **Fecha:** Febrero 2026  
 **Inputs:** KB-004 (RNF Base), KB-006 (ADRs)  
 **Estado:** Borrador
@@ -29,12 +29,12 @@
 
 | Capa | Tecnología | Versión |
 |------|------------|---------|
-| **Backend** | TypeScript + NestJS | TS 5.x, Nest 10.x |
-| **Frontend** | React + TypeScript | React 18.x |
-| **Base de Datos** | PostgreSQL | 16.x |
-| **ORM** | Prisma | 5.x |
+| **Backend** | TypeScript + NestJS | TS 5.9.x, Nest 11.x |
+| **Frontend** | React + TypeScript | React 19.x |
+| **Base de Datos** | PostgreSQL | 18.x |
+| **ORM** | Prisma | 7.x |
 | **Object Storage** | MinIO (dev) / S3 (prod) | - |
-| **Contenedores** | Docker + Docker Compose | 24.x |
+| **Contenedores** | Docker + Docker Compose | 29.x |
 | **CI/CD** | GitHub Actions | - |
 | **Testing** | Vitest + Playwright | - |
 | **Observabilidad** | Sentry | - |
@@ -51,7 +51,7 @@
 
 ## 2. Backend
 
-### 2.1 Lenguaje: TypeScript 5.x
+### 2.1 Lenguaje: TypeScript 5.9.x
 
 **Seleccionado:** TypeScript
 
@@ -84,7 +84,7 @@
 }
 ```
 
-### 2.2 Framework: NestJS 10.x
+### 2.2 Framework: NestJS 11.x
 
 **Seleccionado:** NestJS
 
@@ -130,24 +130,23 @@ src/
 
 | Librería | Propósito | Versión | ADR/RNF |
 |----------|-----------|---------|---------|
-| `@nestjs/passport` | Autenticación | 10.x | ADR-006 |
-| `@nestjs/jwt` | Tokens JWT | 10.x | ADR-006 |
+| `@nestjs/passport` | Autenticación | 11.x | ADR-006 |
+| `@nestjs/jwt` | Tokens JWT | 11.x | ADR-006 |
 | `passport-jwt` | Estrategia JWT | 4.x | ADR-006 |
-| `@nestjs/swagger` | OpenAPI docs | 7.x | ADR-010 |
+| `@nestjs/swagger` | OpenAPI docs | 11.x | ADR-010 |
 | `class-validator` | Validación DTOs | 0.14.x | RNF-008 |
 | `class-transformer` | Serialización | 0.5.x | - |
-| `@nestjs/cqrs` | CQRS pattern | 10.x | ADR-009 |
-| `@nestjs/schedule` | Jobs programados | 4.x | ADR-008 |
-| `bcrypt` | Hash passwords | 5.x | RNF-006 |
-| `uuid` | Generación UUIDs | 9.x | - |
-| `date-fns` | Manipulación fechas | 3.x | - |
-| `sepa-xml` | Generación SEPA | 0.4.x | N4RF17-23 |
+| `@nestjs/cqrs` | CQRS pattern | 11.x | ADR-009 |
+| `@nestjs/schedule` | Jobs programados | 6.x | ADR-008 |
+| `argon2` | Hash passwords | 0.44.x | RNF-006 |
+| `date-fns` | Manipulación fechas | 4.x | - |
+| `sepa-xml` | Generación SEPA | 0.4.x *(pendiente de evaluación — posible abandono)* | N4RF17-23 |
 
 ---
 
 ## 3. Frontend
 
-### 3.1 Framework: React 18.x + TypeScript
+### 3.1 Framework: React 19.x + TypeScript
 
 **Seleccionado:** React
 
@@ -184,7 +183,7 @@ src/
 **Justificación:**
 - El backend es NestJS separado → no necesitamos SSR framework ni API routes integradas
 - Vite ofrece HMR instantáneo y builds optimizados con ESBuild
-- React Router v6 para routing client-side
+- React Router v7 (paquete unificado `react-router`) para routing client-side
 - Menor complejidad = menor mantenimiento
 - Evitamos duplicidad de responsabilidades entre Next.js API routes y NestJS
 
@@ -193,16 +192,16 @@ src/
 | Librería | Propósito | Versión | ADR/RNF |
 |----------|-----------|---------|---------|
 | `@tanstack/react-query` | Estado servidor | 5.x | RNF-015-016 |
-| `react-router-dom` | Routing | 6.x | - |
-| `@mantine/core` | Componentes UI | 7.x | RNF-045-047 |
-| `@mantine/hooks` | Hooks utilidad | 7.x | - |
-| `@mantine/form` | Formularios | 7.x | - |
+| `react-router` | Routing | 7.x | - |
+| `@mantine/core` | Componentes UI | 8.x | RNF-045-047 |
+| `@mantine/hooks` | Hooks utilidad | 8.x | - |
+| `@mantine/form` | Formularios | 8.x | - |
 | `react-hook-form` | Forms avanzados | 7.x | - |
-| `zod` | Validación schemas | 3.x | RNF-008 |
+| `zod` | Validación schemas | 4.x | RNF-008 |
 | `axios` | HTTP client | 1.x | - |
-| `date-fns` | Fechas | 3.x | - |
-| `react-i18next` | i18n | 14.x | RNF-047 |
-| `workbox` | PWA/Service Worker | 7.x | RNF-056 |
+| `date-fns` | Fechas | 4.x | - |
+| `react-i18next` | i18n | 16.x | RNF-047 |
+| `vite-plugin-pwa` | PWA/Service Worker | 1.x | RNF-056 |
 
 ### 3.4 UI Kit: Mantine
 
@@ -228,7 +227,7 @@ src/
 
 ## 4. Base de Datos
 
-### 4.1 RDBMS: PostgreSQL 16.x
+### 4.1 RDBMS: PostgreSQL 18.x
 
 **Decisión heredada de ADR-005**
 
@@ -246,7 +245,7 @@ PostgreSQL Instance
 - `pg_trgm`: Búsqueda fuzzy (RNF-019)
 - `pgcrypto`: Funciones criptográficas
 
-### 4.2 ORM: Prisma 5.x
+### 4.2 ORM: Prisma 7.x
 
 **Seleccionado:** Prisma
 
@@ -307,10 +306,9 @@ Para el MVP, no se incluye Redis u otra caché dedicada. Se usará:
 
 **docker-compose.yml (desarrollo):**
 ```yaml
-version: '3.8'
 services:
   api:
-    build: ./backend
+    build: ./api
     ports:
       - "3000:3000"
     environment:
@@ -318,19 +316,19 @@ services:
     depends_on:
       - postgres
       - minio
-  
+
   web:
-    build: ./frontend
+    build: ./web
     ports:
       - "5173:5173"
-  
+
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=dev_password
-  
+
   minio:
     image: minio/minio
     command: server /data --console-address ":9001"
@@ -455,7 +453,7 @@ import { PostgreSqlContainer } from '@testcontainers/postgresql';
 let container: StartedPostgreSqlContainer;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer('postgres:16-alpine')
+  container = await new PostgreSqlContainer('postgres:18-alpine')
     .withDatabase('test_db')
     .start();
   
@@ -495,7 +493,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_PASSWORD: test
         options: >-
@@ -505,27 +503,27 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-        working-directory: ./backend
-      
+        working-directory: ./api
+
       - name: Lint
         run: npm run lint
-        working-directory: ./backend
-      
+        working-directory: ./api
+
       - name: Unit Tests
         run: npm run test:unit -- --coverage
-        working-directory: ./backend
-      
+        working-directory: ./api
+
       - name: Integration Tests
         run: npm run test:integration
-        working-directory: ./backend
+        working-directory: ./api
         env:
           DATABASE_URL: postgresql://postgres:test@localhost:5432/test
-      
+
       - name: Check Coverage
         uses: codecov/codecov-action@v4
         with:
@@ -538,28 +536,28 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-        working-directory: ./frontend
-      
+        working-directory: ./web
+
       - name: Lint
         run: npm run lint
-        working-directory: ./frontend
-      
+        working-directory: ./web
+
       - name: Type Check
         run: npm run typecheck
-        working-directory: ./frontend
-      
+        working-directory: ./web
+
       - name: Unit Tests
         run: npm run test -- --coverage
-        working-directory: ./frontend
-      
+        working-directory: ./web
+
       - name: Build
         run: npm run build
-        working-directory: ./frontend
+        working-directory: ./web
 
   e2e:
     needs: [backend, frontend]
@@ -756,24 +754,24 @@ Sentry.init({
 
 ```
 # Runtime
-node: 20.x LTS
-typescript: 5.4.x
-nestjs: 10.x
-react: 18.x
-postgresql: 16.x
-prisma: 5.x
+node: 22.x LTS
+typescript: 5.9.x
+nestjs: 11.x
+react: 19.x
+postgresql: 18.x
+prisma: 7.x
 
 # Testing
-vitest: 2.x
-playwright: 1.42.x
-testcontainers: 10.x
+vitest: 4.x
+playwright: 1.58.x
+testcontainers: 11.x
 
 # Observabilidad
-sentry: 8.x
+sentry: 10.x
 
 # Build
-vite: 5.x
-docker: 24.x
+vite: 7.x
+docker: 29.x
 
 # CI
 github-actions: latest
@@ -806,6 +804,16 @@ codecov: v4
 
 ## Changelog
 
+- v1.1 (Feb 2026): Actualización de versiones del stack
+  - Actualización masiva de versiones: Node.js 22, NestJS 11, React 19, PostgreSQL 18, Prisma 7, Vite 7, Docker 29, Vitest 4, Playwright 1.58, Sentry 10
+  - Reemplazo de `bcrypt` por `argon2` 0.44.x para hash de contraseñas
+  - Eliminación de dependencia `uuid` (uso de `crypto.randomUUID()` nativo de Node.js 22)
+  - Cambio de `react-router-dom` 6.x a `react-router` 7.x (paquete unificado)
+  - Cambio de `workbox` a `vite-plugin-pwa` 1.x
+  - Actualización de Mantine 7.x a 8.x, Zod 3.x a 4.x, date-fns 3.x a 4.x, react-i18next 14.x a 16.x
+  - Corrección de rutas en CI YAML: `./backend` → `./api`, `./frontend` → `./web`
+  - Eliminación de `version: '3.8'` en docker-compose (obsoleto en Docker Compose v2)
+  - Marcado de `sepa-xml` como pendiente de evaluación
 - v1.0 (Feb 2026): Versión inicial
   - Stack definido alineado con ADRs
   - TypeScript full-stack (NestJS + React)

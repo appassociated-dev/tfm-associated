@@ -1,6 +1,6 @@
 ## 3. Frontend
 
-### 3.1 Framework: React 18.x + TypeScript
+### 3.1 Framework: React 19.x + TypeScript
 
 **Seleccionado:** React
 
@@ -37,7 +37,7 @@
 **Justificación:**
 - El backend es NestJS separado → no necesitamos SSR framework ni API routes integradas
 - Vite ofrece HMR instantáneo y builds optimizados con ESBuild
-- React Router v6 para routing client-side
+- React Router v7 (paquete unificado `react-router`) para routing client-side
 - Menor complejidad = menor mantenimiento
 - Evitamos duplicidad de responsabilidades entre Next.js API routes y NestJS
 
@@ -46,16 +46,16 @@
 | Librería | Propósito | Versión | ADR/RNF |
 |----------|-----------|---------|---------|
 | `@tanstack/react-query` | Estado servidor | 5.x | RNF-015-016 |
-| `react-router-dom` | Routing | 6.x | - |
-| `@mantine/core` | Componentes UI | 7.x | RNF-045-047 |
-| `@mantine/hooks` | Hooks utilidad | 7.x | - |
-| `@mantine/form` | Formularios | 7.x | - |
+| `react-router` | Routing | 7.x | - |
+| `@mantine/core` | Componentes UI | 8.x | RNF-045-047 |
+| `@mantine/hooks` | Hooks utilidad | 8.x | - |
+| `@mantine/form` | Formularios | 8.x | - |
 | `react-hook-form` | Forms avanzados | 7.x | - |
-| `zod` | Validación schemas | 3.x | RNF-008 |
+| `zod` | Validación schemas | 4.x | RNF-008 |
 | `axios` | HTTP client | 1.x | - |
-| `date-fns` | Fechas | 3.x | - |
-| `react-i18next` | i18n | 14.x | RNF-047 |
-| `workbox` | PWA/Service Worker | 7.x | RNF-056 |
+| `date-fns` | Fechas | 4.x | - |
+| `react-i18next` | i18n | 16.x | RNF-047 |
+| `vite-plugin-pwa` | PWA/Service Worker | 1.x | RNF-056 |
 
 ### 3.4 UI Kit: Mantine
 

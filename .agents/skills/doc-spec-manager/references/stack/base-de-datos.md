@@ -1,6 +1,6 @@
 ## 4. Base de Datos
 
-### 4.1 RDBMS: PostgreSQL 16.x
+### 4.1 RDBMS: PostgreSQL 18.x
 
 **Decisión heredada de ADR-005**
 
@@ -18,7 +18,7 @@ PostgreSQL Instance
 - `pg_trgm`: Búsqueda fuzzy (RNF-019)
 - `pgcrypto`: Funciones criptográficas
 
-### 4.2 ORM: Prisma 5.x
+### 4.2 ORM: Prisma 7.x
 
 **Seleccionado:** Prisma
 

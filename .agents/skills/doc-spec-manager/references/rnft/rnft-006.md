@@ -1,6 +1,6 @@
 > **Categoría:** 2. Seguridad
 
-### 2.6 RNFT-006: Cifrado con bcrypt y Prisma
+### 2.6 RNFT-006: Cifrado con Argon2 y Prisma
 
 **RNF Base:** RNF-006 (Cifrado de Datos Sensibles en Reposo)
 
@@ -8,16 +8,14 @@
 
 ```typescript
 // auth.service.ts
-import * as bcrypt from 'bcrypt';
-
-const SALT_ROUNDS = 12;
+import * as argon2 from 'argon2';
 
 async hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, SALT_ROUNDS);
+  return argon2.hash(password);
 }
 
 async validatePassword(password: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(password, hash);
+  return argon2.verify(hash, password);
 }
 ```
 
@@ -54,6 +52,6 @@ encrypt(text: string): { encrypted: string; iv: string; tag: string } {
 
 | Campo | Método | Propósito |
 |-------|--------|-----------|
-| Contraseña | bcrypt (12 rounds) | Hash irreversible |
+| Contraseña | Argon2 (default params) | Hash irreversible |
 | IBAN | AES-256-GCM | Cifrado reversible |
 | DNI | AES-256-GCM | Cifrado reversible |

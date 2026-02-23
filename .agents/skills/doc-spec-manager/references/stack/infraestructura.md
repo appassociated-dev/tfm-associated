@@ -12,10 +12,9 @@
 
 **docker-compose.yml (desarrollo):**
 ```yaml
-version: '3.8'
 services:
   api:
-    build: ./backend
+    build: ./api
     ports:
       - "3000:3000"
     environment:
@@ -23,19 +22,19 @@ services:
     depends_on:
       - postgres
       - minio
-  
+
   web:
-    build: ./frontend
+    build: ./web
     ports:
       - "5173:5173"
-  
+
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=dev_password
-  
+
   minio:
     image: minio/minio
     command: server /data --console-address ":9001"

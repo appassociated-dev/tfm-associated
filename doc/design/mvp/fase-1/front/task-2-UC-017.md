@@ -76,7 +76,7 @@ Antes de iniciar esta tarea, verificar que:
 | `us/us-044.md` | Criterios de aceptación: vinculación de planes a tipos de socio, plan default, orden |
 | `bc/bc-treasury.md` | Aggregate FeePlan (code, name, type, amount, billingMonths, active), Entity MemberTypeFeePlan, Value Objects (Frequency, PlanType, BillingMonths) |
 | `adr/adr-010.md` | Formato de respuesta API, paginación, headers |
-| `stack/frontend.md` | React 18, Mantine 7, React Router 6, TanStack Query 5, Axios, Zod |
+| `stack/frontend.md` | React 19, Mantine 8, React Router 7, TanStack Query 5, Axios, Zod 4 |
 
 ## Puntos críticos
 

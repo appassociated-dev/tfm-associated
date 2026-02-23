@@ -37,7 +37,7 @@ Ninguna. Esta es la primera tarea del proyecto.
 
 ### Prerrequisitos de entorno
 
-- Node.js 20.x LTS
+- Node.js 22.x LTS
 - Docker y Docker Compose
 - Git
 - npm (incluido con Node.js)
@@ -248,14 +248,14 @@ api/src/
 Crear en `api/src/shared/infrastructure/observability/`:
 
 - **`ConsoleErrorReporter`**: Implementa `ErrorReporter`. Usa `console.error`/`console.warn` con formato estructurado (JSON). Implementación por defecto para desarrollo local y tests
-- **`SentryErrorReporter`**: Implementa `ErrorReporter`. Usa `@sentry/node` para captura de excepciones y contexto. Configura DSN desde variable de entorno `SENTRY_DSN`. Solo se activa si `SENTRY_DSN` está definida
+- **`SentryErrorReporter`**: Implementa `ErrorReporter`. Usa `@sentry/nestjs` para captura de excepciones y contexto. Configura DSN desde variable de entorno `SENTRY_DSN`. Solo se activa si `SENTRY_DSN` está definida
 - **`ConsoleEventTracker`**: Implementa `EventTracker`. Logging por consola. Desarrollo y tests
 - **`SentryEventTracker`**: Implementa `EventTracker`. Usa Sentry para tracking de eventos de negocio relevantes
 - **`ObservabilityModule`**: Módulo NestJS que registra los adaptadores según configuración:
   - Si `SENTRY_DSN` está definida → registra `SentryErrorReporter` y `SentryEventTracker`
   - Si no → registra `ConsoleErrorReporter` y `ConsoleEventTracker`
   - Usa tokens de inyección: `ERROR_REPORTER` y `EVENT_TRACKER`
-- Instalar `@sentry/node` como dependencia del backend
+- Instalar `@sentry/nestjs` como dependencia del backend
 - Actualizar `DomainExceptionFilter` para inyectar `ErrorReporter` en lugar de log directo
 
 Crear en `web/src/shared/observability/`:
@@ -299,7 +299,7 @@ Añadir a `.env.example` (ambos workspaces):
 - Instalar dependencias:
   - `@mantine/core`, `@mantine/hooks`, `@mantine/form`, `@mantine/notifications`
   - `@tanstack/react-query`
-  - `react-router-dom`
+  - `react-router`
   - `axios`
   - `zod` (validación de schemas en runtime — RNF-008)
   - `@sentry/react` (adaptador de observabilidad)
@@ -350,7 +350,7 @@ web/src/
 
 Crear `docker-compose.yml` en la raíz:
 
-- **postgres**: PostgreSQL 16 Alpine con extensiones `uuid-ossp`, `pg_trgm`, `pgcrypto`. Volume `postgres_data`. Puerto 5432. Script de init para crear BD `associated_main`
+- **postgres**: PostgreSQL 18 Alpine con extensiones `uuid-ossp`, `pg_trgm`, `pgcrypto`. Volume `postgres_data`. Puerto 5432. Script de init para crear BD `associated_main`
 - **minio**: MinIO para S3-compatible storage. Puertos 9000 (API) + 9001 (consola). Volume `minio_data`
 - **mailpit**: Mock SMTP para desarrollo. Puertos 1025 (SMTP) + 8025 (web UI)
 - Crear archivos `.env.example` en `api/` y `web/` con todas las variables necesarias
@@ -378,8 +378,8 @@ Crear `docker-compose.yml` en la raíz:
 
 Crear `.github/workflows/ci.yml`:
 
-- **Job backend**: checkout, setup-node 20, npm ci, lint, test:unit --coverage, test:integration (con servicio PostgreSQL), check coverage
-- **Job frontend**: checkout, setup-node 20, npm ci, lint, typecheck, test --coverage, build
+- **Job backend**: checkout, setup-node 22, npm ci, lint, test:unit --coverage, test:integration (con servicio PostgreSQL), check coverage
+- **Job frontend**: checkout, setup-node 22, npm ci, lint, typecheck, test --coverage, build
 - **Job e2e**: depende de backend + frontend, Playwright
 - Quality gates según ADR-012
 

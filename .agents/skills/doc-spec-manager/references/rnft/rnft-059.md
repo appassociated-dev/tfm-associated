@@ -13,7 +13,7 @@ import { PostgreSqlContainer } from '@testcontainers/postgresql';
 let container: StartedPostgreSqlContainer;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer('postgres:16-alpine')
+  container = await new PostgreSqlContainer('postgres:18-alpine')
     .withDatabase('test_db')
     .start();
   

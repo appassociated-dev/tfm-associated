@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_PASSWORD: test
         options: >-
@@ -34,27 +34,27 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-        working-directory: ./backend
-      
+        working-directory: ./api
+
       - name: Lint
         run: npm run lint
-        working-directory: ./backend
-      
+        working-directory: ./api
+
       - name: Unit Tests
         run: npm run test:unit -- --coverage
-        working-directory: ./backend
-      
+        working-directory: ./api
+
       - name: Integration Tests
         run: npm run test:integration
-        working-directory: ./backend
+        working-directory: ./api
         env:
           DATABASE_URL: postgresql://postgres:test@localhost:5432/test
-      
+
       - name: Check Coverage
         uses: codecov/codecov-action@v4
         with:
@@ -67,28 +67,28 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-        working-directory: ./frontend
-      
+        working-directory: ./web
+
       - name: Lint
         run: npm run lint
-        working-directory: ./frontend
-      
+        working-directory: ./web
+
       - name: Type Check
         run: npm run typecheck
-        working-directory: ./frontend
-      
+        working-directory: ./web
+
       - name: Unit Tests
         run: npm run test -- --coverage
-        working-directory: ./frontend
-      
+        working-directory: ./web
+
       - name: Build
         run: npm run build
-        working-directory: ./frontend
+        working-directory: ./web
 
   e2e:
     needs: [backend, frontend]

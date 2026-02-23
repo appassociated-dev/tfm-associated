@@ -79,7 +79,7 @@ Antes de iniciar esta tarea, verificar que:
 | `us/us-002.md` | Criterios de aceptación (login multi-tenant, switch, roles independientes) |
 | `adr/adr-006.md` | Claims JWT, flujo Access + Refresh token |
 | `adr/adr-010.md` | Formato de respuesta API, headers `Authorization` y `X-Tenant-Id` |
-| `stack/frontend.md` | React 18, Mantine 7, React Router 6, React Query 5, Axios |
+| `stack/frontend.md` | React 19, Mantine 8, React Router 7, React Query 5, Axios |
 | `rnf/rnf-001.md` | Política de complejidad de password (validación client-side informativa) |
 
 ## Puntos críticos
