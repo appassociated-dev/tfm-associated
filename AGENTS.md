@@ -147,8 +147,17 @@ Use these skills for detailed patterns on-demand:
 ### Generic Skills (Any Project)
 | Skill | Description | URL |
 |-------|-------------|-----|
-| `doc-spec-generator` | Create, update, and guided-author specification documents in spec/, and generate/update the fragmented files for doc-spec-manager from the source documents in spec/. | [SKILL.md](skills/doc-spec-generator/SKILL.md) |
-| `doc-spec-manager` | Navigation, consultation, and alignment verification with the Associated project specification | [SKILL.md](skills/doc-spec-manager/SKILL.md) |
+| `doc-spec-generator` | Create, update, and guided-author specification documents in spec/, and generate/update the fragmented files for doc-spec-manager from the source documents in spec/. | [SKILL.md](.agents/skills/doc-spec-generator/SKILL.md) |
+| `doc-spec-manager` | Navigation, consultation, and alignment verification with the Associated project specification. | [SKILL.md](.agents/skills/doc-spec-manager/SKILL.md) |
+| `skill-creator` | Guide for creating effective skills that extend agent capabilities with specialized knowledge, workflows, or tool integrations. | [SKILL.md](.agents/skills/skill-creator/SKILL.md) |
+| `architecture-patterns` | Implement proven backend architecture patterns including Clean Architecture, Hexagonal Architecture, and Domain-Driven Design. | [SKILL.md](.agents/skills/architecture-patterns/SKILL.md) |
+| `gdpr-data-handling` | Implement GDPR-compliant data handling with consent management, data subject rights, and privacy by design. | [SKILL.md](.agents/skills/gdpr-data-handling/SKILL.md) |
+| `security-requirement-extraction` | Derive security requirements from threat models and business context; translate threats into actionable requirements and security test cases. | [SKILL.md](.agents/skills/security-requirement-extraction/SKILL.md) |
+| `typescript-advanced-types` | Master TypeScript's advanced type system: generics, conditional types, mapped types, template literals, and utility types for type-safe applications. | [SKILL.md](.agents/skills/typescript-advanced-types/SKILL.md) |
+| `error-handling-patterns` | Master error handling patterns including exceptions, Result types, error propagation, and graceful degradation to build resilient applications. | [SKILL.md](.agents/skills/error-handling-patterns/SKILL.md) |
+| `eslint-prettier-config` | Configure ESLint and Prettier for consistent code quality with TypeScript, React, and modern best practices. | [SKILL.md](.agents/skills/eslint-prettier-config/SKILL.md) |
+| `test-driven-development` | Apply TDD methodology — write the test first, watch it fail, then write minimal code to pass — before writing any implementation code. | [SKILL.md](.agents/skills/test-driven-development/SKILL.md) |
+| `verification-before-completion` | Require running verification commands and confirming output before claiming work is complete, fixed, or ready to commit/PR. | [SKILL.md](.agents/skills/verification-before-completion/SKILL.md) |
 
 ### Auto-invoke Skills
 
@@ -162,4 +171,15 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Creating or extending spec/ documents | `doc-spec-generator` | "Add a new US for batch imports", "Create RNF for caching", "Add UC-077" |
 | Modifying files in spec/ | `doc-spec-generator` | "Update the BC-Treasury model", "Add N4RF39", "Fix the ADR-002 description" |
 | Regenerating references/ after spec changes | `doc-spec-generator` | "Regenerate references", "Update fragmented docs" |
+| Implementing any feature or bugfix (before writing code) | `test-driven-development` | "Implement UC-005", "Add FeePlan aggregate", "Fix member registration bug" |
+| Claiming work is complete or creating a PR | `verification-before-completion` | "Mark UC-001 done", "Ready to commit", "Create PR for feature" |
+| Designing or reviewing module / BC architecture | `architecture-patterns` | "Design BC-Treasury structure", "Review identity module layout" |
+| Proposing or documenting a new ADR | `architecture-patterns` | "Propose ADR-013", "Document architecture decision for event bus" |
+| Handling or encrypting personal data (IBAN, DNI, email) | `gdpr-data-handling` | "Encrypt IBAN field", "Implement right to erasure", "Store DNI securely" |
+| Building consent or privacy-related flows | `gdpr-data-handling` | "Add communication consent", "Delete member data (RGPD)" |
+| Implementing a security control or RNF | `security-requirement-extraction` | "Add rate limiting (RNF-011)", "Implement IP allowlist" |
+| Designing shared TypeScript types or Value Object typings | `typescript-advanced-types` | "Create Result<T,E> type", "Type Command/Query generics", "VO type utilities" |
+| Designing error hierarchy or global exception filters | `error-handling-patterns` | "Domain error classes", "NestJS exception filter", "Error boundary in React" |
+| Setting up or modifying linting / formatting rules | `eslint-prettier-config` | "Configure ESLint for api/", "Add import-order rule", "Set up commitlint" |
+| Creating a new project-specific skill | `skill-creator` | "Create associated-sepa skill", "New associated-ddd skill" |
 
