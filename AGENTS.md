@@ -149,6 +149,9 @@ Use these skills for detailed patterns on-demand:
 |-------|-------------|-----|
 | `doc-spec-generator` | Create, update, and guided-author specification documents in spec/, and generate/update the fragmented files for doc-spec-manager from the source documents in spec/. | [SKILL.md](.agents/skills/doc-spec-generator/SKILL.md) |
 | `doc-spec-manager` | Navigation, consultation, and alignment verification with the Associated project specification. | [SKILL.md](.agents/skills/doc-spec-manager/SKILL.md) |
+| `session-manager` | Manages work sessions with AI agents. Automatically documents significant work. | [SKILL.md](.agents/skills/session-manager/SKILL.md) |
+| `changelog-updater` | Maintains the [Unreleased] section of CHANGELOG.md by grouping changes by work session. | [SKILL.md](.agents/skills/changelog-updater/SKILL.md) |
+| `release-generator` | Closes a project version by generating all release documentation. | [SKILL.md](.agents/skills/release-generator/SKILL.md) |
 | `skill-creator` | Guide for creating effective skills that extend agent capabilities with specialized knowledge, workflows, or tool integrations. | [SKILL.md](.agents/skills/skill-creator/SKILL.md) |
 | `architecture-patterns` | Implement proven backend architecture patterns including Clean Architecture, Hexagonal Architecture, and Domain-Driven Design. | [SKILL.md](.agents/skills/architecture-patterns/SKILL.md) |
 | `gdpr-data-handling` | Implement GDPR-compliant data handling with consent management, data subject rights, and privacy by design. | [SKILL.md](.agents/skills/gdpr-data-handling/SKILL.md) |
@@ -163,6 +166,8 @@ Use these skills for detailed patterns on-demand:
 
 When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 
+> **IMPORTANT:** Conversations where technologies, frameworks, libraries, databases, patterns, or architectures are compared, recommended, or evaluated ARE technical decisions and MUST invoke `session-manager` BEFORE responding, even if they appear to be just informational questions. If the user asks "what do you recommend for X?", that is a technical debate.
+
 | Action | Skill | Examples |
 |--------|-------|----------|
 | Implementing a feature, UC, or US | `doc-spec-manager` | "Implement UC-001", "Build the tenant provisioning", "Add SEPA payment flow" |
@@ -171,6 +176,15 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Creating or extending spec/ documents | `doc-spec-generator` | "Add a new US for batch imports", "Create RNF for caching", "Add UC-077" |
 | Modifying files in spec/ | `doc-spec-generator` | "Update the BC-Treasury model", "Add N4RF39", "Fix the ADR-002 description" |
 | Regenerating references/ after spec changes | `doc-spec-generator` | "Regenerate references", "Update fragmented docs" |
+| Business Logic Implementations, API or Contract Changes | `session-manager` | Login function, new endpoint, response structure change |
+| Closing a work session | `changelog-updater` | End of session, final changelog block update |
+| Completing significant work documented in session file | `changelog-updater` | After session-manager documents work, register summary in CHANGELOG.md |
+| Creating a new work session (coordinated with session-manager) | `changelog-updater` | Start of any session where session-manager is also invoked |
+| Critical Architectural or Technical Decisions, Technical Debates (Even if Not Yet Implemented) | `session-manager` | "Which framework should I use?", "REST or GraphQL?", comparing options |
+| Database Structure Changes | `session-manager` | New table, migration, column change |
+| Infrastructure Configurations | `session-manager` | Docker, CI/CD, nginx, environment variables |
+| Integration of External Libraries or Services | `session-manager` | Adding Stripe, Chart.js, external SDK |
+| Significant Refactorings, Critical Issues Resolved | `session-manager` | TypeScript migration, memory leak fix |
 | Implementing any feature or bugfix (before writing code) | `test-driven-development` | "Implement UC-005", "Add FeePlan aggregate", "Fix member registration bug" |
 | Claiming work is complete or creating a PR | `verification-before-completion` | "Mark UC-001 done", "Ready to commit", "Create PR for feature" |
 | Designing or reviewing module / BC architecture | `architecture-patterns` | "Design BC-Treasury structure", "Review identity module layout" |
