@@ -145,8 +145,19 @@ Use these skills for detailed patterns on-demand:
 ### Generic Skills (Any Project)
 | Skill | Description | URL |
 |-------|-------------|-----|
-| `doc-spec-generator` | Create, update, and guided-author specification documents in spec/, and generate/update the fragmented files for doc-spec-manager from the source documents in spec/. | [SKILL.md](skills/doc-spec-generator/SKILL.md) |
-| `doc-spec-manager` | Navigation, consultation, and alignment verification with the Associated project specification | [SKILL.md](skills/doc-spec-manager/SKILL.md) |
+| `doc-spec-generator` | Create, update, and guided-author specification documents in spec/, and generate/update the fragmented files for doc-spec-manager from the source documents in spec/. | [SKILL.md](.agents/skills/doc-spec-generator/SKILL.md) |
+| `doc-spec-manager` | Navigation, consultation, and alignment verification with the Associated project specification. | [SKILL.md](.agents/skills/doc-spec-manager/SKILL.md) |
+
+### Web Skills (Frontend scope)
+| Skill | Description | URL |
+|-------|-------------|-----|
+| `vite` | Vite build tool configuration, plugin API, path aliases, and Vite 7 optimizations for React + TypeScript projects. | [SKILL.md](.agents/skills/vite/SKILL.md) |
+| `mantine-dev` | Mantine 8 UI library for React: 100+ components, hooks, theming, dark mode, CSS modules, and Vite/TypeScript setup. | [SKILL.md](.agents/skills/mantine-dev/SKILL.md) |
+| `zod-4` | Zod 4 schema validation patterns, including breaking changes from v3 and integration with react-hook-form. | [SKILL.md](.agents/skills/zod-4/SKILL.md) |
+| `react-hook-form-zod` | Build type-safe validated forms with React Hook Form 7 + Zod 4: `zodResolver`, `useFieldArray`, multi-step wizards. | [SKILL.md](.agents/skills/react-hook-form-zod/SKILL.md) |
+| `sentry-react-setup` | Setup Sentry in React apps: error monitoring, error boundaries, session replay, and browser tracing with `@sentry/react`. | [SKILL.md](.agents/skills/sentry-react-setup/SKILL.md) |
+| `openapi-to-typescript` | Convert OpenAPI 3.0 JSON/YAML to TypeScript interfaces and type guards for type-safe API clients. | [SKILL.md](.agents/skills/openapi-to-typescript/SKILL.md) |
+| `vitest` | Vitest unit testing framework: writing component and hook tests, mocking, coverage configuration, and fixtures. | [SKILL.md](.agents/skills/vitest/SKILL.md) |
 
 ### Auto-invoke Skills
 
@@ -160,3 +171,17 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Creating or extending spec/ documents | `doc-spec-generator` | "Add a new US for batch imports", "Create RNF for caching", "Add UC-077" |
 | Modifying files in spec/ | `doc-spec-generator` | "Update the BC-Treasury model", "Add N4RF39", "Fix the ADR-002 description" |
 | Regenerating references/ after spec changes | `doc-spec-generator` | "Regenerate references", "Update fragmented docs" |
+| Configuring or modifying `vite.config.ts` | `vite` | "Add Vite plugin", "Configure path aliases", "Setup dev server proxy" |
+| Debugging Vite build issues or optimizing bundle | `vite` | "Fix Vite build error", "Optimize bundle size", "Configure code splitting" |
+| Building or customizing a Mantine UI component | `mantine-dev` | "Add Mantine DataTable", "Create responsive layout", "Use ActionIcon group" |
+| Configuring Mantine theme, colors, or dark mode | `mantine-dev` | "Extend Mantine theme", "Add custom color palette", "Configure dark mode toggle" |
+| Using Mantine form inputs within a Mantine layout | `mantine-dev` | "Mantine TextInput with error state", "Controlled Select component", "DatePicker integration" |
+| Creating or updating a Zod validation schema | `zod-4` | "Create member registration schema", "Add Zod schema for fee form" |
+| Migrating a Zod v3 schema to v4 or fixing v4 breaking changes | `zod-4` | "Migrate Zod v3 to v4", "Fix Zod 4 breaking change in RHF resolver" |
+| Building a form with React Hook Form + Zod validation | `react-hook-form-zod` | "Create member registration form", "Add fee payment form with validation" |
+| Implementing advanced form patterns (multi-step, dynamic arrays) | `react-hook-form-zod` | "Multi-step registration wizard", "Dynamic fee lines with useFieldArray" |
+| Setting up or configuring Sentry error monitoring | `sentry-react-setup` | "Add Sentry to React app", "Configure error boundaries", "Setup DSN" |
+| Enabling Sentry session replay or performance tracing | `sentry-react-setup` | "Enable session replay", "Add browser tracing", "Capture user context" |
+| Generating TypeScript types from the backend OpenAPI spec | `openapi-to-typescript` | "Generate types from api spec", "Sync API types to frontend", "Create typed member client" |
+| Writing unit or component tests for frontend code | `vitest` | "Test MemberList component", "Unit test useMemberQuery hook", "Test form validation" |
+| Configuring Vitest coverage or test environment setup | `vitest` | "Configure coverage thresholds", "Setup jsdom test environment", "Add test alias" |
