@@ -112,8 +112,15 @@ Use these skills for detailed patterns on-demand:
 ### Generic Skills (Any Project)
 | Skill | Description | URL |
 |-------|-------------|-----|
-| `doc-spec-generator` | Create, update, and guided-author specification documents in spec/, and generate/update the fragmented files for doc-spec-manager from the source documents in spec/. | [SKILL.md](skills/doc-spec-generator/SKILL.md) |
-| `doc-spec-manager` | Navigation, consultation, and alignment verification with the Associated project specification | [SKILL.md](skills/doc-spec-manager/SKILL.md) |
+| `doc-spec-generator` | Create, update, and guided-author specification documents in spec/, and generate/update the fragmented files for doc-spec-manager from the source documents in spec/. | [SKILL.md](.agents/skills/doc-spec-generator/SKILL.md) |
+| `doc-spec-manager` | Navigation, consultation, and alignment verification with the Associated project specification. | [SKILL.md](.agents/skills/doc-spec-manager/SKILL.md) |
+
+### E2E Skills (Testing scope)
+| Skill | Description | URL |
+|-------|-------------|-----|
+| `playwright-skill` | Complete browser automation with Playwright: write tests, fill forms, take screenshots, validate UX, test login flows, and check responsive design. | [SKILL.md](.agents/skills/playwright-skill/SKILL.md) |
+| `e2e-testing-patterns` | Master E2E testing with Playwright: build reliable test suites, implement Page Object Model, debug flaky tests, and establish testing standards. | [SKILL.md](.agents/skills/e2e-testing-patterns/SKILL.md) |
+| `webapp-testing` | Toolkit for testing local web applications with Playwright: verify frontend functionality, debug UI behavior, capture browser screenshots, and view browser logs. | [SKILL.md](.agents/skills/webapp-testing/SKILL.md) |
 
 ### Auto-invoke Skills
 
@@ -127,3 +134,9 @@ When performing these actions, ALWAYS invoke the corresponding skill FIRST:
 | Creating or extending spec/ documents | `doc-spec-generator` | "Add a new US for batch imports", "Create RNF for caching", "Add UC-077" |
 | Modifying files in spec/ | `doc-spec-generator` | "Update the BC-Treasury model", "Add N4RF39", "Fix the ADR-002 description" |
 | Regenerating references/ after spec changes | `doc-spec-generator` | "Regenerate references", "Update fragmented docs" |
+| Writing a Playwright test for a UC flow | `playwright-skill` | "Test member registration flow", "Test SEPA remittance process", "E2E for login" |
+| Implementing Page Object Model classes | `playwright-skill` | "Create MemberListPage POM", "Add LoginPage page object", "Build SepaFormPage" |
+| Designing E2E test strategy or suite structure for a BC | `e2e-testing-patterns` | "Design E2E strategy for treasury BC", "Plan UC-011 test coverage" |
+| Debugging or stabilizing flaky E2E tests | `e2e-testing-patterns` | "Fix flaky registration test", "Debug SEPA flow timeout", "Stabilize multi-tenant test" |
+| Verifying frontend functionality or UI behavior interactively | `webapp-testing` | "Verify member dashboard UI", "Check SEPA form behavior", "Validate responsive layout" |
+| Capturing screenshots or browser logs for debugging | `webapp-testing` | "Capture screenshot of error state", "View browser logs for member creation" |
