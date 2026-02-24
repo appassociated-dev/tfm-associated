@@ -1,0 +1,1 @@
+Teniendo en cuenta que no habrá personalización por agente, para un usuario que trabaje en macOS o Linux, ¿sería más recomendable utilizar *symbolic links* o el soporte de estos no está plenamente garantizado?

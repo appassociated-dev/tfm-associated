@@ -12,6 +12,8 @@ CLAUDE.local.md
 #           Cambiar .gemini/ → .gemini/skills/
 #       - `.codex/` → `config.toml` con configuración del equipo, que sí quieres versionar
 #           Cambiar .codex/ → .codex/skills/
+.agent/
+.agents/
 .claude/
 .gemini/
 .codex/
