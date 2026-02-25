@@ -1,0 +1,39 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Project: Associated — lightweight ERP for Spanish collectivities (multi-tenant)
+  Backend: NestJS 11 + TypeScript 5.9 + Prisma 7 + PostgreSQL 18
+  Frontend: React 19 + Vite 7 + Mantine 8
+  Architecture: Modular Monolith, DDD, CQRS (ADR-001/004), Clean Architecture per BC (ADR-009)
+  Bounded Contexts: Identity, Membership, Treasury, Events, Communication, Documents
+  Auth: JWT + Passport + RBAC Guards (ADR-006/007)
+  Testing: Vitest (unit/integration) + Playwright 1.58 (E2E)
+  CI: GitHub Actions — quality gates required before merge (ADR-012)
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify affected Bounded Contexts and modules
+    - Flag if change crosses BC boundaries (requires Domain Events per ADR-008)
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - Reference existing UCs/USs from spec/ when applicable
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+    - Respect Clean Architecture layers: domain → application → infrastructure
+  tasks:
+    - Group tasks by phase (infrastructure, implementation, testing)
+    - Use hierarchical numbering (1.1, 1.2, etc.)
+    - Keep tasks small enough to complete in one session
+  apply:
+    - Follow existing DDD patterns (Aggregates, VOs, Domain Events)
+    - Load nestjs-best-practices or mantine-dev skills as needed
+    - Never violate an ADR without proposing a superseding one
+  verify:
+    - Run npm run lint and relevant test suites before claiming done
+    - Compare implementation against every spec scenario
+  archive:
+    - Warn before merging destructive deltas (large removals)

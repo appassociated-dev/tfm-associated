@@ -1,0 +1,28 @@
+// Schema de tenant — template para cada base de datos de tenant (DB-Tenant)
+// Se aplica en cada provisión de tenant mediante UC-001
+// Generado para Prisma 7 con cliente en api/src/generated/prisma-tenant
+
+// Prisma 7: provider = "prisma-client", url configurada en prisma.config.tenant.ts
+generator client {
+  provider = "prisma-client"
+  output   = "../../src/generated/prisma-tenant"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url configurada en prisma.config.tenant.ts (Prisma 7 — no soporta url en schema)
+}
+
+// Tabla outbox local al tenant — cada BD de tenant necesita su propia outbox
+model OutboxEvent {
+  id           String    @id @default(uuid())
+  event_type   String
+  payload      Json
+  created_at   DateTime  @default(now())
+  processed_at DateTime?
+  retry_count  Int       @default(0)
+  last_error   String?
+
+  @@index([processed_at, retry_count])
+  @@map("outbox_events")
+}

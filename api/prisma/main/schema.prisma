@@ -1,0 +1,110 @@
+// Schema principal — gestiona identidad, tenants y outbox global (DB-Main)
+// Generado para Prisma 7 con cliente en api/src/generated/prisma-main
+
+// Prisma 7: provider = "prisma-client", url configurada en prisma.config.main.ts
+generator client {
+  provider = "prisma-client"
+  output   = "../../src/generated/prisma-main"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url configurada en prisma.config.main.ts (Prisma 7 — no soporta url en schema)
+}
+
+model Tenant {
+  id            String    @id @default(uuid())
+  slug          String    @unique
+  name          String
+  cif           String    @unique
+  type          String    // asociacion | club | federacion
+  status        String    @default("active") // active | suspended | cancelled
+  database_name String    @unique
+  created_at    DateTime  @default(now())
+  
+  memberships   TenantMembership[]
+  roles         Role[]
+  outbox_events OutboxEvent[]
+
+  @@map("tenants")
+}
+
+model User {
+  id               String    @id @default(uuid())
+  email            String    @unique
+  password_hash    String
+  name             String
+  status           String    @default("active") // active | blocked | inactive
+  failed_attempts  Int       @default(0)
+  blocked_until    DateTime?
+  created_at       DateTime  @default(now())
+  last_access      DateTime?
+  
+  memberships      TenantMembership[]
+  refresh_tokens   RefreshToken[]
+
+  @@map("users")
+}
+
+model TenantMembership {
+  id          String   @id @default(uuid())
+  user_id     String
+  tenant_id   String
+  role_id     String
+  member_id   String?
+  assigned_at DateTime @default(now())
+  assigned_by String
+  active      Boolean  @default(true)
+  
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  tenant      Tenant   @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  role        Role     @relation(fields: [role_id], references: [id])
+
+  @@unique([user_id, tenant_id])
+  @@map("tenant_memberships")
+}
+
+model Role {
+  id          String    @id @default(uuid())
+  code        String
+  name        String
+  description String?
+  permissions Json      @default("[]")
+  is_system   Boolean   @default(false)
+  tenant_id   String?
+  
+  tenant      Tenant?   @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  memberships TenantMembership[]
+
+  @@unique([code, tenant_id])
+  @@map("roles")
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid())
+  user_id    String
+  token_hash String    @unique
+  expires_at DateTime
+  created_at DateTime  @default(now())
+  revoked_at DateTime?
+  
+  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model OutboxEvent {
+  id           String    @id @default(uuid())
+  event_type   String
+  payload      Json
+  tenant_id    String?
+  created_at   DateTime  @default(now())
+  processed_at DateTime?
+  retry_count  Int       @default(0)
+  last_error   String?
+  
+  tenant       Tenant?   @relation(fields: [tenant_id], references: [id], onDelete: SetNull)
+
+  @@index([processed_at, retry_count])
+  @@map("outbox_events")
+}

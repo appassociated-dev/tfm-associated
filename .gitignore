@@ -32,3 +32,28 @@ AGENTS.override.md
 
 # Enviroments
 **/.env
+
+# Dependencias
+node_modules/
+
+# Build
+dist/
+
+# Variables de entorno locales
+.env
+
+# Coverage
+coverage/
+
+# Prisma generated files
+.prisma/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# macOS
+.DS_Store
+
+# Copias de trabajo (directorios legacy)
+api copy/
+web copy/

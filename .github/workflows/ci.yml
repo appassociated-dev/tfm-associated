@@ -1,0 +1,186 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job: backend — linting, unit tests, integration tests con PostgreSQL
+  # ---------------------------------------------------------------------------
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: associated_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/associated_test
+      DATABASE_MAIN_URL: postgresql://postgres:postgres@localhost:5432/associated_test
+      DATABASE_TENANT_URL: postgresql://postgres:postgres@localhost:5432/associated_test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cache npm modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install dependencies (workspace api)
+        run: npm ci --workspace=api
+
+      - name: Lint
+        run: npm run lint -w api
+
+      - name: Unit tests with coverage
+        run: npm run test:cov -w api
+
+      - name: Verify coverage thresholds (lines >= 80%, branches >= 70%)
+        run: |
+          npm run test:cov -w api -- \
+            --coverage.thresholds.lines=80 \
+            --coverage.thresholds.branches=70 \
+            --coverage.thresholds.functions=80 \
+            --coverage.thresholds.statements=80
+
+      - name: Integration tests
+        run: npm run test:integration -w api
+
+  # ---------------------------------------------------------------------------
+  # Job: frontend — linting, typecheck, tests, build
+  # ---------------------------------------------------------------------------
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cache npm modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install dependencies (workspace web)
+        run: npm ci --workspace=web
+
+      - name: Lint
+        run: npm run lint -w web
+
+      - name: TypeScript typecheck
+        run: npm run typecheck -w web
+
+      - name: Tests with coverage
+        run: npm run test:cov -w web
+
+      - name: Verify coverage thresholds (lines >= 80%, branches >= 70%)
+        run: |
+          npm run test:cov -w web -- \
+            --coverage.thresholds.lines=80 \
+            --coverage.thresholds.branches=70 \
+            --coverage.thresholds.functions=80 \
+            --coverage.thresholds.statements=80
+
+      - name: Build
+        run: npm run build -w web
+
+  # ---------------------------------------------------------------------------
+  # Job: e2e — Playwright con Chromium
+  # Depende de que backend y frontend pasen
+  # ---------------------------------------------------------------------------
+  e2e:
+    name: E2E Tests (Playwright)
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: associated_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/associated_test
+      DATABASE_MAIN_URL: postgresql://postgres:postgres@localhost:5432/associated_test
+      DATABASE_TENANT_URL: postgresql://postgres:postgres@localhost:5432/associated_test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cache npm modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
+
+      - name: Install all dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers (Chromium only)
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
