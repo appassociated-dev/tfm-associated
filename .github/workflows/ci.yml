@@ -1,0 +1,108 @@
+# Pipeline CI para Associated
+# Ejecuta lint, typecheck, tests unitarios y build para backend y frontend
+# Los tests E2E se ejecutan tras los jobs de backend y frontend
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'mvp/**'
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (API)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run -w api lint
+
+      - name: Typecheck
+        run: npx -w api tsc --noEmit
+
+      - name: Unit tests
+        run: npm run -w api test:unit -- --coverage
+
+  frontend:
+    name: Frontend (Web)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run -w web lint
+
+      - name: Typecheck
+        run: npm run -w web typecheck
+
+      - name: Unit tests
+        run: npm run -w web test -- --coverage
+
+      - name: Build
+        run: npm run -w web build
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx -w e2e playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npm run -w e2e test
+        env:
+          CI: true
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 7
