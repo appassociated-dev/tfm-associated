@@ -30,6 +30,7 @@ declare module '@prisma-main' {
     name: string;
     status: string;
     failedAttempts: number;
+    failedAttemptTimestamps: unknown;
     blockedUntil: Date | null;
     createdAt: Date;
     lastAccess: Date | null;
@@ -81,23 +82,58 @@ declare module '@prisma-main' {
     lastError: string | null;
   }
 
+  /** Tipo de membresía con relaciones de tenant y rol incluidas. */
+  export interface PrismaRawTenantMembershipWithRelations extends PrismaRawTenantMembership {
+    tenant: PrismaRawTenant;
+    role: PrismaRawRole;
+  }
+
   /** Delegado para operaciones CRUD sobre un modelo Prisma. */
   interface PrismaDelegate<TRaw> {
     create(args: { data: Record<string, unknown> }): Promise<TRaw>;
-    findUnique(args: { where: Record<string, unknown> }): Promise<TRaw | null>;
-    findFirst(args: { where: Record<string, unknown> }): Promise<TRaw | null>;
+    findUnique(args: {
+      where: Record<string, unknown>;
+      include?: Record<string, boolean>;
+    }): Promise<TRaw | null>;
+    findFirst(args: {
+      where: Record<string, unknown>;
+      include?: Record<string, boolean>;
+    }): Promise<TRaw | null>;
     findMany(args?: {
       where?: Record<string, unknown>;
       orderBy?: Record<string, unknown>;
+      include?: Record<string, boolean>;
     }): Promise<TRaw[]>;
     update(args: { where: Record<string, unknown>; data: Record<string, unknown> }): Promise<TRaw>;
     delete(args: { where: Record<string, unknown> }): Promise<TRaw>;
     deleteMany(args?: { where?: Record<string, unknown> }): Promise<{ count: number }>;
+    updateMany(args: {
+      where: Record<string, unknown>;
+      data: Record<string, unknown>;
+    }): Promise<{ count: number }>;
     upsert(args: {
       where: Record<string, unknown>;
       create: Record<string, unknown>;
       update: Record<string, unknown>;
     }): Promise<TRaw>;
+  }
+
+  /** Delegado especializado para TenantMembership con soporte de include. */
+  interface TenantMembershipDelegate extends PrismaDelegate<PrismaRawTenantMembership> {
+    findFirst(args: {
+      where: Record<string, unknown>;
+      include: { tenant: true; role: true };
+    }): Promise<PrismaRawTenantMembershipWithRelations | null>;
+    findFirst(args: { where: Record<string, unknown> }): Promise<PrismaRawTenantMembership | null>;
+    findMany(args: {
+      where?: Record<string, unknown>;
+      orderBy?: Record<string, unknown>;
+      include: { tenant: true; role: true };
+    }): Promise<PrismaRawTenantMembershipWithRelations[]>;
+    findMany(args?: {
+      where?: Record<string, unknown>;
+      orderBy?: Record<string, unknown>;
+    }): Promise<PrismaRawTenantMembership[]>;
   }
 
   export class PrismaClient {
@@ -110,7 +146,7 @@ declare module '@prisma-main' {
     tenant: PrismaDelegate<PrismaRawTenant>;
     user: PrismaDelegate<PrismaRawUser>;
     role: PrismaDelegate<PrismaRawRole>;
-    tenantMembership: PrismaDelegate<PrismaRawTenantMembership>;
+    tenantMembership: TenantMembershipDelegate;
     refreshToken: PrismaDelegate<PrismaRawRefreshToken>;
     outboxEvent: PrismaDelegate<PrismaRawOutboxEvent>;
   }

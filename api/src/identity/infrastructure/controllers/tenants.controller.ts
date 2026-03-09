@@ -20,7 +20,7 @@ import { SuperadminGuard } from '../guards/superadmin.guard';
  * Endpoint base: /api/v1/tenants
  */
 @ApiTags('Tenants')
-@Controller('api/v1/tenants')
+@Controller('v1/tenants')
 export class TenantsController {
   constructor(private readonly commandBus: CommandBus) {}
 
