@@ -153,11 +153,76 @@ declare module '@prisma-main' {
 }
 
 declare module '@prisma-tenant' {
+  /** Datos de un evento de outbox tal como los devuelve el Prisma Client (camelCase). */
+  export interface PrismaRawOutboxEvent {
+    id: string;
+    eventType: string;
+    payload: unknown;
+    createdAt: Date;
+    processedAt: Date | null;
+    retryCount: number;
+    nextRetryAt: Date | null;
+    lastError: string | null;
+  }
+
+  /** Datos de un MemberType tal como los devuelve el Prisma Client (camelCase). */
+  export interface PrismaRawMemberType {
+    id: string;
+    code: string;
+    name: string;
+    description: string | null;
+    ageRangeMin: number | null;
+    ageRangeMax: number | null;
+    votingRight: boolean;
+    eligibleForOffice: boolean;
+    minimumSeniorityForVoting: number;
+    minimumSeniorityForOffice: number;
+    automaticTransitionTargetId: string | null;
+    rulesConfig: unknown;
+    active: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  }
+
+  /** Delegado para operaciones CRUD sobre un modelo Prisma (tenant). */
+  interface PrismaTenantDelegate<TRaw> {
+    create(args: { data: Record<string, unknown> }): Promise<TRaw>;
+    findUnique(args: {
+      where: Record<string, unknown>;
+      include?: Record<string, boolean>;
+    }): Promise<TRaw | null>;
+    findFirst(args: {
+      where: Record<string, unknown>;
+      include?: Record<string, boolean>;
+    }): Promise<TRaw | null>;
+    findMany(args?: {
+      where?: Record<string, unknown>;
+      orderBy?: Record<string, unknown>;
+      include?: Record<string, boolean>;
+    }): Promise<TRaw[]>;
+    update(args: { where: Record<string, unknown>; data: Record<string, unknown> }): Promise<TRaw>;
+    delete(args: { where: Record<string, unknown> }): Promise<TRaw>;
+    deleteMany(args?: { where?: Record<string, unknown> }): Promise<{ count: number }>;
+    updateMany(args: {
+      where: Record<string, unknown>;
+      data: Record<string, unknown>;
+    }): Promise<{ count: number }>;
+    upsert(args: {
+      where: Record<string, unknown>;
+      create: Record<string, unknown>;
+      update: Record<string, unknown>;
+    }): Promise<TRaw>;
+    count(args?: { where?: Record<string, unknown> }): Promise<number>;
+  }
+
   export class PrismaClient {
     constructor(options?: { adapter?: unknown });
     $connect(): Promise<void>;
     $disconnect(): Promise<void>;
     $queryRawUnsafe<T = unknown>(query: string, ...values: unknown[]): Promise<T>;
     $executeRawUnsafe(query: string, ...values: unknown[]): Promise<number>;
+
+    outboxEvent: PrismaTenantDelegate<PrismaRawOutboxEvent>;
+    memberType: PrismaTenantDelegate<PrismaRawMemberType>;
   }
 }

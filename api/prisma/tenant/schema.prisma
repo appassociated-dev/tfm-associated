@@ -26,3 +26,27 @@ model OutboxEvent {
   @@index([processedAt, retryCount, nextRetryAt])
   @@map("outbox_events")
 }
+
+/// Tipo de socio configurable por cada colectividad (UC-008).
+model MemberType {
+  id                           String    @id @default(uuid()) @db.Uuid
+  code                         String    @unique @db.VarChar(10)
+  name                         String    @db.VarChar(100)
+  description                  String?   @db.Text
+  ageRangeMin                  Int?      @map("age_range_min")
+  ageRangeMax                  Int?      @map("age_range_max")
+  votingRight                  Boolean   @default(false) @map("voting_right")
+  eligibleForOffice            Boolean   @default(false) @map("eligible_for_office")
+  minimumSeniorityForVoting    Int       @default(0) @map("minimum_seniority_for_voting")
+  minimumSeniorityForOffice    Int       @default(0) @map("minimum_seniority_for_office")
+  automaticTransitionTargetId  String?   @map("automatic_transition_target_id") @db.Uuid
+  rulesConfig                  Json?     @map("rules_config")
+  active                       Boolean   @default(true)
+  createdAt                    DateTime  @default(now()) @map("created_at")
+  updatedAt                    DateTime  @updatedAt @map("updated_at")
+
+  automaticTransitionTarget    MemberType?  @relation("AutoTransition", fields: [automaticTransitionTargetId], references: [id])
+  transitionSources            MemberType[] @relation("AutoTransition")
+
+  @@map("member_types")
+}
