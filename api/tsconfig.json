@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2022",
+    "sourceMap": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@shared/*": ["./src/shared/*"],
+      "@identity/*": ["./src/identity/*"],
+      "@membership/*": ["./src/membership/*"],
+      "@treasury/*": ["./src/treasury/*"],
+      "@events/*": ["./src/events/*"],
+      "@communication/*": ["./src/communication/*"],
+      "@documents/*": ["./src/documents/*"],
+      "@prisma-main": ["./prisma/main/generated"],
+      "@prisma-main/*": ["./prisma/main/generated/*"],
+      "@prisma-tenant": ["./prisma/tenant/generated"],
+      "@prisma-tenant/*": ["./prisma/tenant/generated/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
