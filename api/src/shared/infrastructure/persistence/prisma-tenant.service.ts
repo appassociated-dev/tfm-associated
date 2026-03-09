@@ -1,5 +1,5 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma-tenant';
 
 /** Entrada del pool: cliente Prisma y timestamp del último uso. */
 interface TenantPoolEntry {
@@ -25,10 +25,8 @@ export class PrismaTenantService implements OnModuleDestroy {
   private readonly evictionMs: number;
 
   constructor() {
-    this.maxPoolSize =
-      Number(process.env.TENANT_POOL_MAX_SIZE) || DEFAULT_MAX_POOL_SIZE;
-    this.evictionMs =
-      Number(process.env.TENANT_POOL_EVICTION_MS) || DEFAULT_EVICTION_MS;
+    this.maxPoolSize = Number(process.env.TENANT_POOL_MAX_SIZE) || DEFAULT_MAX_POOL_SIZE;
+    this.evictionMs = Number(process.env.TENANT_POOL_EVICTION_MS) || DEFAULT_EVICTION_MS;
   }
 
   /**

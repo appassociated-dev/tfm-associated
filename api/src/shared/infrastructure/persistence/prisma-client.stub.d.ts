@@ -1,13 +1,24 @@
 /**
- * Stub de tipos para PrismaClient.
- * Este archivo se usa SOLO cuando el cliente Prisma no ha sido generado todavía.
- * Una vez ejecutado `prisma generate`, los tipos reales provienen de @prisma/client.
+ * Stub de tipos para PrismaClient (main y tenant).
+ * Este archivo se usa SOLO cuando los clientes Prisma no han sido generados todavía.
+ * Una vez ejecutado `prisma generate`, los tipos reales provienen de los directorios generated/.
  *
  * Para generar los tipos:
- *   npx prisma generate --schema=prisma/main/schema.prisma
- *   npx prisma generate --schema=prisma/tenant/schema.prisma
+ *   npm run prisma:generate:main
+ *   npm run prisma:generate:tenant
  */
-declare module '@prisma/client' {
+
+declare module '@prisma-main' {
+  export class PrismaClient {
+    constructor(options?: { datasourceUrl?: string });
+    $connect(): Promise<void>;
+    $disconnect(): Promise<void>;
+    $queryRawUnsafe<T = unknown>(query: string, ...values: unknown[]): Promise<T>;
+    $executeRawUnsafe(query: string, ...values: unknown[]): Promise<number>;
+  }
+}
+
+declare module '@prisma-tenant' {
   export class PrismaClient {
     constructor(options?: { datasourceUrl?: string });
     $connect(): Promise<void>;

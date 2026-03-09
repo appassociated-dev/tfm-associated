@@ -7,8 +7,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../../node_modules/.prisma/client/tenant"
+  provider = "prisma-client"
+  output   = "./generated"
 }
 
 /// Evento de outbox para comunicación cross-BC (ADR-008).

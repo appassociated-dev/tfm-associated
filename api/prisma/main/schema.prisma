@@ -6,8 +6,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../../node_modules/.prisma/client/main"
+  provider = "prisma-client"
+  output   = "./generated"
 }
 
 /// Tenant (asociación / colectividad). Cada tenant tiene su propia BD aislada.

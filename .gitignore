@@ -43,6 +43,10 @@ dist/
 build/
 *.tsbuildinfo
 
+# Artefactos compilados de config (Vite, etc.)
+web/vite.config.js
+web/vite.config.d.ts
+
 # Testing
 coverage/
 playwright-report/
