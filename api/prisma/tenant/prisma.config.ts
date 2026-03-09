@@ -1,10 +1,10 @@
-// Prisma CLI carga archivos .env automáticamente — no necesita dotenv
+import 'dotenv/config';
 import { defineConfig, env } from 'prisma/config';
 
 export default defineConfig({
-  schema: 'prisma/tenant/schema.prisma',
+  schema: './schema.prisma',
   migrations: {
-    path: 'prisma/tenant/migrations',
+    path: './migrations',
   },
   datasource: {
     url: env('DATABASE_TENANT_URL'),
