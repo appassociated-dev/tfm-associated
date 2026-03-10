@@ -140,6 +140,8 @@ declare module '@prisma-main' {
     constructor(options?: { adapter?: unknown });
     $connect(): Promise<void>;
     $disconnect(): Promise<void>;
+    $queryRaw<T = unknown>(query: TemplateStringsArray, ...values: unknown[]): Promise<T>;
+    $executeRaw(query: TemplateStringsArray, ...values: unknown[]): Promise<number>;
     $queryRawUnsafe<T = unknown>(query: string, ...values: unknown[]): Promise<T>;
     $executeRawUnsafe(query: string, ...values: unknown[]): Promise<number>;
 
@@ -184,6 +186,58 @@ declare module '@prisma-tenant' {
     updatedAt: Date;
   }
 
+  /** Datos de un Member tal como los devuelve el Prisma Client (snake_case). */
+  export interface PrismaRawMember {
+    id: string;
+    member_number: string;
+    name: string;
+    surnames: string;
+    birth_date: Date;
+    document_type: string;
+    document_number: string;
+    email: string;
+    phone: string | null;
+    address: string | null;
+    postal_code: string | null;
+    city: string | null;
+    iban_encrypted: string | null;
+    member_type_id: string;
+    custom_fields: unknown;
+    current_status: string;
+    registration_date: Date;
+    leave_date: Date | null;
+    version: number;
+    created_at: Date;
+    updated_at: Date;
+  }
+
+  /** Datos de FiscalYear tal como los devuelve el Prisma Client (camelCase). */
+  export interface PrismaRawFiscalYear {
+    id: string;
+    name: string;
+    type: string;
+    startDate: Date;
+    endDate: Date;
+    status: string;
+    previousFiscalYearId: string | null;
+    membersAtStart: number;
+    membersAtEnd: number | null;
+    reportId: string | null;
+    createdAt: Date;
+    closedAt: Date | null;
+  }
+
+  /** Datos de StatusHistory tal como los devuelve el Prisma Client (snake_case). */
+  export interface PrismaRawStatusHistory {
+    id: string;
+    member_id: string;
+    previous_status: string;
+    new_status: string;
+    reason: string;
+    changed_by: string;
+    changed_at: Date;
+  }
+
   /** Delegado para operaciones CRUD sobre un modelo Prisma (tenant). */
   interface PrismaTenantDelegate<TRaw> {
     create(args: { data: Record<string, unknown> }): Promise<TRaw>;
@@ -219,10 +273,15 @@ declare module '@prisma-tenant' {
     constructor(options?: { adapter?: unknown });
     $connect(): Promise<void>;
     $disconnect(): Promise<void>;
+    $queryRaw<T = unknown>(query: TemplateStringsArray, ...values: unknown[]): Promise<T>;
+    $executeRaw(query: TemplateStringsArray, ...values: unknown[]): Promise<number>;
     $queryRawUnsafe<T = unknown>(query: string, ...values: unknown[]): Promise<T>;
     $executeRawUnsafe(query: string, ...values: unknown[]): Promise<number>;
 
     outboxEvent: PrismaTenantDelegate<PrismaRawOutboxEvent>;
     memberType: PrismaTenantDelegate<PrismaRawMemberType>;
+    member: PrismaTenantDelegate<PrismaRawMember>;
+    fiscalYear: PrismaTenantDelegate<PrismaRawFiscalYear>;
+    statusHistory: PrismaTenantDelegate<PrismaRawStatusHistory>;
   }
 }

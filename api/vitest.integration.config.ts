@@ -13,6 +13,8 @@ export default defineConfig({
       '@prisma-tenant': path.resolve(__dirname, 'prisma/tenant/generated/client.ts'),
       '@shared': path.resolve(__dirname, 'src/shared'),
       '@identity': path.resolve(__dirname, 'src/identity'),
+      '@membership': path.resolve(__dirname, 'src/membership'),
+      '@treasury': path.resolve(__dirname, 'src/treasury'),
     },
   },
   test: {
@@ -25,6 +27,6 @@ export default defineConfig({
 
     // Timeout más generoso para operaciones DDL
     testTimeout: 60_000,
-    hookTimeout: 30_000,
+    hookTimeout: 120_000,
   },
 });

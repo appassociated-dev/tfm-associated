@@ -73,18 +73,35 @@ model FiscalYear {
   @@map("fiscal_years")
 }
 
-/// Socio de la colectividad con máquina de estados (UC-007).
-/// Modelo mínimo para soportar gestión de estados; se extenderá en UC-006.
+/// Socio de la colectividad con ficha completa (UC-006) y máquina de estados (UC-007).
 model Member {
-  id             String    @id @default(uuid()) @db.Uuid
-  member_type_id String    @db.Uuid
-  current_status String    @default("APPLICANT") @db.VarChar(30)
-  version        Int       @default(0)
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @updatedAt
+  id                String    @id @default(uuid()) @db.Uuid
+  member_number     String    @unique @db.VarChar(20)
+  name              String    @db.VarChar(100)
+  surnames          String    @db.VarChar(200)
+  birth_date        DateTime  @db.Date
+  document_type     String    @db.VarChar(10)
+  document_number   String    @unique @db.VarChar(20)
+  email             String    @unique @db.VarChar(255)
+  phone             String?   @db.VarChar(20)
+  address           String?   @db.VarChar(300)
+  postal_code       String?   @db.VarChar(10)
+  city              String?   @db.VarChar(100)
+  iban_encrypted    String?   @db.Text
+  member_type_id    String    @db.Uuid
+  custom_fields     Json?
+  current_status    String    @default("APPLICANT") @db.VarChar(30)
+  registration_date DateTime  @default(now())
+  leave_date        DateTime?
+  version           Int       @default(0)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
 
-  memberType     MemberType @relation(fields: [member_type_id], references: [id])
+  memberType        MemberType @relation(fields: [member_type_id], references: [id])
 
+  @@index([current_status])
+  @@index([member_type_id])
+  @@index([email])
   @@map("members")
 }
 

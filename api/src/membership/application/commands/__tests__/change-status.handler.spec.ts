@@ -50,6 +50,12 @@ describe('ChangeStatusHandler', () => {
       findByStatus: vi.fn(),
       findActiveMembers: vi.fn(),
       findMembersWithOverduePayments: vi.fn(),
+      findByIdentityDocument: vi.fn(),
+      findByEmail: vi.fn(),
+      findAll: vi.fn(),
+      existsByIdentityDocument: vi.fn(),
+      existsByEmail: vi.fn(),
+      getNextMemberNumber: vi.fn(),
     };
 
     statusHistoryRepository = {

@@ -44,6 +44,8 @@ describe('DomainExceptionFilter', () => {
     errorReporter = {
       captureException: vi.fn(),
       captureMessage: vi.fn(),
+      setUser: vi.fn(),
+      setContext: vi.fn(),
     };
     filter = new DomainExceptionFilter(errorReporter);
   });

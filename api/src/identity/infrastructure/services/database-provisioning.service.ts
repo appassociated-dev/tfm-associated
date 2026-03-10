@@ -133,13 +133,14 @@ export class DatabaseProvisioningService implements DatabaseProvisioningPort {
   async runMigrations(databaseUrl: string): Promise<void> {
     this.logger.log('Ejecutando migraciones del schema tenant...');
 
-    const schemaPath = resolve(process.cwd(), 'prisma', 'tenant', 'schema.prisma');
+    const prismaConfigPath = resolve(process.cwd(), 'prisma', 'tenant', 'prisma.config.ts');
+    const migrationUrl = this.buildMigrationDatabaseUrl(databaseUrl);
 
     try {
-      execSync(`npx prisma migrate deploy --schema="${schemaPath}"`, {
+      execSync(`npx prisma migrate deploy --config="${prismaConfigPath}"`, {
         env: {
           ...process.env,
-          DATABASE_TENANT_URL: databaseUrl,
+          DATABASE_TENANT_URL: migrationUrl,
         },
         timeout: 60_000,
         stdio: 'pipe',
@@ -346,5 +347,29 @@ export class DatabaseProvisioningService implements DatabaseProvisioningPort {
   private extractDatabaseName(databaseUrl: string): string {
     const match = databaseUrl.match(/\/([^/?]+)(\?|$)/);
     return match ? match[1] : '';
+  }
+
+  /**
+   * Construye URL de migración con credenciales privilegiadas de DATABASE_MAIN_URL
+   * manteniendo el nombre de BD del tenant destino.
+   */
+  private buildMigrationDatabaseUrl(tenantDatabaseUrl: string): string {
+    const mainUrlRaw = process.env.DATABASE_MAIN_URL;
+    if (!mainUrlRaw) {
+      return tenantDatabaseUrl;
+    }
+
+    const tenantDbName = this.extractDatabaseName(tenantDatabaseUrl);
+    if (!tenantDbName) {
+      return tenantDatabaseUrl;
+    }
+
+    try {
+      const migrationUrl = new URL(mainUrlRaw);
+      migrationUrl.pathname = `/${tenantDbName}`;
+      return migrationUrl.toString();
+    } catch {
+      return tenantDatabaseUrl;
+    }
   }
 }

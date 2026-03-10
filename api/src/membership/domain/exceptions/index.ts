@@ -12,3 +12,7 @@ export { TransitionNotAllowedError } from './transition-not-allowed.exception';
 export { MemberNotFoundError } from './member-not-found.exception';
 export { OptimisticLockingError } from './optimistic-locking.exception';
 export { InvalidStatusChangeReasonError } from './invalid-status-change-reason.exception';
+export { DocumentAlreadyExistsError } from './document-already-exists.exception';
+export { EmailAlreadyExistsError } from './email-already-exists.exception';
+export { AgeNotEligibleError } from './age-not-eligible.exception';
+export { MemberTypeNotActiveError } from './member-type-not-active.exception';
