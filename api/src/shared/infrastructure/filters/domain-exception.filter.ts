@@ -109,6 +109,10 @@ const CODE_TO_STATUS: Array<{ pattern: string; status: number; match: 'exact' | 
   { pattern: '.OVERLAPPING_DATES', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
   { pattern: '.CLOSE_WARNINGS', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
   { pattern: '.CIRCULAR_TRANSITION', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.CANNOT_LEAVE', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.CANNOT_REINSTATE', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.PAYMENT_NOT_CONFIRMED', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.NO_PENDING_DEBT', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
   { pattern: '.INVALID', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
   // 500 Internal Server Error
   { pattern: '.PROVISIONING_FAILED', status: HttpStatus.INTERNAL_SERVER_ERROR, match: 'suffix' },

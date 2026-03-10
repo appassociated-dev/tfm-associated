@@ -60,22 +60,34 @@ describe('StatusTransitionValidator', () => {
     });
   });
 
-  // --- Transiciones desde terminales ---
+  // --- Transiciones desde estados inmutables ---
 
-  describe('validate() — desde estados terminales', () => {
-    const terminalStates = [
-      MemberStatus.VOLUNTARY_LEAVE,
-      MemberStatus.NONPAYMENT_LEAVE,
-      MemberStatus.DISCIPLINARY_LEAVE,
-      MemberStatus.DECEASED,
-    ];
+  describe('validate() — desde estados inmutables', () => {
+    const immutableStates = [MemberStatus.DISCIPLINARY_LEAVE, MemberStatus.DECEASED];
 
-    it.each(terminalStates)('debería rechazar cualquier transición desde %s', (terminalStatus) => {
-      const result = validator.validate(terminalStatus, MemberStatus.ACTIVE);
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error.code).toBe('MEMBER.TRANSITION_NOT_ALLOWED');
-      }
+    it.each(immutableStates)(
+      'debería rechazar cualquier transición desde %s',
+      (immutableStatus) => {
+        const result = validator.validate(immutableStatus, MemberStatus.ACTIVE);
+        expect(result.ok).toBe(false);
+        if (!result.ok) {
+          expect(result.error.code).toBe('MEMBER.TRANSITION_NOT_ALLOWED');
+        }
+      },
+    );
+  });
+
+  // --- Transiciones de rehabilitación (UC-013) ---
+
+  describe('validate() — rehabilitación desde estados de baja', () => {
+    it('debería aceptar transición de VOLUNTARY_LEAVE a ACTIVE', () => {
+      const result = validator.validate(MemberStatus.VOLUNTARY_LEAVE, MemberStatus.ACTIVE);
+      expect(result.ok).toBe(true);
+    });
+
+    it('debería aceptar transición de NONPAYMENT_LEAVE a ACTIVE', () => {
+      const result = validator.validate(MemberStatus.NONPAYMENT_LEAVE, MemberStatus.ACTIVE);
+      expect(result.ok).toBe(true);
     });
   });
 
@@ -98,11 +110,12 @@ describe('StatusTransitionValidator', () => {
       expect(transitions).toContainEqual(MemberStatus.NONPAYMENT_LEAVE);
     });
 
-    it('debería devolver 2 transiciones para SUSPENDED', () => {
+    it('debería devolver 3 transiciones para SUSPENDED', () => {
       const transitions = validator.getAvailableTransitions(MemberStatus.SUSPENDED);
-      expect(transitions).toHaveLength(2);
+      expect(transitions).toHaveLength(3);
       expect(transitions).toContainEqual(MemberStatus.ACTIVE);
       expect(transitions).toContainEqual(MemberStatus.DISCIPLINARY_LEAVE);
+      expect(transitions).toContainEqual(MemberStatus.NONPAYMENT_LEAVE);
     });
 
     it('debería devolver 2 transiciones para APPLICANT', () => {
@@ -112,14 +125,16 @@ describe('StatusTransitionValidator', () => {
       expect(transitions).toContainEqual(MemberStatus.VOLUNTARY_LEAVE);
     });
 
-    it('debería devolver array vacío para VOLUNTARY_LEAVE', () => {
+    it('debería devolver 1 transición para VOLUNTARY_LEAVE (rehabilitación)', () => {
       const transitions = validator.getAvailableTransitions(MemberStatus.VOLUNTARY_LEAVE);
-      expect(transitions).toHaveLength(0);
+      expect(transitions).toHaveLength(1);
+      expect(transitions).toContainEqual(MemberStatus.ACTIVE);
     });
 
-    it('debería devolver array vacío para NONPAYMENT_LEAVE', () => {
+    it('debería devolver 1 transición para NONPAYMENT_LEAVE (rehabilitación)', () => {
       const transitions = validator.getAvailableTransitions(MemberStatus.NONPAYMENT_LEAVE);
-      expect(transitions).toHaveLength(0);
+      expect(transitions).toHaveLength(1);
+      expect(transitions).toContainEqual(MemberStatus.ACTIVE);
     });
 
     it('debería devolver array vacío para DISCIPLINARY_LEAVE', () => {
@@ -136,11 +151,14 @@ describe('StatusTransitionValidator', () => {
   // --- isTerminal ---
 
   describe('isTerminal()', () => {
-    it('debería devolver true para estados terminales', () => {
-      expect(validator.isTerminal(MemberStatus.VOLUNTARY_LEAVE)).toBe(true);
-      expect(validator.isTerminal(MemberStatus.NONPAYMENT_LEAVE)).toBe(true);
+    it('debería devolver true para estados terminales (inmutables)', () => {
       expect(validator.isTerminal(MemberStatus.DISCIPLINARY_LEAVE)).toBe(true);
       expect(validator.isTerminal(MemberStatus.DECEASED)).toBe(true);
+    });
+
+    it('debería devolver false para estados de baja rehabilitables', () => {
+      expect(validator.isTerminal(MemberStatus.VOLUNTARY_LEAVE)).toBe(false);
+      expect(validator.isTerminal(MemberStatus.NONPAYMENT_LEAVE)).toBe(false);
     });
 
     it('debería devolver false para estados no terminales', () => {

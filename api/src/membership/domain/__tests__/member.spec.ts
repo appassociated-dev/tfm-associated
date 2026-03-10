@@ -135,14 +135,14 @@ describe('Member', () => {
       expect(member.getCurrentStatus().equals(MemberStatus.DECEASED)).toBe(true);
     });
 
-    it('debería rechazar transición desde estado terminal rehabilitable VOLUNTARY_LEAVE', () => {
+    it('debería aceptar rehabilitación desde VOLUNTARY_LEAVE a ACTIVE (UC-013)', () => {
       const member = createMemberWithStatus(MemberStatus.VOLUNTARY_LEAVE);
-      const reason = createReason('Quiero volver');
+      const reason = createReason('Rehabilitación aprobada');
 
       const result = member.changeStatus(MemberStatus.ACTIVE, reason, 'user-123', validator);
 
-      expect(result.ok).toBe(false);
-      expect(member.getCurrentStatus().equals(MemberStatus.VOLUNTARY_LEAVE)).toBe(true);
+      expect(result.ok).toBe(true);
+      expect(member.getCurrentStatus().equals(MemberStatus.ACTIVE)).toBe(true);
     });
 
     it('debería acumular múltiples transiciones secuenciales en el historial', () => {

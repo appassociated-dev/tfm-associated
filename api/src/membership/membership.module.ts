@@ -5,6 +5,7 @@ import { FiscalYearsController } from './infrastructure/controllers/fiscal-years
 import { MemberStatusController } from './infrastructure/controllers/member-status.controller';
 import { MembersController } from './infrastructure/controllers/members.controller';
 import { RegistrationController } from './infrastructure/controllers/registration.controller';
+import { MemberLeaveController } from './infrastructure/controllers/member-leave.controller';
 import { CreateMemberTypeHandler } from './application/commands/create-member-type.handler';
 import { UpdateMemberTypeHandler } from './application/commands/update-member-type.handler';
 import { DeactivateMemberTypeHandler } from './application/commands/deactivate-member-type.handler';
@@ -16,6 +17,9 @@ import { RunDelinquencyCheckHandler } from './application/commands/run-delinquen
 import { CreateMemberHandler } from './application/commands/create-member.handler';
 import { UpdateMemberHandler } from './application/commands/update-member.handler';
 import { SimpleRegistrationHandler } from './application/commands/simple-registration.handler';
+import { ProcessVoluntaryLeaveHandler } from './application/commands/voluntary-leave.handler';
+import { ProcessNonpaymentLeaveHandler } from './application/commands/nonpayment-leave.handler';
+import { ReinstateMemberHandler } from './application/commands/reinstate-member.handler';
 import { GetMemberTypeHandler } from './application/queries/get-member-type.handler';
 import { ListMemberTypesHandler } from './application/queries/list-member-types.handler';
 import { GetTemplatesHandler } from './application/queries/get-templates.handler';
@@ -29,6 +33,8 @@ import { GetMemberHandler } from './application/queries/get-member.handler';
 import { ListMembersHandler } from './application/queries/list-members.handler';
 import { CheckDniHandler } from './application/queries/check-dni.handler';
 import { ValidatePreconditionsHandler } from './application/queries/validate-preconditions.handler';
+import { GetLeaveSummaryHandler } from './application/queries/leave-summary.handler';
+import { GetReinstatementSummaryHandler } from './application/queries/reinstatement-summary.handler';
 import { MEMBER_TYPE_REPOSITORY } from './domain/repositories/member-type.repository';
 import { PrismaMemberTypeRepository } from './infrastructure/persistence/prisma-member-type.repository';
 import { FISCAL_YEAR_REPOSITORY } from './domain/repositories/fiscal-year.repository';
@@ -40,6 +46,8 @@ import { PrismaStatusHistoryRepository } from './infrastructure/persistence/pris
 import { ENCRYPTION_SERVICE } from './domain/ports/encryption-service.port';
 import { REGISTRATION_CHARGE_PORT } from './domain/ports/registration-charge.port';
 import { PrismaRegistrationChargeAdapter } from './infrastructure/ports/prisma-registration-charge.adapter';
+import { SUBSCRIPTION_QUERY_PORT } from './domain/ports/subscription-query.port';
+import { PrismaSubscriptionQueryAdapter } from './infrastructure/ports/prisma-subscription-query.adapter';
 import { Aes256EncryptionService } from './infrastructure/services/aes256-encryption.service';
 import { MemberPrismaMapper } from './infrastructure/persistence/member-prisma.mapper';
 import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma-tenant.service';
@@ -57,7 +65,8 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
  * - MemberStatusController para endpoints REST de gestión de estados (UC-007)
  * - MembersController para endpoints REST de fichas de socio (UC-006)
  * - RegistrationController para endpoints REST de alta simple de socio (UC-011)
- * - Handlers CQRS: crear, actualizar, desactivar, importar plantillas, registro simple, consultas
+ * - MemberLeaveController para endpoints REST de baja y rehabilitación de socio (UC-013)
+ * - Handlers CQRS: crear, actualizar, desactivar, importar plantillas, registro simple, baja, rehabilitación, consultas
  * - Repositorios MemberType, FiscalYear, Member y StatusHistory vía inyección por token
  * - Aes256EncryptionService para cifrado de IBAN (RNF-006)
  * - MemberPrismaMapper como servicio inyectable
@@ -71,6 +80,7 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
     MemberStatusController,
     MembersController,
     RegistrationController,
+    MemberLeaveController,
   ],
   providers: [
     // Handlers CQRS — Comandos (MemberType)
@@ -93,6 +103,11 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
 
     // Handlers CQRS — Comandos (Member - UC-011)
     SimpleRegistrationHandler,
+
+    // Handlers CQRS — Comandos (Member - UC-013)
+    ProcessVoluntaryLeaveHandler,
+    ProcessNonpaymentLeaveHandler,
+    ReinstateMemberHandler,
 
     // Handlers CQRS — Queries (MemberType)
     GetMemberTypeHandler,
@@ -117,6 +132,10 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
     CheckDniHandler,
     ValidatePreconditionsHandler,
 
+    // Handlers CQRS — Queries (Member - UC-013)
+    GetLeaveSummaryHandler,
+    GetReinstatementSummaryHandler,
+
     // Repositorios (inyección por token)
     {
       provide: MEMBER_TYPE_REPOSITORY,
@@ -139,6 +158,12 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
     {
       provide: REGISTRATION_CHARGE_PORT,
       useClass: PrismaRegistrationChargeAdapter,
+    },
+
+    // Puerto cross-BC de consultas de suscripciones y cargos (UC-013)
+    {
+      provide: SUBSCRIPTION_QUERY_PORT,
+      useClass: PrismaSubscriptionQueryAdapter,
     },
 
     // Servicio de cifrado (RNF-006)

@@ -23,10 +23,13 @@ export class StatusTransitionValidator {
       'PENDING_PAYMENT',
       [MemberStatus.ACTIVE, MemberStatus.SUSPENDED, MemberStatus.NONPAYMENT_LEAVE],
     ],
-    ['SUSPENDED', [MemberStatus.ACTIVE, MemberStatus.DISCIPLINARY_LEAVE]],
+    [
+      'SUSPENDED',
+      [MemberStatus.ACTIVE, MemberStatus.DISCIPLINARY_LEAVE, MemberStatus.NONPAYMENT_LEAVE],
+    ],
     ['APPLICANT', [MemberStatus.ACTIVE, MemberStatus.VOLUNTARY_LEAVE]],
-    ['VOLUNTARY_LEAVE', []],
-    ['NONPAYMENT_LEAVE', []],
+    ['VOLUNTARY_LEAVE', [MemberStatus.ACTIVE]],
+    ['NONPAYMENT_LEAVE', [MemberStatus.ACTIVE]],
     ['DISCIPLINARY_LEAVE', []],
     ['DECEASED', []],
   ]);

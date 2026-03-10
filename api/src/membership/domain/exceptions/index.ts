@@ -19,3 +19,7 @@ export { MemberTypeNotActiveError } from './member-type-not-active.exception';
 export { NoOpenFiscalYearError } from './no-open-fiscal-year.exception';
 export { NoRegistrationPlanError } from './no-registration-plan.exception';
 export { NoActiveMemberTypesError } from './no-active-member-types.exception';
+export { MemberCannotLeaveError } from './member-cannot-leave.exception';
+export { MemberCannotReinstateError } from './member-cannot-reinstate.exception';
+export { PaymentNotConfirmedError } from './payment-not-confirmed.exception';
+export { NoPendingDebtError } from './no-pending-debt.exception';

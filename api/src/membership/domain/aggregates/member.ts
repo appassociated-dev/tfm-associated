@@ -8,7 +8,11 @@ import { StatusTransitionValidator } from '../services/status-transition-validat
 import { MemberStatusChangedEvent } from '../events/member-status-changed.event';
 import { MemberRegisteredEvent } from '../events/member-registered.event';
 import { MemberDataUpdatedEvent } from '../events/member-data-updated.event';
+import { MemberDeactivatedEvent } from '../events/member-deactivated.event';
+import { MemberReinstatedEvent } from '../events/member-reinstated.event';
 import { TransitionNotAllowedError } from '../exceptions/transition-not-allowed.exception';
+import { MemberCannotLeaveError } from '../exceptions/member-cannot-leave.exception';
+import { MemberCannotReinstateError } from '../exceptions/member-cannot-reinstate.exception';
 import { MemberNumber } from '../value-objects/member-number';
 import { PersonalData } from '../value-objects/personal-data';
 import { ContactData } from '../value-objects/contact-data';
@@ -443,5 +447,150 @@ export class Member extends AggregateRoot<MemberId> {
     }
 
     return { years: Math.max(0, years), months: Math.max(0, months) };
+  }
+
+  // --- Métodos de negocio (Task 8 — UC-013: Baja de socio) ---
+
+  /**
+   * Indica si el socio puede causar baja desde su estado actual.
+   * Solo se permite baja desde estados que tengan transición a algún tipo de LEAVE.
+   */
+  canLeave(): boolean {
+    const leaveStatuses = [
+      MemberStatus.VOLUNTARY_LEAVE,
+      MemberStatus.NONPAYMENT_LEAVE,
+      MemberStatus.DISCIPLINARY_LEAVE,
+    ];
+
+    // Verificar si ya está en un estado de baja o fallecido
+    if (leaveStatuses.some((s) => this._currentStatus.equals(s))) return false;
+    if (this._currentStatus.equals(MemberStatus.DECEASED)) return false;
+
+    return true;
+  }
+
+  /**
+   * Indica si el socio puede ser rehabilitado desde su estado actual.
+   * Solo se permite rehabilitación desde VOLUNTARY_LEAVE o NONPAYMENT_LEAVE.
+   */
+  canReinstate(): boolean {
+    return (
+      this._currentStatus.equals(MemberStatus.VOLUNTARY_LEAVE) ||
+      this._currentStatus.equals(MemberStatus.NONPAYMENT_LEAVE)
+    );
+  }
+
+  /**
+   * Procesa la baja de un socio.
+   * Delega la transición de estado a changeStatus() (reutiliza la máquina de estados existente),
+   * establece la fecha de baja y emite MemberDeactivatedEvent con payload enriquecido.
+   *
+   * @param leaveStatus Estado de baja destino (VOLUNTARY_LEAVE, NONPAYMENT_LEAVE, DISCIPLINARY_LEAVE, DECEASED).
+   * @param effectiveDate Fecha efectiva de la baja.
+   * @param reason Motivo de la baja.
+   * @param transitionValidator Validador de transiciones de estado.
+   * @param pendingDebt Deuda pendiente en centavos (0 si no hay).
+   */
+  processLeave(
+    leaveStatus: MemberStatus,
+    effectiveDate: Date,
+    reason: StatusChangeReason,
+    transitionValidator: StatusTransitionValidator,
+    pendingDebt: number = 0,
+  ): Result<void, TransitionNotAllowedError | MemberCannotLeaveError> {
+    // Verificar que el socio puede causar baja
+    if (!this.canLeave()) {
+      return {
+        ok: false,
+        error: new MemberCannotLeaveError(this._currentStatus.value),
+      };
+    }
+
+    // Delegar la validación de la transición al método existente changeStatus()
+    const changeResult = this.changeStatus(leaveStatus, reason, 'SYSTEM', transitionValidator);
+
+    if (!changeResult.ok) {
+      return changeResult;
+    }
+
+    // Establecer la fecha de baja
+    this._leaveDate = effectiveDate;
+
+    // Emitir evento específico de baja con payload enriquecido
+    this.addDomainEvent(
+      new MemberDeactivatedEvent({
+        memberId: this._id.toValue(),
+        memberNumber: this._memberNumber?.value ?? '',
+        leaveType: leaveStatus.value,
+        effectiveDate,
+        reason: reason.value,
+        pendingDebt,
+      }),
+    );
+
+    return { ok: true, value: undefined };
+  }
+
+  /**
+   * Rehabilita un socio dado de baja, devolviéndolo al estado ACTIVE.
+   * Delega la transición a changeStatus() (que ahora permite VOLUNTARY_LEAVE→ACTIVE
+   * y NONPAYMENT_LEAVE→ACTIVE) y emite MemberReinstatedEvent.
+   *
+   * @param reinstatementDate Fecha de rehabilitación.
+   * @param keepSeniority Si true, mantiene la fecha de registro original (conserva antigüedad).
+   * @param reason Motivo de la rehabilitación.
+   * @param transitionValidator Validador de transiciones de estado.
+   * @param debtPaid Indica si se ha pagado la deuda pendiente.
+   */
+  reinstate(
+    reinstatementDate: Date,
+    keepSeniority: boolean,
+    reason: StatusChangeReason,
+    transitionValidator: StatusTransitionValidator,
+    debtPaid: boolean = false,
+  ): Result<void, TransitionNotAllowedError | MemberCannotReinstateError> {
+    // Verificar que el socio puede ser rehabilitado
+    if (!this.canReinstate()) {
+      return {
+        ok: false,
+        error: new MemberCannotReinstateError(this._currentStatus.value),
+      };
+    }
+
+    const previousLeaveType = this._currentStatus.value;
+
+    // Delegar la transición de estado a changeStatus()
+    const changeResult = this.changeStatus(
+      MemberStatus.ACTIVE,
+      reason,
+      'SYSTEM',
+      transitionValidator,
+    );
+
+    if (!changeResult.ok) {
+      return changeResult;
+    }
+
+    // Si no se mantiene la antigüedad, actualizar la fecha de registro
+    if (!keepSeniority) {
+      this._registrationDate = reinstatementDate;
+    }
+
+    // Limpiar la fecha de baja
+    this._leaveDate = null;
+
+    // Emitir evento específico de rehabilitación
+    this.addDomainEvent(
+      new MemberReinstatedEvent({
+        memberId: this._id.toValue(),
+        memberNumber: this._memberNumber?.value ?? '',
+        previousLeaveType,
+        reinstatementDate,
+        debtPaid,
+        seniorityRecovered: keepSeniority,
+      }),
+    );
+
+    return { ok: true, value: undefined };
   }
 }
