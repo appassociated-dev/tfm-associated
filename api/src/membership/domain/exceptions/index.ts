@@ -16,3 +16,6 @@ export { DocumentAlreadyExistsError } from './document-already-exists.exception'
 export { EmailAlreadyExistsError } from './email-already-exists.exception';
 export { AgeNotEligibleError } from './age-not-eligible.exception';
 export { MemberTypeNotActiveError } from './member-type-not-active.exception';
+export { NoOpenFiscalYearError } from './no-open-fiscal-year.exception';
+export { NoRegistrationPlanError } from './no-registration-plan.exception';
+export { NoActiveMemberTypesError } from './no-active-member-types.exception';

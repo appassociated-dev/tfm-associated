@@ -4,6 +4,7 @@ import { MemberTypesController } from './infrastructure/controllers/member-types
 import { FiscalYearsController } from './infrastructure/controllers/fiscal-years.controller';
 import { MemberStatusController } from './infrastructure/controllers/member-status.controller';
 import { MembersController } from './infrastructure/controllers/members.controller';
+import { RegistrationController } from './infrastructure/controllers/registration.controller';
 import { CreateMemberTypeHandler } from './application/commands/create-member-type.handler';
 import { UpdateMemberTypeHandler } from './application/commands/update-member-type.handler';
 import { DeactivateMemberTypeHandler } from './application/commands/deactivate-member-type.handler';
@@ -14,6 +15,7 @@ import { ChangeStatusHandler } from './application/commands/change-status.handle
 import { RunDelinquencyCheckHandler } from './application/commands/run-delinquency-check.handler';
 import { CreateMemberHandler } from './application/commands/create-member.handler';
 import { UpdateMemberHandler } from './application/commands/update-member.handler';
+import { SimpleRegistrationHandler } from './application/commands/simple-registration.handler';
 import { GetMemberTypeHandler } from './application/queries/get-member-type.handler';
 import { ListMemberTypesHandler } from './application/queries/list-member-types.handler';
 import { GetTemplatesHandler } from './application/queries/get-templates.handler';
@@ -25,6 +27,8 @@ import { GetStatusHistoryHandler } from './application/queries/get-status-histor
 import { GetAvailableTransitionsHandler } from './application/queries/get-available-transitions.handler';
 import { GetMemberHandler } from './application/queries/get-member.handler';
 import { ListMembersHandler } from './application/queries/list-members.handler';
+import { CheckDniHandler } from './application/queries/check-dni.handler';
+import { ValidatePreconditionsHandler } from './application/queries/validate-preconditions.handler';
 import { MEMBER_TYPE_REPOSITORY } from './domain/repositories/member-type.repository';
 import { PrismaMemberTypeRepository } from './infrastructure/persistence/prisma-member-type.repository';
 import { FISCAL_YEAR_REPOSITORY } from './domain/repositories/fiscal-year.repository';
@@ -34,6 +38,8 @@ import { PrismaMemberRepository } from './infrastructure/persistence/prisma-memb
 import { STATUS_HISTORY_REPOSITORY } from './domain/repositories/status-history.repository';
 import { PrismaStatusHistoryRepository } from './infrastructure/persistence/prisma-status-history.repository';
 import { ENCRYPTION_SERVICE } from './domain/ports/encryption-service.port';
+import { REGISTRATION_CHARGE_PORT } from './domain/ports/registration-charge.port';
+import { PrismaRegistrationChargeAdapter } from './infrastructure/ports/prisma-registration-charge.adapter';
 import { Aes256EncryptionService } from './infrastructure/services/aes256-encryption.service';
 import { MemberPrismaMapper } from './infrastructure/persistence/member-prisma.mapper';
 import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma-tenant.service';
@@ -50,7 +56,8 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
  * - FiscalYearsController para endpoints REST de ejercicios fiscales (UC-010)
  * - MemberStatusController para endpoints REST de gestión de estados (UC-007)
  * - MembersController para endpoints REST de fichas de socio (UC-006)
- * - Handlers CQRS: crear, actualizar, desactivar, importar plantillas, consultas
+ * - RegistrationController para endpoints REST de alta simple de socio (UC-011)
+ * - Handlers CQRS: crear, actualizar, desactivar, importar plantillas, registro simple, consultas
  * - Repositorios MemberType, FiscalYear, Member y StatusHistory vía inyección por token
  * - Aes256EncryptionService para cifrado de IBAN (RNF-006)
  * - MemberPrismaMapper como servicio inyectable
@@ -63,6 +70,7 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
     FiscalYearsController,
     MemberStatusController,
     MembersController,
+    RegistrationController,
   ],
   providers: [
     // Handlers CQRS — Comandos (MemberType)
@@ -83,6 +91,9 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
     CreateMemberHandler,
     UpdateMemberHandler,
 
+    // Handlers CQRS — Comandos (Member - UC-011)
+    SimpleRegistrationHandler,
+
     // Handlers CQRS — Queries (MemberType)
     GetMemberTypeHandler,
     ListMemberTypesHandler,
@@ -102,6 +113,10 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
     GetMemberHandler,
     ListMembersHandler,
 
+    // Handlers CQRS — Queries (Member - UC-011)
+    CheckDniHandler,
+    ValidatePreconditionsHandler,
+
     // Repositorios (inyección por token)
     {
       provide: MEMBER_TYPE_REPOSITORY,
@@ -118,6 +133,12 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
     {
       provide: STATUS_HISTORY_REPOSITORY,
       useClass: PrismaStatusHistoryRepository,
+    },
+
+    // Puerto cross-BC de cargos de alta (UC-011)
+    {
+      provide: REGISTRATION_CHARGE_PORT,
+      useClass: PrismaRegistrationChargeAdapter,
     },
 
     // Servicio de cifrado (RNF-006)

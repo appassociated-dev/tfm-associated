@@ -98,6 +98,10 @@ const CODE_TO_STATUS: Array<{ pattern: string; status: number; match: 'exact' | 
   { pattern: '.ALREADY_OPEN', status: HttpStatus.CONFLICT, match: 'suffix' },
   { pattern: '.IS_TRANSITION_TARGET', status: HttpStatus.CONFLICT, match: 'suffix' },
   { pattern: '.OPTIMISTIC_LOCKING', status: HttpStatus.CONFLICT, match: 'suffix' },
+  // 412 Precondition Failed (por sufijo — precondiciones no satisfechas)
+  { pattern: '.NO_OPEN_FISCAL_YEAR', status: HttpStatus.PRECONDITION_FAILED, match: 'suffix' },
+  { pattern: '.NO_REGISTRATION_PLAN', status: HttpStatus.PRECONDITION_FAILED, match: 'suffix' },
+  { pattern: '.NO_ACTIVE_MEMBER_TYPES', status: HttpStatus.PRECONDITION_FAILED, match: 'suffix' },
   // 422 Unprocessable Entity (por sufijo)
   { pattern: '.TRANSITION_NOT_ALLOWED', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
   { pattern: '.INVALID_DATA', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
