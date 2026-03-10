@@ -50,3 +50,24 @@ model MemberType {
 
   @@map("member_types")
 }
+
+/// Ejercicio fiscal que agrupa temporalmente la actividad de la colectividad (UC-010).
+model FiscalYear {
+  id                      String    @id @default(uuid()) @db.Uuid
+  name                    String    @unique @db.VarChar(100)
+  type                    String    @db.VarChar(20)
+  startDate               DateTime  @map("start_date") @db.Date
+  endDate                 DateTime  @map("end_date") @db.Date
+  status                  String    @default("PREPARATION") @db.VarChar(20)
+  previousFiscalYearId    String?   @map("previous_fiscal_year_id") @db.Uuid
+  membersAtStart          Int       @default(0) @map("members_at_start")
+  membersAtEnd            Int?      @map("members_at_end")
+  reportId                String?   @map("report_id") @db.Uuid
+  createdAt               DateTime  @default(now()) @map("created_at")
+  closedAt                DateTime? @map("closed_at")
+
+  previousFiscalYear      FiscalYear?  @relation("FiscalYearChain", fields: [previousFiscalYearId], references: [id])
+  nextFiscalYears         FiscalYear[] @relation("FiscalYearChain")
+
+  @@map("fiscal_years")
+}

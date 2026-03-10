@@ -15,7 +15,7 @@ import { InvalidRefreshTokenError } from '../../domain/exceptions/invalid-refres
 const ACCESS_TOKEN_EXPIRY_SECONDS = 900;
 
 /** Días de validez del refresh token. */
-const REFRESH_TOKEN_EXPIRY_DAYS = 7;
+const REFRESH_TOKEN_EXPIRY_DAYS = 30;
 
 /**
  * Handler del comando de renovación de tokens.

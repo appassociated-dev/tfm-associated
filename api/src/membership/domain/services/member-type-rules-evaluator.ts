@@ -1,5 +1,22 @@
 import { MemberType } from '../aggregates/member-type';
 
+/** Datos mínimos de un socio para evaluar transiciones por edad. */
+export interface MemberForTransition {
+  memberId: string;
+  birthDate: Date;
+  currentTypeId: string;
+}
+
+/** Resultado de una transición pendiente de categoría por edad. */
+export interface PendingTransition {
+  memberId: string;
+  previousTypeId: string;
+  previousTypeName: string;
+  newTypeId: string;
+  newTypeName: string;
+  reason: string;
+}
+
 /** Resultado de la evaluación de elegibilidad por edad. */
 export interface AgeEligibilityResult {
   eligible: boolean;
@@ -101,6 +118,69 @@ export class MemberTypeRulesEvaluator {
       reason: `Insufficient seniority: ${seniorityMonths} months, requires ${memberType.minimumSeniorityForOffice}`,
       monthsRemaining: Math.max(0, monthsRemaining),
     };
+  }
+
+  /**
+   * Calcula las transiciones pendientes de categoría por edad.
+   * Para cada socio, evalúa si su edad excede el rango de su tipo actual
+   * y si dicho tipo tiene configurado un tipo destino de transición automática.
+   *
+   * @param members Lista de socios con sus datos mínimos.
+   * @param memberTypes Mapa de tipos de socio indexados por ID.
+   * @param referenceDate Fecha de referencia para calcular la edad (inicio del ejercicio).
+   */
+  calculatePendingTransitions(
+    members: MemberForTransition[],
+    memberTypes: Map<string, MemberType>,
+    referenceDate: Date = new Date(),
+  ): PendingTransition[] {
+    const transitions: PendingTransition[] = [];
+
+    for (const member of members) {
+      const currentType = memberTypes.get(member.currentTypeId);
+      if (!currentType) continue;
+
+      // Verificar si el tipo tiene transición automática configurada
+      if (!currentType.automaticTransitionTargetId) continue;
+
+      const targetTypeId = currentType.automaticTransitionTargetId.toValue();
+      const targetType = memberTypes.get(targetTypeId);
+      if (!targetType || !targetType.active) continue;
+
+      // Calcular edad a la fecha de referencia
+      const age = this.calculateAgeAtDate(member.birthDate, referenceDate);
+
+      // Si la edad excede el máximo del tipo actual, transicionar
+      const eligibility = this.evaluateAgeEligibility(currentType, member.birthDate);
+      if (!eligibility.eligible) {
+        // Verificar que el socio sí es elegible para el tipo destino
+        const targetEligibility = this.evaluateAgeEligibility(targetType, member.birthDate);
+        if (targetEligibility.eligible) {
+          transitions.push({
+            memberId: member.memberId,
+            previousTypeId: member.currentTypeId,
+            previousTypeName: currentType.name,
+            newTypeId: targetTypeId,
+            newTypeName: targetType.name,
+            reason: `Edad ${age} excede el rango del tipo '${currentType.name}', transición automática a '${targetType.name}'`,
+          });
+        }
+      }
+    }
+
+    return transitions;
+  }
+
+  /** Calcula la edad en años a una fecha de referencia dada. */
+  private calculateAgeAtDate(birthDate: Date, referenceDate: Date): number {
+    let age = referenceDate.getFullYear() - birthDate.getFullYear();
+    const monthDiff = referenceDate.getMonth() - birthDate.getMonth();
+
+    if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age;
   }
 
   /** Calcula la edad en años a partir de la fecha de nacimiento. */

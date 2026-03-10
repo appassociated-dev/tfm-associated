@@ -36,8 +36,9 @@ export class PermissionsGuard implements CanActivate {
     }
 
     // Verificar que el usuario tenga TODOS los permisos requeridos
+    // Soporta wildcards: '*' concede todo, 'membership:*' concede todo bajo membership
     const hasAll = requiredPermissions.every((permission) =>
-      user.permissions!.includes(permission),
+      this.hasPermission(user.permissions!, permission),
     );
 
     if (!hasAll) {
@@ -45,5 +46,27 @@ export class PermissionsGuard implements CanActivate {
     }
 
     return true;
+  }
+
+  /**
+   * Verifica si un permiso requerido está cubierto por alguno de los permisos del usuario.
+   * Soporta wildcards jerárquicos:
+   *   - '*' concede acceso total
+   *   - 'membership:*' concede 'membership:fiscal-years:create', 'membership:members:read', etc.
+   *   - 'treasury:payments:read:*' concede 'treasury:payments:read:own', etc.
+   */
+  private hasPermission(userPermissions: string[], required: string): boolean {
+    return userPermissions.some((granted) => {
+      // Coincidencia exacta
+      if (granted === required) return true;
+      // Wildcard total
+      if (granted === '*') return true;
+      // Wildcard jerárquico: 'membership:*' cubre 'membership:anything:here'
+      if (granted.endsWith(':*')) {
+        const prefix = granted.slice(0, -1); // 'membership:'
+        return required.startsWith(prefix);
+      }
+      return false;
+    });
   }
 }

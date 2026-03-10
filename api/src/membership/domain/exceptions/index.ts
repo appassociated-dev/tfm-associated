@@ -3,3 +3,8 @@ export { MemberTypeNotFoundError } from './member-type-not-found.exception';
 export { InvalidMemberTypeDataError } from './invalid-member-type-data.exception';
 export { CircularTransitionError } from './circular-transition.exception';
 export { MemberTypeIsTransitionTargetError } from './member-type-is-transition-target.exception';
+export { FiscalYearNotFoundError } from './fiscal-year-not-found.exception';
+export { FiscalYearAlreadyOpenError } from './fiscal-year-already-open.exception';
+export { FiscalYearOverlappingDatesError } from './fiscal-year-overlapping-dates.exception';
+export { FiscalYearInvalidTransitionError } from './fiscal-year-invalid-transition.exception';
+export { FiscalYearCloseWarningsError } from './fiscal-year-close-warnings.exception';

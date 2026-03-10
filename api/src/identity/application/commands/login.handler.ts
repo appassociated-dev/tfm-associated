@@ -18,7 +18,7 @@ import { AccountBlockedError } from '../../domain/exceptions/account-blocked.err
 const ACCESS_TOKEN_EXPIRY_SECONDS = 900;
 
 /** Días de validez del refresh token. */
-const REFRESH_TOKEN_EXPIRY_DAYS = 7;
+const REFRESH_TOKEN_EXPIRY_DAYS = 30;
 
 /**
  * Handler del comando de inicio de sesión.

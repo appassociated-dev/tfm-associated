@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { MemberTypeRulesEvaluator } from '../services/member-type-rules-evaluator';
+import {
+  MemberTypeRulesEvaluator,
+  MemberForTransition,
+} from '../services/member-type-rules-evaluator';
 import { MemberType } from '../aggregates/member-type';
 
 /** Helper para crear un MemberType válido con opciones configurables. */
@@ -154,6 +157,160 @@ describe('MemberTypeRulesEvaluator', () => {
 
       expect(result.eligible).toBe(false);
       expect(result.reason).toBeDefined();
+    });
+  });
+
+  // --- calculatePendingTransitions ---
+
+  describe('calculatePendingTransitions', () => {
+    it('debería retornar array vacío cuando no hay socios', () => {
+      const memberTypes = new Map<string, MemberType>();
+      const result = evaluator.calculatePendingTransitions([], memberTypes);
+
+      expect(result).toEqual([]);
+    });
+
+    it('debería retornar array vacío cuando el tipo no tiene transición automática', () => {
+      const mt = createMemberType({
+        ageRangeMin: 18,
+        ageRangeMax: 30,
+        automaticTransitionTargetId: null,
+      });
+
+      const memberTypes = new Map<string, MemberType>();
+      memberTypes.set(mt.id.toValue(), mt);
+
+      const members: MemberForTransition[] = [
+        {
+          memberId: '550e8400-e29b-41d4-a716-446655440001',
+          birthDate: new Date(1980, 0, 1), // 46 años, fuera de rango
+          currentTypeId: mt.id.toValue(),
+        },
+      ];
+
+      const result = evaluator.calculatePendingTransitions(members, memberTypes);
+
+      expect(result).toEqual([]);
+    });
+
+    it('debería detectar transición cuando la edad excede el rango y hay tipo destino', () => {
+      // Tipo destino: Adulto (31-65)
+      const adultType = createMemberType({
+        code: 'ADULT',
+        name: 'Adulto',
+        ageRangeMin: 31,
+        ageRangeMax: 65,
+        automaticTransitionTargetId: null,
+      });
+
+      // Tipo origen: Juvenil (18-30) con transición automática a Adulto
+      const youthType = createMemberType({
+        code: 'YOUTH',
+        name: 'Juvenil',
+        ageRangeMin: 18,
+        ageRangeMax: 30,
+        automaticTransitionTargetId: adultType.id.toValue(),
+      });
+
+      const memberTypes = new Map<string, MemberType>();
+      memberTypes.set(youthType.id.toValue(), youthType);
+      memberTypes.set(adultType.id.toValue(), adultType);
+
+      // Socio de 35 años (fuera de rango Juvenil)
+      const birthDate = new Date();
+      birthDate.setFullYear(birthDate.getFullYear() - 35);
+
+      const members: MemberForTransition[] = [
+        {
+          memberId: '550e8400-e29b-41d4-a716-446655440001',
+          birthDate,
+          currentTypeId: youthType.id.toValue(),
+        },
+      ];
+
+      const result = evaluator.calculatePendingTransitions(members, memberTypes);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].memberId).toBe('550e8400-e29b-41d4-a716-446655440001');
+      expect(result[0].previousTypeId).toBe(youthType.id.toValue());
+      expect(result[0].newTypeId).toBe(adultType.id.toValue());
+      expect(result[0].reason).toContain('transición automática');
+    });
+
+    it('debería no transicionar cuando la edad aún está en rango', () => {
+      const adultType = createMemberType({
+        code: 'ADULT',
+        name: 'Adulto',
+        ageRangeMin: 31,
+        ageRangeMax: 65,
+        automaticTransitionTargetId: null,
+      });
+
+      const youthType = createMemberType({
+        code: 'YOUTH',
+        name: 'Juvenil',
+        ageRangeMin: 18,
+        ageRangeMax: 30,
+        automaticTransitionTargetId: adultType.id.toValue(),
+      });
+
+      const memberTypes = new Map<string, MemberType>();
+      memberTypes.set(youthType.id.toValue(), youthType);
+      memberTypes.set(adultType.id.toValue(), adultType);
+
+      // Socio de 25 años (dentro de rango Juvenil)
+      const birthDate = new Date();
+      birthDate.setFullYear(birthDate.getFullYear() - 25);
+
+      const members: MemberForTransition[] = [
+        {
+          memberId: '550e8400-e29b-41d4-a716-446655440001',
+          birthDate,
+          currentTypeId: youthType.id.toValue(),
+        },
+      ];
+
+      const result = evaluator.calculatePendingTransitions(members, memberTypes);
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('debería ignorar socios cuyo tipo destino está inactivo', () => {
+      const adultType = createMemberType({
+        code: 'ADULT',
+        name: 'Adulto',
+        ageRangeMin: 31,
+        ageRangeMax: 65,
+        automaticTransitionTargetId: null,
+      });
+      adultType.deactivate(); // Tipo destino inactivo
+
+      const youthType = createMemberType({
+        code: 'YOUTH',
+        name: 'Juvenil',
+        ageRangeMin: 18,
+        ageRangeMax: 30,
+        automaticTransitionTargetId: adultType.id.toValue(),
+      });
+
+      const memberTypes = new Map<string, MemberType>();
+      memberTypes.set(youthType.id.toValue(), youthType);
+      memberTypes.set(adultType.id.toValue(), adultType);
+
+      const birthDate = new Date();
+      birthDate.setFullYear(birthDate.getFullYear() - 35);
+
+      const members: MemberForTransition[] = [
+        {
+          memberId: '550e8400-e29b-41d4-a716-446655440001',
+          birthDate,
+          currentTypeId: youthType.id.toValue(),
+        },
+      ];
+
+      const result = evaluator.calculatePendingTransitions(members, memberTypes);
+
+      expect(result).toHaveLength(0);
     });
   });
 });

@@ -4,6 +4,7 @@ import { Email } from '../value-objects/email';
 import { PasswordHash } from '../value-objects/password-hash';
 import { UserStatus } from '../value-objects/user-status';
 import { UserAuthenticatedEvent } from '../events/user-authenticated.event';
+import { AuthenticationFailedEvent } from '../events/authentication-failed.event';
 import { UserBlockedEvent } from '../events/user-blocked.event';
 import type { PasswordHasher } from '../ports/password-hasher.port';
 
@@ -147,6 +148,17 @@ export class User extends AggregateRoot<UserId> {
 
     if (!isValid) {
       this.recordFailedAttempt();
+
+      // Emitir evento de fallo de autenticación para auditoría
+      this.addDomainEvent(
+        new AuthenticationFailedEvent({
+          email: this._email.value,
+          ipAddress: '', // Se completará en la capa de aplicación cuando esté disponible
+          timestamp: new Date(),
+          attemptCount: this._failedAttempts,
+        }),
+      );
+
       return {
         ok: false,
         error: new AuthenticationError('Credenciales inválidas.', 'USER.INVALID_CREDENTIALS'),

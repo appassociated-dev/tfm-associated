@@ -288,10 +288,12 @@ describe('User', () => {
       await user.authenticate('wrong-password', hasher);
 
       const events = user.pullDomainEvents();
-      expect(events).toHaveLength(1);
-      expect(events[0]).toBeInstanceOf(UserBlockedEvent);
+      // Se emiten 2 eventos: AuthenticationFailedEvent + UserBlockedEvent
+      expect(events).toHaveLength(2);
+      const blockedEvent = events.find((e) => e instanceof UserBlockedEvent);
+      expect(blockedEvent).toBeDefined();
 
-      const event = events[0] as UserBlockedEvent;
+      const event = blockedEvent as UserBlockedEvent;
       expect(event.payload.userId).toBe(user.id.toValue());
       expect(event.payload.email).toBe(user.email.value);
       expect(event.payload.blockDuration).toBe(15 * 60 * 1000);
