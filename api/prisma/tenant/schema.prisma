@@ -47,6 +47,7 @@ model MemberType {
 
   automaticTransitionTarget    MemberType?  @relation("AutoTransition", fields: [automaticTransitionTargetId], references: [id])
   transitionSources            MemberType[] @relation("AutoTransition")
+  members                      Member[]
 
   @@map("member_types")
 }
@@ -70,4 +71,36 @@ model FiscalYear {
   nextFiscalYears         FiscalYear[] @relation("FiscalYearChain")
 
   @@map("fiscal_years")
+}
+
+/// Socio de la colectividad con máquina de estados (UC-007).
+/// Modelo mínimo para soportar gestión de estados; se extenderá en UC-006.
+model Member {
+  id             String    @id @default(uuid()) @db.Uuid
+  member_type_id String    @db.Uuid
+  current_status String    @default("APPLICANT") @db.VarChar(30)
+  version        Int       @default(0)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  memberType     MemberType @relation(fields: [member_type_id], references: [id])
+
+  @@map("members")
+}
+
+/// Historial de cambios de estado de un socio (UC-007).
+/// INSERT-only: nunca se actualiza ni elimina un registro.
+/// Sin FK formal a Member (decisión de diseño — repositorio propio).
+model StatusHistory {
+  id              String    @id @default(uuid()) @db.Uuid
+  member_id       String    @db.Uuid
+  previous_status String    @db.VarChar(30)
+  new_status      String    @db.VarChar(30)
+  reason          String    @db.VarChar(500)
+  changed_by      String    @db.VarChar(100)
+  changed_at      DateTime  @default(now())
+
+  @@index([member_id])
+  @@index([member_id, changed_at(sort: Desc)])
+  @@map("status_history")
 }

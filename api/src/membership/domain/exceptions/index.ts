@@ -8,3 +8,7 @@ export { FiscalYearAlreadyOpenError } from './fiscal-year-already-open.exception
 export { FiscalYearOverlappingDatesError } from './fiscal-year-overlapping-dates.exception';
 export { FiscalYearInvalidTransitionError } from './fiscal-year-invalid-transition.exception';
 export { FiscalYearCloseWarningsError } from './fiscal-year-close-warnings.exception';
+export { TransitionNotAllowedError } from './transition-not-allowed.exception';
+export { MemberNotFoundError } from './member-not-found.exception';
+export { OptimisticLockingError } from './optimistic-locking.exception';
+export { InvalidStatusChangeReasonError } from './invalid-status-change-reason.exception';

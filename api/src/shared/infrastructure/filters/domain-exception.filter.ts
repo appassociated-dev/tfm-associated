@@ -97,7 +97,9 @@ const CODE_TO_STATUS: Array<{ pattern: string; status: number; match: 'exact' | 
   { pattern: 'ALREADY_EXISTS', status: HttpStatus.CONFLICT, match: 'suffix' },
   { pattern: '.ALREADY_OPEN', status: HttpStatus.CONFLICT, match: 'suffix' },
   { pattern: '.IS_TRANSITION_TARGET', status: HttpStatus.CONFLICT, match: 'suffix' },
+  { pattern: '.OPTIMISTIC_LOCKING', status: HttpStatus.CONFLICT, match: 'suffix' },
   // 422 Unprocessable Entity (por sufijo)
+  { pattern: '.TRANSITION_NOT_ALLOWED', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
   { pattern: '.INVALID_DATA', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
   { pattern: '.INVALID_TRANSITION', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
   { pattern: '.OVERLAPPING_DATES', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
