@@ -172,6 +172,9 @@ model FeeSubscription {
   registrationDate  DateTime  @map("registration_date")
   leaveDate         DateTime? @map("leave_date")
   cancelReason      String?   @map("cancel_reason") @db.VarChar(200)
+  typeDiscount      Decimal   @default(0) @map("type_discount") @db.Decimal(5, 4)
+  personalDiscount  Decimal   @default(0) @map("personal_discount") @db.Decimal(5, 4)
+  personalDiscountReason String? @map("personal_discount_reason") @db.VarChar(500)
   effectiveAmount   Int       @map("effective_amount") // Importe efectivo en centavos
   status            String    @default("ACTIVE") @db.VarChar(20)
   createdAt         DateTime  @default(now()) @map("created_at")

@@ -1,8 +1,13 @@
+export { ActiveSubscriptionExistsError } from './active-subscription-exists.exception';
 export { BillingMonthsNotAllowedError } from './billing-months-not-allowed.exception';
 export { BillingMonthsRequiredError } from './billing-months-required.exception';
+export { DiscountExceedsLimitError } from './discount-exceeds-limit.exception';
 export { FeePlanCodeAlreadyExistsError } from './fee-plan-code-already-exists.exception';
 export { FeePlanHasActiveSubscriptionsError } from './fee-plan-has-active-subscriptions.exception';
 export { FeePlanNotFoundError } from './fee-plan-not-found.exception';
 export { InvalidBillingMonthsError } from './invalid-billing-months.exception';
 export { InvalidFeePlanCodeError } from './invalid-fee-plan-code.exception';
 export { InvalidMoneyError } from './invalid-money.exception';
+export { MemberAccountNotFoundError } from './member-account-not-found.exception';
+export { PlanNotAvailableForMemberTypeError } from './plan-not-available-for-member-type.exception';
+export { SubscriptionNotFoundError } from './subscription-not-found.exception';

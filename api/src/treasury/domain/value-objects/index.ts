@@ -1,6 +1,10 @@
 export { BillingMonths, BillingMonthsInvalidError } from './billing-months';
+export { Discount, DiscountInvalidError } from './discount';
 export { FeePlanCode, FeePlanCodeInvalidError } from './fee-plan-code';
 export { FeePlanId } from './fee-plan-id';
 export { Frequency } from './frequency';
+export { MemberAccountId } from './member-account-id';
 export { Money, MoneyInvalidError } from './money';
 export { PlanType } from './plan-type';
+export { SubscriptionCancelReason } from './subscription-cancel-reason';
+export { SubscriptionId } from './subscription-id';
