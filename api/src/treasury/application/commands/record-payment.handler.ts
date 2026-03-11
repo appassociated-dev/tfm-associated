@@ -22,6 +22,7 @@ import { PaymentReference } from '../../domain/value-objects/payment-reference';
 import { ReceiptNumber } from '../../domain/value-objects/receipt-number';
 import { ChargeStatus } from '../../domain/value-objects/charge-status';
 import { Payment } from '../../domain/entities/payment';
+import { ReceiptGeneratedEvent } from '../../domain/events/receipt-generated.event';
 import {
   MemberAccountNotFoundError,
   ChargeNotFoundError,
@@ -125,12 +126,19 @@ export class RecordPaymentHandler implements ICommandHandler<RecordPaymentComman
       throw recordResult.error;
     }
 
-    // 10. Persistir cambios
+    // 10. Persistir cambios de la cuenta, cargos y pagos de forma coherente
     await this.memberAccountRepository.save(memberAccount);
-    await this.paymentRepository.save(payment);
 
     // 11. Publicar eventos de dominio al outbox
-    const events = memberAccount.pullDomainEvents();
+    const events = [
+      ...memberAccount.pullDomainEvents(),
+      new ReceiptGeneratedEvent({
+        receiptId: payment.receiptNumber?.value ?? payment.id.toValue(),
+        paymentId: payment.id.toValue(),
+        receiptNumber: payment.receiptNumber?.value ?? 'PENDING',
+        issueDate: new Date(),
+      }),
+    ];
     if (events.length > 0) {
       await this.outboxPublisher.publish(command.tenantId, events);
     }

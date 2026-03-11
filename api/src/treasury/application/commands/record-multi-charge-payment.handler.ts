@@ -20,6 +20,7 @@ import { ChargeStatus } from '../../domain/value-objects/charge-status';
 import { PaymentMethod } from '../../domain/value-objects/payment-method';
 import { PaymentReference } from '../../domain/value-objects/payment-reference';
 import { ReceiptNumber } from '../../domain/value-objects/receipt-number';
+import { ReceiptGeneratedEvent } from '../../domain/events/receipt-generated.event';
 import {
   MemberAccountNotFoundError,
   ChargeNotFoundError,
@@ -121,12 +122,22 @@ export class RecordMultiChargePaymentHandler implements ICommandHandler<RecordMu
       payment.setReceiptNumber(receiptNumber);
     }
 
-    // 7. Persistir cambios
+    // 7. Persistir cambios de cuenta, cargos y pagos de forma coherente
     await this.memberAccountRepository.save(memberAccount);
-    await this.paymentRepository.saveMany(createdPayments);
 
     // 8. Publicar eventos de dominio al outbox
-    const events = memberAccount.pullDomainEvents();
+    const events = [
+      ...memberAccount.pullDomainEvents(),
+      ...createdPayments.map(
+        (payment) =>
+          new ReceiptGeneratedEvent({
+            receiptId: payment.receiptNumber?.value ?? payment.id.toValue(),
+            paymentId: payment.id.toValue(),
+            receiptNumber: payment.receiptNumber?.value ?? 'PENDING',
+            issueDate: new Date(),
+          }),
+      ),
+    ];
     if (events.length > 0) {
       await this.outboxPublisher.publish(command.tenantId, events);
     }

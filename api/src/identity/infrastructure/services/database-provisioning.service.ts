@@ -209,19 +209,6 @@ export class DatabaseProvisioningService implements DatabaseProvisioningPort {
     const dbName = this.extractDatabaseName(params.databaseUrl);
     const tenantIdFromDb = dbName.replace('associated_', '').replace(/_/g, '-');
 
-    // Crear usuario en la tabla users de la BD principal
-    await this.prisma.user.create({
-      data: {
-        id: userId,
-        email: params.email,
-        passwordHash: params.passwordHash,
-        name: params.name,
-        status: 'ACTIVE',
-        failedAttempts: 0,
-        createdAt: new Date(),
-      },
-    });
-
     // Buscar el rol PRESIDENT para este tenant
     const presidentRole = await this.prisma.role.findFirst({
       where: {
@@ -234,17 +221,33 @@ export class DatabaseProvisioningService implements DatabaseProvisioningPort {
       throw new Error(`Role '${params.roleId}' not found for tenant`);
     }
 
-    // Crear membresía tenant -> usuario -> rol
+    // Crear usuario + membresía en una sola transacción para evitar residuos parciales
     const membershipId = uuidV4();
-    await this.prisma.tenantMembership.create({
-      data: {
-        id: membershipId,
-        userId: userId,
-        tenantId: tenantIdFromDb,
-        roleId: presidentRole.id,
-        assignedAt: new Date(),
-        active: true,
-      },
+    const prismaClient = this.prisma.client as any;
+    await prismaClient.$transaction(async (tx: any) => {
+      await tx.user.create({
+        data: {
+          id: userId,
+          email: params.email,
+          passwordHash: params.passwordHash,
+          name: params.name,
+          status: 'ACTIVE',
+          failedAttempts: 0,
+          failedAttemptTimestamps: [],
+          createdAt: new Date(),
+        },
+      });
+
+      await tx.tenantMembership.create({
+        data: {
+          id: membershipId,
+          userId: userId,
+          tenantId: tenantIdFromDb,
+          roleId: presidentRole.id,
+          assignedAt: new Date(),
+          active: true,
+        },
+      });
     });
 
     this.logger.log(`Usuario administrador creado: ${userId}`);

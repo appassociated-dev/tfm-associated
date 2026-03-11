@@ -27,6 +27,15 @@ export interface PaymentRepository {
   /** Busca todos los pagos de una cuenta de socio. */
   findByMemberAccountId(memberAccountId: MemberAccountId): Promise<Payment[]>;
 
+  /** Busca un pago por su identificador único. */
+  findById?(paymentId: string): Promise<Payment | null>;
+
+  /** Obtiene el PDF del recibo asociado al pago, si existe. */
+  getReceiptDocument?(paymentId: string): Promise<Buffer | null>;
+
+  /** Actualiza el número y documento del recibo generado. */
+  updateReceipt?(paymentId: string, receiptNumber: string, receiptDocument: Buffer): Promise<void>;
+
   /**
    * Obtiene el siguiente número secuencial de pago para un método y año.
    * Usado para generar la referencia de pago ({PREFIX}-{YEAR}-{SEQUENCE}).

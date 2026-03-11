@@ -85,11 +85,15 @@ export class ProvisionTenantHandler implements ICommandHandler<ProvisionTenantCo
       currentStep = 'seedRoles';
       await this.databaseProvisioningService.seedRoles(databaseUrl);
 
-      // 3g. Hashear contraseña del admin con Argon2
+      // 3g. Registrar tenant en DB-Main antes de crear relaciones dependientes
+      currentStep = 'saveTenant';
+      await this.tenantRepository.save(tenant);
+
+      // 3h. Hashear contraseña del admin con Argon2
       currentStep = 'hashPassword';
       const passwordHash = await argon2.hash(command.adminPassword);
 
-      // 3h. Crear usuario administrador inicial
+      // 3i. Crear usuario administrador inicial
       currentStep = 'createAdminUser';
       const adminUserId = await this.databaseProvisioningService.createAdminUser({
         databaseUrl,
@@ -99,7 +103,7 @@ export class ProvisionTenantHandler implements ICommandHandler<ProvisionTenantCo
         roleId: 'PRESIDENT',
       });
 
-      // 3i. Registrar eventos de dominio con datos completos
+      // 3j. Registrar eventos de dominio con datos completos
       currentStep = 'emitEvents';
       tenant.registerProvisionedEvent(
         new TenantProvisionedEvent({
@@ -120,10 +124,6 @@ export class ProvisionTenantHandler implements ICommandHandler<ProvisionTenantCo
           createdAt: new Date(),
         }),
       );
-
-      // 3j. Guardar tenant en DB-Main
-      currentStep = 'saveTenant';
-      await this.tenantRepository.save(tenant);
 
       // 4. Retornar respuesta exitosa
       return new TenantProvisionedResponseDto(tenant.id.toValue(), tenant.slug.value, adminUserId);

@@ -41,16 +41,22 @@ export class GetReceiptHandler implements IQueryHandler<GetReceiptQuery> {
     this.memberQueryPort.setTenantId(query.tenantId);
     this.chargeRepository.setTenantId(query.tenantId);
 
-    // 2. Buscar el pago por ID (PrismaPaymentRepository implementa findById)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const paymentRepo = this.paymentRepository as any;
-    const payment = await paymentRepo.findById(query.paymentId);
+    if (!this.paymentRepository.findById) {
+      throw new Error('PaymentRepository no implementa findById().');
+    }
+
+    if (!this.paymentRepository.getReceiptDocument) {
+      throw new Error('PaymentRepository no implementa getReceiptDocument().');
+    }
+
+    // 2. Buscar el pago por ID
+    const payment = await this.paymentRepository.findById(query.paymentId);
     if (!payment) {
       throw new PaymentNotFoundError(query.paymentId);
     }
 
     // 3. Intentar obtener el PDF almacenado en BD
-    const storedPdf = await paymentRepo.getReceiptDocument(query.paymentId);
+    const storedPdf = await this.paymentRepository.getReceiptDocument(query.paymentId);
     if (storedPdf) {
       return storedPdf;
     }
@@ -119,8 +125,12 @@ export class GetReceiptHandler implements IQueryHandler<GetReceiptQuery> {
 
     // 6. Almacenar para futuras peticiones
     try {
-      if (payment.receiptNumber) {
-        await paymentRepo.updateReceipt(query.paymentId, payment.receiptNumber.value, pdfBuffer);
+      if (payment.receiptNumber && this.paymentRepository.updateReceipt) {
+        await this.paymentRepository.updateReceipt(
+          query.paymentId,
+          payment.receiptNumber.value,
+          pdfBuffer,
+        );
       }
     } catch (error) {
       this.logger.warn(

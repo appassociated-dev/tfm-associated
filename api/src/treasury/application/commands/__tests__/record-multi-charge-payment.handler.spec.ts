@@ -143,8 +143,14 @@ describe('RecordMultiChargePaymentHandler', () => {
 
     // Verificar persistencia
     expect(memberAccountRepository.save).toHaveBeenCalledTimes(1);
-    expect(paymentRepository.saveMany).toHaveBeenCalledTimes(1);
-    expect(outboxPublisher.publish).toHaveBeenCalledWith(TENANT_ID, expect.any(Array));
+    expect(paymentRepository.saveMany).not.toHaveBeenCalled();
+    expect(outboxPublisher.publish).toHaveBeenCalledWith(
+      TENANT_ID,
+      expect.arrayContaining([
+        expect.objectContaining({ eventType: 'payment.recorded' }),
+        expect.objectContaining({ eventType: 'receipt.generated' }),
+      ]),
+    );
   });
 
   it('debería lanzar MemberAccountNotFoundError cuando la cuenta no existe', async () => {

@@ -133,8 +133,14 @@ describe('RecordPaymentHandler', () => {
 
     // Verificar persistencia y publicación de eventos
     expect(memberAccountRepository.save).toHaveBeenCalledTimes(1);
-    expect(paymentRepository.save).toHaveBeenCalledTimes(1);
-    expect(outboxPublisher.publish).toHaveBeenCalledWith(TENANT_ID, expect.any(Array));
+    expect(paymentRepository.save).not.toHaveBeenCalled();
+    expect(outboxPublisher.publish).toHaveBeenCalledWith(
+      TENANT_ID,
+      expect.arrayContaining([
+        expect.objectContaining({ eventType: 'payment.recorded' }),
+        expect.objectContaining({ eventType: 'receipt.generated' }),
+      ]),
+    );
   });
 
   it('debería lanzar MemberAccountNotFoundError cuando la cuenta no existe', async () => {
@@ -202,8 +208,14 @@ describe('RecordPaymentHandler', () => {
 
     // Verificar que se persiste correctamente
     expect(memberAccountRepository.save).toHaveBeenCalledTimes(1);
-    expect(paymentRepository.save).toHaveBeenCalledTimes(1);
-    expect(outboxPublisher.publish).toHaveBeenCalledWith(TENANT_ID, expect.any(Array));
+    expect(paymentRepository.save).not.toHaveBeenCalled();
+    expect(outboxPublisher.publish).toHaveBeenCalledWith(
+      TENANT_ID,
+      expect.arrayContaining([
+        expect.objectContaining({ eventType: 'payment.recorded' }),
+        expect.objectContaining({ eventType: 'receipt.generated' }),
+      ]),
+    );
   });
 
   it('debería generar referencia con método TRANSFER', async () => {
