@@ -6,6 +6,10 @@ import {
   ChargesController,
   MemberAccountChargesController,
 } from './infrastructure/controllers/charges.controller';
+import {
+  PaymentsGlobalController,
+  MemberAccountPaymentsController,
+} from './infrastructure/controllers/payments.controller';
 import { CreateFeePlanHandler } from './application/commands/create-fee-plan.handler';
 import { UpdateFeePlanHandler } from './application/commands/update-fee-plan.handler';
 import { DeactivateFeePlanHandler } from './application/commands/deactivate-fee-plan.handler';
@@ -17,6 +21,8 @@ import { CloseSubscriptionHandler } from './application/commands/close-subscript
 import { UpdateSubscriptionDiscountHandler } from './application/commands/update-subscription-discount.handler';
 import { GenerateMonthlyChargesHandler } from './application/commands/generate-monthly-charges.handler';
 import { GenerateSubscriptionChargesHandler } from './application/commands/generate-subscription-charges.handler';
+import { RecordPaymentHandler } from './application/commands/record-payment.handler';
+import { RecordMultiChargePaymentHandler } from './application/commands/record-multi-charge-payment.handler';
 import { GetFeePlanHandler } from './application/queries/get-fee-plan.handler';
 import { ListFeePlansHandler } from './application/queries/list-fee-plans.handler';
 import { GetFeePlanTemplatesHandler } from './application/queries/get-fee-plan-templates.handler';
@@ -24,6 +30,11 @@ import { GetSubscriptionsHandler } from './application/queries/get-subscriptions
 import { GetActiveSubscriptionHandler } from './application/queries/get-active-subscription.handler';
 import { GetChargesByAccountHandler } from './application/queries/get-charges-by-account.handler';
 import { GetGenerationLogHandler } from './application/queries/get-generation-log.handler';
+import { GetPaymentsByAccountHandler } from './application/queries/get-payments-by-account.handler';
+import { GetPendingChargesHandler } from './application/queries/get-pending-charges.handler';
+import { GetAccountBalanceHandler } from './application/queries/get-account-balance.handler';
+import { GetReceiptHandler } from './application/queries/get-receipt.handler';
+import { SearchMembersForPaymentHandler } from './application/queries/search-members-for-payment.handler';
 import { FEE_PLAN_REPOSITORY } from './domain/repositories/fee-plan.repository';
 import { PrismaFeePlanRepository } from './infrastructure/persistence/prisma-fee-plan.repository';
 import { MEMBER_TYPE_FEE_PLAN_REPOSITORY } from './domain/repositories/member-type-fee-plan.repository';
@@ -32,6 +43,8 @@ import { MEMBER_ACCOUNT_REPOSITORY } from './domain/repositories/member-account.
 import { PrismaMemberAccountRepository } from './infrastructure/persistence/prisma-member-account.repository';
 import { CHARGE_REPOSITORY } from './domain/repositories/charge.repository';
 import { PrismaChargeRepository } from './infrastructure/persistence/prisma-charge.repository';
+import { PAYMENT_REPOSITORY } from './domain/repositories/payment.repository';
+import { PrismaPaymentRepository } from './infrastructure/persistence/prisma-payment.repository';
 import { MEMBER_TYPE_QUERY_PORT } from './domain/ports/member-type-query.port';
 import { PrismaMemberTypeQueryAdapter } from './infrastructure/ports/prisma-member-type-query.adapter';
 import { MEMBER_QUERY_PORT } from './domain/ports/member-query.port';
@@ -40,6 +53,8 @@ import { FISCAL_YEAR_QUERY_PORT } from './domain/ports/fiscal-year-query.port';
 import { PrismaFiscalYearQueryAdapter } from './infrastructure/ports/prisma-fiscal-year-query.adapter';
 import { TREASURY_OUTBOX_PUBLISHER } from './application/ports/treasury-outbox.publisher';
 import { PrismaTreasuryOutboxPublisher } from './infrastructure/services/prisma-treasury-outbox.publisher';
+import { RECEIPT_GENERATOR } from './infrastructure/services/receipt-generator';
+import { PdfReceiptGenerator } from './infrastructure/services/receipt-generator';
 import { ChargeGenerationCron } from './infrastructure/cron/charge-generation.cron';
 import { PrismaMainService } from '../shared/infrastructure/persistence/prisma-main.service';
 import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma-tenant.service';
@@ -53,12 +68,15 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
  * - FeePlansController para endpoints REST de planes de cuota (UC-017)
  * - SubscriptionsController para endpoints REST de suscripciones (UC-018)
  * - ChargesController y MemberAccountChargesController para endpoints REST de cargos (UC-019)
+ * - PaymentsGlobalController y MemberAccountPaymentsController para endpoints REST de pagos (UC-021)
  * - Handlers CQRS: crear, actualizar, desactivar, importar plantillas, vincular tipos de socio, consultas
  * - Handlers CQRS: crear suscripción, cambiar plan, cerrar, actualizar descuento, consultas de suscripciones
  * - Handlers CQRS: generación masiva de cargos, generación por suscripción, consulta de cargos por cuenta
- * - Repositorios FeePlan, MemberTypeFeePlan, MemberAccount y Charge vía inyección por token
+ * - Handlers CQRS: registro de cobros, cobro multi-cargo, consultas de pagos, balance, recibos, búsqueda de socios (UC-021)
+ * - Repositorios FeePlan, MemberTypeFeePlan, MemberAccount, Charge y Payment vía inyección por token
  * - Puertos anti-corrupción MemberTypeQueryPort, MemberQueryPort y FiscalYearQueryPort para consultas cross-BC (ADR-008)
  * - TreasuryOutboxPublisher para eventos de dominio al outbox (ADR-008)
+ * - ReceiptGenerator para generación de recibos PDF (UC-021, US-057)
  * - ChargeGenerationCron para generación automática mensual de cargos (US-047)
  * - PrismaTenantService para acceso a la BD del tenant (ADR-002)
  */
@@ -69,6 +87,8 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
     SubscriptionsController,
     ChargesController,
     MemberAccountChargesController,
+    PaymentsGlobalController,
+    MemberAccountPaymentsController,
   ],
   providers: [
     // Handlers CQRS — Comandos (FeePlan)
@@ -88,6 +108,10 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
     GenerateMonthlyChargesHandler,
     GenerateSubscriptionChargesHandler,
 
+    // Handlers CQRS — Comandos (Payments / UC-021)
+    RecordPaymentHandler,
+    RecordMultiChargePaymentHandler,
+
     // Handlers CQRS — Queries (FeePlan)
     GetFeePlanHandler,
     ListFeePlansHandler,
@@ -100,6 +124,13 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
     // Handlers CQRS — Queries (Charges / UC-019)
     GetChargesByAccountHandler,
     GetGenerationLogHandler,
+
+    // Handlers CQRS — Queries (Payments / UC-021)
+    GetPaymentsByAccountHandler,
+    GetPendingChargesHandler,
+    GetAccountBalanceHandler,
+    GetReceiptHandler,
+    SearchMembersForPaymentHandler,
 
     // Repositorios (inyección por token)
     {
@@ -117,6 +148,10 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
     {
       provide: CHARGE_REPOSITORY,
       useClass: PrismaChargeRepository,
+    },
+    {
+      provide: PAYMENT_REPOSITORY,
+      useClass: PrismaPaymentRepository,
     },
 
     // Puertos anti-corrupción cross-BC (ADR-008)
@@ -137,6 +172,12 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
     {
       provide: TREASURY_OUTBOX_PUBLISHER,
       useClass: PrismaTreasuryOutboxPublisher,
+    },
+
+    // Generador de recibos PDF (UC-021, US-057)
+    {
+      provide: RECEIPT_GENERATOR,
+      useClass: PdfReceiptGenerator,
     },
 
     // Cron job para generación automática mensual de cargos (US-047)

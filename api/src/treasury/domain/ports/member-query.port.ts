@@ -26,4 +26,7 @@ export interface MemberQueryPort {
 
   /** Obtiene todos los socios activos. */
   findActiveMembers(): Promise<MemberDto[]>;
+
+  /** Busca socios por nombre, apellidos, número de socio o DNI. */
+  searchMembers(query: string): Promise<MemberDto[]>;
 }

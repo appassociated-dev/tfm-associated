@@ -159,6 +159,7 @@ model MemberAccount {
   member        Member    @relation(fields: [memberId], references: [id])
   subscriptions FeeSubscription[]
   charges       Charge[]
+  payments      Payment[]
 
   @@map("member_accounts")
 }
@@ -212,6 +213,7 @@ model Charge {
 
   memberAccount       MemberAccount    @relation(fields: [memberAccountId], references: [id])
   feeSubscription     FeeSubscription? @relation(fields: [feeSubscriptionId], references: [id])
+  payments            Payment[]
 
   @@unique([feeSubscriptionId, billingMonth, billingYear], name: "unique_charge_per_period")
   @@index([memberAccountId, status])
@@ -234,4 +236,30 @@ model StatusHistory {
   @@index([member_id])
   @@index([member_id, changed_at(sort: Desc)])
   @@map("status_history")
+}
+
+/// Pago registrado sobre un cargo de un socio (BC-Treasury, UC-021).
+/// Vincula un importe cobrado a un cargo concreto de la cuenta de socio.
+model Payment {
+  id                String    @id @default(uuid()) @db.Uuid
+  memberAccountId   String    @map("member_account_id") @db.Uuid
+  chargeId          String    @map("charge_id") @db.Uuid
+  amount            Int
+  paymentMethod     String    @map("payment_method") @db.VarChar(30)
+  paymentDate       DateTime  @map("payment_date") @db.Date
+  paymentReference  String    @unique @map("payment_reference") @db.VarChar(30)
+  receiptNumber     String?   @unique @map("receipt_number") @db.VarChar(30)
+  receiptDocument   Bytes?    @map("receipt_document")
+  notes             String?   @db.VarChar(500)
+  registeredBy      String    @map("registered_by") @db.Uuid
+  status            String    @default("CONFIRMED") @db.VarChar(20)
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  memberAccount     MemberAccount @relation(fields: [memberAccountId], references: [id])
+  charge            Charge        @relation(fields: [chargeId], references: [id])
+
+  @@index([memberAccountId])
+  @@index([chargeId])
+  @@index([paymentDate])
+  @@map("payments")
 }

@@ -281,10 +281,11 @@ export class Charge extends Entity<ChargeId> {
    * @throws ChargeOperationError si el cargo no está pendiente/parcialmente pagado o el importe excede el restante.
    */
   recordPayment(amount: Money): void {
-    // Solo se puede pagar un cargo pendiente o parcialmente pagado
+    // Solo se puede pagar un cargo pendiente, parcialmente pagado o devuelto (regularización US-054 escenario B)
     if (
       !this._status.equals(ChargeStatus.PENDING) &&
-      !this._status.equals(ChargeStatus.PARTIALLY_PAID)
+      !this._status.equals(ChargeStatus.PARTIALLY_PAID) &&
+      !this._status.equals(ChargeStatus.RETURNED)
     ) {
       throw new ChargeOperationError(
         `No se puede registrar pago en un cargo con estado '${this._status.value}'.`,

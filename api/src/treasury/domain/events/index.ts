@@ -5,4 +5,6 @@ export { FeePlanModifiedEvent } from './fee-plan-modified.event';
 export { MonthlyGenerationCompletedEvent } from './monthly-generation-completed.event';
 export { SubscriptionCreatedEvent } from './subscription-created.event';
 export { SubscriptionModifiedEvent } from './subscription-modified.event';
+export { PaymentRecordedEvent } from './payment-recorded.event';
+export { ReceiptGeneratedEvent } from './receipt-generated.event';
 export { SubscriptionClosedEvent } from './subscription-closed.event';

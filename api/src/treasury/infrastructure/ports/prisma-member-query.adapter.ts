@@ -92,4 +92,52 @@ export class PrismaMemberQueryAdapter implements MemberQueryPort {
       }),
     );
   }
+
+  /**
+   * Busca socios por nombre, apellidos, número de socio o DNI usando ILIKE.
+   * Retorna coincidencias parciales para facilitar la búsqueda en el registro de cobros.
+   */
+  async searchMembers(query: string): Promise<MemberDto[]> {
+    const rawList = await this.prisma.member.findMany({
+      where: {
+        OR: [
+          { name: { contains: query, mode: 'insensitive' } },
+          { surnames: { contains: query, mode: 'insensitive' } },
+          { member_number: { contains: query, mode: 'insensitive' } },
+          { document_number: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+      select: {
+        id: true,
+        member_number: true,
+        name: true,
+        surnames: true,
+        member_type_id: true,
+        current_status: true,
+        document_number: true,
+      },
+      take: 20, // Limitar resultados para rendimiento
+      orderBy: { surnames: 'asc' },
+    });
+
+    return rawList.map(
+      (raw: {
+        id: string;
+        member_number: string;
+        name: string;
+        surnames: string;
+        member_type_id: string;
+        current_status: string;
+        document_number: string;
+      }) => ({
+        id: raw.id,
+        memberNumber: raw.member_number,
+        name: raw.name,
+        surnames: raw.surnames,
+        memberTypeId: raw.member_type_id,
+        currentStatus: raw.current_status,
+        active: raw.current_status !== 'LEAVE',
+      }),
+    );
+  }
 }
