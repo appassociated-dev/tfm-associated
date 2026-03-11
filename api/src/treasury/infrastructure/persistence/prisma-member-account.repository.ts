@@ -90,4 +90,23 @@ export class PrismaMemberAccountRepository implements MemberAccountRepository {
 
     return !!raw;
   }
+
+  /**
+   * Obtiene todas las cuentas de socio que tienen al menos una suscripción activa.
+   * Incluye las suscripciones para poder evaluar las activas en el dominio.
+   */
+  async findAllWithActiveSubscriptions(): Promise<MemberAccount[]> {
+    const rawList = await this.prisma.memberAccount.findMany({
+      where: {
+        subscriptions: {
+          some: { status: 'ACTIVE' },
+        },
+      },
+      include: { subscriptions: true },
+    });
+
+    return rawList.map((raw: unknown) =>
+      MemberAccountPrismaMapper.toDomain(raw as PrismaRawMemberAccount, this.tenantId),
+    );
+  }
 }

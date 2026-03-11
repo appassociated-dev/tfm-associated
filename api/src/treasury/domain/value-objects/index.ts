@@ -1,4 +1,7 @@
 export { BillingMonths, BillingMonthsInvalidError } from './billing-months';
+export { ChargeDescription, ChargeDescriptionInvalidError } from './charge-description';
+export { ChargeId } from './charge-id';
+export { ChargeStatus } from './charge-status';
 export { Discount, DiscountInvalidError } from './discount';
 export { FeePlanCode, FeePlanCodeInvalidError } from './fee-plan-code';
 export { FeePlanId } from './fee-plan-id';

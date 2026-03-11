@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { IdentityModule } from './identity/identity.module';
 import { MembershipModule } from './membership/membership.module';
 import { TreasuryModule } from './treasury/treasury.module';
@@ -11,9 +12,11 @@ import { ObservabilityModule } from './shared/infrastructure/observability/obser
  * Módulo raíz de la aplicación.
  * Importa todos los Bounded Context como módulos NestJS (ADR-003).
  * ObservabilityModule se registra como global (provee ERROR_REPORTER y EVENT_TRACKER).
+ * ScheduleModule habilita @Cron y demás decoradores de @nestjs/schedule.
  */
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ObservabilityModule.register(),
     IdentityModule,
     MembershipModule,

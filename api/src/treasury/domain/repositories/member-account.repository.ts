@@ -24,4 +24,7 @@ export interface MemberAccountRepository {
 
   /** Verifica si ya existe una cuenta de socio para el socio dado. */
   existsByMemberId(memberId: string): Promise<boolean>;
+
+  /** Obtiene todas las cuentas de socio que tienen al menos una suscripción activa. */
+  findAllWithActiveSubscriptions(): Promise<MemberAccount[]>;
 }

@@ -120,4 +120,80 @@ export class Money extends ValueObject<MoneyProps> {
     }
     return Money.create(this.props.amount * factor, this.props.currency);
   }
+
+  /**
+   * Divide el importe entre un divisor.
+   * Redondea al centavo más cercano (Math.round).
+   * Útil para cálculos de prorrateo.
+   */
+  divide(divisor: number): Result<Money, MoneyInvalidError> {
+    if (divisor === 0) {
+      return {
+        ok: false,
+        error: new MoneyInvalidError('No se puede dividir entre cero.'),
+      };
+    }
+    if (divisor < 0) {
+      return {
+        ok: false,
+        error: new MoneyInvalidError('El divisor debe ser mayor que cero.'),
+      };
+    }
+    const result = Math.round(this.props.amount / divisor);
+    return Money.create(result, this.props.currency);
+  }
+
+  /**
+   * Multiplica el importe por un factor decimal (para prorrateo).
+   * Redondea al centavo más cercano (Math.round).
+   * A diferencia de multiply(), acepta factores decimales >= 0.
+   */
+  multiplyDecimal(factor: number): Result<Money, MoneyInvalidError> {
+    if (factor < 0) {
+      return {
+        ok: false,
+        error: new MoneyInvalidError('El factor de multiplicación decimal debe ser >= 0.'),
+      };
+    }
+    const result = Math.round(this.props.amount * factor);
+    return Money.create(result, this.props.currency);
+  }
+
+  /**
+   * Compara si este importe es mayor que otro.
+   * Ambos deben tener la misma divisa.
+   */
+  isGreaterThan(other: Money): boolean {
+    if (this.props.currency !== other.props.currency) {
+      throw new MoneyInvalidError(
+        `No se pueden comparar importes de distintas divisas: ${this.props.currency} y ${other.props.currency}.`,
+      );
+    }
+    return this.props.amount > other.props.amount;
+  }
+
+  /**
+   * Compara si este importe es mayor o igual que otro.
+   * Ambos deben tener la misma divisa.
+   */
+  isGreaterThanOrEqual(other: Money): boolean {
+    if (this.props.currency !== other.props.currency) {
+      throw new MoneyInvalidError(
+        `No se pueden comparar importes de distintas divisas: ${this.props.currency} y ${other.props.currency}.`,
+      );
+    }
+    return this.props.amount >= other.props.amount;
+  }
+
+  /**
+   * Crea un Money con importe 0 para la divisa indicada.
+   * @param currency Código de divisa (por defecto 'EUR').
+   */
+  static zero(currency = 'EUR'): Money {
+    const result = Money.create(0, currency);
+    if (!result.ok) {
+      throw result.error; // No debería fallar con 0 y EUR
+    }
+    return result.value;
+  }
 }

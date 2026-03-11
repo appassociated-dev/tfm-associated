@@ -190,28 +190,32 @@ model FeeSubscription {
   @@map("fee_subscriptions")
 }
 
-/// Cargo individual generado a partir de una suscripción (BC-Treasury).
-/// Representa una deuda concreta del socio.
+/// Cargo individual generado a partir de una suscripción (BC-Treasury, UC-019).
+/// Representa una deuda concreta del socio. Puede ser periódico o manual.
 model Charge {
   id                  String    @id @default(uuid()) @db.Uuid
   memberAccountId     String    @map("member_account_id") @db.Uuid
-  feeSubscriptionId   String    @map("fee_subscription_id") @db.Uuid
-  concept             String    @db.VarChar(200)
-  finalAmount         Int       @map("final_amount") // Importe final en centavos
+  feeSubscriptionId   String?   @map("fee_subscription_id") @db.Uuid
+  baseAmount          Int       @default(0) @map("base_amount") // Importe base antes de prorrateo (centavos)
+  finalAmount         Int       @default(0) @map("final_amount") // Importe final a cobrar (centavos)
+  description         String    @db.VarChar(255)
+  fiscalYearId        String?   @map("fiscal_year_id") @db.Uuid
+  billingMonth        Int?      @map("billing_month") // 1-12, NULL para cargos únicos/manuales
   billingYear         Int       @map("billing_year")
-  status              String    @default("PENDING") @db.VarChar(20) // PENDING | PAID | CANCELLED
-  issueDate           DateTime  @map("issue_date")
-  dueDate             DateTime  @map("due_date")
-  paidAt              DateTime? @map("paid_at")
+  issueDate           DateTime  @map("issue_date") @db.Date
+  dueDate             DateTime  @map("due_date") @db.Date
+  status              String    @default("PENDING") @db.VarChar(20) // PENDING | PAID | PARTIALLY_PAID | RETURNED | CANCELLED
+  paidAmount          Int       @default(0) @map("paid_amount") // Importe pagado (centavos)
+  isProrated          Boolean   @default(false) @map("is_prorated")
+  isManual            Boolean   @default(false) @map("is_manual")
   createdAt           DateTime  @default(now()) @map("created_at")
 
-  memberAccount       MemberAccount   @relation(fields: [memberAccountId], references: [id])
-  feeSubscription     FeeSubscription @relation(fields: [feeSubscriptionId], references: [id])
+  memberAccount       MemberAccount    @relation(fields: [memberAccountId], references: [id])
+  feeSubscription     FeeSubscription? @relation(fields: [feeSubscriptionId], references: [id])
 
-  @@index([memberAccountId])
-  @@index([feeSubscriptionId])
-  @@index([status])
-  @@index([billingYear])
+  @@unique([feeSubscriptionId, billingMonth, billingYear], name: "unique_charge_per_period")
+  @@index([memberAccountId, status])
+  @@index([billingMonth, billingYear])
   @@map("charges")
 }
 
