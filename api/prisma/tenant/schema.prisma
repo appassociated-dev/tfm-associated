@@ -106,8 +106,8 @@ model Member {
   @@map("members")
 }
 
-/// Plan de cuota configurable por la colectividad (BC-Treasury).
-/// Define importes y tipo de cobro para suscripciones de socios.
+/// Plan de cuota configurable por la colectividad (BC-Treasury, UC-017).
+/// Define importes, frecuencia y tipo de cobro para suscripciones de socios.
 model FeePlan {
   id            String    @id @default(uuid()) @db.Uuid
   code          String    @unique @db.VarChar(20)
@@ -115,14 +115,36 @@ model FeePlan {
   description   String?   @db.Text
   type          String    @db.VarChar(20) // ONE_TIME | RECURRING
   amount        Int       // Importe en centavos
+  frequency     String    @default("ANNUAL") @db.VarChar(20) // MONTHLY | QUARTERLY | BIANNUAL | ANNUAL | CUSTOM
+  billingMonths Int[]     @map("billing_months") // Meses de facturación (1-12)
   active        Boolean   @default(true)
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  subscriptions FeeSubscription[]
+  subscriptions      FeeSubscription[]
+  memberTypeFeePlans MemberTypeFeePlan[]
 
   @@index([type, active])
   @@map("fee_plans")
+}
+
+/// Relación entre tipos de socio y planes de cuota (UC-017).
+/// Permite asignar planes específicos a cada tipo de socio.
+model MemberTypeFeePlan {
+  memberTypeId  String    @map("member_type_id") @db.Uuid
+  feePlanId     String    @map("fee_plan_id") @db.Uuid
+  isDefault     Boolean   @default(false) @map("is_default")
+  displayOrder  Int       @default(0) @map("display_order")
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  feePlan       FeePlan   @relation(fields: [feePlanId], references: [id])
+
+  @@id([memberTypeId, feePlanId])
+  @@index([feePlanId])
+  @@index([memberTypeId])
+  @@map("member_type_fee_plans")
 }
 
 /// Cuenta económica de un socio (BC-Treasury).
