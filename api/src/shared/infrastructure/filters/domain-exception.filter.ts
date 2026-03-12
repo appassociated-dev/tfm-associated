@@ -1,15 +1,6 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpStatus,
-  Inject,
-} from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Inject } from '@nestjs/common';
 import { Response } from 'express';
-import {
-  ErrorReporter,
-  ERROR_REPORTER,
-} from '../../domain/ports/error-reporter.port';
+import { ErrorReporter, ERROR_REPORTER } from '../../domain/ports/error-reporter.port';
 
 /**
  * Excepción base de dominio.
@@ -42,11 +33,7 @@ export class NotFoundException extends DomainException {
 
 /** Excepción cuando se viola una regla de negocio. */
 export class BusinessRuleException extends DomainException {
-  constructor(
-    code: string,
-    message: string,
-    details: Record<string, unknown> | null = null,
-  ) {
+  constructor(code: string, message: string, details: Record<string, unknown> | null = null) {
     super(code, message, details, HttpStatus.UNPROCESSABLE_ENTITY);
     this.name = 'BusinessRuleException';
   }
@@ -54,11 +41,7 @@ export class BusinessRuleException extends DomainException {
 
 /** Excepción de conflicto (recurso duplicado, estado inválido). */
 export class ConflictException extends DomainException {
-  constructor(
-    code: string,
-    message: string,
-    details: Record<string, unknown> | null = null,
-  ) {
+  constructor(code: string, message: string, details: Record<string, unknown> | null = null) {
     super(code, message, details, HttpStatus.CONFLICT);
     this.name = 'ConflictException';
   }
@@ -81,37 +64,104 @@ export class ForbiddenException extends DomainException {
 }
 
 /**
- * Filtro global de excepciones de dominio.
- * Captura DomainException y devuelve el formato estándar de error (ADR-010).
- * Reporta errores al ErrorReporter para observabilidad.
+ * Interfaz para errores de dominio que no extienden DomainException
+ * pero siguen la convención de tener una propiedad `code`.
  */
-@Catch(DomainException)
-export class DomainExceptionFilter implements ExceptionFilter {
-  constructor(
-    @Inject(ERROR_REPORTER) private readonly errorReporter: ErrorReporter,
-  ) {}
+interface DomainCodedError extends Error {
+  readonly code: string;
+}
 
-  catch(exception: DomainException, host: ArgumentsHost): void {
+/** Verifica si un Error tiene la propiedad `code` (convención de errores de dominio). */
+function isDomainCodedError(error: unknown): error is DomainCodedError {
+  return (
+    error instanceof Error &&
+    typeof (error as DomainCodedError).code === 'string' &&
+    (error as DomainCodedError).code.length > 0
+  );
+}
+
+/**
+ * Mapeo de patrones de código de error a HTTP status codes.
+ * Soporta coincidencia exacta y por sufijo (e.g., '.NOT_FOUND' → 404).
+ */
+const CODE_TO_STATUS: Array<{ pattern: string; status: number; match: 'exact' | 'suffix' }> = [
+  // 401 Unauthorized
+  { pattern: 'AUTH.INVALID_CREDENTIALS', status: HttpStatus.UNAUTHORIZED, match: 'exact' },
+  { pattern: 'AUTH.INVALID_REFRESH_TOKEN', status: HttpStatus.UNAUTHORIZED, match: 'exact' },
+  // 403 Forbidden
+  { pattern: 'AUTH.ACCOUNT_BLOCKED', status: HttpStatus.FORBIDDEN, match: 'exact' },
+  { pattern: 'AUTH.TENANT_ACCESS_DENIED', status: HttpStatus.FORBIDDEN, match: 'exact' },
+  // 404 Not Found (por sufijo)
+  { pattern: '.NOT_FOUND', status: HttpStatus.NOT_FOUND, match: 'suffix' },
+  // 409 Conflict (por sufijo)
+  { pattern: 'ALREADY_EXISTS', status: HttpStatus.CONFLICT, match: 'suffix' },
+  { pattern: '.ALREADY_OPEN', status: HttpStatus.CONFLICT, match: 'suffix' },
+  { pattern: '.IS_TRANSITION_TARGET', status: HttpStatus.CONFLICT, match: 'suffix' },
+  { pattern: '.OPTIMISTIC_LOCKING', status: HttpStatus.CONFLICT, match: 'suffix' },
+  // 412 Precondition Failed (por sufijo — precondiciones no satisfechas)
+  { pattern: '.NO_OPEN_FISCAL_YEAR', status: HttpStatus.PRECONDITION_FAILED, match: 'suffix' },
+  { pattern: '.NO_REGISTRATION_PLAN', status: HttpStatus.PRECONDITION_FAILED, match: 'suffix' },
+  { pattern: '.NO_ACTIVE_MEMBER_TYPES', status: HttpStatus.PRECONDITION_FAILED, match: 'suffix' },
+  // 422 Unprocessable Entity (por sufijo)
+  { pattern: '.TRANSITION_NOT_ALLOWED', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.INVALID_DATA', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.INVALID_TRANSITION', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.OVERLAPPING_DATES', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.CLOSE_WARNINGS', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.CIRCULAR_TRANSITION', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.CANNOT_LEAVE', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.CANNOT_REINSTATE', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.PAYMENT_NOT_CONFIRMED', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.NO_PENDING_DEBT', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  { pattern: '.INVALID', status: HttpStatus.UNPROCESSABLE_ENTITY, match: 'suffix' },
+  // 500 Internal Server Error
+  { pattern: '.PROVISIONING_FAILED', status: HttpStatus.INTERNAL_SERVER_ERROR, match: 'suffix' },
+];
+
+/** Resuelve el HTTP status code a partir del código de error de dominio. */
+function resolveHttpStatus(code: string): number {
+  for (const rule of CODE_TO_STATUS) {
+    if (rule.match === 'exact' && code === rule.pattern) return rule.status;
+    if (rule.match === 'suffix' && code.endsWith(rule.pattern)) return rule.status;
+  }
+  return HttpStatus.BAD_REQUEST;
+}
+
+/**
+ * Filtro global de excepciones de dominio.
+ * Captura tanto DomainException (herencia explícita) como errores de dominio
+ * que siguen la convención de tener una propiedad `code` (herencia de Error).
+ * Devuelve el formato estándar de error (ADR-010) y reporta al ErrorReporter.
+ */
+@Catch()
+export class DomainExceptionFilter implements ExceptionFilter {
+  constructor(@Inject(ERROR_REPORTER) private readonly errorReporter: ErrorReporter) {}
+
+  catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+
+    // Caso 1: DomainException (herencia explícita)
+    if (exception instanceof DomainException) {
+      this.handleDomainException(exception, response);
+      return;
+    }
+
+    // Caso 2: Error de dominio con propiedad `code` (convención)
+    if (isDomainCodedError(exception)) {
+      this.handleCodedError(exception, response);
+      return;
+    }
+
+    // Caso 3: Error genérico no manejado → re-lanzar para que NestJS lo gestione
+    throw exception;
+  }
+
+  /** Maneja excepciones que extienden DomainException. */
+  private handleDomainException(exception: DomainException, response: Response): void {
     const status = exception.httpStatus;
 
-    // Reportar errores de servidor (5xx) como excepciones, el resto como mensajes
-    if (status >= 500) {
-      this.errorReporter.captureException(exception, {
-        code: exception.code,
-        details: exception.details,
-      });
-    } else {
-      this.errorReporter.captureMessage(
-        exception.message,
-        'warning',
-        {
-          code: exception.code,
-          details: exception.details,
-        },
-      );
-    }
+    this.reportError(exception, status, exception.code, exception.details);
 
     response.status(status).json({
       error: {
@@ -120,5 +170,34 @@ export class DomainExceptionFilter implements ExceptionFilter {
         details: exception.details,
       },
     });
+  }
+
+  /** Maneja errores de dominio con propiedad `code` que no extienden DomainException. */
+  private handleCodedError(error: DomainCodedError, response: Response): void {
+    const status = resolveHttpStatus(error.code);
+
+    this.reportError(error, status, error.code, null);
+
+    response.status(status).json({
+      error: {
+        code: error.code,
+        message: error.message,
+        details: null,
+      },
+    });
+  }
+
+  /** Reporta el error al sistema de observabilidad. */
+  private reportError(
+    error: Error,
+    status: number,
+    code: string,
+    details: Record<string, unknown> | null,
+  ): void {
+    if (status >= 500) {
+      this.errorReporter.captureException(error, { code, details });
+    } else {
+      this.errorReporter.captureMessage(error.message, 'warning', { code, details });
+    }
   }
 }

@@ -20,6 +20,9 @@
 .codex/
 .github/skills/
 
+# ATL (Agent Teams Lite) runtime state
+.atl/
+
 # Overrides locales
 AGENTS.override.md
 *.override.md

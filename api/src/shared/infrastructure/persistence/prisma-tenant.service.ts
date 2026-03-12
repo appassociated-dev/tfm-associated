@@ -1,4 +1,5 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma-tenant';
 
 /** Entrada del pool: cliente Prisma y timestamp del último uso. */
@@ -17,6 +18,8 @@ const DEFAULT_MAX_POOL_SIZE = 10;
  * Servicio de pool de PrismaClients para bases de datos de tenant.
  * Cada tenant tiene su propia base de datos (ADR-002).
  * Implementa lazy eviction: elimina conexiones inactivas tras 30 min.
+ *
+ * Prisma v7 requiere driver adapter en lugar de datasourceUrl.
  */
 @Injectable()
 export class PrismaTenantService implements OnModuleDestroy {
@@ -67,12 +70,13 @@ export class PrismaTenantService implements OnModuleDestroy {
     this.pool.clear();
   }
 
-  /** Crea un PrismaClient con la URL de conexión del tenant. */
+  /** Crea un PrismaClient con la URL de conexión del tenant usando driver adapter. */
   private createClientForTenant(tenantId: string): PrismaClient {
     const urlTemplate = process.env.DATABASE_TENANT_URL ?? '';
-    const datasourceUrl = urlTemplate.replace('{tenantId}', tenantId);
+    const connectionString = urlTemplate.replace('{tenantId}', tenantId);
 
-    return new PrismaClient({ datasourceUrl });
+    const adapter = new PrismaPg({ connectionString });
+    return new PrismaClient({ adapter });
   }
 
   /** Elimina conexiones que llevan más de evictionMs sin usarse. */
