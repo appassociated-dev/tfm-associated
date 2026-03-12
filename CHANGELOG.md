@@ -7,6 +7,70 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260311-001-pvidal-CLAUDE
+
+- **Fecha de sesion:** 11 de marzo de 2026
+- **Hora de inicio:** 08:45
+- **Hora de ultimos trabajos:** 13:00
+- **Documento de sesion:** [doc/agents-sessions/20260311-001-pvidal-CLAUDE.md](doc/agents-sessions/20260311-001-pvidal-CLAUDE.md)
+
+#### Added
+
+- Implementada UC-017: Gestion de planes de cuota (Backend) en BC-Treasury — FeePlan aggregate, Amount VO en centavos, Periodicity, controller REST
+- Implementada UC-018: Gestion de suscripciones de cuota (Backend) — MemberAccount aggregate, FeeSubscription entity, Discount VO multiplicativo, 6 endpoints REST, 105 tests
+- Implementada UC-019: Generacion masiva de cargos periodicos (Backend) — Charge entity, GenerateChargesHandler, repositorio y controller
+- Implementada UC-021: Registro de cobros (Backend) — Payment entity, RegisterPaymentHandler, ReceiptGeneratedEvent, PDF receipt service
+
+#### Changed
+
+- PrismaMemberAccountRepository extendido para hidratar y persistir charges y payments junto al aggregate
+- ProvisionTenantHandler corregido para guardar tenant antes de crear membership
+- DatabaseProvisioningService con createAdminUser envuelto en transaccion
+- Gate de cobertura ajustado para centrarse en logica manual (excluyendo generado/infra glue)
+
+#### Fixed
+
+- Corregido orden de provisionado UC-001: tenant se persiste antes de membership
+- Corregida hidratacion incompleta de MemberAccount en UC-021 (faltaban charges/payments)
+- Corregida emision de ReceiptGeneratedEvent en handlers de pago
+- Eliminados casts `any` en GetReceiptHandler
+- Estabilizados fixtures de integracion UC-001 (CIFs validos, schema sincronizado)
+
+#### Removed
+
+[Sin cambios]
+
+---
+
+### 20260310-002-pvidal-CLAUDE
+
+- **Fecha de sesion:** 10 de marzo de 2026
+- **Hora de inicio:** 09:00
+- **Hora de ultimos trabajos:** 16:28
+- **Documento de sesion:** [doc/agents-sessions/20260310-002-pvidal-CLAUDE.md](doc/agents-sessions/20260310-002-pvidal-CLAUDE.md)
+
+#### Added
+
+- Implementada UC-010: Gestion de ejercicios fiscales (Backend) — FiscalYear aggregate, DateRange VO, CQRS handlers, controller REST
+- Implementada UC-007: Gestion de estados de socio (Backend) — Maquina de estados con transiciones validadas, StatusHistory, eventos MemberStatusChanged
+- Implementada UC-011: Proceso de alta simplificado en 3 pasos (Backend) — Flujo incremental con guardado de progreso entre pasos
+- Implementada UC-013: Baja y reingreso de socios (Backend) — Leave, Expulsion, Reinstatement con conservacion de numero de socio
+
+#### Changed
+
+- Member Aggregate extendido con changeStatus(), leave(), expel(), reinstate()
+- Schema Prisma del tenant extendido con modelo StatusHistory
+
+#### Fixed
+
+[Sin cambios]
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260310-001-pvidal-CLAUDE
 
 - **Fecha de sesion:** 10 de marzo de 2026
@@ -37,6 +101,75 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Corregidos mocks incompletos de MemberRepository en 4 archivos de test de Task 5
 - Corregido mock de ErrorReporter en domain-exception.filter.spec.ts
 - Corregido import faltante de beforeEach en permissions.guard.spec.ts
+
+#### Removed
+
+[Sin cambios]
+
+---
+
+### 20260226-001-pvidal-CLAUDE
+
+- **Fecha de sesion:** 26 de febrero de 2026
+- **Hora de inicio:** 08:00
+- **Hora de ultimos trabajos:** 13:14
+- **Documento de sesion:** [doc/agents-sessions/20260226-001-pvidal-CLAUDE.md](doc/agents-sessions/20260226-001-pvidal-CLAUDE.md)
+
+#### Added
+
+- Implementada UC-002: Autenticacion multi-tenant (Backend) completa en BC-Identity — User aggregate con lockout temporal, JWT strategy, 5 endpoints auth, guards globales
+- Implementada UC-008: Gestion de tipos de socio (Backend) completa en BC-Membership — MemberType aggregate, RulesEvaluator, plantillas por colectividad, 7 endpoints REST
+- Value Objects de auth: Email, Password, PasswordHash, UserId, UserStatus
+- Servicios de infraestructura: Argon2PasswordHasher, JwtTokenService, JwtStrategy
+- Repositorios Prisma: User, RefreshToken, TenantMembership, UserProfile, MemberType
+- Domain Events: UserAuthenticated, AuthenticationFailed, UserBlocked, MemberTypeCreated
+- Decorador @Public() para bypass de JWT guard global
+
+#### Changed
+
+- IdentityModule rewired con providers, handlers, guards y strategy de auth
+- PermissionsGuard y JwtAuthGuard actualizados para manejar rutas publicas
+- MembershipModule extendido con MemberType handlers y controller
+
+#### Fixed
+
+- Corregidos 5+ errores de DI (UnknownDependenciesException) causados por `import type` en providers NestJS
+- Corregidas colisiones de datos en tests de integracion (CIF/slug duplicados)
+- Mejorada documentacion Swagger en endpoints de auth
+
+#### Removed
+
+[Sin cambios]
+
+---
+
+### 20260225-001-pvidal-CLAUDE
+
+- **Fecha de sesion:** 25 de febrero de 2026
+- **Hora de inicio:** 08:30
+- **Hora de ultimos trabajos:** 16:16
+- **Documento de sesion:** [doc/agents-sessions/20260225-001-pvidal-CLAUDE.md](doc/agents-sessions/20260225-001-pvidal-CLAUDE.md)
+
+#### Added
+
+- Completada Fase 0 — Scaffold del proyecto Associated (verificacion final y merge PR #1)
+- Implementada UC-001: Provision de nuevo tenant (Backend) completa en BC-Identity
+- Value Objects de dominio: TenantId, Cif (algoritmo CIF espanol), Slug (normalizacion NFD), TenantStatus, CollectivityType
+- Tenant Aggregate con factory create(), generacion automatica de databaseName y slug
+- ProvisionTenantHandler con saga de 10 pasos y rollback compensatorio idempotente
+- DatabaseProvisioningService con DDL directo (CREATE DB, CREATE USER, GRANT, migrations, seedRoles)
+- PrismaTenantRepository + TenantMapper bidireccional
+- Controller REST para provision de tenant
+- Domain Events: TenantProvisionedEvent, UserCreatedEvent
+
+#### Changed
+
+- Configuracion Prisma 7 migrada: prisma.config.main.ts y prisma.config.tenant.ts creados
+- Schemas Prisma corregidos para Prisma 7 (provider `prisma-client`, URL en config)
+
+#### Fixed
+
+- Corregido error critico P1012 de Prisma 7 (URL no permitida en datasource del schema)
 
 #### Removed
 
