@@ -72,6 +72,7 @@ describe('CloseSubscriptionHandler', () => {
       findById: vi.fn().mockResolvedValue(createMemberAccountWithSubscription()),
       findByMemberId: vi.fn().mockResolvedValue(null),
       existsByMemberId: vi.fn().mockResolvedValue(false),
+      findAllWithActiveSubscriptions: vi.fn().mockResolvedValue([]),
     };
 
     outboxPublisher = {

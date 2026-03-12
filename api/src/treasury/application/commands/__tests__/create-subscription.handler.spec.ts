@@ -93,6 +93,7 @@ describe('CreateSubscriptionHandler', () => {
       findById: vi.fn().mockResolvedValue(createMemberAccount()),
       findByMemberId: vi.fn().mockResolvedValue(null),
       existsByMemberId: vi.fn().mockResolvedValue(false),
+      findAllWithActiveSubscriptions: vi.fn().mockResolvedValue([]),
     };
 
     feePlanRepository = {
@@ -127,6 +128,7 @@ describe('CreateSubscriptionHandler', () => {
         active: true,
       }),
       findActiveMembers: vi.fn(),
+      searchMembers: vi.fn().mockResolvedValue([]),
     };
 
     outboxPublisher = {

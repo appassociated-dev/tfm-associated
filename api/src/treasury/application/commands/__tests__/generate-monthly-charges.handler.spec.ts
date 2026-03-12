@@ -257,6 +257,7 @@ describe('GenerateMonthlyChargesHandler', () => {
           active: true,
         },
       ]),
+      searchMembers: vi.fn().mockResolvedValue([]),
     };
 
     outboxPublisher = {

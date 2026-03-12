@@ -101,6 +101,7 @@ describe('GetSubscriptionsHandler', () => {
       findById: vi.fn().mockResolvedValue(createMemberAccountWithHistory()),
       findByMemberId: vi.fn(),
       existsByMemberId: vi.fn(),
+      findAllWithActiveSubscriptions: vi.fn().mockResolvedValue([]),
     };
 
     feePlanRepository = {
@@ -164,6 +165,7 @@ describe('GetActiveSubscriptionHandler', () => {
       findById: vi.fn().mockResolvedValue(createMemberAccountWithHistory()),
       findByMemberId: vi.fn(),
       existsByMemberId: vi.fn(),
+      findAllWithActiveSubscriptions: vi.fn().mockResolvedValue([]),
     };
 
     feePlanRepository = {
