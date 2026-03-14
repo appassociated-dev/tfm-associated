@@ -11,7 +11,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 - **Fecha de sesion:** 14 de marzo de 2026
 - **Hora de inicio:** 19:30
-- **Hora de ultimos trabajos:** 00:10
+- **Hora de ultimos trabajos:** 00:40
 - **Documento de sesion:** [doc/agents-sessions/20260314-002-acester-CLAUDECODE.md](doc/agents-sessions/20260314-002-acester-CLAUDECODE.md)
 
 #### Added
@@ -39,6 +39,12 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Creados modales: crear, editar, vincular tipos socio (radio default + orden), plantillas por colectividad, inactivacion protegida
 - Creados 48 unit tests: schemas (26), form (9), list page (7), deactivate modal (6)
 - Creados 26 unit tests adicionales: link-member-types-modal (8), import-template-modal (6), hooks use-fee-plans (4), use-create-fee-plan (4), use-deactivate-fee-plan (4)
+- Implementada Task 3 — UC-018 Gestion de suscripciones de cuota (Frontend): selector de plan, descuentos multiplicativos, cambio plan, timeline historico, exenciones
+- Creada utilidad calculateEffectiveAmount() con formula multiplicativa de descuentos y desglose paso a paso
+- Creado SubscriptionSelector reutilizable con preview de importe efectivo en tiempo real
+- Creada pagina de suscripciones del socio con seccion activa + timeline historico (Mantine Timeline)
+- Creados modales: cambio plan (fecha efectiva), modificar descuento (preview), exencion temporal
+- Creados 57 unit tests: discount-calculator (14), schemas (29), subscription-selector (6), member-subscriptions-page (8)
 
 #### Changed
 
@@ -51,6 +57,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Actualizado test/setup.ts: mocks window.matchMedia y ResizeObserver para Mantine en jsdom
 - Actualizado router.tsx: ruta /treasury/fee-plans con lazy loading
 - Actualizado app-shell.tsx: NavLink "Planes de Cuota" en sidebar bajo Tesoreria
+- Actualizado router.tsx: ruta /treasury/members/:memberId/subscriptions con ProtectedRoute y lazy loading
 
 #### Fixed
 

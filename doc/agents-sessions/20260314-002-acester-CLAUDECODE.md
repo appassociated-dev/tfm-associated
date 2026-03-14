@@ -3,13 +3,13 @@
 - **Agente de IA:** Claude Opus 4.6 (Claude Code CLI)
 - **Fecha creacion:** 14 de marzo de 2026
 - **Hora de inicio:** 19:30
-- **Hora de ultimos trabajos:** 00:10
+- **Hora de ultimos trabajos:** 00:40
 
 ---
 
 ## Resumen de la Sesion
 
-Implementacion de Task 0 — Brand Setup: infraestructura de identidad visual del frontend. Configuracion del theme Mantine, HTML base, logos SVG, utilities de formateo y actualizacion de providers siguiendo los documentos de marca. Implementacion de Task 1 — UC-002 Autenticacion multi-tenant (Frontend): login, selector de tenant, refresh transparente, rutas protegidas, layout principal y dashboard placeholder. Implementacion de Task 2 — UC-017 Configuracion de planes de cuota (Frontend): CRUD completo con tabla filtrable, formulario condicional, vinculacion tipos socio, plantillas e inactivacion protegida.
+Implementacion de Task 0 — Brand Setup: infraestructura de identidad visual del frontend. Configuracion del theme Mantine, HTML base, logos SVG, utilities de formateo y actualizacion de providers siguiendo los documentos de marca. Implementacion de Task 1 — UC-002 Autenticacion multi-tenant (Frontend): login, selector de tenant, refresh transparente, rutas protegidas, layout principal y dashboard placeholder. Implementacion de Task 2 — UC-017 Configuracion de planes de cuota (Frontend): CRUD completo con tabla filtrable, formulario condicional, vinculacion tipos socio, plantillas e inactivacion protegida. Implementacion de Task 3 — UC-018 Gestion de suscripciones de cuota (Frontend): selector de plan reutilizable, descuentos multiplicativos, cambio plan, timeline historico, exenciones.
 
 ---
 
@@ -252,14 +252,53 @@ Correccion de 3 gaps funcionales detectados en sdd-verify y adicion de tests fal
 - ✅ Re-verify PASS: 16/16 criterios
 - ✅ SDD archivada
 
+### 00:40 - Task 3: UC-018 Gestion de suscripciones de cuota (Frontend)
+
+**Descripcion:**
+Implementacion completa de gestion de suscripciones: schemas Zod, utilidad de calculo multiplicativo de descuentos, API service, 5 hooks TanStack Query, selector de plan reutilizable con desglose en tiempo real, pagina de suscripciones con timeline historico, modales de cambio plan/descuento/exencion. SDD fast-forward + apply en 6 batches.
+
+**Archivos creados (16):**
+
+- `web/src/features/treasury/subscriptions/schemas/subscription.schemas.ts` - 7 schemas, 7 tipos, 2 enums
+- `web/src/features/treasury/subscriptions/utils/discount-calculator.ts` - calculateEffectiveAmount() formula multiplicativa con desglose
+- `web/src/features/treasury/subscriptions/api/subscription.api.ts` - 5 funciones API con validacion Zod
+- `web/src/features/treasury/subscriptions/hooks/use-subscriptions.ts` - Query suscripciones por socio
+- `web/src/features/treasury/subscriptions/hooks/use-create-subscription.ts` - Mutation + handle 409
+- `web/src/features/treasury/subscriptions/hooks/use-change-plan.ts` - Mutation + handle 422
+- `web/src/features/treasury/subscriptions/hooks/use-update-discount.ts` - Mutation descuento
+- `web/src/features/treasury/subscriptions/hooks/use-close-subscription.ts` - Mutation cierre/exencion
+- `web/src/features/treasury/subscriptions/components/subscription-selector.tsx` - Selector reutilizable con desglose multiplicativo en tiempo real
+- `web/src/features/treasury/subscriptions/pages/member-subscriptions.page.tsx` - Pagina suscripciones: activa + timeline historico
+- `web/src/features/treasury/subscriptions/components/change-plan-modal.tsx` - Cambio plan con fecha efectiva
+- `web/src/features/treasury/subscriptions/components/update-discount-modal.tsx` - Modificar descuento con preview
+- `web/src/features/treasury/subscriptions/components/exemption-modal.tsx` - Exencion temporal
+- 4 archivos de test (calculator 14, schemas 29, selector 6, page 8)
+
+**Archivos modificados (1):**
+
+- `web/src/app/router.tsx` - Ruta /treasury/members/:memberId/subscriptions con ProtectedRoute
+
+**Decisiones tecnicas:**
+
+- Formula MULTIPLICATIVA: effectiveAmount = base x (1-dtoTipo) x (1-dtoPersonal), NUNCA aditiva
+- calculateEffectiveAmount() como funcion pura con desglose paso a paso
+- Exencion "con trazabilidad" deshabilitada en MVP (schema limita descuento a 99%)
+- SubscriptionSelector reutilizable para UC-011 (wizard alta socio)
+
+**Resultados:**
+
+- ✅ tsc --noEmit: 0 errores
+- ✅ 194/194 tests pasan (57 nuevos)
+- ✅ Formula multiplicativa verificada exhaustivamente (14 test cases)
+
 ---
 
 ## Proximos Pasos
 
-- [ ] Instalar @tabler/icons-react y agregar iconos
-- [ ] SDD verify + archive de task-2 UC-017
-- [ ] Commit de task-2
-- [ ] Iniciar task-3 (UC-018 suscripciones)
+- [ ] SDD verify + archive de task-3 UC-018
+- [ ] Commit de task-3
+- [ ] Instalar @tabler/icons-react y agregar iconos globales
+- [ ] Iniciar task-4 o task-5
 
 ---
 
@@ -282,10 +321,10 @@ Correccion de 3 gaps funcionales detectados en sdd-verify y adicion de tests fal
 
 ## Metricas de la Sesion
 
-- **Archivos creados:** 52 (13 task-0 + 16 task-1 + 23 task-2)
-- **Archivos modificados:** 11 (2 task-0 + 5 task-1 + 4 task-2)
+- **Archivos creados:** 63 (13 task-0 + 16 task-1 + 18 task-2 + 16 task-3)
+- **Archivos modificados:** 10 (2 task-0 + 5 task-1 + 2 task-2 + 1 task-3)
 - **Archivos eliminados:** 1 (theme.ts)
-- **Tests creados:** 137 (19 task-0 + 42 task-1 + 74+2 fix task-2)
+- **Tests creados:** 166 (19 task-0 + 42 task-1 + 48 task-2 + 57 task-3)
 
 ---
 
