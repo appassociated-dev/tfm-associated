@@ -68,6 +68,8 @@ Antes de iniciar esta tarea, verificar que:
 
 | Documento | Contenido relevante |
 |-----------|-------------------|
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 | `uc/uc-010.md` | Flujo completo: configurador, apertura con arrastre, cierre con validaciones, comparativas |
 | `us/us-023.md` a `us/us-027.md` | Criterios: concepto de ejercicio, apertura, cierre, comparativas, transiciones |
 | `bc/bc-membership.md` | Aggregate FiscalYear — estados (PREPARACION, ABIERTO, CERRADO), tipo de ejercicio |

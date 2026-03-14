@@ -20,7 +20,7 @@
 - Indicador de progreso para cargos masivos asíncronos (polling del estado del job)
 - Componente `MemberSearchCombobox` (de UC-006) para seleccionar socio en cargo individual
 - Validación Zod: importe > 0, fecha vencimiento >= fecha emisión
-- Formateo de importes centavos → euros con `Intl.NumberFormat`
+- Formateo de importes centavos → euros con `formatMoney()` de `@/shared/utils/format-money.ts`
 - TanStack Query hooks para CRUD y preview
 - Tests unitarios (componentes + hooks)
 
@@ -54,17 +54,27 @@
 
 | Documento | Contenido relevante |
 |-----------|-------------------|
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 | `uc/uc-020.md` | Flujo: cargo individual, cargo masivo (derrama), cargo de penalización |
 | `us/us-051.md` | Criterios: cargos manuales individuales y masivos |
 | `bc/bc-treasury.md` | Entity Charge con isManual, Domain Service ManualChargeGenerator |
 
 ## Puntos críticos
 
-1. **Importe en euros en UI → centavos en API.** El usuario introduce importes en euros (75.00). El frontend convierte a centavos (`Math.round(amount * 100)`) antes de enviar al backend. Al mostrar, convierte de centavos a euros.
+1. **Importe en euros en UI → centavos en API.** El usuario introduce importes en euros (75.00). El frontend convierte a centavos (`Math.round(amount * 100)`) antes de enviar al backend. Al mostrar, utilizar `formatMoney()` de `@/shared/utils/format-money.ts` para convertir centavos (enteros del backend) a euros formateados.
 
 2. **Preview obligatorio antes de cargo masivo.** El asistente de 3 pasos requiere que el usuario vea el preview (conteo + total) antes de confirmar. El botón de confirmación solo se habilita tras cargar el preview.
 
 3. **Polling para cargos masivos asíncronos.** Si >500 destinatarios, el backend responde con `202 Accepted` y un `jobId`. El frontend hace polling cada 3 segundos al endpoint de estado del job, mostrando barra de progreso.
+
+4. **Botones de acción primaria.** Todos los botones de acción primaria deben usar `color="brand"`. Nunca usar `variant="gradient"`.
+
+5. **Badges de estado.** Este UC hereda `ChargeStatusBadge` de UC-019 con el mapeo de colores corregido: verde=PAID, amarillo=PENDING, rojo=RETURNED, amarillo=PARTIAL (`color="yellow"`, no naranja/orange). Todos los badges: `variant="light"`, `radius="sm"`.
+
+6. **Formato de fechas.** Todas las fechas se muestran en formato español: formato largo "8 de marzo de 2026", formato compacto "08/03/2026" (dd/MM/yyyy). Nunca usar formato anglosajón (MM/dd/yyyy).
+
+7. **Formateo de importes.** Todos los importes monetarios deben formatearse usando `formatMoney()` de `@/shared/utils/format-money.ts`. El backend envía centavos como enteros.
 
 ## Plan de implementación
 

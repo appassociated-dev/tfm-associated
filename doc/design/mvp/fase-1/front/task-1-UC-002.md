@@ -48,7 +48,21 @@
 
 Antes de iniciar esta tarea, verificar que:
 
-- [ ] `web/src/app/providers.tsx` existe con `MantineProvider` y `QueryClientProvider` configurados
+- [ ] `web/src/app/providers.tsx` existe con `MantineProvider` y `QueryClientProvider` configurados. El theme debe usar `primaryColor: 'brand'` con shade 7 (`#5B7682`) para light mode. Los botones primarios deben usar `color="brand"`, nunca el azul por defecto de Mantine. Está prohibido usar `variant="gradient"` en botones (directriz de marca)
+- [ ] `web/index.html` incluye la carga de la fuente Inter:
+  ```html
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  ```
+- [ ] `web/index.html` incluye favicon y meta tags de marca:
+  ```html
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#27343E" />
+  <meta property="og:image" content="/og-image.png" />
+  ```
 - [ ] `web/src/shared/api/http-client.ts` existe con instancia Axios base configurada
 - [ ] `web/src/app/router.tsx` existe con `RouterProvider` básico
 - [ ] `web/src/shared/observability/error-reporter.port.ts` existe y exporta la interfaz `ErrorReporter`
@@ -81,6 +95,8 @@ Antes de iniciar esta tarea, verificar que:
 | `adr/adr-010.md` | Formato de respuesta API, headers `Authorization` y `X-Tenant-Id` |
 | `stack/frontend.md` | React 19, Mantine 8, React Router 7, React Query 5, Axios |
 | `rnf/rnf-001.md` | Política de complejidad de password (validación client-side informativa) |
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 
 ## Puntos críticos
 
@@ -226,14 +242,15 @@ Actualizar `web/src/shared/api/http-client.ts`:
 Crear en `web/src/features/auth/pages/`:
 
 - **`login.page.tsx`**: Página de login con Mantine components:
-  - Layout centrado en pantalla, logo de Associated (o placeholder), título "Iniciar sesión"
+  - Layout centrado en pantalla, título "Iniciar sesión"
+  - Para la pantalla de login, usar `logo-stacked.svg` (isotipo arriba + texto debajo) importado desde `@/shared/assets/logo-stacked.svg` con un ancho de 120-140px
   - Formulario con `@mantine/form`:
     - Campo `email` (TextInput, type email, validación: formato email)
     - Campo `password` (PasswordInput, validación: no vacío)
-    - Botón "Acceder" (loading state durante submit)
+    - Botón "Acceder" (`color="brand"`, loading state durante submit). Nunca usar `variant="gradient"` — prohibido por directrices de marca
   - Manejo de errores:
     - Credenciales inválidas → notificación roja: "Credenciales incorrectas"
-    - Cuenta bloqueada → notificación naranja: "Cuenta bloqueada temporalmente. Reintente en X minutos"
+    - Cuenta bloqueada → notificación yellow (Mantine `color="yellow"`, shade 6 `#FAB005`): "Cuenta bloqueada temporalmente. Reintente en X minutos"
     - Error de red → notificación roja: "Error de conexión. Verifique su conexión a internet"
   - Si la respuesta es `requiresTenantSelection: true` → mostrar selector de tenant (paso 6)
   - Si login exitoso con 1 tenant → redirigir a `/dashboard`
@@ -271,7 +288,6 @@ Crear en `web/src/shared/components/layout/`:
 
 - **`app-shell.tsx`**: Layout principal usando `AppShell` de Mantine:
   - **Navbar** (header):
-    - Logo / nombre de la aplicación
     - Nombre de la colectividad actual (tenant)
     - Menú de usuario (dropdown):
       - Nombre del usuario
@@ -279,6 +295,14 @@ Crear en `web/src/shared/components/layout/`:
       - "Cambiar colectividad" (si múltiples tenants) → abre modal de switch
       - "Cerrar sesión" → logout + redirect a `/login`
   - **Sidebar** (navbar lateral):
+    - **Logo sidebar abierto**: usar `logo-horizontal-white.svg` importado desde `@/shared/assets/logo-horizontal-white.svg` con ancho de 140-160px. La variante blanca usa `#EAF7FE` (`brand.0`), no blanco puro
+    - **Logo sidebar colapsado**: usar `isotipo-white.svg` importado desde `@/shared/assets/isotipo-white.svg` con ancho de 28-32px
+    - Fondo del sidebar: `theme.other.brandDark` (`#27343E`) — nunca hardcodear el hex, usar el token del theme
+    - Texto de items activos: opacidad 100%
+    - Texto de items inactivos: opacidad 60%
+    - Labels de sección (ej: "Tesorería", "Socios"): opacidad 30%
+    - Item activo: fondo `rgba(255,255,255,0.1)` + borde izquierdo semitransparente
+    - Ancho del navbar: 240px (desktop), colapsado en mobile (<768px / breakpoint `sm`)
     - Links de navegación condicionados por permisos:
       - Dashboard (todos)
       - Socios (permission: `membership:members:read`)

@@ -55,15 +55,17 @@
 
 | Documento | Contenido relevante |
 |-----------|-------------------|
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 | `uc/uc-023.md` | Flujo completo: configuración, mandatos, generación, tipos de secuencia, descarga |
 | `us/us-061.md` a `us/us-065.md` | Criterios por funcionalidad |
 | `bc/bc-treasury.md` | Aggregates SepaRemittance, SepaDebit, SepaMandate, CreditorIdentifier |
 
 ## Puntos críticos
 
-1. **Validación del identificador de acreedor en UI.** El formato español (ES + 2 dígitos + 000 + CIF) debe validarse en tiempo real con feedback visual: checkmarks verdes para cada sección válida (prefijo, longitud, dígito control, CIF). Usar schema Zod con `refine()` y mostrar desglose de validación.
+1. **Validación del identificador de acreedor en UI.** El formato español (ES + 2 dígitos + 000 + CIF) debe validarse en tiempo real con feedback visual: checks válidos en verde (`color="green"`), inválidos en rojo (`color="red"`), pendientes en amarillo (`color="yellow"`) para cada sección (prefijo, longitud, dígito control, CIF). Usar schema Zod con `refine()` y mostrar desglose de validación. Todos los iconos usan `@tabler/icons-react` exclusivamente.
 
-2. **Preview de remesa informativo.** Antes de generar, mostrar: total de adeudos, importe total, desglose por tipo de secuencia (FRST: X, RCUR: Y, OOFF: Z), socios excluidos por falta de mandato. El usuario debe poder revisar antes de confirmar.
+2. **Preview de remesa informativo.** Antes de generar, mostrar: total de adeudos, importe total (formateado con `formatMoney()` de `@/shared/utils/format-money.ts`), desglose por tipo de secuencia (FRST: X, RCUR: Y, OOFF: Z), socios excluidos por falta de mandato. El usuario debe poder revisar antes de confirmar.
 
 3. **Flujo post-generación.** Tras generar: mostrar instrucciones claras para enviar al banco, botón de descarga XML, y botón "Marcar como enviada" que es un paso separado y voluntario.
 
@@ -90,15 +92,15 @@
 ### Paso 3: Componentes
 
 - **`SepaConfigForm.tsx`**: Formulario de configuración con validación en tiempo real del identificador
-- **`CreditorIdValidator.tsx`**: Componente visual que muestra desglose de validación (prefijo ✓, longitud ✓, etc.)
+- **`CreditorIdValidator.tsx`**: Componente visual que muestra desglose de validación (prefijo, longitud, etc.). Checks válidos en verde (`color="green"`). Items inválidos/pendientes en rojo (`color="red"`) o amarillo de advertencia (`color="yellow"`). Todos los iconos usan `@tabler/icons-react` exclusivamente (ej: `IconCheck`, `IconX`, `IconAlertTriangle`)
 - **`MandateForm.tsx`**: Formulario de registro de mandato con upload de documento firmado
-- **`MandateCard.tsx`**: Card en ficha de socio mostrando estado del mandato (activo/revocado/sin mandato)
+- **`MandateCard.tsx`**: Card en ficha de socio mostrando estado del mandato (activo/revocado/sin mandato). Badges de estado usan `variant="light"` y `radius="sm"`: activo=`color="green"`, revocado=`color="red"`, sin mandato=`color="gray"`
 - **`RemittanceWizard.tsx`**: Stepper de 3 pasos
   - Paso 1: `RemittanceSelectionStep` — fecha de cobro + selección de cargos (radio: todos/vencidos/mes actual/manual)
   - Paso 2: `RemittanceValidationStep` — resultado de validación, advertencias, socios sin mandato
-  - Paso 3: `RemittancePreviewStep` — preview con desglose, botón generar
-- **`RemittanceResultCard.tsx`**: Post-generación: instrucciones + descarga XML + botón "Marcar enviada"
-- **`RemittanceDetailPage.tsx`**: Detalle de remesa con estadísticas y lista de adeudos
+  - Paso 3: `RemittancePreviewStep` — preview con desglose, botón "Generar" usa `color="brand"` (nunca `variant="gradient"`). Importes formateados con `formatMoney()` de `@/shared/utils/format-money.ts`
+- **`RemittanceResultCard.tsx`**: Post-generación: instrucciones + descarga XML + botón "Marcar enviada". Botones primarios usan `color="brand"` (nunca `variant="gradient"`)
+- **`RemittanceDetailPage.tsx`**: Detalle de remesa con estadísticas y lista de adeudos. Importes formateados con `formatMoney()` de `@/shared/utils/format-money.ts`. Fechas en formato español: `dd/MM/yyyy` usando `Intl.DateTimeFormat('es-ES')` o `dayjs` con locale `es`
 
 ### Paso 4: Páginas
 

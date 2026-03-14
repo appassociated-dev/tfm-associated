@@ -17,7 +17,7 @@
 - Panel de ejecución manual retroactiva (FA-1): seleccionar mes, ejecutar y ver resultado
 - Filtros avanzados: por mes/año, estado del cargo, socio, plan de cuota
 - Detalle de cargo individual con historial de pagos asociados
-- Indicadores visuales: badges de estado (PENDING, PAID, RETURNED, PARTIAL), colores
+- Indicadores visuales: badges de estado (PENDING, PAID, RETURNED, PARTIAL) con `variant="light"`, `radius="sm"`. Colores: verde=PAID, amarillo=PENDING, rojo=RETURNED, amarillo=PARTIAL (`color="yellow"`). No usar naranja/orange
 - TanStack Query hooks para consulta de cargos periódicos y ejecución manual
 - Validación Zod de parámetros de búsqueda y ejecución
 - Tests unitarios (componentes + hooks)
@@ -52,6 +52,8 @@
 
 | Documento | Contenido relevante |
 |-----------|-------------------|
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 | `uc/uc-019.md` | Flujo de generación automática, prorrateo, ejecución manual, prevención de duplicados |
 | `us/us-047.md` | Criterios: proceso mensual, evaluación de suscripciones |
 | `us/us-048.md` | Criterios: prorrateo en altas a mitad de ejercicio |
@@ -61,7 +63,11 @@
 
 1. **Importes en centavos → display en euros.** Los importes vienen del backend en centavos (enteros). El frontend debe dividir por 100 para mostrar y formatear con `Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' })`. Nunca operar con decimales en frontend.
 
-2. **Ejecución manual retroactiva.** El tesorero puede lanzar la generación de cargos para un mes específico. El frontend envía el mes/año y muestra el resultado (cargos generados, duplicados evitados). Incluir confirmación antes de ejecutar y progress indicator.
+2. **Ejecución manual retroactiva.** El tesorero puede lanzar la generación de cargos para un mes específico. El frontend envía el mes/año y muestra el resultado (cargos generados, duplicados evitados). Incluir confirmación antes de ejecutar y progress indicator. Botón de ejecución: `color="brand"`, nunca `variant="gradient"`.
+
+3. **Formato de fechas.** Todas las fechas se muestran en formato español: formato largo "8 de marzo de 2026", formato compacto "08/03/2026" (dd/MM/yyyy). Nunca usar formato anglosajón (MM/dd/yyyy).
+
+4. **Botones de acción primaria.** Todos los botones de acción primaria deben usar `color="brand"`. Nunca usar `variant="gradient"`.
 
 ## Plan de implementación
 
@@ -81,7 +87,10 @@
 ### Paso 3: Componentes
 
 - **`ChargesTable.tsx`**: Tabla con columnas: socio, concepto, importe, fecha emisión, vencimiento, estado
-- **`ChargeStatusBadge.tsx`**: Badge con color por estado (verde=PAID, amarillo=PENDING, rojo=RETURNED, naranja=PARTIAL)
+  - Columnas numéricas (importe): `fontVariantNumeric: 'tabular-nums'`, `textAlign: 'right'`
+  - Columnas de fecha (emisión, vencimiento): `textAlign: 'right'`. Formato español: largo "8 de marzo de 2026", compacto "08/03/2026" (dd/MM/yyyy). Nunca formato anglosajón
+  - Headers de columna: `uppercase`, `fz="xs"`, `fw={600}`, `c="dimmed"`
+- **`ChargeStatusBadge.tsx`**: Badge con color por estado (verde=PAID, amarillo=PENDING, rojo=RETURNED, amarillo=PARTIAL con `color="yellow"`). Todos los badges: `variant="light"`, `radius="sm"`. No usar naranja/orange — no es un color semántico definido en la guía de marca. Warning = `yellow` (shade 6, `#FAB005`)
 - **`ChargeDetailDrawer.tsx`**: Drawer lateral con detalle del cargo + pagos asociados
 - **`ManualGenerationPanel.tsx`**: Panel con selector de mes/año, botón ejecutar, resultado
 - **`GenerationResultCard.tsx`**: Card con resumen de última generación

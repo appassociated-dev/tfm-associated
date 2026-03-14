@@ -68,6 +68,8 @@ Antes de iniciar esta tarea, verificar que:
 
 | Documento | Contenido relevante |
 |-----------|-------------------|
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 | `uc/uc-065.md` | Flujo: 3 gráficos principales, comparativa multi-ejercicio, filtrado por período, exportación |
 | `us/us-165.md` | Criterios: evolución de socios y recaudación con series temporales |
 | `us/us-166.md` | Criterios: gráficos interactivos y exportación |
