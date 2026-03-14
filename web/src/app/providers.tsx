@@ -4,7 +4,7 @@ import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router';
 import { ErrorBoundary } from '@/shared/observability/error-boundary';
-import { theme } from './theme';
+import { associatedTheme } from '@/shared/theme/associated-theme';
 import { router } from './router';
 
 /** Cliente de React Query con configuración por defecto. */
@@ -30,7 +30,7 @@ interface AppProvidersProps {
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <ErrorBoundary>
-      <MantineProvider theme={theme}>
+      <MantineProvider theme={associatedTheme} forceColorScheme="light">
         <Notifications />
         <QueryClientProvider client={queryClient}>
           {children ?? <RouterProvider router={router} />}

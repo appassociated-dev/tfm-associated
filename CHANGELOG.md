@@ -7,12 +7,43 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260314-002-acester-CLAUDECODE
+
+- **Fecha de sesion:** 14 de marzo de 2026
+- **Hora de inicio:** 19:30
+- **Hora de ultimos trabajos:** 19:44
+- **Documento de sesion:** [doc/agents-sessions/20260314-002-acester-CLAUDECODE.md](doc/agents-sessions/20260314-002-acester-CLAUDECODE.md)
+
+#### Added
+
+- Implementada Task 0 — Brand Setup: infraestructura de identidad visual del frontend
+- Creado theme definitivo Mantine en `web/src/shared/theme/associated-theme.ts` con paleta brand, tipografia Inter, spacing, shadows y 11 component defaults
+- Copiados 6 SVGs de produccion a `web/src/shared/assets/` (isotipo, logo-horizontal, logo-stacked en variantes color y white)
+- Creadas utilities de formateo: `format-money.ts` (formatMoney) y `format-date.ts` (formatDateLong, formatDateCompact)
+- Persistidos artefactos SDD completos en engram (explore, proposal, spec, design, tasks, state)
+- Creados 19 unit tests: format-money (5), format-date (4), associated-theme (10) — 21/21 tests pasan
+
+#### Changed
+
+- Actualizado `web/index.html` con favicon, Inter (display=swap), meta tags, Open Graph, Twitter Card y PWA manifest
+- Actualizado `web/src/app/providers.tsx`: import de associatedTheme y `forceColorScheme="light"`
+
+#### Fixed
+
+[Sin cambios]
+
+#### Removed
+
+- Eliminado `web/src/app/theme.ts` (placeholder con primaryColor: 'blue', migrado a shared/theme/)
+
+---
+
 ### 20260314-001-acester-CLAUDECODE
 
-* **Fecha de sesion:** 14 de marzo de 2026
-* **Hora de inicio:** 18:29
-* **Hora de ultimos trabajos:** 18:29
-* **Documento de sesion:** [doc/agents-sessions/20260314-001-acester-CLAUDECODE.md](doc/agents-sessions/20260314-001-acester-CLAUDECODE.md)
+- **Fecha de sesion:** 14 de marzo de 2026
+- **Hora de inicio:** 18:29
+- **Hora de ultimos trabajos:** 18:29
+- **Documento de sesion:** [doc/agents-sessions/20260314-001-acester-CLAUDECODE.md](doc/agents-sessions/20260314-001-acester-CLAUDECODE.md)
 
 #### Added
 
