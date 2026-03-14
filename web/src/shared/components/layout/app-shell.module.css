@@ -1,0 +1,35 @@
+/* Estilos para NavLink sobre fondo oscuro del sidebar */
+
+.navLink {
+  border-radius: var(--mantine-radius-sm);
+  color: white;
+  opacity: 0.6;
+  background-color: transparent;
+  border-left: 3px solid transparent;
+  margin-bottom: 4px;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    opacity: 0.9;
+  }
+}
+
+.navLinkActive {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-left: 3px solid rgba(255, 255, 255, 0.6);
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    opacity: 1;
+  }
+}
+
+.navLinkLabel {
+  color: white;
+  font-weight: 400;
+}
+
+.navLinkLabelActive {
+  font-weight: 600;
+}

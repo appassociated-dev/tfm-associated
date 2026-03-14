@@ -3,6 +3,7 @@ import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router';
+import { AuthProvider } from '@/features/auth/context/auth.provider';
 import { ErrorBoundary } from '@/shared/observability/error-boundary';
 import { associatedTheme } from '@/shared/theme/associated-theme';
 import { router } from './router';
@@ -25,16 +26,18 @@ interface AppProvidersProps {
 
 /**
  * Jerarquía de proveedores de la aplicación.
- * Orden: ErrorBoundary → MantineProvider → QueryClientProvider → RouterProvider.
+ * Orden: ErrorBoundary → MantineProvider → Notifications → AuthProvider → QueryClientProvider → RouterProvider.
  */
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <ErrorBoundary>
       <MantineProvider theme={associatedTheme} forceColorScheme="light">
         <Notifications />
-        <QueryClientProvider client={queryClient}>
-          {children ?? <RouterProvider router={router} />}
-        </QueryClientProvider>
+        <AuthProvider>
+          <QueryClientProvider client={queryClient}>
+            {children ?? <RouterProvider router={router} />}
+          </QueryClientProvider>
+        </AuthProvider>
       </MantineProvider>
     </ErrorBoundary>
   );

@@ -11,7 +11,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 - **Fecha de sesion:** 14 de marzo de 2026
 - **Hora de inicio:** 19:30
-- **Hora de ultimos trabajos:** 19:44
+- **Hora de ultimos trabajos:** 22:34
 - **Documento de sesion:** [doc/agents-sessions/20260314-002-acester-CLAUDECODE.md](doc/agents-sessions/20260314-002-acester-CLAUDECODE.md)
 
 #### Added
@@ -22,11 +22,26 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Creadas utilities de formateo: `format-money.ts` (formatMoney) y `format-date.ts` (formatDateLong, formatDateCompact)
 - Persistidos artefactos SDD completos en engram (explore, proposal, spec, design, tasks, state)
 - Creados 19 unit tests: format-money (5), format-date (4), associated-theme (10) — 21/21 tests pasan
+- Implementada Task 1 — UC-002 Autenticacion multi-tenant (Frontend): login, selector tenant, auth provider, interceptors, rutas protegidas, layout y dashboard
+- Creado AuthProvider con token en memoria, refresh automatico y token accessors para interceptors Axios
+- Creados schemas Zod como contratos API con tipos inferidos y type guard para respuesta dual de login
+- Creado servicio API auth con 7 funciones validadas con Zod (login, selectTenant, refreshTokens, logout, switchTenant, getCurrentUser, getMyTenants)
+- Creada login page con @mantine/form, flujo dual (directo/multi-tenant), notificaciones de error
+- Creado TenantSelector con Cards, badges de rol y indicador de ultima sesion
+- Creado ProtectedRoute con evaluacion 4 pasos (loading > auth > permisos > render)
+- Creado AppLayout con sidebar brandDark, navbar con menu usuario y switch tenant modal
+- Creado dashboard placeholder con 4 KPI cards
+- Creados 42 unit tests: schemas (15), permissions hook (10), auth hook (3), protected-route (5), tenant-selector (4), login-page (5)
 
 #### Changed
 
 - Actualizado `web/index.html` con favicon, Inter (display=swap), meta tags, Open Graph, Twitter Card y PWA manifest
 - Actualizado `web/src/app/providers.tsx`: import de associatedTheme y `forceColorScheme="light"`
+- Actualizado http-client.ts: interceptors con token de memoria, refresh queue con cola de requests concurrentes, dynamic import para evitar circular dependency
+- Actualizado router.tsx: rutas /login (publica) y / > ProtectedRoute > AppLayout > /dashboard con lazy loading
+- Actualizado providers.tsx: AuthProvider insertado entre Notifications y QueryClientProvider
+- Actualizado vitest.config.ts: agregado alias @/ para resolucion en tests
+- Actualizado test/setup.ts: mocks window.matchMedia y ResizeObserver para Mantine en jsdom
 
 #### Fixed
 

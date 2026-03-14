@@ -3,13 +3,13 @@
 - **Agente de IA:** Claude Opus 4.6 (Claude Code CLI)
 - **Fecha creacion:** 14 de marzo de 2026
 - **Hora de inicio:** 19:30
-- **Hora de ultimos trabajos:** 19:44
+- **Hora de ultimos trabajos:** 22:34
 
 ---
 
 ## Resumen de la Sesion
 
-Implementacion de Task 0 — Brand Setup: infraestructura de identidad visual del frontend. Configuracion del theme Mantine, HTML base, logos SVG, utilities de formateo y actualizacion de providers siguiendo los documentos de marca.
+Implementacion de Task 0 — Brand Setup: infraestructura de identidad visual del frontend. Configuracion del theme Mantine, HTML base, logos SVG, utilities de formateo y actualizacion de providers siguiendo los documentos de marca. Implementacion de Task 1 — UC-002 Autenticacion multi-tenant (Frontend): login, selector de tenant, refresh transparente, rutas protegidas, layout principal y dashboard placeholder.
 
 ---
 
@@ -131,13 +131,68 @@ Se crearon 19 unit tests para las utilities de formateo y la estructura del them
 - ✅ 21/21 tests pasan (19 nuevos + 2 pre-existentes)
 - ✅ 0 failures
 
+### 22:34 - Task 1: UC-002 Autenticacion multi-tenant (Frontend)
+
+**Descripcion:**
+Implementacion completa del flujo de autenticacion frontend: login, selector de tenant, refresh transparente, rutas protegidas, layout principal y dashboard placeholder. SDD fast-forward + apply en 5 batches.
+
+**Archivos creados (16):**
+
+- `web/src/features/auth/schemas/auth.schemas.ts` - 7 schemas Zod + tipos inferidos + type guard
+- `web/src/features/auth/api/auth.api.ts` - 6 funciones API con validacion Zod (login, selectTenant, refreshTokens, logout, switchTenant, getCurrentUser) + getMyTenants
+- `web/src/features/auth/context/auth.provider.tsx` - AuthProvider con token en memoria, refresh automatico, token accessors para interceptors
+- `web/src/features/auth/context/use-auth.ts` - Hook useAuth()
+- `web/src/features/auth/context/use-permissions.ts` - Hook usePermissions() (hasPermission, hasAnyPermission, hasAllPermissions)
+- `web/src/features/auth/pages/login.page.tsx` - Login con @mantine/form, flujo dual (directo/multi-tenant), notificaciones error
+- `web/src/features/auth/components/tenant-selector.tsx` - Selector multi-tenant con Cards, last session badge
+- `web/src/shared/components/protected-route.tsx` - Guard: loading > auth > permissions > render
+- `web/src/shared/components/layout/app-shell.tsx` - AppLayout con sidebar brandDark, navbar con menu usuario
+- `web/src/shared/components/layout/app-shell.module.css` - CSS modules para NavLink en sidebar oscuro
+- `web/src/shared/components/layout/switch-tenant-modal.tsx` - Modal cambio tenant con queryClient.clear()
+- `web/src/features/dashboard/pages/dashboard.page.tsx` - Dashboard placeholder con 4 KPI cards
+- `web/src/features/auth/schemas/auth.schemas.spec.ts` - 15 tests schemas Zod
+- `web/src/features/auth/context/use-permissions.spec.ts` - 10 tests hook permisos
+- `web/src/features/auth/context/use-auth.spec.ts` - 3 tests hook auth
+- `web/src/shared/components/protected-route.spec.tsx` - 5 tests rutas protegidas
+- `web/src/features/auth/components/tenant-selector.spec.tsx` - 4 tests selector
+- `web/src/features/auth/pages/login.page.spec.tsx` - 5 tests login page
+
+**Archivos modificados (3):**
+
+- `web/src/shared/api/http-client.ts` - Interceptors actualizados: token de memoria, refresh queue con cola de requests concurrentes
+- `web/src/app/router.tsx` - Rutas: /login (publica), / > ProtectedRoute > AppLayout > /dashboard
+- `web/src/app/providers.tsx` - AuthProvider agregado entre Notifications y QueryClientProvider
+
+**Archivos de infraestructura modificados (2):**
+
+- `web/vitest.config.ts` - Agregado alias @/ para tests
+- `web/src/test/setup.ts` - Mocks window.matchMedia y ResizeObserver para Mantine en jsdom
+
+**Decisiones tecnicas:**
+
+- Access token en MEMORIA (estado React), refresh token en localStorage
+- Cola de refresh para 401 concurrentes (primer 401 dispara refresh, los demas esperan)
+- Dynamic import de refreshTokens en interceptor para evitar circular dependency
+- CSS modules para NavLink en sidebar oscuro (inline styles no soportan :hover en Mantine 8)
+- Token accessors module-level (getAccessToken/setTokens) para que interceptors accedan sin hooks
+
+**Resultados:**
+
+- ✅ tsc --noEmit: 0 errores
+- ✅ 63/63 tests pasan (42 nuevos + 21 previos)
+- ✅ Todos los criterios de aceptacion del design doc cubiertos
+- ⚠️ @tabler/icons-react no instalado (NavLinks sin iconos)
+- ⚠️ Endpoint GET /v1/auth/me/tenants pendiente en backend
+
 ---
 
 ## Proximos Pasos
 
-- [ ] SDD archive de task-0
-- [ ] Commit de task-0
-- [ ] Iniciar task-1 (UC-002 Login Page)
+- [ ] Instalar @tabler/icons-react y agregar iconos a NavLinks del sidebar
+- [ ] Implementar endpoint GET /v1/auth/me/tenants en backend
+- [ ] SDD verify + archive de task-1 UC-002
+- [ ] Commit de task-1
+- [ ] Iniciar task-2
 
 ---
 
@@ -160,10 +215,10 @@ Se crearon 19 unit tests para las utilities de formateo y la estructura del them
 
 ## Metricas de la Sesion
 
-- **Archivos creados:** 13
-- **Archivos modificados:** 2 (index.html, providers.tsx)
+- **Archivos creados:** 29 (13 task-0 + 16 task-1)
+- **Archivos modificados:** 7 (2 task-0 + 3 task-1 + 2 infra)
 - **Archivos eliminados:** 1 (theme.ts)
-- **Tests creados:** 19
+- **Tests creados:** 61 (19 task-0 + 42 task-1)
 
 ---
 
@@ -176,4 +231,4 @@ Se crearon 19 unit tests para las utilities de formateo y la estructura del them
 ---
 
 **Estado final:** En progreso
-**Proxima sesion:** Completar tests y archive de task-0
+**Proxima sesion:** Instalar iconos, verify/archive task-1, commit, iniciar task-2

@@ -1,42 +1,62 @@
-import { createBrowserRouter } from 'react-router';
+import { lazy, Suspense } from 'react';
+import { createBrowserRouter, Navigate } from 'react-router';
+import { Center, Loader } from '@mantine/core';
+import { ProtectedRoute } from '@/shared/components/protected-route';
+import { AppLayout } from '@/shared/components/layout/app-shell';
 
-/**
- * Página placeholder de login.
- * Se reemplazará con la implementación real del módulo auth.
- */
-function LoginPage() {
-  return (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Associated — Login</h1>
-      <p>Página de login (placeholder)</p>
-    </div>
-  );
-}
+// Carga lazy de páginas para code splitting
+const LoginPage = lazy(() =>
+  import('@/features/auth/pages/login.page').then((m) => ({
+    default: m.LoginPage,
+  })),
+);
+const DashboardPage = lazy(() =>
+  import('@/features/dashboard/pages/dashboard.page').then((m) => ({
+    default: m.DashboardPage,
+  })),
+);
 
-/**
- * Página placeholder de dashboard.
- * Se reemplazará con la implementación real del dashboard principal.
- */
-function DashboardPage() {
-  return (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Associated — Dashboard</h1>
-      <p>Panel principal (placeholder)</p>
-    </div>
-  );
-}
+// Fallback de carga compartido para Suspense
+const SuspenseFallback = (
+  <Center mih="100vh">
+    <Loader color="brand" />
+  </Center>
+);
 
 /**
  * Configuración del enrutador de la aplicación.
- * Rutas básicas: login y dashboard (placeholders).
+ * Rutas públicas: /login
+ * Rutas protegidas: / → ProtectedRoute → AppLayout (sidebar + navbar + Outlet)
+ *   ├→ /dashboard → DashboardPage
+ *   └→ index → redirige a /dashboard
  */
 export const router = createBrowserRouter([
   {
     path: '/login',
-    element: <LoginPage />,
+    element: (
+      <Suspense fallback={SuspenseFallback}>
+        <LoginPage />
+      </Suspense>
+    ),
   },
   {
     path: '/',
-    element: <DashboardPage />,
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <AppLayout />,
+        children: [
+          { index: true, element: <Navigate to="/dashboard" replace /> },
+          {
+            path: 'dashboard',
+            element: (
+              <Suspense fallback={SuspenseFallback}>
+                <DashboardPage />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+    ],
   },
 ]);

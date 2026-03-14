@@ -1,12 +1,14 @@
-import axios from 'axios';
+import axios, { type InternalAxiosRequestConfig } from 'axios';
 import { ApiError, apiErrorResponseSchema } from './api-error';
+import { getAccessToken, setTokens } from '@/features/auth/context/auth.provider';
 
 /** URL base del API, configurable via variable de entorno. */
 const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
 
 /**
- * Instancia de Axios preconfigurada para comunicación con el backend.
- * Incluye interceptores para autenticación, multi-tenant y manejo de errores.
+ * Instancia de Axios preconfigurada para comunicacion con el backend.
+ * Incluye interceptores para autenticacion, multi-tenant y manejo de errores
+ * con refresh automatico de tokens y cola de peticiones concurrentes.
  */
 export const httpClient = axios.create({
   baseURL: BASE_URL,
@@ -15,17 +17,20 @@ export const httpClient = axios.create({
   },
 });
 
+// === Request Interceptor ===
+
 /**
- * Interceptor de peticiones: inyecta el token Bearer y el header X-Tenant-Id.
- * Lee ambos valores del localStorage.
+ * Interceptor de peticiones: inyecta el token Bearer desde memoria
+ * (AuthProvider state) y el header X-Tenant-Id desde localStorage.
  */
 httpClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
+  const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  const tenantId = localStorage.getItem('tenant_id');
+  // X-Tenant-Id: se lee de localStorage (se setea cuando el usuario selecciona tenant)
+  const tenantId = localStorage.getItem('associated_tenant_id');
   if (tenantId) {
     config.headers['X-Tenant-Id'] = tenantId;
   }
@@ -33,19 +38,121 @@ httpClient.interceptors.request.use((config) => {
   return config;
 });
 
+// === Response Interceptor — Refresh Token Queue ===
+
+/** Flag para indicar si hay un refresh de tokens en curso. */
+let isRefreshing = false;
+
+/** Cola de peticiones que fallaron con 401 mientras se hace refresh. */
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}> = [];
+
 /**
- * Interceptor de respuestas: transforma errores del backend en ApiError.
- * Redirige a /login en caso de 401 (sesión expirada).
+ * Procesa la cola de peticiones pendientes.
+ * Si el refresh fue exitoso, resuelve con el nuevo token.
+ * Si fallo, rechaza todas las peticiones encoladas.
+ */
+function processQueue(error: unknown, token: string | null = null): void {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (token) {
+      resolve(token);
+    } else {
+      reject(error);
+    }
+  });
+  failedQueue = [];
+}
+
+/**
+ * Interceptor de respuestas: maneja refresh automatico de tokens en 401
+ * con cola para peticiones concurrentes, y transforma errores del backend
+ * en ApiError tipados.
  */
 httpClient.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    // --- Refresh logic para 401 ---
+    // Solo si es 401, no es un retry, y no es el endpoint de refresh (evita loop infinito)
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/auth/refresh')
+    ) {
+      if (isRefreshing) {
+        // Ya hay un refresh en curso — encolar esta peticion y esperar
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve: (token: string) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              resolve(httpClient(originalRequest));
+            },
+            reject,
+          });
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshToken = localStorage.getItem('associated_refresh_token');
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
+        // Import dinamico para evitar dependencia circular (http-client -> auth.api -> http-client)
+        const { refreshTokens } = await import('@/features/auth/api/auth.api');
+        const tokens = await refreshTokens(refreshToken);
+
+        // Actualizar tokens en AuthProvider (estado en memoria)
+        setTokens(tokens);
+        localStorage.setItem('associated_refresh_token', tokens.refreshToken);
+
+        // Procesar cola con nuevo token — desbloquea peticiones encoladas
+        processQueue(null, tokens.accessToken);
+
+        // Reintentar peticion original con el nuevo token
+        originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`;
+        return httpClient(originalRequest);
+      } catch (refreshError) {
+        // Refresh fallo — rechazar todas las peticiones encoladas
+        processQueue(refreshError, null);
+
+        // Limpiar estado de autenticacion completo
+        setTokens(null);
+        localStorage.removeItem('associated_refresh_token');
+        localStorage.removeItem('associated_tenant_id');
+
+        // Redirigir a login
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    // --- Reporte de errores 5xx y errores de red ---
+    if (error.response?.status >= 500 || !error.response) {
+      console.error('[API Error]', {
+        url: error.config?.url,
+        method: error.config?.method,
+        status: error.response?.status,
+        message: error.message,
+      });
+    }
+
+    // --- Transformacion de errores del backend a ApiError ---
     if (!axios.isAxiosError(error) || !error.response) {
-      // Error de red u otro error no HTTP
       return Promise.reject(
         new ApiError(0, {
           code: 'NETWORK_ERROR',
-          message: 'Error de conexión con el servidor.',
+          message: 'Error de conexion con el servidor.',
           details: null,
         }),
       );
@@ -53,27 +160,19 @@ httpClient.interceptors.response.use(
 
     const { status, data } = error.response;
 
-    // Redirigir a login si la sesión ha expirado
-    if (status === 401) {
-      localStorage.removeItem('access_token');
-      window.location.href = '/login';
-    }
-
-    // Intentar parsear el error con el formato estándar del backend
+    // Intentar parsear el error con el formato estandar del backend
     const parsed = apiErrorResponseSchema.safeParse(data);
 
     if (parsed.success) {
       return Promise.reject(new ApiError(status, parsed.data.error));
     }
 
-    // Formato de error no estándar — crear ApiError genérico
+    // Formato de error no estandar — crear ApiError generico
     return Promise.reject(
       new ApiError(status, {
         code: 'UNKNOWN_ERROR',
         message:
-          typeof data?.message === 'string'
-            ? data.message
-            : 'Error desconocido del servidor.',
+          typeof data?.message === 'string' ? data.message : 'Error desconocido del servidor.',
         details: null,
       }),
     );
