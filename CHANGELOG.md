@@ -11,7 +11,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 - **Fecha de sesion:** 14 de marzo de 2026
 - **Hora de inicio:** 19:30
-- **Hora de ultimos trabajos:** 22:34
+- **Hora de ultimos trabajos:** 00:10
 - **Documento de sesion:** [doc/agents-sessions/20260314-002-acester-CLAUDECODE.md](doc/agents-sessions/20260314-002-acester-CLAUDECODE.md)
 
 #### Added
@@ -32,6 +32,13 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Creado AppLayout con sidebar brandDark, navbar con menu usuario y switch tenant modal
 - Creado dashboard placeholder con 4 KPI cards
 - Creados 42 unit tests: schemas (15), permissions hook (10), auth hook (3), protected-route (5), tenant-selector (4), login-page (5)
+- Implementada Task 2 — UC-017 Configuracion de planes de cuota (Frontend): CRUD completo con tabla filtrable, formulario condicional, vinculacion tipos socio, plantillas e inactivacion protegida
+- Creados schemas Zod para planes de cuota (11 schemas, 10 tipos, 2 enums) y API service con 9 funciones validadas
+- Creados 8 hooks TanStack Query para planes (queries + mutations con invalidacion y notificaciones)
+- Creado formulario condicional RECURRING/ONE_TIME con chips de meses de cobro y preseleccion por periodicidad
+- Creados modales: crear, editar, vincular tipos socio (radio default + orden), plantillas por colectividad, inactivacion protegida
+- Creados 48 unit tests: schemas (26), form (9), list page (7), deactivate modal (6)
+- Creados 26 unit tests adicionales: link-member-types-modal (8), import-template-modal (6), hooks use-fee-plans (4), use-create-fee-plan (4), use-deactivate-fee-plan (4)
 
 #### Changed
 
@@ -42,10 +49,13 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Actualizado providers.tsx: AuthProvider insertado entre Notifications y QueryClientProvider
 - Actualizado vitest.config.ts: agregado alias @/ para resolucion en tests
 - Actualizado test/setup.ts: mocks window.matchMedia y ResizeObserver para Mantine en jsdom
+- Actualizado router.tsx: ruta /treasury/fee-plans con lazy loading
+- Actualizado app-shell.tsx: NavLink "Planes de Cuota" en sidebar bajo Tesoreria
 
 #### Fixed
 
-[Sin cambios]
+- Corregido wire de "Inactivar" y "Importar Plantilla" en pagina de listado de planes (no estaban conectados a sus modales)
+- Corregida ruta /treasury/fee-plans sin ProtectedRoute con permisos (ahora verifica treasury:fee-plans:read)
 
 #### Removed
 

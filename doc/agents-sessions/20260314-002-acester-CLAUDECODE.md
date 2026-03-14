@@ -3,13 +3,13 @@
 - **Agente de IA:** Claude Opus 4.6 (Claude Code CLI)
 - **Fecha creacion:** 14 de marzo de 2026
 - **Hora de inicio:** 19:30
-- **Hora de ultimos trabajos:** 22:34
+- **Hora de ultimos trabajos:** 00:10
 
 ---
 
 ## Resumen de la Sesion
 
-Implementacion de Task 0 — Brand Setup: infraestructura de identidad visual del frontend. Configuracion del theme Mantine, HTML base, logos SVG, utilities de formateo y actualizacion de providers siguiendo los documentos de marca. Implementacion de Task 1 — UC-002 Autenticacion multi-tenant (Frontend): login, selector de tenant, refresh transparente, rutas protegidas, layout principal y dashboard placeholder.
+Implementacion de Task 0 — Brand Setup: infraestructura de identidad visual del frontend. Configuracion del theme Mantine, HTML base, logos SVG, utilities de formateo y actualizacion de providers siguiendo los documentos de marca. Implementacion de Task 1 — UC-002 Autenticacion multi-tenant (Frontend): login, selector de tenant, refresh transparente, rutas protegidas, layout principal y dashboard placeholder. Implementacion de Task 2 — UC-017 Configuracion de planes de cuota (Frontend): CRUD completo con tabla filtrable, formulario condicional, vinculacion tipos socio, plantillas e inactivacion protegida.
 
 ---
 
@@ -184,15 +184,82 @@ Implementacion completa del flujo de autenticacion frontend: login, selector de 
 - ⚠️ @tabler/icons-react no instalado (NavLinks sin iconos)
 - ⚠️ Endpoint GET /v1/auth/me/tenants pendiente en backend
 
+### 23:20 - Task 2: UC-017 Configuracion de planes de cuota (Frontend)
+
+**Descripcion:**
+Implementacion completa del CRUD de planes de cuota: schemas Zod, API service, 8 hooks TanStack Query, pagina listado con tabla filtrable, formulario condicional RECURRING/ONE_TIME, modales de vinculacion tipos socio, plantillas predefinidas, inactivacion protegida. SDD fast-forward + apply en 6 batches.
+
+**Archivos creados (18):**
+
+- `web/src/features/treasury/fee-plans/schemas/fee-plan.schemas.ts` - 11 schemas, 10 tipos, 2 enums
+- `web/src/features/treasury/fee-plans/api/fee-plan.api.ts` - 9 funciones API con validacion Zod
+- `web/src/features/treasury/fee-plans/hooks/use-fee-plans.ts` - Query listado (staleTime 30s)
+- `web/src/features/treasury/fee-plans/hooks/use-fee-plan.ts` - Query detalle por ID
+- `web/src/features/treasury/fee-plans/hooks/use-create-fee-plan.ts` - Mutation crear + notificacion + error 409
+- `web/src/features/treasury/fee-plans/hooks/use-update-fee-plan.ts` - Mutation actualizar
+- `web/src/features/treasury/fee-plans/hooks/use-deactivate-fee-plan.ts` - Mutation inactivar + error 422
+- `web/src/features/treasury/fee-plans/hooks/use-link-member-types.ts` - Mutation vincular tipos socio
+- `web/src/features/treasury/fee-plans/hooks/use-member-types.ts` - Query tipos socio (staleTime 5min)
+- `web/src/features/treasury/fee-plans/hooks/use-fee-plan-templates.ts` - Query + mutation plantillas
+- `web/src/features/treasury/fee-plans/pages/fee-plans-list.page.tsx` - Listado con tabla, filtros, skeleton, empty state
+- `web/src/features/treasury/fee-plans/components/fee-plan-form.tsx` - Formulario condicional RECURRING/ONE_TIME con billingMonths chips
+- `web/src/features/treasury/fee-plans/components/fee-plan-create-modal.tsx` - Modal creacion
+- `web/src/features/treasury/fee-plans/components/fee-plan-edit-modal.tsx` - Modal edicion (code read-only)
+- `web/src/features/treasury/fee-plans/components/link-member-types-modal.tsx` - Vinculacion con radio default + orden
+- `web/src/features/treasury/fee-plans/components/import-template-modal.tsx` - Plantillas por colectividad con preview
+- `web/src/features/treasury/fee-plans/components/deactivate-fee-plan-modal.tsx` - Inactivacion protegida
+- 4 archivos de test (schemas, form, list page, deactivate modal)
+
+**Archivos modificados (2):**
+
+- `web/src/app/router.tsx` - Ruta /treasury/fee-plans con lazy loading
+- `web/src/shared/components/layout/app-shell.tsx` - NavLink "Planes de Cuota" en sidebar
+
+**Resultados:**
+
+- ✅ tsc --noEmit: 0 errores
+- ✅ 111/111 tests pasan (48 nuevos)
+- ⚠️ @tabler/icons-react pendiente (iconos en modals/sidebar)
+
+### 00:10 - Fixes verificacion Task 2: UC-017
+
+**Descripcion:**
+Correccion de 3 gaps funcionales detectados en sdd-verify y adicion de tests faltantes.
+
+**Fixes aplicados:**
+
+1. **Wire "Inactivar"**: Menu.Item en lista ahora abre DeactivateFeePlanModal con el plan seleccionado
+2. **Wire "Importar Plantilla"**: Boton en lista ahora abre ImportTemplateModal
+3. **ProtectedRoute con permisos**: Ruta /treasury/fee-plans envuelta en ProtectedRoute con permissions=['treasury:fee-plans:read']. Sin permiso muestra 403.
+
+**Archivos modificados:**
+
+- `web/src/features/treasury/fee-plans/pages/fee-plans-list.page.tsx` - Imports + disclosure states + render de DeactivateFeePlanModal e ImportTemplateModal
+- `web/src/app/router.tsx` - Ruta fee-plans con ProtectedRoute anidado
+
+**Tests creados (26 nuevos):**
+
+- `web/src/features/treasury/fee-plans/components/link-member-types-modal.spec.tsx` - 8 tests
+- `web/src/features/treasury/fee-plans/components/import-template-modal.spec.tsx` - 6 tests
+- `web/src/features/treasury/fee-plans/hooks/use-fee-plans.spec.ts` - 4 tests
+- `web/src/features/treasury/fee-plans/hooks/use-create-fee-plan.spec.ts` - 4 tests
+- `web/src/features/treasury/fee-plans/hooks/use-deactivate-fee-plan.spec.ts` - 4 tests
+
+**Resultados:**
+
+- ✅ tsc --noEmit: 0 errores
+- ✅ 137/137 tests pasan
+- ✅ Re-verify PASS: 16/16 criterios
+- ✅ SDD archivada
+
 ---
 
 ## Proximos Pasos
 
-- [ ] Instalar @tabler/icons-react y agregar iconos a NavLinks del sidebar
-- [ ] Implementar endpoint GET /v1/auth/me/tenants en backend
-- [ ] SDD verify + archive de task-1 UC-002
-- [ ] Commit de task-1
-- [ ] Iniciar task-2
+- [ ] Instalar @tabler/icons-react y agregar iconos
+- [ ] SDD verify + archive de task-2 UC-017
+- [ ] Commit de task-2
+- [ ] Iniciar task-3 (UC-018 suscripciones)
 
 ---
 
@@ -215,10 +282,10 @@ Implementacion completa del flujo de autenticacion frontend: login, selector de 
 
 ## Metricas de la Sesion
 
-- **Archivos creados:** 29 (13 task-0 + 16 task-1)
-- **Archivos modificados:** 7 (2 task-0 + 3 task-1 + 2 infra)
+- **Archivos creados:** 52 (13 task-0 + 16 task-1 + 23 task-2)
+- **Archivos modificados:** 11 (2 task-0 + 5 task-1 + 4 task-2)
 - **Archivos eliminados:** 1 (theme.ts)
-- **Tests creados:** 61 (19 task-0 + 42 task-1)
+- **Tests creados:** 137 (19 task-0 + 42 task-1 + 74+2 fix task-2)
 
 ---
 

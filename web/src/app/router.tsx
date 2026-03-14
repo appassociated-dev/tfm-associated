@@ -15,6 +15,11 @@ const DashboardPage = lazy(() =>
     default: m.DashboardPage,
   })),
 );
+const FeePlansListPage = lazy(() =>
+  import('@/features/treasury/fee-plans/pages/fee-plans-list.page').then((m) => ({
+    default: m.FeePlansListPage,
+  })),
+);
 
 // Fallback de carga compartido para Suspense
 const SuspenseFallback = (
@@ -54,6 +59,20 @@ export const router = createBrowserRouter([
                 <DashboardPage />
               </Suspense>
             ),
+          },
+          {
+            path: 'treasury/fee-plans',
+            element: <ProtectedRoute permissions={['treasury:fee-plans:read']} />,
+            children: [
+              {
+                index: true,
+                element: (
+                  <Suspense fallback={SuspenseFallback}>
+                    <FeePlansListPage />
+                  </Suspense>
+                ),
+              },
+            ],
           },
         ],
       },

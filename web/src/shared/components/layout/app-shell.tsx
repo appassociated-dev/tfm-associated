@@ -38,6 +38,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', permission: null },
   { label: 'Socios', path: '/members', permission: 'membership:members:read' },
   { label: 'Tesorería', path: '/treasury', permission: 'treasury:*:read' },
+  { label: 'Planes de Cuota', path: '/treasury/fee-plans', permission: 'treasury:fee-plans:read' },
   { label: 'Configuración', path: '/settings', permission: 'settings:*:read' },
 ];
 
