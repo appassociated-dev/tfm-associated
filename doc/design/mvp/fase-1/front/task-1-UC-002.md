@@ -48,21 +48,7 @@
 
 Antes de iniciar esta tarea, verificar que:
 
-- [ ] `web/src/app/providers.tsx` existe con `MantineProvider` y `QueryClientProvider` configurados. El theme debe usar `primaryColor: 'brand'` con shade 7 (`#5B7682`) para light mode. Los botones primarios deben usar `color="brand"`, nunca el azul por defecto de Mantine. Está prohibido usar `variant="gradient"` en botones (directriz de marca)
-- [ ] `web/index.html` incluye la carga de la fuente Inter:
-  ```html
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  ```
-- [ ] `web/index.html` incluye favicon y meta tags de marca:
-  ```html
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
-  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
-  <meta name="theme-color" content="#27343E" />
-  <meta property="og:image" content="/og-image.png" />
-  ```
+- [ ] **Task 0 (Brand Setup) completada:** theme de marca, `index.html` con meta tags, logos SVG en `web/src/shared/assets/`, utilities de formateo (`format-money.ts`, `format-date.ts`)
 - [ ] `web/src/shared/api/http-client.ts` existe con instancia Axios base configurada
 - [ ] `web/src/app/router.tsx` existe con `RouterProvider` básico
 - [ ] `web/src/shared/observability/error-reporter.port.ts` existe y exporta la interfaz `ErrorReporter`
