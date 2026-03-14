@@ -75,3 +75,6 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Archivos y artefactos para Project Claude WEB
+4-claude-project/
