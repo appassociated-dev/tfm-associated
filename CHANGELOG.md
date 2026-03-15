@@ -11,7 +11,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 - **Fecha de sesion:** 14 de marzo de 2026
 - **Hora de inicio:** 19:30
-- **Hora de ultimos trabajos:** 01:31
+- **Hora de ultimos trabajos:** 02:18
 - **Documento de sesion:** [doc/agents-sessions/20260314-002-acester-CLAUDECODE.md](doc/agents-sessions/20260314-002-acester-CLAUDECODE.md)
 
 #### Added
@@ -49,6 +49,9 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Creada utilidad validateDni/validateNie con algoritmo mod 23 espanol y calculateAge
 - Creado wizard de alta con Mantine Stepper, useBlocker para prevencion navegacion accidental, y verificacion precondiciones
 - Creados 111 unit tests: dni-validator (57), schemas (25), personal-data-step (7), member-type-step (8), confirmation-step (8), page (6)
+- Implementada Task 5 — UC-013 Baja de socio (Frontend): baja voluntaria con fecha segun estatutos, baja por impago con workflow 5 fases, rehabilitacion con desglose costes
+- Creados componentes reutilizables StatusBadge (8 estados), StatusTimeline (historico) y LeaveActions (botones contextuales)
+- Creados 81 unit tests: schemas (22), status-badge (12), status-timeline (6), leave-actions (6), voluntary-leave (8), reinstatement (8)
 
 #### Changed
 
@@ -64,6 +67,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Actualizado router.tsx: ruta /treasury/members/:memberId/subscriptions con ProtectedRoute y lazy loading
 - Actualizado router.tsx: ruta /members/new con ProtectedRoute y lazy loading
 - Actualizado app-shell.tsx: NavLink "Nuevo Socio" en sidebar bajo Socios
+- Actualizado router.tsx: 3 rutas leave (/members/:id/leave, /nonpayment-leave, /reinstate) con ProtectedRoute
 
 #### Fixed
 

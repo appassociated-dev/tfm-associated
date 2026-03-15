@@ -3,13 +3,13 @@
 - **Agente de IA:** Claude Opus 4.6 (Claude Code CLI)
 - **Fecha creacion:** 14 de marzo de 2026
 - **Hora de inicio:** 19:30
-- **Hora de ultimos trabajos:** 01:31
+- **Hora de ultimos trabajos:** 02:18
 
 ---
 
 ## Resumen de la Sesion
 
-Implementacion de Task 0 — Brand Setup: infraestructura de identidad visual del frontend. Configuracion del theme Mantine, HTML base, logos SVG, utilities de formateo y actualizacion de providers siguiendo los documentos de marca. Implementacion de Task 1 — UC-002 Autenticacion multi-tenant (Frontend): login, selector de tenant, refresh transparente, rutas protegidas, layout principal y dashboard placeholder. Implementacion de Task 2 — UC-017 Configuracion de planes de cuota (Frontend): CRUD completo con tabla filtrable, formulario condicional, vinculacion tipos socio, plantillas e inactivacion protegida. Implementacion de Task 3 — UC-018 Gestion de suscripciones de cuota (Frontend): selector de plan reutilizable, descuentos multiplicativos, cambio plan, timeline historico, exenciones. Implementacion de Task 4 — UC-011 Alta simple de socio (Frontend): wizard 3 pasos con validacion DNI mod 23, selector tipo socio con validacion edad, confirmacion con cargo inscripcion.
+Implementacion de Task 0 — Brand Setup: infraestructura de identidad visual del frontend. Configuracion del theme Mantine, HTML base, logos SVG, utilities de formateo y actualizacion de providers siguiendo los documentos de marca. Implementacion de Task 1 — UC-002 Autenticacion multi-tenant (Frontend): login, selector de tenant, refresh transparente, rutas protegidas, layout principal y dashboard placeholder. Implementacion de Task 2 — UC-017 Configuracion de planes de cuota (Frontend): CRUD completo con tabla filtrable, formulario condicional, vinculacion tipos socio, plantillas e inactivacion protegida. Implementacion de Task 3 — UC-018 Gestion de suscripciones de cuota (Frontend): selector de plan reutilizable, descuentos multiplicativos, cambio plan, timeline historico, exenciones. Implementacion de Task 4 — UC-011 Alta simple de socio (Frontend): wizard 3 pasos con validacion DNI mod 23, selector tipo socio con validacion edad, confirmacion con cargo inscripcion. Implementacion de Task 5 — UC-013 Baja de socio (Frontend): baja voluntaria, baja por impago, rehabilitacion y componentes reutilizables de estado.
 
 ---
 
@@ -321,13 +321,39 @@ Implementacion completa del wizard de alta de socio en 3 pasos: datos personales
 - 323/323 tests pasan (111 nuevos)
 - Algoritmo DNI mod 23 verificado exhaustivamente (57 test cases)
 
+### 02:18 - Task 5: UC-013 Baja de socio (Frontend)
+
+**Descripcion:**
+Implementacion completa de baja voluntaria, baja por impago, rehabilitacion y componentes reutilizables de estado (StatusBadge, StatusTimeline, LeaveActions). SDD fast-forward + apply en 5 batches.
+
+**Archivos creados (18):**
+
+- `web/src/features/membership/leave/schemas/member-leave.schemas.ts` - 11 schemas, 11 tipos, 2 enums
+- `web/src/features/membership/leave/api/member-leave.api.ts` - 7 funciones API con validacion Zod
+- 6 hooks TanStack Query (leave-summary, voluntary-leave, reinstatement-summary, reinstate-member, status-history, available-transitions)
+- `web/src/features/membership/leave/components/status-badge.tsx` - Badge reutilizable para 8 estados
+- `web/src/features/membership/leave/components/status-timeline.tsx` - Timeline historico de estados
+- `web/src/features/membership/leave/components/leave-actions.tsx` - Botones contextuales segun transiciones
+- `web/src/features/membership/leave/pages/voluntary-leave.page.tsx` - Baja voluntaria con fecha efectiva, impacto financiero, confirmacion doble paso
+- `web/src/features/membership/leave/pages/nonpayment-leave.page.tsx` - Baja impago con workflow 5 fases, certificado preview
+- `web/src/features/membership/leave/pages/reinstatement.page.tsx` - Rehabilitacion con desglose costes, pago completo obligatorio
+- 6 archivos de test (schemas 22, status-badge 12, status-timeline 6, leave-actions 6, voluntary-leave 8, reinstatement 8)
+
+**Archivos modificados (1):**
+
+- `web/src/app/router.tsx` - 3 rutas: /members/:id/leave, /nonpayment-leave, /reinstate
+
+**Resultados:**
+
+- ✅ tsc --noEmit: 0 errores
+- ✅ 404/404 tests pasan (81 nuevos)
+
 ---
 
 ## Proximos Pasos
 
-- [ ] Commit de task-4
-- [ ] Instalar @tabler/icons-react y agregar iconos globales
-- [ ] Iniciar task-5 o task-6
+- [ ] Cerrar sesion
+- [ ] Crear PR
 
 ---
 
@@ -350,10 +376,10 @@ Implementacion completa del wizard de alta de socio en 3 pasos: datos personales
 
 ## Metricas de la Sesion
 
-- **Archivos creados:** 76 (13 task-0 + 16 task-1 + 18 task-2 + 16 task-3 + 13 task-4)
-- **Archivos modificados:** 12 (2 task-0 + 5 task-1 + 2 task-2 + 1 task-3 + 2 task-4)
+- **Archivos creados:** 94 (13 task-0 + 16 task-1 + 18 task-2 + 16 task-3 + 13 task-4 + 18 task-5)
+- **Archivos modificados:** 13 (2 task-0 + 5 task-1 + 2 task-2 + 1 task-3 + 2 task-4 + 1 task-5)
 - **Archivos eliminados:** 1 (theme.ts)
-- **Tests creados:** 277 (19 task-0 + 42 task-1 + 48 task-2 + 57 task-3 + 111 task-4)
+- **Tests creados:** 358 (19 task-0 + 42 task-1 + 48 task-2 + 57 task-3 + 111 task-4 + 81 task-5)
 
 ---
 

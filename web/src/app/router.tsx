@@ -30,6 +30,21 @@ const SimpleRegistrationPage = lazy(() =>
     default: m.SimpleRegistrationPage,
   })),
 );
+const VoluntaryLeavePage = lazy(() =>
+  import('@/features/membership/leave/pages/voluntary-leave.page').then((m) => ({
+    default: m.VoluntaryLeavePage,
+  })),
+);
+const NonpaymentLeavePage = lazy(() =>
+  import('@/features/membership/leave/pages/nonpayment-leave.page').then((m) => ({
+    default: m.NonpaymentLeavePage,
+  })),
+);
+const ReinstatementPage = lazy(() =>
+  import('@/features/membership/leave/pages/reinstatement.page').then((m) => ({
+    default: m.ReinstatementPage,
+  })),
+);
 
 // Fallback de carga compartido para Suspense
 const SuspenseFallback = (
@@ -107,6 +122,48 @@ export const router = createBrowserRouter([
                 element: (
                   <Suspense fallback={SuspenseFallback}>
                     <MemberSubscriptionsPage />
+                  </Suspense>
+                ),
+              },
+            ],
+          },
+          {
+            path: 'members/:id/leave',
+            element: <ProtectedRoute permissions={['membership:members:deactivate']} />,
+            children: [
+              {
+                index: true,
+                element: (
+                  <Suspense fallback={SuspenseFallback}>
+                    <VoluntaryLeavePage />
+                  </Suspense>
+                ),
+              },
+            ],
+          },
+          {
+            path: 'members/:id/nonpayment-leave',
+            element: <ProtectedRoute permissions={['membership:members:deactivate']} />,
+            children: [
+              {
+                index: true,
+                element: (
+                  <Suspense fallback={SuspenseFallback}>
+                    <NonpaymentLeavePage />
+                  </Suspense>
+                ),
+              },
+            ],
+          },
+          {
+            path: 'members/:id/reinstate',
+            element: <ProtectedRoute permissions={['membership:members:reinstate']} />,
+            children: [
+              {
+                index: true,
+                element: (
+                  <Suspense fallback={SuspenseFallback}>
+                    <ReinstatementPage />
                   </Suspense>
                 ),
               },
