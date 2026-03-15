@@ -3,13 +3,13 @@
 - **Agente de IA:** Claude Opus 4.6 (Claude Code CLI)
 - **Fecha creacion:** 14 de marzo de 2026
 - **Hora de inicio:** 19:30
-- **Hora de ultimos trabajos:** 00:40
+- **Hora de ultimos trabajos:** 01:31
 
 ---
 
 ## Resumen de la Sesion
 
-Implementacion de Task 0 — Brand Setup: infraestructura de identidad visual del frontend. Configuracion del theme Mantine, HTML base, logos SVG, utilities de formateo y actualizacion de providers siguiendo los documentos de marca. Implementacion de Task 1 — UC-002 Autenticacion multi-tenant (Frontend): login, selector de tenant, refresh transparente, rutas protegidas, layout principal y dashboard placeholder. Implementacion de Task 2 — UC-017 Configuracion de planes de cuota (Frontend): CRUD completo con tabla filtrable, formulario condicional, vinculacion tipos socio, plantillas e inactivacion protegida. Implementacion de Task 3 — UC-018 Gestion de suscripciones de cuota (Frontend): selector de plan reutilizable, descuentos multiplicativos, cambio plan, timeline historico, exenciones.
+Implementacion de Task 0 — Brand Setup: infraestructura de identidad visual del frontend. Configuracion del theme Mantine, HTML base, logos SVG, utilities de formateo y actualizacion de providers siguiendo los documentos de marca. Implementacion de Task 1 — UC-002 Autenticacion multi-tenant (Frontend): login, selector de tenant, refresh transparente, rutas protegidas, layout principal y dashboard placeholder. Implementacion de Task 2 — UC-017 Configuracion de planes de cuota (Frontend): CRUD completo con tabla filtrable, formulario condicional, vinculacion tipos socio, plantillas e inactivacion protegida. Implementacion de Task 3 — UC-018 Gestion de suscripciones de cuota (Frontend): selector de plan reutilizable, descuentos multiplicativos, cambio plan, timeline historico, exenciones. Implementacion de Task 4 — UC-011 Alta simple de socio (Frontend): wizard 3 pasos con validacion DNI mod 23, selector tipo socio con validacion edad, confirmacion con cargo inscripcion.
 
 ---
 
@@ -291,14 +291,43 @@ Implementacion completa de gestion de suscripciones: schemas Zod, utilidad de ca
 - ✅ 194/194 tests pasan (57 nuevos)
 - ✅ Formula multiplicativa verificada exhaustivamente (14 test cases)
 
+### 01:31 - Task 4: UC-011 Alta simple de socio (Frontend)
+
+**Descripcion:**
+Implementacion completa del wizard de alta de socio en 3 pasos: datos personales con validacion DNI mod 23, selector tipo socio con validacion edad, confirmacion con cargo inscripcion. SDD fast-forward + apply en 5 batches.
+
+**Archivos creados (13):**
+
+- `web/src/features/membership/registration/schemas/member-registration.schemas.ts` - 6 schemas, 6 tipos
+- `web/src/features/membership/registration/utils/dni-validator.ts` - validateDni/Nie mod 23 + calculateAge
+- `web/src/features/membership/registration/api/registration.api.ts` - 3 funciones API con validacion Zod
+- `web/src/features/membership/registration/hooks/use-member-types.ts` - Query tipos socio
+- `web/src/features/membership/registration/hooks/use-check-dni.ts` - Query debounced 500ms
+- `web/src/features/membership/registration/hooks/use-simple-registration.ts` - Mutation alta + handle 409/422
+- `web/src/features/membership/registration/pages/simple-registration.page.tsx` - Wizard Stepper 3 pasos + useBlocker
+- `web/src/features/membership/registration/components/personal-data-step.tsx` - Formulario datos + DNI inline validation
+- `web/src/features/membership/registration/components/member-type-step.tsx` - Selector tipo con validacion edad
+- `web/src/features/membership/registration/components/confirmation-step.tsx` - Resumen + boton confirmar
+- 6 archivos de test (dni-validator 57, schemas 25, 3 steps, page)
+
+**Archivos modificados (2):**
+
+- `web/src/app/router.tsx` - Ruta /members/new con ProtectedRoute
+- `web/src/shared/components/layout/app-shell.tsx` - NavLink "Nuevo Socio" en sidebar
+
+**Resultados:**
+
+- tsc --noEmit: 0 errores
+- 323/323 tests pasan (111 nuevos)
+- Algoritmo DNI mod 23 verificado exhaustivamente (57 test cases)
+
 ---
 
 ## Proximos Pasos
 
-- [ ] SDD verify + archive de task-3 UC-018
-- [ ] Commit de task-3
+- [ ] Commit de task-4
 - [ ] Instalar @tabler/icons-react y agregar iconos globales
-- [ ] Iniciar task-4 o task-5
+- [ ] Iniciar task-5 o task-6
 
 ---
 
@@ -321,10 +350,10 @@ Implementacion completa de gestion de suscripciones: schemas Zod, utilidad de ca
 
 ## Metricas de la Sesion
 
-- **Archivos creados:** 63 (13 task-0 + 16 task-1 + 18 task-2 + 16 task-3)
-- **Archivos modificados:** 10 (2 task-0 + 5 task-1 + 2 task-2 + 1 task-3)
+- **Archivos creados:** 76 (13 task-0 + 16 task-1 + 18 task-2 + 16 task-3 + 13 task-4)
+- **Archivos modificados:** 12 (2 task-0 + 5 task-1 + 2 task-2 + 1 task-3 + 2 task-4)
 - **Archivos eliminados:** 1 (theme.ts)
-- **Tests creados:** 166 (19 task-0 + 42 task-1 + 48 task-2 + 57 task-3)
+- **Tests creados:** 277 (19 task-0 + 42 task-1 + 48 task-2 + 57 task-3 + 111 task-4)
 
 ---
 

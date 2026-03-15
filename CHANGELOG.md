@@ -11,7 +11,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 - **Fecha de sesion:** 14 de marzo de 2026
 - **Hora de inicio:** 19:30
-- **Hora de ultimos trabajos:** 00:40
+- **Hora de ultimos trabajos:** 01:31
 - **Documento de sesion:** [doc/agents-sessions/20260314-002-acester-CLAUDECODE.md](doc/agents-sessions/20260314-002-acester-CLAUDECODE.md)
 
 #### Added
@@ -45,6 +45,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Creada pagina de suscripciones del socio con seccion activa + timeline historico (Mantine Timeline)
 - Creados modales: cambio plan (fecha efectiva), modificar descuento (preview), exencion temporal
 - Creados 57 unit tests: discount-calculator (14), schemas (29), subscription-selector (6), member-subscriptions-page (8)
+- Implementada Task 4 — UC-011 Alta simple de socio (Frontend): wizard 3 pasos con validacion DNI mod 23, selector tipo socio con validacion edad, confirmacion con cargo inscripcion
+- Creada utilidad validateDni/validateNie con algoritmo mod 23 espanol y calculateAge
+- Creado wizard de alta con Mantine Stepper, useBlocker para prevencion navegacion accidental, y verificacion precondiciones
+- Creados 111 unit tests: dni-validator (57), schemas (25), personal-data-step (7), member-type-step (8), confirmation-step (8), page (6)
 
 #### Changed
 
@@ -58,6 +62,8 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Actualizado router.tsx: ruta /treasury/fee-plans con lazy loading
 - Actualizado app-shell.tsx: NavLink "Planes de Cuota" en sidebar bajo Tesoreria
 - Actualizado router.tsx: ruta /treasury/members/:memberId/subscriptions con ProtectedRoute y lazy loading
+- Actualizado router.tsx: ruta /members/new con ProtectedRoute y lazy loading
+- Actualizado app-shell.tsx: NavLink "Nuevo Socio" en sidebar bajo Socios
 
 #### Fixed
 

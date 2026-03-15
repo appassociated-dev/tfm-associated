@@ -25,6 +25,11 @@ const MemberSubscriptionsPage = lazy(() =>
     default: m.MemberSubscriptionsPage,
   })),
 );
+const SimpleRegistrationPage = lazy(() =>
+  import('@/features/membership/registration/pages/simple-registration.page').then((m) => ({
+    default: m.SimpleRegistrationPage,
+  })),
+);
 
 // Fallback de carga compartido para Suspense
 const SuspenseFallback = (
@@ -74,6 +79,20 @@ export const router = createBrowserRouter([
                 element: (
                   <Suspense fallback={SuspenseFallback}>
                     <FeePlansListPage />
+                  </Suspense>
+                ),
+              },
+            ],
+          },
+          {
+            path: 'members/new',
+            element: <ProtectedRoute permissions={['membership:members:create']} />,
+            children: [
+              {
+                index: true,
+                element: (
+                  <Suspense fallback={SuspenseFallback}>
+                    <SimpleRegistrationPage />
                   </Suspense>
                 ),
               },
