@@ -78,11 +78,12 @@ httpClient.interceptors.response.use(
     };
 
     // --- Refresh logic para 401 ---
-    // Solo si es 401, no es un retry, y no es el endpoint de refresh (evita loop infinito)
+    // Solo si es 401, no es un retry, y no es un endpoint de auth (evita loop infinito
+    // y permite que errores de login/refresh se propaguen al caller)
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes('/auth/refresh')
+      !originalRequest.url?.includes('/auth/')
     ) {
       if (isRefreshing) {
         // Ya hay un refresh en curso — encolar esta peticion y esperar

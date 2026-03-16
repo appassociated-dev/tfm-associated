@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { Box, Button, Center, PasswordInput, Stack, TextInput, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
+import { ApiError } from '@/shared/api/api-error';
 import logoStacked from '@/shared/assets/logo-stacked.svg';
 import { useAuth } from '../context/use-auth';
 import type { LoginRequest, TenantSelectorResponse } from '../schemas/auth.schemas';
@@ -154,20 +155,13 @@ export function LoginPage() {
 // === Utilidades privadas ===
 
 /**
- * Extrae el código HTTP de un error de Axios.
- * Retorna undefined si no es un error HTTP reconocido.
+ * Extrae el código HTTP de un error de la API.
+ * Los interceptores de Axios transforman todo a ApiError,
+ * por lo que verificamos esa clase primero.
  */
 function extractHttpStatus(error: unknown): number | undefined {
-  if (
-    error !== null &&
-    typeof error === 'object' &&
-    'response' in error &&
-    error.response !== null &&
-    typeof error.response === 'object' &&
-    'status' in error.response &&
-    typeof error.response.status === 'number'
-  ) {
-    return error.response.status;
+  if (error instanceof ApiError) {
+    return error.status;
   }
   return undefined;
 }
