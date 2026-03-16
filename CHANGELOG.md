@@ -7,6 +7,63 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260316-001-acester-CLAUDECODE
+
+- **Fecha de sesion:** 16 de marzo de 2026
+- **Hora de inicio:** 1:13
+- **Hora de ultimos trabajos:** 13:02
+- **Documento de sesion:** [doc/agents-sessions/20260316-001-acester-CLAUDECODE.md](doc/agents-sessions/20260316-001-acester-CLAUDECODE.md)
+
+#### Added
+
+- Generado reporte de bugs backend (doc/reports/backend-bugs-frontend-testing.md): 3 bugs en capa HTTP detectados durante testing manual frontend
+- Documentado Bug 4 en reporte: nombre BD tenant con guiones vs underscores al conectar
+- Actualizado reporte backend con 4 bugs y 7 recomendaciones estructuradas (R1-R7)
+
+#### Changed
+
+- Actualizado seed-data.sh con header X-Api-Key para autenticacion SuperadminGuard
+
+#### Fixed
+
+- Corregido interceptor Axios que secuestraba errores 401 de login (solo excluia /auth/refresh, ahora excluye todos los endpoints /auth/)
+- Corregido extractHttpStatus en login page: usaba formato Axios crudo (error.response.status) en lugar de ApiError.status
+- Fix temporal: agregado @Public() en endpoint provision de tenant para resolver chicken-and-egg entre JwtAuthGuard global y SuperadminGuard (pendiente revision con responsable backend)
+- Corregido bug en generate-prisma-bridges.js: regex sobre-escapadas (8 backslashes en vez de 4) impedian generar modelos Prisma — client.tenant/user/etc eran undefined
+- Corregido extractHttpStatus en login page: usaba formato Axios crudo (error.response.status) en lugar de ApiError.status
+- Corregido Bug 3: removido JSON.stringify innecesario en database-provisioning.service.ts (Prisma auto-serializa campos Json) + defensa en profundidad en permissions.guard.ts con parsePermissions()
+
+#### Removed
+
+[Sin cambios]
+
+---
+
+### 20260315-001-acester-CLAUDECODE
+
+- **Fecha de sesion:** 15 de marzo de 2026
+- **Hora de inicio:** 11:29
+- **Hora de ultimos trabajos:** 13:02
+- **Documento de sesion:** [doc/agents-sessions/20260315-001-acester-CLAUDECODE.md](doc/agents-sessions/20260315-001-acester-CLAUDECODE.md)
+
+#### Added
+
+[Sin cambios]
+
+#### Changed
+
+[Sin cambios]
+
+#### Fixed
+
+- Corregido interceptor Axios que secuestraba errores 401 de login (solo excluia /auth/refresh, ahora excluye todos los endpoints /auth/)
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260314-002-acester-CLAUDECODE
 
 - **Fecha de sesion:** 14 de marzo de 2026
