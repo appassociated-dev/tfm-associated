@@ -19,13 +19,12 @@ export class PrismaMemberOutboxPublisher implements MemberOutboxPublisher {
       await prisma.outboxEvent.create({
         data: {
           eventType: event.eventType,
-          payload: JSON.parse(
-            JSON.stringify({
-              ...payload,
-              eventId: event.eventId,
-              occurredOn: event.occurredOn,
-            }),
-          ),
+          // Prisma serializa automaticamente los campos Json — no usar JSON.stringify
+          payload: {
+            ...payload,
+            eventId: event.eventId,
+            occurredOn: event.occurredOn,
+          },
         },
       });
     }

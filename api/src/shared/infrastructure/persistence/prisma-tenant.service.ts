@@ -1,6 +1,7 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma-tenant';
+import { buildTenantDatabaseName } from './build-tenant-database-name';
 
 /** Entrada del pool: cliente Prisma y timestamp del último uso. */
 interface TenantPoolEntry {
@@ -20,6 +21,11 @@ const DEFAULT_MAX_POOL_SIZE = 10;
  * Implementa lazy eviction: elimina conexiones inactivas tras 30 min.
  *
  * Prisma v7 requiere driver adapter en lugar de datasourceUrl.
+ *
+ * Resolución de conexión:
+ * - Usa buildTenantDatabaseName() (fuente de verdad compartida con Tenant.create())
+ *   para obtener el nombre de BD correcto: associated_{uuid_con_underscores}.
+ * - Usa credenciales compartidas de DATABASE_MAIN_URL (host, puerto, user, password).
  */
 @Injectable()
 export class PrismaTenantService implements OnModuleDestroy {
@@ -70,13 +76,34 @@ export class PrismaTenantService implements OnModuleDestroy {
     this.pool.clear();
   }
 
-  /** Crea un PrismaClient con la URL de conexión del tenant usando driver adapter. */
+  /**
+   * Crea un PrismaClient con la URL de conexión del tenant usando driver adapter.
+   * Usa buildTenantDatabaseName() como fuente de verdad para el nombre de BD,
+   * y credenciales compartidas de DATABASE_MAIN_URL.
+   */
   private createClientForTenant(tenantId: string): PrismaClient {
-    const urlTemplate = process.env.DATABASE_TENANT_URL ?? '';
-    const connectionString = urlTemplate.replace('{tenantId}', tenantId);
+    const databaseName = buildTenantDatabaseName(tenantId);
+    const connectionString = this.buildConnectionString(databaseName);
 
     const adapter = new PrismaPg({ connectionString });
     return new PrismaClient({ adapter });
+  }
+
+  /**
+   * Construye la connection string para una BD de tenant usando credenciales
+   * compartidas de DATABASE_MAIN_URL (OQ3: credenciales compartidas por ahora).
+   */
+  private buildConnectionString(databaseName: string): string {
+    const mainUrl = process.env.DATABASE_MAIN_URL ?? '';
+
+    try {
+      const url = new URL(mainUrl);
+      url.pathname = `/${databaseName}`;
+      return url.toString();
+    } catch {
+      // Fallback si DATABASE_MAIN_URL no es parseable
+      return `postgresql://associated:associated_dev@localhost:5432/${databaseName}?schema=public`;
+    }
   }
 
   /** Elimina conexiones que llevan más de evictionMs sin usarse. */

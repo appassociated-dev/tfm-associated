@@ -186,7 +186,7 @@ export class DatabaseProvisioningService implements DatabaseProvisioningPort {
           code: role.code,
           name: role.name,
           description: role.description,
-          permissions: JSON.stringify(role.permissions),
+          permissions: role.permissions,
           isSystem: true,
           tenantId: tenantId ?? null,
         },

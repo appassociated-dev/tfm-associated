@@ -7,6 +7,38 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260316-002-acester-CLAUDE
+
+- **Fecha de sesion:** 16 de marzo de 2026
+- **Hora de inicio:** 16:29
+- **Hora de ultimos trabajos:** 00:19
+- **Documento de sesion:** [doc/agents-sessions/20260316-002-acester-CLAUDE.md](doc/agents-sessions/20260316-002-acester-CLAUDE.md)
+
+#### Added
+
+- SDD completo (proposal, spec, design, tasks) para cambio backend-http-layer-testing — 19 tareas en 4 batches
+- Tests HTTP integration para TenantsController (7 tests) y AuthController (12 tests) con @nestjs/testing + supertest
+- Tests de cobertura para PermissionsGuard parsePermissions() — 12 escenarios (array, JSON string, null, tipos invalidos)
+- Tests de integracion para script generate-prisma-bridges.js — 22 tests (regex, idempotencia, exports)
+
+#### Changed
+
+- Limpiados outbox publishers (Treasury y Membership): eliminado JSON.parse(JSON.stringify(...)) innecesario sobre campo Prisma Json
+- Documentado patron @Public() + SuperadminGuard como definitivo para endpoints de bootstrap (tenants.controller.ts)
+- Regla ESLint no-restricted-syntax (ERROR) para casteos inseguros sobre campos Prisma Json (as string[], as number[])
+
+#### Fixed
+
+- Corregidos 6 tests de integracion rotos por fix Bug 3: eliminados JSON.parse() sobre permissions, ahora se verifican como array nativo
+- Corregido Bug 5: DomainExceptionFilter registrado como APP_FILTER en ObservabilityModule — errores de dominio ahora devuelven status codes correctos (401, 409, etc.)
+- Corregidas assertions E2E de [401, 500] a status codes exactos tras fix Bug 5
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260311-001-pvidal-CLAUDE
 
 - **Fecha de sesion:** 11 de marzo de 2026

@@ -4,6 +4,7 @@ import { Cif } from '../value-objects/cif';
 import { Slug } from '../value-objects/slug';
 import { TenantStatus } from '../value-objects/tenant-status';
 import { CollectivityType } from '../value-objects/collectivity-type';
+import { buildTenantDatabaseName } from '../../../shared/infrastructure/persistence/build-tenant-database-name';
 /** Propiedades para crear un nuevo Tenant via factory method. */
 export interface CreateTenantProps {
   name: string;
@@ -117,7 +118,7 @@ export class Tenant extends AggregateRoot<TenantId> {
     const cif = Cif.create(props.cif);
     const type = CollectivityType.fromString(props.type);
     const status = TenantStatus.active();
-    const databaseName = `associated_${tenantId.toValue().replace(/-/g, '_')}`;
+    const databaseName = buildTenantDatabaseName(tenantId.toValue());
     const createdAt = new Date();
 
     const tenant = new Tenant({

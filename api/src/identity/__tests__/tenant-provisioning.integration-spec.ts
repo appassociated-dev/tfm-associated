@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vitest';
 import { ProvisionTenantHandler } from '../application/commands/provision-tenant.handler';
 import { ProvisionTenantCommand } from '../application/commands/provision-tenant.command';
 import { TenantProvisionedResponseDto } from '../application/dtos/tenant-provisioned-response.dto';
@@ -139,11 +139,14 @@ async function cleanupKnownProvisioningFixtures(prisma: PrismaMainService): Prom
  * - Rollback ante fallos
  * - Rechazo de CIF duplicado
  */
-describe('TenantProvisioning Integration', () => {
+// Verificar disponibilidad de PostgreSQL ANTES de definir el describe.
+// Si PG no está disponible, vitest marca los tests como SKIPPED (no como passed).
+const pgAvailable = await isPostgresAvailable();
+
+describe.skipIf(!pgAvailable)('TenantProvisioning Integration', () => {
   let prisma: PrismaMainService;
   let handler: ProvisionTenantHandler;
   let dbProvisioningService: DatabaseProvisioningService;
-  let pgAvailable: boolean;
 
   // Recursos para limpieza
   const createdTenants: {
@@ -154,15 +157,6 @@ describe('TenantProvisioning Integration', () => {
   }[] = [];
 
   beforeAll(async () => {
-    pgAvailable = await isPostgresAvailable();
-    if (!pgAvailable) {
-      console.warn(
-        '⚠️  PostgreSQL no disponible. Saltando tests de integración.\n' +
-          'Iniciar con: docker compose up -d postgres',
-      );
-      return;
-    }
-
     // Configurar la variable de entorno para PrismaMainService
     process.env.DATABASE_MAIN_URL = DATABASE_MAIN_URL;
 
@@ -190,8 +184,6 @@ describe('TenantProvisioning Integration', () => {
   });
 
   afterAll(async () => {
-    if (!pgAvailable) return;
-
     // Limpiar todos los recursos creados durante los tests
     for (const resource of createdTenants) {
       await cleanupTenant(prisma, resource.tenantId, resource.databaseName, resource.username);
@@ -230,8 +222,6 @@ describe('TenantProvisioning Integration', () => {
   // Test 1: Flujo completo de provisión (happy path)
   // ====================================================================
   it('should provision a tenant with isolated database', async () => {
-    if (!pgAvailable) return;
-
     const command = createValidCommand('A28015550');
     const result = await handler.execute(command);
 
@@ -288,10 +278,10 @@ describe('TenantProvisioning Integration', () => {
     }
 
     // Verificar: PRESIDENT tiene permiso '*'
+    // permissions es Json en Prisma → Prisma lo devuelve como array nativo (Bug 3 fix)
     const presidentRole = roles.find((r) => r.code === 'PRESIDENT');
     expect(presidentRole).toBeDefined();
-    const presidentPermissions = JSON.parse(presidentRole!.permissions as string);
-    expect(presidentPermissions).toContain('*');
+    expect(presidentRole!.permissions).toContain('*');
 
     // Verificar: usuario admin creado
     const adminUser = await prisma.user.findUnique({
@@ -318,8 +308,6 @@ describe('TenantProvisioning Integration', () => {
   // Test 2: Rechazo de CIF duplicado
   // ====================================================================
   it('should reject duplicate CIF', async () => {
-    if (!pgAvailable) return;
-
     // Provisionar un primer tenant con CIF X
     const command1 = createValidCommand('G33340241');
     const result1 = await handler.execute(command1);
@@ -360,8 +348,6 @@ describe('TenantProvisioning Integration', () => {
   // Test 3: Rollback ante fallo
   // ====================================================================
   it('should rollback on provisioning failure', async () => {
-    if (!pgAvailable) return;
-
     // Crear un handler con un servicio de provisión parcialmente mockeado
     // que falla en seedRoles
     const errorReporter: ErrorReporter = {
@@ -431,8 +417,6 @@ describe('TenantProvisioning Integration', () => {
   // Test 4: Usuario PostgreSQL con permisos limitados
   // ====================================================================
   it('should create PostgreSQL user with limited permissions', async () => {
-    if (!pgAvailable) return;
-
     const command = createValidCommand('Q0801175A');
     const result = await handler.execute(command);
 
@@ -467,8 +451,6 @@ describe('TenantProvisioning Integration', () => {
   // Test 5: Seed de roles predefinidos correcto
   // ====================================================================
   it('should seed predefined roles correctly', async () => {
-    if (!pgAvailable) return;
-
     const command = createValidCommand('S0800001J');
     const result = await handler.execute(command);
 
@@ -497,37 +479,35 @@ describe('TenantProvisioning Integration', () => {
     }
 
     // Verificar: PRESIDENT tiene todos los permisos ('*')
+    // permissions es Json en Prisma → Prisma lo devuelve como array nativo (Bug 3 fix)
     const president = roles.find((r) => r.code === 'PRESIDENT');
     expect(president).toBeDefined();
     expect(president!.name).toBe('Presidente');
-    const presPerms = JSON.parse(president!.permissions as string);
-    expect(presPerms).toEqual(['*']);
+    expect(president!.permissions).toEqual(['*']);
 
     // Verificar: SECRETARY tiene permisos correctos
     const secretary = roles.find((r) => r.code === 'SECRETARY');
     expect(secretary).toBeDefined();
-    const secPerms = JSON.parse(secretary!.permissions as string);
-    expect(secPerms).toEqual(
+    expect(secretary!.permissions).toEqual(
       expect.arrayContaining(['membership:*', 'documents:*', 'communication:*']),
     );
 
     // Verificar: TREASURER tiene permisos correctos
     const treasurer = roles.find((r) => r.code === 'TREASURER');
     expect(treasurer).toBeDefined();
-    const tresPerms = JSON.parse(treasurer!.permissions as string);
-    expect(tresPerms).toEqual(expect.arrayContaining(['treasury:*', 'membership:members:read']));
+    expect(treasurer!.permissions).toEqual(
+      expect.arrayContaining(['treasury:*', 'membership:members:read']),
+    );
 
     // Verificar: BOARD_MEMBER tiene permisos vacíos (configurable)
     const boardMember = roles.find((r) => r.code === 'BOARD_MEMBER');
     expect(boardMember).toBeDefined();
-    const bmPerms = JSON.parse(boardMember!.permissions as string);
-    expect(bmPerms).toEqual([]);
+    expect(boardMember!.permissions).toEqual([]);
 
     // Verificar: MEMBER tiene permisos básicos de lectura propia
     const member = roles.find((r) => r.code === 'MEMBER');
     expect(member).toBeDefined();
-    const memPerms = JSON.parse(member!.permissions as string);
-    expect(memPerms).toEqual(
+    expect(member!.permissions).toEqual(
       expect.arrayContaining(['membership:members:read:own', 'treasury:payments:read:own']),
     );
   }, 60_000);
