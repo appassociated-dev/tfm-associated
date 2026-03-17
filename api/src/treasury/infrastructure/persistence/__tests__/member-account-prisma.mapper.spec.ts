@@ -57,7 +57,9 @@ describe('MemberAccountPrismaMapper', () => {
 
     expect(account.charges).toHaveLength(1);
     expect(account.payments).toHaveLength(1);
-    expect(account.findChargeById(ChargeId.fromString(raw.payments![0].chargeId))).toBeDefined();
+    const linkedCharge = account.findChargeById(ChargeId.fromString(raw.payments![0].chargeId));
+    expect(linkedCharge).not.toBeUndefined();
+    expect(linkedCharge!.id.toValue()).toBe('e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
     expect(account.getBalance().amount).toBe(2450);
   });
 

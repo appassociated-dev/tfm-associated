@@ -4,29 +4,21 @@ import { TenantStatus } from '../value-objects/tenant-status';
 describe('TenantStatus', () => {
   // --- Creación ---
 
-  it('debería crear un estado ACTIVE', () => {
-    const status = TenantStatus.active();
-
-    expect(status.value).toBe('ACTIVE');
+  it.each([
+    ['ACTIVE', TenantStatus.active()],
+    ['SUSPENDED', TenantStatus.suspended()],
+    ['DEPROVISIONED', TenantStatus.deprovisioned()],
+  ])('debería crear un estado %s', (expected, status) => {
+    expect(status.value).toBe(expected);
   });
 
-  it('debería crear un estado SUSPENDED', () => {
-    const status = TenantStatus.suspended();
-
-    expect(status.value).toBe('SUSPENDED');
-  });
-
-  it('debería crear un estado DEPROVISIONED', () => {
-    const status = TenantStatus.deprovisioned();
-
-    expect(status.value).toBe('DEPROVISIONED');
-  });
-
-  it('debería crear un estado a partir de un string válido', () => {
-    const status = TenantStatus.fromString('ACTIVE');
-
-    expect(status.value).toBe('ACTIVE');
-  });
+  it.each([['ACTIVE'], ['SUSPENDED'], ['DEPROVISIONED']])(
+    'debería crear un estado a partir del string válido "%s"',
+    (value) => {
+      const status = TenantStatus.fromString(value);
+      expect(status.value).toBe(value);
+    },
+  );
 
   it('debería lanzar error con un valor inválido', () => {
     expect(() => TenantStatus.fromString('INVALID')).toThrow();

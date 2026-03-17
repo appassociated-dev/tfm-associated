@@ -1,98 +1,32 @@
 import { describe, it, expect } from 'vitest';
-import { ChargeId } from '../value-objects/charge-id';
 import { ChargeStatus } from '../value-objects/charge-status';
 import { ChargeDescription } from '../value-objects/charge-description';
 import { Money } from '../value-objects/money';
-
-// =============================================================================
-// ChargeId
-// =============================================================================
-
-describe('ChargeId', () => {
-  it('should create a new ChargeId with a valid UUID v4', () => {
-    const id = ChargeId.create();
-
-    expect(id.toValue()).toBeDefined();
-    expect(id.toValue()).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-    );
-  });
-
-  it('should create two different ChargeIds', () => {
-    const id1 = ChargeId.create();
-    const id2 = ChargeId.create();
-
-    expect(id1.equals(id2)).toBe(false);
-  });
-
-  it('should create from a valid UUID string', () => {
-    const uuid = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
-    const id = ChargeId.fromString(uuid);
-
-    expect(id.toValue()).toBe(uuid);
-  });
-
-  it('should throw error for invalid UUID string', () => {
-    expect(() => ChargeId.fromString('not-a-uuid')).toThrow();
-  });
-
-  it('should compare equal for same UUID', () => {
-    const uuid = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
-    const id1 = ChargeId.fromString(uuid);
-    const id2 = ChargeId.fromString(uuid);
-
-    expect(id1.equals(id2)).toBe(true);
-  });
-});
 
 // =============================================================================
 // ChargeStatus
 // =============================================================================
 
 describe('ChargeStatus', () => {
-  it('should have PENDING status', () => {
-    expect(ChargeStatus.PENDING.value).toBe('PENDING');
+  it.each([
+    ['PENDING', ChargeStatus.PENDING],
+    ['PAID', ChargeStatus.PAID],
+    ['PARTIALLY_PAID', ChargeStatus.PARTIALLY_PAID],
+    ['RETURNED', ChargeStatus.RETURNED],
+    ['CANCELLED', ChargeStatus.CANCELLED],
+  ])('should have %s status', (expected, status) => {
+    expect(status.value).toBe(expected);
   });
 
-  it('should have PAID status', () => {
-    expect(ChargeStatus.PAID.value).toBe('PAID');
-  });
-
-  it('should have PARTIALLY_PAID status', () => {
-    expect(ChargeStatus.PARTIALLY_PAID.value).toBe('PARTIALLY_PAID');
-  });
-
-  it('should have RETURNED status', () => {
-    expect(ChargeStatus.RETURNED.value).toBe('RETURNED');
-  });
-
-  it('should have CANCELLED status', () => {
-    expect(ChargeStatus.CANCELLED.value).toBe('CANCELLED');
-  });
-
-  it('should create from valid string "PENDING"', () => {
-    const status = ChargeStatus.fromString('PENDING');
-    expect(status.equals(ChargeStatus.PENDING)).toBe(true);
-  });
-
-  it('should create from valid string "PAID"', () => {
-    const status = ChargeStatus.fromString('PAID');
-    expect(status.equals(ChargeStatus.PAID)).toBe(true);
-  });
-
-  it('should create from valid string "PARTIALLY_PAID"', () => {
-    const status = ChargeStatus.fromString('PARTIALLY_PAID');
-    expect(status.equals(ChargeStatus.PARTIALLY_PAID)).toBe(true);
-  });
-
-  it('should create from valid string "RETURNED"', () => {
-    const status = ChargeStatus.fromString('RETURNED');
-    expect(status.equals(ChargeStatus.RETURNED)).toBe(true);
-  });
-
-  it('should create from valid string "CANCELLED"', () => {
-    const status = ChargeStatus.fromString('CANCELLED');
-    expect(status.equals(ChargeStatus.CANCELLED)).toBe(true);
+  it.each([
+    ['PENDING', ChargeStatus.PENDING],
+    ['PAID', ChargeStatus.PAID],
+    ['PARTIALLY_PAID', ChargeStatus.PARTIALLY_PAID],
+    ['RETURNED', ChargeStatus.RETURNED],
+    ['CANCELLED', ChargeStatus.CANCELLED],
+  ])('should create from valid string "%s"', (value, singleton) => {
+    const status = ChargeStatus.fromString(value);
+    expect(status.equals(singleton)).toBe(true);
   });
 
   it('should throw error for invalid string', () => {

@@ -86,7 +86,9 @@ describe('Member — register() y métodos de ficha', () => {
     it('debería crear un Member con ficha completa y estado ACTIVE por defecto', () => {
       const member = createRegisteredMember();
 
-      expect(member.id).toBeDefined();
+      expect(member.id.toValue()).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
       expect(member.memberNumber?.value).toBe('00001');
       expect(member.personalData?.name).toBe('Juan');
       expect(member.personalData?.surnames).toBe('García López');
@@ -94,7 +96,7 @@ describe('Member — register() y métodos de ficha', () => {
       expect(member.identityDocument?.number).toBe('12345678Z');
       expect(member.bankDetails?.iban).toBe('ES9121000418450200051332');
       expect(member.getCurrentStatus().equals(MemberStatus.ACTIVE)).toBe(true);
-      expect(member.registrationDate).toBeDefined();
+      expect(member.registrationDate).toBeInstanceOf(Date);
       expect(member.leaveDate).toBeNull();
       expect(member.version).toBe(0);
     });
@@ -307,7 +309,9 @@ describe('Member — register() y métodos de ficha', () => {
       expect(member.getCurrentStatus().equals(MemberStatus.APPLICANT)).toBe(true);
       expect(member.version).toBe(0);
       expect(member.getStatusHistory()).toHaveLength(0);
-      expect(member.id).toBeDefined();
+      expect(member.id.toValue()).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
       // Los nuevos campos deben ser null/undefined en un Member creado con el factory original
       expect(member.memberNumber).toBeUndefined();
       expect(member.personalData).toBeUndefined();

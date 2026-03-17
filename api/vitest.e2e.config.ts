@@ -35,10 +35,24 @@ export default defineConfig({
     // Solo archivos E2E (convención: *.e2e-spec.ts)
     include: ['**/*.e2e-spec.ts'],
 
-    // Secuencial: los tests E2E comparten PostgreSQL y las operaciones DDL
+    // Un solo hilo: los tests E2E comparten PostgreSQL y las operaciones DDL
     // (CREATE DATABASE, REVOKE, GRANT) provocan "tuple concurrently updated"
     // si se ejecutan en paralelo.
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        maxThreads: 1,
+        minThreads: 1,
+      },
+    },
     fileParallelism: false,
+
+    // Inlinear dependencias que no son ESM puro
+    server: {
+      deps: {
+        inline: ['@prisma/client'],
+      },
+    },
 
     // Timeouts generosos: los tests E2E provisionan BDs reales
     testTimeout: 60_000,

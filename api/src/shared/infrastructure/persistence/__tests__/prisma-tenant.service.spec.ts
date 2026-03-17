@@ -89,7 +89,8 @@ describe('PrismaTenantService', () => {
     it('deberia crear un cliente usando credenciales compartidas de DATABASE_MAIN_URL', async () => {
       const client = await service.getClient(TENANT_ID);
 
-      expect(client).toBeDefined();
+      expect(client).toHaveProperty('$disconnect');
+      expect(client).toHaveProperty('$queryRawUnsafe');
     });
   });
 
@@ -102,7 +103,7 @@ describe('PrismaTenantService', () => {
     it('deberia usar fallback a credenciales compartidas cuando el provider retorna null', async () => {
       const client = await service.getClient(TENANT_ID);
 
-      expect(client).toBeDefined();
+      expect(client).toHaveProperty('$disconnect');
       expect(credentialProvider.getConnectionCredentials).toHaveBeenCalledWith(TENANT_ID);
     });
   });
@@ -113,11 +114,11 @@ describe('PrismaTenantService', () => {
     });
 
     it('deberia actualizar lastUsed cuando se obtiene un cliente existente del pool', async () => {
-      await service.getClient(TENANT_ID);
+      const client1 = await service.getClient(TENANT_ID);
 
-      // Segunda llamada debería actualizar lastUsed
+      // Segunda llamada debería actualizar lastUsed y retornar misma instancia
       const client2 = await service.getClient(TENANT_ID);
-      expect(client2).toBeDefined();
+      expect(client2).toBe(client1);
     });
   });
 

@@ -252,7 +252,9 @@ describe('SimpleRegistrationHandler', () => {
     const result = await handler.execute(command);
 
     expect(result).toBeDefined();
-    expect(result.memberId).toBeDefined();
+    expect(result.memberId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    );
     expect(result.memberNumber).toBe('00001');
     expect(result.status).toBe('ACTIVE');
     expect(result.memberTypeName).toBe('Socio Numerario');

@@ -4,35 +4,22 @@ import { CollectivityType } from '../value-objects/collectivity-type';
 describe('CollectivityType', () => {
   // --- Creación ---
 
-  it('debería crear un tipo PENA', () => {
-    const type = CollectivityType.pena();
-
-    expect(type.value).toBe('PENA');
+  it.each([
+    ['PENA', CollectivityType.pena()],
+    ['COFRADIA', CollectivityType.cofradia()],
+    ['CLUB_DEPORTIVO', CollectivityType.clubDeportivo()],
+    ['ASOCIACION_CULTURAL', CollectivityType.asociacionCultural()],
+  ])('debería crear un tipo %s', (expected, type) => {
+    expect(type.value).toBe(expected);
   });
 
-  it('debería crear un tipo COFRADIA', () => {
-    const type = CollectivityType.cofradia();
-
-    expect(type.value).toBe('COFRADIA');
-  });
-
-  it('debería crear un tipo CLUB_DEPORTIVO', () => {
-    const type = CollectivityType.clubDeportivo();
-
-    expect(type.value).toBe('CLUB_DEPORTIVO');
-  });
-
-  it('debería crear un tipo ASOCIACION_CULTURAL', () => {
-    const type = CollectivityType.asociacionCultural();
-
-    expect(type.value).toBe('ASOCIACION_CULTURAL');
-  });
-
-  it('debería crear un tipo a partir de un string válido', () => {
-    const type = CollectivityType.fromString('PENA');
-
-    expect(type.value).toBe('PENA');
-  });
+  it.each([['PENA'], ['COFRADIA'], ['CLUB_DEPORTIVO'], ['ASOCIACION_CULTURAL']])(
+    'debería crear un tipo a partir del string válido "%s"',
+    (value) => {
+      const type = CollectivityType.fromString(value);
+      expect(type.value).toBe(value);
+    },
+  );
 
   it('debería lanzar error con un valor inválido', () => {
     expect(() => CollectivityType.fromString('INVALID')).toThrow();

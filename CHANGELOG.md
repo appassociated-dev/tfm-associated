@@ -7,6 +7,33 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260317-001-acester-CLAUDE
+
+- **Fecha de sesion:** 17 de marzo de 2026
+- **Hora de inicio:** 12:25
+- **Hora de ultimos trabajos:** 17:34
+- **Documento de sesion:** [doc/agents-sessions/20260317-001-acester-CLAUDE.md](doc/agents-sessions/20260317-001-acester-CLAUDE.md)
+
+#### Added
+
+[Sin cambios]
+
+#### Changed
+
+- Optimizado test suite del backend: eliminados ~87 tests redundantes (cookie-cutter events, typed IDs, enums inflados) y fortalecidas ~22 assertions debiles en api/
+- Agregado plugin SWC (`vitest-plugin-swc`) a configs de vitest unit e integracion para soporte de metadata de decoradores NestJS
+- Agregada configuracion de pool (threads, maxThreads: 4) y deps.inline para @prisma/client en las 3 configs de vitest
+
+#### Fixed
+
+- Corregido rendimiento de vitest unit tests: agregado transformador SWC faltante que E2E ya tenia, reduciendo tiempo de transform de 78s a 2.5s en filesystem nativo
+
+#### Removed
+
+- Eliminados 4 archivos de test de typed IDs redundantes (tenant-id.spec.ts, user-id.spec.ts, member-id.spec.ts, member-type-id.spec.ts) — cubiertos por tests de clase base identifier.spec.ts
+
+---
+
 ### 20260316-002-acester-CLAUDE
 
 - **Fecha de sesion:** 16 de marzo de 2026

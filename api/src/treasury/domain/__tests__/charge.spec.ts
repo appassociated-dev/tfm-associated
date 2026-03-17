@@ -60,8 +60,10 @@ describe('Charge Entity', () => {
     it('should create a charge with valid data in PENDING status', () => {
       const charge = createValidCharge();
 
-      expect(charge.id).toBeDefined();
-      expect(charge.subscriptionId).toBeDefined();
+      expect(charge.id.toValue()).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
+      expect(charge.subscriptionId).not.toBeNull();
       expect(charge.subscriptionId!.toValue()).toBe(SUBSCRIPTION_ID);
       expect(charge.baseAmount.amount).toBe(5000);
       expect(charge.finalAmount.amount).toBe(5000);
@@ -75,7 +77,7 @@ describe('Charge Entity', () => {
       expect(charge.paidAmount.amount).toBe(0);
       expect(charge.isProrated).toBe(false);
       expect(charge.isManual).toBe(false);
-      expect(charge.createdAt).toBeDefined();
+      expect(charge.createdAt).toBeInstanceOf(Date);
     });
 
     it('should create a prorated charge', () => {

@@ -117,7 +117,9 @@ describe('ProvisionTenantHandler', () => {
     expect(tenantRepository.save).toHaveBeenCalledOnce();
 
     // Verificar respuesta
-    expect(result.tenantId).toBeDefined();
+    expect(result.tenantId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    );
     expect(result.slug).toBe('pena-el-buen-gusto');
     expect(result.adminUserId).toBe('admin-user-id-123');
   });
@@ -235,7 +237,7 @@ describe('ProvisionTenantHandler', () => {
 
     expect(tenantCredentialPort.persistCredentials).toHaveBeenCalledOnce();
     const [tenantId, username, password] = tenantCredentialPort.persistCredentials.mock.calls[0];
-    expect(tenantId).toBeDefined(); // UUID del tenant
+    expect(tenantId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
     expect(username).toBe('tenant_user');
     expect(password).toBe('tenant_pass');
   });
