@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../../app.module';
+import { PrismaMainService } from '../persistence/prisma-main.service';
 
 /**
  * Resultado de createTestApp: la app NestJS y el módulo de testing.
@@ -52,6 +53,97 @@ export async function createTestApp(): Promise<TestAppContext> {
  */
 export async function closeTestApp(app: INestApplication): Promise<void> {
   await app.close();
+}
+
+/**
+ * Limpia recursos PostgreSQL (BD + usuario) creados por provisioning en tests.
+ *
+ * IMPORTANTE: llamar DESPUÉS de closeTestApp() para que PrismaTenantService
+ * haya liberado las conexiones al tenant DB. Si quedan conexiones activas,
+ * se terminan forzosamente antes del DROP.
+ */
+/**
+ * Limpia tenants conocidos de E2E que pueden haber quedado de ejecuciones previas.
+ * Se ejecuta ANTES de los tests para evitar 409 Conflict por CIF duplicado.
+ *
+ * Recibe los CIFs y emails de admin usados en los tests E2E.
+ * Elimina membresías, roles, usuarios, tenants y BDs+usuarios PostgreSQL asociados.
+ */
+export async function cleanupKnownE2eFixtures(
+  prisma: PrismaMainService,
+  cifs: string[],
+  adminEmails: string[],
+): Promise<void> {
+  // Buscar tenants existentes con esos CIFs
+  const tenants = await (
+    prisma.tenant as unknown as {
+      findMany: (args: Record<string, unknown>) => Promise<{ id: string }[]>;
+    }
+  ).findMany({
+    where: { cif: { in: cifs } },
+    select: { id: true },
+  });
+
+  const tenantIds = tenants.map((t: { id: string }) => t.id);
+
+  if (tenantIds.length > 0) {
+    // Limpiar membresías, refresh tokens, roles, usuarios y tenants
+    try {
+      await prisma.tenantMembership.deleteMany({
+        where: { tenantId: { in: tenantIds } },
+      });
+    } catch {
+      // Ignorar
+    }
+
+    try {
+      await prisma.refreshToken.deleteMany({
+        where: { user: { email: { in: adminEmails } } },
+      });
+    } catch {
+      // Ignorar
+    }
+
+    try {
+      await prisma.role.deleteMany({
+        where: { tenantId: { in: tenantIds } },
+      });
+    } catch {
+      // Ignorar
+    }
+
+    try {
+      await prisma.user.deleteMany({
+        where: { email: { in: adminEmails } },
+      });
+    } catch {
+      // Ignorar
+    }
+
+    try {
+      await prisma.tenant.deleteMany({
+        where: { cif: { in: cifs } },
+      });
+    } catch {
+      // Ignorar
+    }
+
+    // Limpiar BDs y usuarios PostgreSQL
+    for (const tenantId of tenantIds) {
+      const databaseName = `associated_${tenantId.replace(/-/g, '_')}`;
+      const username = `tenant_${tenantId.replace(/-/g, '_')}`;
+      await cleanupTenantDatabase(prisma, databaseName, username);
+    }
+  }
+
+  // También limpiar usuarios huérfanos (sin tenant asociado)
+  try {
+    await prisma.user.deleteMany({
+      where: { email: { in: adminEmails } },
+    });
+  } catch {
+    // Ignorar
+  }
 }
 
 /**

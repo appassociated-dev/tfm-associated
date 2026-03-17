@@ -6,6 +6,7 @@ import {
   createTestApp,
   closeTestApp,
   cleanupTenantDatabase,
+  cleanupKnownE2eFixtures,
 } from '../../src/shared/infrastructure/testing/create-test-app';
 import { PrismaMainService } from '../../src/shared/infrastructure/persistence/prisma-main.service';
 
@@ -48,10 +49,17 @@ describe('TenantsController HTTP (POST /api/v1/tenants)', () => {
     adminPassword: 'SecurePass123!',
   };
 
+  // CIFs y emails usados en este test suite — limpiar antes de ejecutar
+  const KNOWN_CIFS = ['G12345674', 'G56789019'];
+  const KNOWN_ADMIN_EMAILS = ['admin-http-test@test.es', 'admin-public-test@test.es'];
+
   beforeAll(async () => {
     const ctx = await createTestApp();
     app = ctx.app;
     prisma = ctx.module.get(PrismaMainService);
+
+    // Limpiar fixtures de ejecuciones previas que pudieron fallar en afterAll
+    await cleanupKnownE2eFixtures(prisma, KNOWN_CIFS, KNOWN_ADMIN_EMAILS);
   }, 120_000);
 
   afterAll(async () => {
@@ -173,7 +181,7 @@ describe('TenantsController HTTP (POST /api/v1/tenants)', () => {
       headers['X-Api-Key'] = apiKey;
     }
 
-    const { adminEmail, ...incompletePayload } = validPayload;
+    const { adminEmail: _adminEmail, ...incompletePayload } = validPayload;
 
     const response = await request(app.getHttpServer())
       .post('/api/v1/tenants')

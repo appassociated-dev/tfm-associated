@@ -8,6 +8,7 @@ import {
   DATABASE_PROVISIONING_PORT,
   DatabaseProvisioningPort,
 } from '../ports/database-provisioning.port';
+import { TENANT_CREDENTIAL_PORT, type TenantCredentialPort } from '../ports/tenant-credential.port';
 import { ERROR_REPORTER, ErrorReporter } from '../../../shared/domain';
 import { Cif } from '../../domain/value-objects/cif';
 import { Tenant } from '../../domain/aggregates/tenant';
@@ -19,7 +20,8 @@ import { TenantProvisioningFailedError } from '../../domain/exceptions/tenant-pr
 /**
  * Handler del comando de provisión de tenant.
  * Implementa el patrón saga con compensaciones para garantizar atomicidad.
- * Flujo: validar CIF → crear aggregate → crear BD → usuario DB → permisos → migraciones → roles → admin → guardar.
+ * Flujo: validar CIF → crear aggregate → crear BD → usuario DB → guardar tenant →
+ *        persistir credenciales → permisos → migraciones → roles → admin → eventos.
  */
 @CommandHandler(ProvisionTenantCommand)
 export class ProvisionTenantHandler implements ICommandHandler<ProvisionTenantCommand> {
@@ -28,6 +30,8 @@ export class ProvisionTenantHandler implements ICommandHandler<ProvisionTenantCo
     private readonly tenantRepository: TenantRepository,
     @Inject(DATABASE_PROVISIONING_PORT)
     private readonly databaseProvisioningService: DatabaseProvisioningPort,
+    @Inject(TENANT_CREDENTIAL_PORT)
+    private readonly tenantCredentialPort: TenantCredentialPort,
     @Inject(ERROR_REPORTER)
     private readonly errorReporter: ErrorReporter,
   ) {}
@@ -50,6 +54,7 @@ export class ProvisionTenantHandler implements ICommandHandler<ProvisionTenantCo
     // Variables para rastrear el progreso de la saga (necesarias para rollback)
     let currentStep = 'createDatabase';
     let credentials: { username: string; password: string } | undefined;
+    let tenantSaved = false;
 
     try {
       // 3a. Crear base de datos del tenant
@@ -63,37 +68,53 @@ export class ProvisionTenantHandler implements ICommandHandler<ProvisionTenantCo
         tenant.id.toValue(),
       );
 
-      // 3c. Otorgar permisos al usuario
+      // 3c. Registrar tenant en DB-Main (necesario antes de persistir credenciales)
+      currentStep = 'saveTenant';
+      await this.tenantRepository.save(tenant);
+      tenantSaved = true;
+
+      // 3d. Persistir credenciales cifradas en DB-Main (RNF-004, RNF-006)
+      currentStep = 'persistCredentials';
+      await this.tenantCredentialPort.persistCredentials(
+        tenant.id.toValue(),
+        credentials.username,
+        credentials.password,
+      );
+
+      // 3e. Otorgar permisos al usuario
       currentStep = 'grantPermissions';
       await this.databaseProvisioningService.grantPermissions(
         tenant.databaseName,
         credentials.username,
       );
 
-      // 3d. Construir URL de conexión
+      // 3f. Construir URL de conexión
       const databaseUrl = this.databaseProvisioningService.buildDatabaseUrl(
         tenant.databaseName,
         credentials.username,
         credentials.password,
       );
 
-      // 3e. Ejecutar migraciones
+      // 3g. Ejecutar migraciones
       currentStep = 'runMigrations';
       await this.databaseProvisioningService.runMigrations(databaseUrl);
 
-      // 3f. Seedear roles predefinidos
+      // 3g2. Otorgar permisos de schema al usuario del tenant (post-migraciones)
+      currentStep = 'grantSchemaPermissions';
+      await this.databaseProvisioningService.grantSchemaPermissions(
+        tenant.databaseName,
+        credentials.username,
+      );
+
+      // 3h. Seedear roles predefinidos
       currentStep = 'seedRoles';
       await this.databaseProvisioningService.seedRoles(databaseUrl);
 
-      // 3g. Registrar tenant en DB-Main antes de crear relaciones dependientes
-      currentStep = 'saveTenant';
-      await this.tenantRepository.save(tenant);
-
-      // 3h. Hashear contraseña del admin con Argon2
+      // 3i. Hashear contraseña del admin con Argon2
       currentStep = 'hashPassword';
       const passwordHash = await argon2.hash(command.adminPassword);
 
-      // 3i. Crear usuario administrador inicial
+      // 3j. Crear usuario administrador inicial
       currentStep = 'createAdminUser';
       const adminUserId = await this.databaseProvisioningService.createAdminUser({
         databaseUrl,
@@ -103,7 +124,7 @@ export class ProvisionTenantHandler implements ICommandHandler<ProvisionTenantCo
         roleId: 'PRESIDENT',
       });
 
-      // 3j. Registrar eventos de dominio con datos completos
+      // 3k. Registrar eventos de dominio con datos completos
       currentStep = 'emitEvents';
       tenant.registerProvisionedEvent(
         new TenantProvisionedEvent({
@@ -129,14 +150,25 @@ export class ProvisionTenantHandler implements ICommandHandler<ProvisionTenantCo
       return new TenantProvisionedResponseDto(tenant.id.toValue(), tenant.slug.value, adminUserId);
     } catch (error) {
       // 5. Compensación: rollback de la infraestructura creada
+      const compensations: string[] = ['rollback'];
       await this.databaseProvisioningService.rollback(tenant.databaseName, credentials?.username);
+
+      // 5b. Si el tenant fue guardado en DB-Main, eliminarlo también
+      if (tenantSaved) {
+        try {
+          await this.tenantRepository.deleteById(tenant.id.toValue());
+          compensations.push('deleteTenant');
+        } catch {
+          // Error de limpieza no crítico — se registra en el reporte
+        }
+      }
 
       // 6. Reportar error con contexto
       this.errorReporter.captureException(error as Error, {
         step: currentStep,
         tenantId: tenant.id.toValue(),
         tenantName: tenant.name,
-        compensations: ['rollback'],
+        compensations,
       });
 
       // 7. Lanzar error de dominio

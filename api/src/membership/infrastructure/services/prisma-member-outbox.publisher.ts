@@ -12,7 +12,7 @@ export class PrismaMemberOutboxPublisher implements MemberOutboxPublisher {
       return;
     }
 
-    const prisma = this.prismaTenantService.getClient(tenantId);
+    const prisma = await this.prismaTenantService.getClient(tenantId);
 
     for (const event of events) {
       const payload = (event.payload as Record<string, unknown> | null) ?? {};

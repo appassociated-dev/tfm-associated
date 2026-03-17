@@ -3,13 +3,17 @@
 - **Agente de IA:** Claude Opus 4.6 (1M context)
 - **Fecha creacion:** 16 de marzo de 2026
 - **Hora de inicio:** 16:29
-- **Hora de ultimos trabajos:** 00:19
+- **Hora de ultimos trabajos:** 10:28
 
 ---
 
 ## Resumen de la Sesion
 
-Implementacion de las 7 recomendaciones del reporte de bugs backend detectados durante testing manual del frontend (doc/reports/backend-bugs-frontend-testing.md). Se uso SDD fast-forward para planificar e implementar en 3 batches. Se descubrio y corrigio un 5o bug (DomainExceptionFilter no registrado). Se corrigio el healthcheck de Docker Compose y el cleanup de tests E2E. Todas las R1-R7 completadas, 1246 tests GREEN (1223 unit/integration + 23 E2E).
+Dos SDDs completados en esta sesion:
+
+1. **backend-http-layer-testing**: Implementacion de R1-R7 del reporte de bugs backend. Descubierto y corregido Bug 5 (DomainExceptionFilter). Healthcheck Docker y cleanup E2E corregidos.
+2. **tenant-credentials-persistence**: Persistencia de credenciales per-tenant encriptadas (AES-256-GCM) para cumplir RNF-004. EncryptedSecret VO, TenantCredentialService, PrismaTenantService async con credenciales per-tenant, TenantCredentialsModule global.
+   Total: 1271 unit/integration tests + 23 E2E tests GREEN.
 
 ---
 
@@ -22,6 +26,8 @@ Implementacion de las 7 recomendaciones del reporte de bugs backend detectados d
 - [x] R5: Auditar campos Json de Prisma para doble serializacion
 - [x] R6: Test de integracion para script de bridges Prisma
 - [x] R7: Regla lint para casts inseguros sobre campos Prisma Json
+- [x] SDD tenant-credentials-persistence: Persistencia credenciales per-tenant (RNF-004)
+- [x] TenantCredentialsModule global para todos los BCs
 
 ---
 
@@ -185,12 +191,114 @@ Los integration tests usaban `if (!pgAvailable) return;` dentro de cada `it()`, 
 
 ---
 
+### 00:30 - SDD tenant-credentials-persistence: Fase 1 Foundation
+
+**Descripcion:**
+SDD fast-forward completo (proposal, spec, design, tasks). 25 tareas en 5 fases. Fase 1 implementada: EncryptedSecret VO, EncryptionService reubicado de membership a shared, 2 columnas nuevas en schema Prisma (database_user, database_password_encrypted).
+
+**Archivos creados:**
+
+- `api/src/shared/domain/value-objects/encrypted-secret.ts` — VO que wrappea ciphertext, toString() retorna [ENCRYPTED]
+- `api/src/shared/domain/ports/encryption-service.port.ts` — port reubicado desde membership
+- `api/src/shared/infrastructure/services/aes256-encryption.service.ts` — impl reubicada desde membership
+
+**Archivos modificados:**
+
+- `api/prisma/main/schema.prisma` — 2 columnas nuevas nullable en Tenant
+- `api/src/shared/domain/index.ts` — exports nuevos
+- `api/src/membership/domain/ports/encryption-service.port.ts` — re-export desde shared
+- `api/src/membership/infrastructure/services/aes256-encryption.service.ts` — re-export desde shared
+
+**Resultados:**
+
+- 9 tests EncryptedSecret + 8 tests EncryptionService — TDD RED → GREEN
+
+---
+
+### 03:00 - SDD tenant-credentials-persistence: Fase 2 Core Domain & Service
+
+**Descripcion:**
+TenantCredentialService creado (implementa ambos ports), Tenant aggregate actualizado con databaseUser, ProvisionTenantHandler integrado con persistCredentials().
+
+**Archivos creados:**
+
+- `api/src/identity/application/ports/tenant-credential.port.ts`
+- `api/src/shared/domain/ports/tenant-credential-provider.port.ts`
+- `api/src/identity/infrastructure/services/tenant-credential.service.ts`
+
+**Archivos modificados:**
+
+- `api/src/identity/domain/aggregates/tenant.ts` — databaseUser property
+- `api/src/identity/infrastructure/persistence/tenant-prisma.mapper.ts` — mapping databaseUser
+- `api/src/identity/application/commands/provision-tenant.handler.ts` — persistCredentials en saga
+
+**Resultados:**
+
+- 8 tests TenantCredentialService + 2 tests Tenant + 3 tests mapper + 2 tests handler
+- 1255 tests GREEN
+
+---
+
+### 05:00 - SDD tenant-credentials-persistence: Fases 3-4 Runtime + Mechanical
+
+**Descripcion:**
+PrismaTenantService.getClient() convertido a async. Inyeccion @Optional() de TenantCredentialProvider. 21 callers actualizados con await. Saga fix: saveTenant antes de persistCredentials.
+
+**Archivos creados:**
+
+- `api/src/shared/infrastructure/persistence/__tests__/prisma-tenant.service.spec.ts` — 8 tests
+
+**Archivos modificados:**
+
+- `api/src/shared/infrastructure/persistence/prisma-tenant.service.ts` — async getClient, credential provider
+- 14 repositories (Membership + Treasury) — get prisma → async getPrisma
+- 4 handlers — await getClient
+- 2 outbox publishers — await getClient
+- `api/src/identity/application/commands/provision-tenant.handler.ts` — reordenado saga (saveTenant antes de persistCredentials)
+- `api/src/identity/domain/repositories/tenant.repository.ts` — deleteById para rollback
+
+**Hallazgo critico:**
+persistCredentials hacia prisma.tenant.update() ANTES de saveTenant (que crea el registro). Prisma no puede update sin registro existente → 500. Fix: reordenar saga.
+
+**Resultados:**
+
+- 1263 unit + 23 E2E tests GREEN
+
+---
+
+### 09:00 - TenantCredentialsModule global + E2E fixes
+
+**Descripcion:**
+Creado @Global() TenantCredentialsModule para que TODOS los BCs usen credenciales per-tenant (no solo Identity). Corregidos E2E: cleanup CIF stale data, grantSchemaPermissions para tenant user, fileParallelism: false.
+
+**Archivos creados:**
+
+- `api/src/shared/infrastructure/modules/tenant-credentials.module.ts` — @Global module
+- `api/src/shared/infrastructure/modules/__tests__/tenant-credentials.module.spec.ts` — 8 tests
+
+**Archivos modificados:**
+
+- `api/src/app.module.ts` — import TenantCredentialsModule
+- `api/src/identity/identity.module.ts` — removidos providers ahora globales
+- `api/src/membership/membership.module.ts` — removido ENCRYPTION_SERVICE
+- `api/src/treasury/treasury.module.ts` — removido PrismaMainService
+- `api/src/identity/infrastructure/services/database-provisioning.service.ts` — grantSchemaPermissions()
+- `api/src/identity/application/ports/database-provisioning.port.ts` — nuevo metodo en port
+- `api/test/e2e/*.e2e-spec.ts` — cleanupKnownE2eFixtures en beforeAll
+- `api/vitest.e2e.config.ts` — fileParallelism: false
+
+**Resultados:**
+
+- 1271 unit tests + 23 E2E tests GREEN
+- RNF-004 cumplido: todos los BCs usan credenciales per-tenant
+
+---
+
 ## Proximos Pasos
 
-- [ ] Commit de todo el trabajo de esta sesion
-- [ ] Gestionar persistencia credenciales per-tenant (RNF-004) en SDD separado — viola principio de minimo privilegio
-- [ ] Evaluar si Bug 5 necesita tests de regresion adicionales
-- [ ] Considerar añadir describe.skipIf a futuros tests que requieran Docker
+- [ ] Commit de todo el trabajo de esta sesion (2 commits: R1-R7 + tenant-credentials)
+- [ ] Evaluar credential rotation story (marcado como deferred en SDD)
+- [ ] Considerar useExisting en vez de useClass para tokens duplicados en TenantCredentialsModule
 
 ---
 
@@ -210,7 +318,10 @@ Los integration tests usaban `if (!pgAvailable) return;` dentro de cada `it()`, 
 - @Public() + @UseGuards(SuperadminGuard) es el patron DEFINITIVO para endpoints de bootstrap/provision. Razon: chicken-and-egg (no hay JWT sin tenant, no hay tenant sin provision).
 - DomainExceptionFilter registrado en ObservabilityModule (no en IdentityModule) porque es cross-cutting y el modulo ya es global con ERROR_REPORTER.
 - ESLint `no-restricted-syntax` como ERROR (no warning) para casteos inseguros sobre Prisma Json. Los warnings se ignoran.
-- Credenciales per-tenant no se persisten en DB-Main. Es deuda tecnica que viola RNF-004. Se gestiona en SDD separado.
+- Credenciales per-tenant ahora se persisten encriptadas en DB-Main y se usan en runtime (RNF-004 cumplido).
+- TenantCredentialsModule @Global() provee credenciales a todos los BCs sin importar IdentityModule (evita duplicar APP_GUARD).
+- PrismaTenantService.getClient() ahora es async — 21 callers actualizados mecanicamente.
+- El saga de provisioning DEBE guardar el tenant antes de persistir credenciales (Prisma update necesita registro existente).
 
 ### Problemas Encontrados
 
@@ -236,14 +347,15 @@ Los integration tests usaban `if (!pgAvailable) return;` dentro de cada `it()`, 
 
 ## Metricas de la Sesion
 
-- **Duracion total:** ~8 horas (16:29 - 00:19, con interrupciones por crashes)
-- **Archivos modificados:** 17
-- **Archivos creados:** ~12 (tests E2E, helpers, configs, docs)
-- **Commits realizados:** 0 (pendiente)
-- **Tests creados/modificados:** ~90 nuevos (65 Batch 2 + 12 parsePermissions + 3 observability + 5 buildTenantDatabaseName + otros)
-- **Tests totales verificados:** 1246 (1223 unit/integration + 23 E2E)
-- **Bugs descubiertos:** 1 (Bug 5: DomainExceptionFilter)
-- **Bugs corregidos:** 2 (Bug 5 + healthcheck Docker)
+- **Duracion total:** ~18 horas (16:29 dia 16 - 10:28 dia 17, con interrupciones por crashes WSL)
+- **Archivos modificados:** ~40
+- **Archivos creados:** ~20 (VOs, ports, services, tests, modules, configs)
+- **Commits realizados:** 1 (R1-R7), pendiente commit SDD credenciales
+- **Tests creados/modificados:** ~120 nuevos
+- **Tests totales verificados:** 1294 (1271 unit/integration + 23 E2E)
+- **Bugs descubiertos:** 2 (Bug 5: DomainExceptionFilter, saga ordering)
+- **Bugs corregidos:** 4 (Bug 5, healthcheck Docker, saga ordering, grantSchemaPermissions)
+- **SDDs completados:** 2 (backend-http-layer-testing, tenant-credentials-persistence)
 
 ---
 
@@ -252,10 +364,11 @@ Los integration tests usaban `if (!pgAvailable) return;` dentro de cada `it()`, 
 - Reporte de bugs: doc/reports/backend-bugs-frontend-testing.md
 - Branch: mvp/backend-fase1
 - SDD artifacts en engram: sdd/backend-http-layer-testing/\* (proposal, spec, design, tasks, decisions)
+- SDD artifacts en engram: sdd/tenant-credentials-persistence/\* (explore, proposal, spec, design, tasks)
 - Bug 5 en engram: bugs/domain-exception-filter-not-registered
 - Feedback skills en engram: feedback/skill-injection-subagents
 
 ---
 
-**Estado final:** Finalizado (commit realizado)
-**Proxima sesion:** Commit + SDD para persistencia credenciales per-tenant (RNF-004)
+**Estado final:** Completada
+**Proxima sesion:** Credential rotation, verify RNF-004 compliance en staging

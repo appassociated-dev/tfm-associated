@@ -24,7 +24,7 @@ export class PrismaChargeRepository implements ChargeRepository {
 
   /** Obtiene el PrismaClient del tenant actual. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get prisma(): any {
+  private async getPrisma(): Promise<any> {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaChargeRepository. Llamar setTenantId() primero.',
@@ -53,7 +53,9 @@ export class PrismaChargeRepository implements ChargeRepository {
     // Consultar memberAccountId para cada suscripción
     const subscriptionMap = new Map<string, string>();
     if (subscriptionIds.length > 0) {
-      const subscriptions = await this.prisma.feeSubscription.findMany({
+      const subscriptions = await (
+        await this.getPrisma()
+      ).feeSubscription.findMany({
         where: { id: { in: subscriptionIds } },
         select: { id: true, memberAccountId: true },
       });
@@ -92,7 +94,9 @@ export class PrismaChargeRepository implements ChargeRepository {
       };
     });
 
-    await this.prisma.charge.createMany({
+    await (
+      await this.getPrisma()
+    ).charge.createMany({
       data,
       skipDuplicates: true, // Prevención de duplicados por constraint UNIQUE (FE-4)
     });
@@ -104,7 +108,9 @@ export class PrismaChargeRepository implements ChargeRepository {
     billingMonth: number,
     billingYear: number,
   ): Promise<Charge | null> {
-    const raw = await this.prisma.charge.findFirst({
+    const raw = await (
+      await this.getPrisma()
+    ).charge.findFirst({
       where: {
         feeSubscriptionId: subscriptionId.toValue(),
         billingMonth,
@@ -124,7 +130,9 @@ export class PrismaChargeRepository implements ChargeRepository {
     billingMonth: number,
     billingYear: number,
   ): Promise<ExistingChargeKey[]> {
-    const rawList = await this.prisma.charge.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).charge.findMany({
       where: {
         feeSubscriptionId: { in: subscriptionIds },
         billingMonth,
@@ -148,7 +156,9 @@ export class PrismaChargeRepository implements ChargeRepository {
 
   /** Busca todos los cargos de una cuenta de socio. */
   async findByMemberAccountId(memberAccountId: MemberAccountId): Promise<Charge[]> {
-    const rawList = await this.prisma.charge.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).charge.findMany({
       where: { memberAccountId: memberAccountId.toValue() },
       orderBy: [{ billingYear: 'desc' }, { billingMonth: 'desc' }, { createdAt: 'desc' }],
     });
@@ -158,7 +168,9 @@ export class PrismaChargeRepository implements ChargeRepository {
 
   /** Busca los cargos pendientes de una cuenta de socio. */
   async findPendingByMemberAccountId(memberAccountId: MemberAccountId): Promise<Charge[]> {
-    const rawList = await this.prisma.charge.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).charge.findMany({
       where: {
         memberAccountId: memberAccountId.toValue(),
         status: 'PENDING',

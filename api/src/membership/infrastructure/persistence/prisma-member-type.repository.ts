@@ -23,7 +23,7 @@ export class PrismaMemberTypeRepository implements MemberTypeRepository {
   }
 
   /** Obtiene el PrismaClient del tenant actual. */
-  private get prisma() {
+  private async getPrisma() {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaMemberTypeRepository. Llamar setTenantId() primero.',
@@ -36,7 +36,9 @@ export class PrismaMemberTypeRepository implements MemberTypeRepository {
   async save(memberType: MemberType): Promise<void> {
     const data = MemberTypePrismaMapper.toPersistence(memberType);
 
-    await this.prisma.memberType.upsert({
+    await (
+      await this.getPrisma()
+    ).memberType.upsert({
       where: { id: memberType.id.toValue() },
       create: data,
       update: data,
@@ -45,7 +47,9 @@ export class PrismaMemberTypeRepository implements MemberTypeRepository {
 
   /** Busca un tipo de socio por su UUID. */
   async findById(id: MemberTypeId): Promise<MemberType | null> {
-    const raw = await this.prisma.memberType.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).memberType.findUnique({
       where: { id: id.toValue() },
     });
 
@@ -54,7 +58,9 @@ export class PrismaMemberTypeRepository implements MemberTypeRepository {
 
   /** Busca un tipo de socio por su código. */
   async findByCode(code: MemberTypeCode): Promise<MemberType | null> {
-    const raw = await this.prisma.memberType.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).memberType.findUnique({
       where: { code: code.value },
     });
 
@@ -63,7 +69,9 @@ export class PrismaMemberTypeRepository implements MemberTypeRepository {
 
   /** Obtiene todos los tipos de socio del tenant. */
   async findAll(): Promise<MemberType[]> {
-    const rawList = await this.prisma.memberType.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).memberType.findMany({
       orderBy: { createdAt: 'asc' },
     });
 
@@ -74,7 +82,9 @@ export class PrismaMemberTypeRepository implements MemberTypeRepository {
 
   /** Verifica si ya existe un tipo de socio con el código dado. */
   async existsByCode(code: MemberTypeCode): Promise<boolean> {
-    const raw = await this.prisma.memberType.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).memberType.findUnique({
       where: { code: code.value },
     });
 
@@ -83,7 +93,9 @@ export class PrismaMemberTypeRepository implements MemberTypeRepository {
 
   /** Verifica si un tipo de socio es destino de transición de otro. */
   async existsAsTransitionTarget(id: MemberTypeId): Promise<boolean> {
-    const count = await this.prisma.memberType.count({
+    const count = await (
+      await this.getPrisma()
+    ).memberType.count({
       where: { automaticTransitionTargetId: id.toValue() },
     });
 

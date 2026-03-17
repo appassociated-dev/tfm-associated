@@ -127,6 +127,58 @@ export class DatabaseProvisioningService implements DatabaseProvisioningPort {
   }
 
   /**
+   * Otorga permisos a nivel de schema al usuario del tenant sobre las tablas
+   * ya existentes en su BD. Debe ejecutarse DESPUÉS de runMigrations.
+   *
+   * Conecta a la BD del tenant con credenciales admin (DATABASE_MAIN_URL)
+   * y ejecuta GRANT ALL sobre tablas y secuencias existentes, más
+   * ALTER DEFAULT PRIVILEGES para tablas y secuencias futuras.
+   */
+  async grantSchemaPermissions(databaseName: string, username: string): Promise<void> {
+    this.validateIdentifier(databaseName);
+    this.validateIdentifier(username);
+
+    this.logger.log(`Otorgando permisos de schema a ${username} sobre ${databaseName}`);
+
+    // Construir URL de conexión a la BD del tenant con credenciales admin
+    const mainUrl = process.env.DATABASE_MAIN_URL;
+    if (!mainUrl) {
+      throw new Error('DATABASE_MAIN_URL no configurada');
+    }
+
+    const tenantUrl = new URL(mainUrl);
+    tenantUrl.pathname = `/${databaseName}`;
+
+    const { PrismaClient } = await import('@prisma-main');
+    const { PrismaPg } = await import('@prisma/adapter-pg');
+    const adapter = new PrismaPg({ connectionString: tenantUrl.toString() });
+    const tenantAdminClient = new PrismaClient({ adapter });
+
+    try {
+      // Permisos sobre objetos existentes (tablas y secuencias creadas por migraciones)
+      await tenantAdminClient.$executeRawUnsafe(
+        `GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "${username}"`,
+      );
+      await tenantAdminClient.$executeRawUnsafe(
+        `GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "${username}"`,
+      );
+      await tenantAdminClient.$executeRawUnsafe(`GRANT USAGE ON SCHEMA public TO "${username}"`);
+
+      // Permisos para objetos futuros (migraciones posteriores)
+      await tenantAdminClient.$executeRawUnsafe(
+        `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO "${username}"`,
+      );
+      await tenantAdminClient.$executeRawUnsafe(
+        `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON SEQUENCES TO "${username}"`,
+      );
+
+      this.logger.log(`Permisos de schema otorgados a ${username}`);
+    } finally {
+      await tenantAdminClient.$disconnect();
+    }
+  }
+
+  /**
    * Ejecuta las migraciones del schema tenant en la base de datos indicada.
    * Usa prisma migrate deploy (no dev) para producción.
    */
@@ -223,8 +275,11 @@ export class DatabaseProvisioningService implements DatabaseProvisioningPort {
 
     // Crear usuario + membresía en una sola transacción para evitar residuos parciales
     const membershipId = uuidV4();
-    const prismaClient = this.prisma.client as any;
-    await prismaClient.$transaction(async (tx: any) => {
+    // PrismaClient dinámico (multi-tenant) — sin tipo estático para $transaction
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const prismaClient: { $transaction: (fn: (tx: any) => Promise<void>) => Promise<void> } = this
+      .prisma.client as never;
+    await prismaClient.$transaction(async (tx) => {
       await tx.user.create({
         data: {
           id: userId,

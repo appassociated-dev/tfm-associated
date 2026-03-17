@@ -20,7 +20,7 @@ export class PrismaFiscalYearQueryAdapter implements FiscalYearQueryPort {
 
   /** Obtiene el PrismaClient del tenant actual. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get prisma(): any {
+  private async getPrisma(): Promise<any> {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaFiscalYearQueryAdapter. Llamar setTenantId() primero.',
@@ -31,7 +31,9 @@ export class PrismaFiscalYearQueryAdapter implements FiscalYearQueryPort {
 
   /** Busca el ejercicio fiscal activo (estado OPEN). */
   async findActive(): Promise<FiscalYearDto | null> {
-    const raw = await this.prisma.fiscalYear.findFirst({
+    const raw = await (
+      await this.getPrisma()
+    ).fiscalYear.findFirst({
       where: { status: 'OPEN' },
       select: {
         id: true,
@@ -55,7 +57,9 @@ export class PrismaFiscalYearQueryAdapter implements FiscalYearQueryPort {
 
   /** Busca un ejercicio fiscal por su identificador. */
   async findById(fiscalYearId: string): Promise<FiscalYearDto | null> {
-    const raw = await this.prisma.fiscalYear.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).fiscalYear.findUnique({
       where: { id: fiscalYearId },
       select: {
         id: true,

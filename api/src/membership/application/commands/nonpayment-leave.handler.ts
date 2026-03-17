@@ -81,7 +81,7 @@ export class ProcessNonpaymentLeaveHandler implements ICommandHandler<ProcessNon
     const effectiveDate = new Date();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const prisma = this.prismaTenantService.getClient(command.tenantId) as any;
+    const prisma = (await this.prismaTenantService.getClient(command.tenantId)) as any;
 
     const result = await prisma.$transaction(async (tx: unknown) => {
       // 5a. Ejecutar baja en el aggregate

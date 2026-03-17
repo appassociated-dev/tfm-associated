@@ -1,4 +1,4 @@
-import { Inject, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { GetGenerationLogQuery } from './get-generation-log.query';
 import { PrismaTenantService } from '../../../shared/infrastructure/persistence/prisma-tenant.service';
@@ -33,7 +33,7 @@ export class GetGenerationLogHandler implements IQueryHandler<GetGenerationLogQu
   async execute(query: GetGenerationLogQuery): Promise<GenerationLogEntryDto[]> {
     const { tenantId, month, year } = query;
 
-    const prisma = this.prismaTenantService.getClient(tenantId);
+    const prisma = await this.prismaTenantService.getClient(tenantId);
 
     // Buscar eventos de generación completada para el mes/año dado
     const events = await prisma.outboxEvent.findMany({

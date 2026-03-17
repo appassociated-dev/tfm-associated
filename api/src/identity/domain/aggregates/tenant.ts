@@ -22,6 +22,7 @@ export interface TenantProps {
   type: CollectivityType;
   status: TenantStatus;
   databaseName: string;
+  databaseUser?: string;
   contactEmail: string;
   createdAt: Date;
 }
@@ -37,6 +38,7 @@ export class Tenant extends AggregateRoot<TenantId> {
   private readonly _type: CollectivityType;
   private readonly _status: TenantStatus;
   private readonly _databaseName: string;
+  private readonly _databaseUser: string | undefined;
   private readonly _contactEmail: string;
   private readonly _createdAt: Date;
 
@@ -48,6 +50,7 @@ export class Tenant extends AggregateRoot<TenantId> {
     this._type = props.type;
     this._status = props.status;
     this._databaseName = props.databaseName;
+    this._databaseUser = props.databaseUser;
     this._contactEmail = props.contactEmail;
     this._createdAt = props.createdAt;
   }
@@ -76,6 +79,10 @@ export class Tenant extends AggregateRoot<TenantId> {
 
   get databaseName(): string {
     return this._databaseName;
+  }
+
+  get databaseUser(): string | undefined {
+    return this._databaseUser;
   }
 
   get contactEmail(): string {
@@ -119,6 +126,7 @@ export class Tenant extends AggregateRoot<TenantId> {
     const type = CollectivityType.fromString(props.type);
     const status = TenantStatus.active();
     const databaseName = buildTenantDatabaseName(tenantId.toValue());
+    const databaseUser = `tenant_${tenantId.toValue().replace(/-/g, '_')}`;
     const createdAt = new Date();
 
     const tenant = new Tenant({
@@ -129,6 +137,7 @@ export class Tenant extends AggregateRoot<TenantId> {
       type,
       status,
       databaseName,
+      databaseUser,
       contactEmail: props.contactEmail,
       createdAt,
     });

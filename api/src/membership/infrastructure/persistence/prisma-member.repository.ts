@@ -30,7 +30,7 @@ export class PrismaMemberRepository implements MemberRepository {
   }
 
   /** Obtiene el PrismaClient del tenant actual. */
-  private get prisma() {
+  private async getPrisma() {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaMemberRepository. Llamar setTenantId() primero.',
@@ -41,7 +41,9 @@ export class PrismaMemberRepository implements MemberRepository {
 
   /** Busca un socio por su UUID. */
   async findById(id: MemberId): Promise<Member | null> {
-    const raw = await this.prisma.member.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).member.findUnique({
       where: { id: id.toValue() },
     });
 
@@ -60,13 +62,15 @@ export class PrismaMemberRepository implements MemberRepository {
     const memberId = member.id.toValue();
 
     // Verificar si el registro existe en BD
-    const existing = await this.prisma.member.findUnique({
+    const existing = await (
+      await this.getPrisma()
+    ).member.findUnique({
       where: { id: memberId },
     });
 
     if (!existing) {
       // Crear nuevo registro
-      await this.prisma.member.create({ data });
+      await (await this.getPrisma()).member.create({ data });
     } else {
       // Optimistic locking: verificar versión previa ANTES de actualizar
       const expectedPreviousVersion = member.version - 1;
@@ -76,7 +80,9 @@ export class PrismaMemberRepository implements MemberRepository {
       }
 
       try {
-        await this.prisma.member.update({
+        await (
+          await this.getPrisma()
+        ).member.update({
           where: { id: memberId },
           data,
         });
@@ -96,7 +102,9 @@ export class PrismaMemberRepository implements MemberRepository {
 
   /** Busca socios por estado. */
   async findByStatus(status: MemberStatus): Promise<Member[]> {
-    const rawList = await this.prisma.member.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).member.findMany({
       where: { current_status: status.value },
     });
 
@@ -123,7 +131,9 @@ export class PrismaMemberRepository implements MemberRepository {
 
   /** Busca un socio por su documento de identidad. */
   async findByIdentityDocument(document: IdentityDocument): Promise<Member | null> {
-    const raw = await this.prisma.member.findFirst({
+    const raw = await (
+      await this.getPrisma()
+    ).member.findFirst({
       where: {
         document_type: document.type,
         document_number: document.number,
@@ -135,7 +145,9 @@ export class PrismaMemberRepository implements MemberRepository {
 
   /** Busca un socio por su email (case insensitive). */
   async findByEmail(email: string): Promise<Member | null> {
-    const raw = await this.prisma.member.findFirst({
+    const raw = await (
+      await this.getPrisma()
+    ).member.findFirst({
       where: { email: email.trim().toLowerCase() },
     });
 
@@ -164,7 +176,9 @@ export class PrismaMemberRepository implements MemberRepository {
       ];
     }
 
-    const rawList = await this.prisma.member.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).member.findMany({
       where,
       orderBy: { created_at: 'asc' },
     });
@@ -178,7 +192,9 @@ export class PrismaMemberRepository implements MemberRepository {
 
   /** Verifica si ya existe un socio con el documento de identidad dado. */
   async existsByIdentityDocument(document: IdentityDocument): Promise<boolean> {
-    const count = await this.prisma.member.count({
+    const count = await (
+      await this.getPrisma()
+    ).member.count({
       where: {
         document_type: document.type,
         document_number: document.number,
@@ -189,7 +205,9 @@ export class PrismaMemberRepository implements MemberRepository {
 
   /** Verifica si ya existe un socio con el email dado. */
   async existsByEmail(email: string): Promise<boolean> {
-    const count = await this.prisma.member.count({
+    const count = await (
+      await this.getPrisma()
+    ).member.count({
       where: { email: email.trim().toLowerCase() },
     });
     return count > 0;
@@ -201,7 +219,9 @@ export class PrismaMemberRepository implements MemberRepository {
    * En caso de concurrencia, el constraint UNIQUE de la BD garantiza unicidad.
    */
   async getNextMemberNumber(): Promise<number> {
-    const result = await this.prisma.$queryRaw<{ next_number: number }[]>`
+    const result = await (
+      await this.getPrisma()
+    ).$queryRaw<{ next_number: number }[]>`
       SELECT COALESCE(MAX(CAST(member_number AS INTEGER)), 0) + 1 AS next_number
       FROM members
     `;

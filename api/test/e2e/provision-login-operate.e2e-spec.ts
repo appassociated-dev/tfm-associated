@@ -6,6 +6,7 @@ import {
   createTestApp,
   closeTestApp,
   cleanupTenantDatabase,
+  cleanupKnownE2eFixtures,
 } from '../../src/shared/infrastructure/testing/create-test-app';
 import { PrismaMainService } from '../../src/shared/infrastructure/persistence/prisma-main.service';
 import { PrismaTenantService } from '../../src/shared/infrastructure/persistence/prisma-tenant.service';
@@ -46,11 +47,18 @@ describe('Provision → Login → Operate (E2E)', () => {
     adminPassword: 'SecurePass123!',
   };
 
+  // CIFs y emails usados en este test suite — limpiar antes de ejecutar
+  const KNOWN_CIFS = ['G98765431'];
+  const KNOWN_ADMIN_EMAILS = ['admin-e2e@test.es'];
+
   beforeAll(async () => {
     const ctx = await createTestApp();
     app = ctx.app;
     prisma = ctx.module.get(PrismaMainService);
     tenantService = ctx.module.get(PrismaTenantService);
+
+    // Limpiar fixtures de ejecuciones previas que pudieron fallar en afterAll
+    await cleanupKnownE2eFixtures(prisma, KNOWN_CIFS, KNOWN_ADMIN_EMAILS);
   }, 120_000);
 
   afterAll(async () => {
@@ -137,7 +145,7 @@ describe('Provision → Login → Operate (E2E)', () => {
     // Bug 4: antes del fix, PrismaTenantService usaba DATABASE_TENANT_URL template
     // que producía "tenant_{uuid}" en vez de "associated_{uuid_underscored}".
     // Con el fix, usa buildTenantDatabaseName() y credenciales de DATABASE_MAIN_URL.
-    const client = tenantService.getClient(tenantId);
+    const client = await tenantService.getClient(tenantId);
 
     // Si la conexión es al DB correcto, esta query debería funcionar
     // (outbox_events es la única tabla creada por la migración actual)

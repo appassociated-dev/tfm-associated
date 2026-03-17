@@ -6,6 +6,7 @@ import {
   createTestApp,
   closeTestApp,
   cleanupTenantDatabase,
+  cleanupKnownE2eFixtures,
 } from '../../src/shared/infrastructure/testing/create-test-app';
 import { PrismaMainService } from '../../src/shared/infrastructure/persistence/prisma-main.service';
 
@@ -44,10 +45,17 @@ describe('AuthController HTTP (/api/v1/auth/*)', () => {
   let accessToken: string;
   let refreshToken: string;
 
+  // CIFs y emails usados en este test suite — limpiar antes de ejecutar
+  const KNOWN_CIFS = ['G87654323'];
+  const KNOWN_ADMIN_EMAILS = ['auth-e2e@test.es'];
+
   beforeAll(async () => {
     const ctx = await createTestApp();
     app = ctx.app;
     prisma = ctx.module.get(PrismaMainService);
+
+    // Limpiar fixtures de ejecuciones previas que pudieron fallar en afterAll
+    await cleanupKnownE2eFixtures(prisma, KNOWN_CIFS, KNOWN_ADMIN_EMAILS);
 
     // Provisionar un tenant para tener un usuario contra el que autenticarse
     // CIF G87654323: calculado con algoritmo español (control=3 para dígitos 8765432)

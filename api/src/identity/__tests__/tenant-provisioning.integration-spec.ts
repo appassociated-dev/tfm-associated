@@ -1,10 +1,11 @@
-import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { ProvisionTenantHandler } from '../application/commands/provision-tenant.handler';
 import { ProvisionTenantCommand } from '../application/commands/provision-tenant.command';
 import { TenantProvisionedResponseDto } from '../application/dtos/tenant-provisioned-response.dto';
 import { CifAlreadyExistsError } from '../domain/exceptions/cif-already-exists.error';
 import { TenantProvisioningFailedError } from '../domain/exceptions/tenant-provisioning-failed.error';
 import type { DatabaseProvisioningPort } from '../application/ports/database-provisioning.port';
+import type { TenantCredentialPort } from '../application/ports/tenant-credential.port';
 import type { ErrorReporter } from '../../shared/domain';
 import { PrismaMainService } from '../../shared/infrastructure/persistence/prisma-main.service';
 import { PrismaTenantRepository } from '../infrastructure/persistence/prisma-tenant.repository';
@@ -108,7 +109,11 @@ async function cleanupKnownProvisioningFixtures(prisma: PrismaMainService): Prom
       email: { in: emails },
     },
   });
-  const tenants = await (prisma.tenant as any).findMany({
+  const tenants = await (
+    prisma.tenant as unknown as {
+      findMany: (args: Record<string, unknown>) => Promise<{ id: string }[]>;
+    }
+  ).findMany({
     where: { cif: { in: cifs } },
     select: { id: true },
   });
@@ -176,9 +181,16 @@ describe.skipIf(!pgAvailable)('TenantProvisioning Integration', () => {
 
     const tenantRepository = new PrismaTenantRepository(prisma);
 
+    // Mock de TenantCredentialPort — en integración no ciframos credenciales
+    const tenantCredentialPort: TenantCredentialPort = {
+      persistCredentials: vi.fn().mockResolvedValue(undefined),
+      getCredentials: vi.fn().mockResolvedValue(null),
+    };
+
     handler = new ProvisionTenantHandler(
       tenantRepository,
       dbProvisioningService as unknown as DatabaseProvisioningPort,
+      tenantCredentialPort,
       errorReporter,
     );
   });
@@ -361,6 +373,8 @@ describe.skipIf(!pgAvailable)('TenantProvisioning Integration', () => {
       createDatabase: dbProvisioningService.createDatabase.bind(dbProvisioningService),
       createDatabaseUser: dbProvisioningService.createDatabaseUser.bind(dbProvisioningService),
       grantPermissions: dbProvisioningService.grantPermissions.bind(dbProvisioningService),
+      grantSchemaPermissions:
+        dbProvisioningService.grantSchemaPermissions.bind(dbProvisioningService),
       runMigrations: dbProvisioningService.runMigrations.bind(dbProvisioningService),
       buildDatabaseUrl: dbProvisioningService.buildDatabaseUrl.bind(dbProvisioningService),
       // seedRoles falla a propósito para provocar rollback
@@ -372,9 +386,14 @@ describe.skipIf(!pgAvailable)('TenantProvisioning Integration', () => {
     };
 
     const tenantRepository = new PrismaTenantRepository(prisma);
+    const failingCredentialPort: TenantCredentialPort = {
+      persistCredentials: vi.fn().mockResolvedValue(undefined),
+      getCredentials: vi.fn().mockResolvedValue(null),
+    };
     const failingHandler = new ProvisionTenantHandler(
       tenantRepository,
       failingDbService,
+      failingCredentialPort,
       errorReporter,
     );
 

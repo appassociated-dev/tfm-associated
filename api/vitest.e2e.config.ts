@@ -35,6 +35,11 @@ export default defineConfig({
     // Solo archivos E2E (convención: *.e2e-spec.ts)
     include: ['**/*.e2e-spec.ts'],
 
+    // Secuencial: los tests E2E comparten PostgreSQL y las operaciones DDL
+    // (CREATE DATABASE, REVOKE, GRANT) provocan "tuple concurrently updated"
+    // si se ejecutan en paralelo.
+    fileParallelism: false,
+
     // Timeouts generosos: los tests E2E provisionan BDs reales
     testTimeout: 60_000,
     hookTimeout: 120_000,
