@@ -20,7 +20,7 @@ export class PrismaMemberTypeQueryAdapter implements MemberTypeQueryPort {
 
   /** Obtiene el PrismaClient del tenant actual. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get prisma(): any {
+  private async getPrisma(): Promise<any> {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaMemberTypeQueryAdapter. Llamar setTenantId() primero.',
@@ -31,7 +31,9 @@ export class PrismaMemberTypeQueryAdapter implements MemberTypeQueryPort {
 
   /** Obtiene todos los tipos de socio activos del tenant. */
   async findAllActive(): Promise<MemberTypeDto[]> {
-    const rawList = await this.prisma.memberType.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).memberType.findMany({
       where: { active: true },
       select: { id: true, code: true, name: true, active: true },
       orderBy: { createdAt: 'asc' },
@@ -47,7 +49,9 @@ export class PrismaMemberTypeQueryAdapter implements MemberTypeQueryPort {
 
   /** Busca un tipo de socio por su identificador. */
   async findById(id: string): Promise<MemberTypeDto | null> {
-    const raw = await this.prisma.memberType.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).memberType.findUnique({
       where: { id },
       select: { id: true, code: true, name: true, active: true },
     });

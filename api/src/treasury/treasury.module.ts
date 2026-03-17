@@ -56,7 +56,6 @@ import { PrismaTreasuryOutboxPublisher } from './infrastructure/services/prisma-
 import { RECEIPT_GENERATOR } from './infrastructure/services/receipt-generator';
 import { PdfReceiptGenerator } from './infrastructure/services/receipt-generator';
 import { ChargeGenerationCron } from './infrastructure/cron/charge-generation.cron';
-import { PrismaMainService } from '../shared/infrastructure/persistence/prisma-main.service';
 import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma-tenant.service';
 
 /**
@@ -79,6 +78,9 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
  * - ReceiptGenerator para generación de recibos PDF (UC-021, US-057)
  * - ChargeGenerationCron para generación automática mensual de cargos (US-047)
  * - PrismaTenantService para acceso a la BD del tenant (ADR-002)
+ *
+ * PrismaMainService, ENCRYPTION_SERVICE y TENANT_CREDENTIAL_PROVIDER provistos
+ * globalmente por TenantCredentialsModule (RNF-004, RNF-006).
  */
 @Module({
   imports: [CqrsModule],
@@ -183,8 +185,9 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
     // Cron job para generación automática mensual de cargos (US-047)
     ChargeGenerationCron,
 
+    // PrismaMainService provisto globalmente por TenantCredentialsModule
+
     // Servicios de infraestructura compartidos
-    PrismaMainService,
     PrismaTenantService,
   ],
   exports: [],

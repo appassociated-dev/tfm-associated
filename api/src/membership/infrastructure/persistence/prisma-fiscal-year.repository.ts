@@ -23,7 +23,7 @@ export class PrismaFiscalYearRepository implements FiscalYearRepository {
   }
 
   /** Obtiene el PrismaClient del tenant actual. */
-  private get prisma() {
+  private async getPrisma() {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaFiscalYearRepository. Llamar setTenantId() primero.',
@@ -36,7 +36,9 @@ export class PrismaFiscalYearRepository implements FiscalYearRepository {
   async save(fiscalYear: FiscalYear): Promise<void> {
     const data = FiscalYearPrismaMapper.toPersistence(fiscalYear);
 
-    await this.prisma.fiscalYear.upsert({
+    await (
+      await this.getPrisma()
+    ).fiscalYear.upsert({
       where: { id: fiscalYear.id.toValue() },
       create: data,
       update: data,
@@ -45,7 +47,9 @@ export class PrismaFiscalYearRepository implements FiscalYearRepository {
 
   /** Busca un ejercicio fiscal por su UUID. */
   async findById(id: FiscalYearId): Promise<FiscalYear | null> {
-    const raw = await this.prisma.fiscalYear.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).fiscalYear.findUnique({
       where: { id: id.toValue() },
     });
 
@@ -54,7 +58,9 @@ export class PrismaFiscalYearRepository implements FiscalYearRepository {
 
   /** Busca el ejercicio fiscal actualmente abierto (status = 'OPEN'). */
   async findActive(): Promise<FiscalYear | null> {
-    const raw = await this.prisma.fiscalYear.findFirst({
+    const raw = await (
+      await this.getPrisma()
+    ).fiscalYear.findFirst({
       where: { status: 'OPEN' },
     });
 
@@ -63,7 +69,9 @@ export class PrismaFiscalYearRepository implements FiscalYearRepository {
 
   /** Obtiene todos los ejercicios fiscales del tenant ordenados por fecha de creación descendente. */
   async findAll(): Promise<FiscalYear[]> {
-    const rawList = await this.prisma.fiscalYear.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).fiscalYear.findMany({
       orderBy: { createdAt: 'desc' },
     });
 
@@ -74,7 +82,9 @@ export class PrismaFiscalYearRepository implements FiscalYearRepository {
 
   /** Busca un ejercicio fiscal por su nombre. */
   async findByName(name: string): Promise<FiscalYear | null> {
-    const raw = await this.prisma.fiscalYear.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).fiscalYear.findUnique({
       where: { name },
     });
 
@@ -83,7 +93,9 @@ export class PrismaFiscalYearRepository implements FiscalYearRepository {
 
   /** Verifica si existe algún ejercicio fiscal con status 'OPEN'. */
   async existsOpenFiscalYear(): Promise<boolean> {
-    const count = await this.prisma.fiscalYear.count({
+    const count = await (
+      await this.getPrisma()
+    ).fiscalYear.count({
       where: { status: 'OPEN' },
     });
 
@@ -92,7 +104,9 @@ export class PrismaFiscalYearRepository implements FiscalYearRepository {
 
   /** Busca ejercicios fiscales cuyo período se solape con el dado. */
   async findOverlapping(period: FiscalYearPeriod): Promise<FiscalYear[]> {
-    const rawList = await this.prisma.fiscalYear.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).fiscalYear.findMany({
       where: {
         startDate: { lte: period.endDate },
         endDate: { gte: period.startDate },

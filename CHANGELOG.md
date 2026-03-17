@@ -7,6 +7,76 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260317-001-acester-CLAUDE
+
+- **Fecha de sesion:** 17 de marzo de 2026
+- **Hora de inicio:** 12:25
+- **Hora de ultimos trabajos:** 17:34
+- **Documento de sesion:** [doc/agents-sessions/20260317-001-acester-CLAUDE.md](doc/agents-sessions/20260317-001-acester-CLAUDE.md)
+
+#### Added
+
+[Sin cambios]
+
+#### Changed
+
+- Optimizado test suite del backend: eliminados ~87 tests redundantes (cookie-cutter events, typed IDs, enums inflados) y fortalecidas ~22 assertions debiles en api/
+- Agregado plugin SWC (`vitest-plugin-swc`) a configs de vitest unit e integracion para soporte de metadata de decoradores NestJS
+- Agregada configuracion de pool (threads, maxThreads: 4) y deps.inline para @prisma/client en las 3 configs de vitest
+
+#### Fixed
+
+- Corregido rendimiento de vitest unit tests: agregado transformador SWC faltante que E2E ya tenia, reduciendo tiempo de transform de 78s a 2.5s en filesystem nativo
+
+#### Removed
+
+- Eliminados 4 archivos de test de typed IDs redundantes (tenant-id.spec.ts, user-id.spec.ts, member-id.spec.ts, member-type-id.spec.ts) — cubiertos por tests de clase base identifier.spec.ts
+
+---
+
+### 20260316-002-acester-CLAUDE
+
+- **Fecha de sesion:** 16 de marzo de 2026
+- **Hora de inicio:** 16:29
+- **Hora de ultimos trabajos:** 10:28
+- **Documento de sesion:** [doc/agents-sessions/20260316-002-acester-CLAUDE.md](doc/agents-sessions/20260316-002-acester-CLAUDE.md)
+
+#### Added
+
+- SDD completo (proposal, spec, design, tasks) para cambio backend-http-layer-testing — 19 tareas en 4 batches
+- Tests HTTP integration para TenantsController (7 tests) y AuthController (12 tests) con @nestjs/testing + supertest
+- Tests de cobertura para PermissionsGuard parsePermissions() — 12 escenarios (array, JSON string, null, tipos invalidos)
+- Tests de integracion para script generate-prisma-bridges.js — 22 tests (regex, idempotencia, exports)
+- EncryptedSecret Value Object para manejo seguro de ciphertext (toString retorna [ENCRYPTED])
+- EncryptionService port e implementacion reubicados de membership a shared (cross-BC)
+- TenantCredentialService para persistir/recuperar credenciales per-tenant encriptadas (AES-256-GCM)
+- TenantCredentialsModule @Global() para proveer credenciales per-tenant a todos los BCs
+- Columnas database_user y database_password_encrypted en tabla tenants (Prisma schema)
+
+#### Changed
+
+- Limpiados outbox publishers (Treasury y Membership): eliminado JSON.parse(JSON.stringify(...)) innecesario sobre campo Prisma Json
+- Documentado patron @Public() + SuperadminGuard como definitivo para endpoints de bootstrap (tenants.controller.ts)
+- Regla ESLint no-restricted-syntax (ERROR) para casteos inseguros sobre campos Prisma Json (as string[], as number[])
+- PrismaTenantService.getClient() ahora async — usa credenciales per-tenant via TenantCredentialProvider (RNF-004)
+- ProvisionTenantHandler persiste credenciales encriptadas en DB-Main tras crear el usuario PostgreSQL
+- DatabaseProvisioningService.grantSchemaPermissions() otorga GRANT ALL sobre tablas/secuencias del tenant
+
+#### Fixed
+
+- Corregidos 6 tests de integracion rotos por fix Bug 3: eliminados JSON.parse() sobre permissions, ahora se verifican como array nativo
+- Corregido Bug 5: DomainExceptionFilter registrado como APP_FILTER en ObservabilityModule — errores de dominio ahora devuelven status codes correctos (401, 409, etc.)
+- Corregidas assertions E2E de [401, 500] a status codes exactos tras fix Bug 5
+- Corregido saga ordering en ProvisionTenantHandler: saveTenant antes de persistCredentials (Prisma update requiere registro existente)
+- Corregido grantPermissions insuficiente: tenant user ahora recibe GRANT ALL ON ALL TABLES/SEQUENCES
+- Corregido cleanup E2E: cleanupKnownE2eFixtures en beforeAll + fileParallelism: false
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260316-001-acester-CLAUDECODE
 
 - **Fecha de sesion:** 16 de marzo de 2026
@@ -156,10 +226,6 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Actualizado checklist de dependencias de `task-1-UC-002.md`: 3 items de marca reemplazados por dependencia unica a Task 0
 
 #### Fixed
-
-[Sin cambios]
-
-#### Removed
 
 [Sin cambios]
 

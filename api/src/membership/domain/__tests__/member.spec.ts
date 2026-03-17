@@ -26,7 +26,9 @@ describe('Member', () => {
       expect(member.getCurrentStatus().equals(MemberStatus.APPLICANT)).toBe(true);
       expect(member.version).toBe(0);
       expect(member.getStatusHistory()).toHaveLength(0);
-      expect(member.id).toBeDefined();
+      expect(member.id.toValue()).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
       expect(member.memberTypeId).toBe(memberTypeId);
     });
   });

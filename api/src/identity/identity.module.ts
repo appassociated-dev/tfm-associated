@@ -26,7 +26,6 @@ import { PrismaRefreshTokenRepository } from './infrastructure/persistence/prism
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { JwtAuthGuard } from '../shared/infrastructure/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../shared/infrastructure/guards/permissions.guard';
-import { PrismaMainService } from '../shared/infrastructure/persistence/prisma-main.service';
 
 /**
  * BC-Identity: Usuarios, tenants, membresías y roles.
@@ -40,7 +39,9 @@ import { PrismaMainService } from '../shared/infrastructure/persistence/prisma-m
  * - Handlers CQRS: provisión, login, refresh, logout, switch tenant, perfil
  * - Repositorios y puertos de infraestructura vía inyección por token
  * - Guards globales: JwtAuthGuard y PermissionsGuard (ADR-006, ADR-007)
- * - PrismaMainService para acceso a la BD principal
+ *
+ * PrismaMainService, ENCRYPTION_SERVICE, TENANT_CREDENTIAL_PROVIDER y
+ * TENANT_CREDENTIAL_PORT son provistos globalmente por TenantCredentialsModule.
  */
 @Module({
   imports: [
@@ -101,9 +102,6 @@ import { PrismaMainService } from '../shared/infrastructure/persistence/prisma-m
       provide: APP_GUARD,
       useClass: PermissionsGuard,
     },
-
-    // Servicios de infraestructura compartidos
-    PrismaMainService,
   ],
   exports: [],
 })

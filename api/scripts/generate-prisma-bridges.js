@@ -28,14 +28,14 @@ const path = require('path');
 const classPath = path.join(__dirname, 'internal', 'class.ts');
 const classContent = fs.readFileSync(classPath, 'utf8');
 
-const inlineSchemaMatch = classContent.match(/"inlineSchema":\\s*"((?:[^"\\\\\\\\]|\\\\\\\\.)*)"/);
+const inlineSchemaMatch = classContent.match(/"inlineSchema":\\s*"((?:[^"\\\\]|\\\\.)*)"/);
 const inlineSchema = inlineSchemaMatch ? JSON.parse('"' + inlineSchemaMatch[1] + '"') : '';
 
-const runtimeDataModelMatch = classContent.match(/config\\.runtimeDataModel\\s*=\\s*JSON\\.parse\\("((?:[^"\\\\\\\\]|\\\\\\\\.)*)"/);
+const runtimeDataModelMatch = classContent.match(/config\\.runtimeDataModel\\s*=\\s*JSON\\.parse\\("((?:[^"\\\\]|\\\\.)*)"/);
 const runtimeDataModel = runtimeDataModelMatch ? JSON.parse(JSON.parse('"' + runtimeDataModelMatch[1] + '"')) : { models: {}, enums: {}, types: {} };
 
-const paramStringsMatch = classContent.match(/strings:\\s*JSON\\.parse\\("((?:[^"\\\\\\\\]|\\\\\\\\.)*)"/);
-const paramGraphMatch = classContent.match(/graph:\\s*"((?:[^"\\\\\\\\]|\\\\\\\\.)*)"/);
+const paramStringsMatch = classContent.match(/strings:\\s*JSON\\.parse\\("((?:[^"\\\\]|\\\\.)*)"/);
+const paramGraphMatch = classContent.match(/graph:\\s*"((?:[^"\\\\]|\\\\.)*)"/);
 const parameterizationSchema = {
   strings: paramStringsMatch ? JSON.parse(JSON.parse('"' + paramStringsMatch[1] + '"')) : [],
   graph: paramGraphMatch ? paramGraphMatch[1] : ''

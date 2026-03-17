@@ -1,15 +1,11 @@
-/** Token de inyección para el servicio de cifrado (NestJS DI). */
-export const ENCRYPTION_SERVICE = Symbol('ENCRYPTION_SERVICE');
-
 /**
- * Puerto del servicio de cifrado para datos sensibles (RNF-006).
- * Implementación en infraestructura con AES-256-GCM.
- * Usado principalmente para cifrar/descifrar IBAN.
+ * Re-exportación del puerto de cifrado desde shared.
+ * El puerto se movió a shared/domain/ports/ para uso cross-BC (Identity + Membership).
+ * Este archivo mantiene compatibilidad hacia atrás con los imports existentes.
+ *
+ * @deprecated Importar desde '@shared/domain/ports/encryption-service.port' o '@shared/domain'.
  */
-export interface EncryptionService {
-  /** Cifra un texto plano y retorna el texto cifrado. */
-  encrypt(plainText: string): Promise<string>;
-
-  /** Descifra un texto cifrado y retorna el texto plano. */
-  decrypt(cipherText: string): Promise<string>;
-}
+export {
+  ENCRYPTION_SERVICE,
+  type EncryptionService,
+} from '../../../shared/domain/ports/encryption-service.port';

@@ -81,7 +81,7 @@ export class ProcessVoluntaryLeaveHandler implements ICommandHandler<ProcessVolu
     const historyCountBefore = member.getStatusHistory().length;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const prisma = this.prismaTenantService.getClient(command.tenantId) as any;
+    const prisma = (await this.prismaTenantService.getClient(command.tenantId)) as any;
 
     const result = await prisma.$transaction(async (tx: unknown) => {
       // 6a. Ejecutar baja en el aggregate

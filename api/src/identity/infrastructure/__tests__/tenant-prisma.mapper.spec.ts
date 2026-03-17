@@ -11,6 +11,7 @@ describe('TenantPrismaMapper', () => {
     type: 'PENA',
     status: 'ACTIVE',
     databaseName: 'associated_550e8400_e29b_41d4_a716_446655440000',
+    databaseUser: 'tenant_550e8400_e29b_41d4_a716_446655440000',
     contactEmail: 'contacto@pena.es',
     createdAt: new Date('2025-01-15T10:00:00Z'),
   };
@@ -34,6 +35,23 @@ describe('TenantPrismaMapper', () => {
 
       // El slug se regenera desde el nombre (Slug.fromName)
       expect(tenant.slug.value).toBe('pena-el-buen-gusto');
+    });
+
+    it('deberia mapear databaseUser al reconstituir desde persistencia', () => {
+      const tenant = TenantPrismaMapper.toDomain(rawTenant);
+
+      expect(tenant.databaseUser).toBe('tenant_550e8400_e29b_41d4_a716_446655440000');
+    });
+
+    it('deberia manejar databaseUser null (tenant sin credenciales)', () => {
+      const rawWithoutUser: PrismaRawTenant = {
+        ...rawTenant,
+        databaseUser: undefined,
+      };
+
+      const tenant = TenantPrismaMapper.toDomain(rawWithoutUser);
+
+      expect(tenant.databaseUser).toBeUndefined();
     });
 
     it('no debería emitir eventos de dominio al reconstituir', () => {
@@ -64,6 +82,20 @@ describe('TenantPrismaMapper', () => {
       expect(persisted.databaseName).toBe(tenant.databaseName);
       expect(persisted.contactEmail).toBe('info@cofradia.es');
       expect(persisted.createdAt).toBeInstanceOf(Date);
+    });
+
+    it('deberia incluir databaseUser en la persistencia', () => {
+      const tenant = Tenant.create({
+        name: 'Club Deportivo Test',
+        cif: 'A28015550',
+        type: 'CLUB_DEPORTIVO',
+        contactEmail: 'club@test.es',
+      });
+
+      const persisted = TenantPrismaMapper.toPersistence(tenant);
+
+      expect(persisted.databaseUser).toBe(tenant.databaseUser);
+      expect(persisted.databaseUser).toMatch(/^tenant_/);
     });
 
     it('debería usar camelCase como espera el Prisma Client', () => {

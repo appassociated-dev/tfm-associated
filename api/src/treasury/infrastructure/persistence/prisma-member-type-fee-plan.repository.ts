@@ -26,7 +26,7 @@ export class PrismaMemberTypeFeePlanRepository implements MemberTypeFeePlanRepos
 
   /** Obtiene el PrismaClient del tenant actual. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get prisma(): any {
+  private async getPrisma(): Promise<any> {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaMemberTypeFeePlanRepository. Llamar setTenantId() primero.',
@@ -39,7 +39,9 @@ export class PrismaMemberTypeFeePlanRepository implements MemberTypeFeePlanRepos
   async save(assignment: MemberTypeFeePlan): Promise<void> {
     const data = MemberTypeFeePlanPrismaMapper.toPersistence(assignment);
 
-    await this.prisma.memberTypeFeePlan.upsert({
+    await (
+      await this.getPrisma()
+    ).memberTypeFeePlan.upsert({
       where: {
         memberTypeId_feePlanId: {
           memberTypeId: assignment.memberTypeId,
@@ -57,10 +59,12 @@ export class PrismaMemberTypeFeePlanRepository implements MemberTypeFeePlanRepos
       return;
     }
 
+    const prisma = await this.getPrisma();
+
     const operations = assignments.map((assignment) => {
       const data = MemberTypeFeePlanPrismaMapper.toPersistence(assignment);
 
-      return this.prisma.memberTypeFeePlan.upsert({
+      return prisma.memberTypeFeePlan.upsert({
         where: {
           memberTypeId_feePlanId: {
             memberTypeId: assignment.memberTypeId,
@@ -72,12 +76,14 @@ export class PrismaMemberTypeFeePlanRepository implements MemberTypeFeePlanRepos
       });
     });
 
-    await this.prisma.$transaction(operations);
+    await prisma.$transaction(operations);
   }
 
   /** Busca todas las asignaciones de un plan de cuota. */
   async findByFeePlanId(feePlanId: FeePlanId): Promise<MemberTypeFeePlan[]> {
-    const rawList = await this.prisma.memberTypeFeePlan.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).memberTypeFeePlan.findMany({
       where: { feePlanId: feePlanId.toValue() },
       orderBy: { displayOrder: 'asc' },
     });
@@ -89,7 +95,9 @@ export class PrismaMemberTypeFeePlanRepository implements MemberTypeFeePlanRepos
 
   /** Busca todas las asignaciones de un tipo de socio. */
   async findByMemberTypeId(memberTypeId: string): Promise<MemberTypeFeePlan[]> {
-    const rawList = await this.prisma.memberTypeFeePlan.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).memberTypeFeePlan.findMany({
       where: { memberTypeId },
       orderBy: { displayOrder: 'asc' },
     });
@@ -101,7 +109,9 @@ export class PrismaMemberTypeFeePlanRepository implements MemberTypeFeePlanRepos
 
   /** Busca la asignación por defecto de un tipo de socio. */
   async findDefault(memberTypeId: string): Promise<MemberTypeFeePlan | null> {
-    const raw = await this.prisma.memberTypeFeePlan.findFirst({
+    const raw = await (
+      await this.getPrisma()
+    ).memberTypeFeePlan.findFirst({
       where: { memberTypeId, isDefault: true, active: true },
     });
 
@@ -112,7 +122,9 @@ export class PrismaMemberTypeFeePlanRepository implements MemberTypeFeePlanRepos
 
   /** Elimina todas las asignaciones de un plan de cuota. */
   async deleteByFeePlanId(feePlanId: FeePlanId): Promise<void> {
-    await this.prisma.memberTypeFeePlan.deleteMany({
+    await (
+      await this.getPrisma()
+    ).memberTypeFeePlan.deleteMany({
       where: { feePlanId: feePlanId.toValue() },
     });
   }

@@ -26,4 +26,7 @@ export interface TenantRepository {
 
   /** Verifica si ya existe un tenant con el CIF dado. */
   existsByCif(cif: Cif): Promise<boolean>;
+
+  /** Elimina un tenant por su identificador (compensación de saga). */
+  deleteById(id: string): Promise<void>;
 }

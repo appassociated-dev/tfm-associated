@@ -182,7 +182,8 @@ describe('User', () => {
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
-        expect(result.error).toBeDefined();
+        expect(result.error?.message).toBe('Credenciales inválidas.');
+        expect(result.error?.code).toBe('USER.INVALID_CREDENTIALS');
       }
     });
 
@@ -223,7 +224,8 @@ describe('User', () => {
 
       expect(result.ok).toBe(false);
       if (!result.ok) {
-        expect(result.error).toBeDefined();
+        expect(result.error?.message).toContain('bloqueada');
+        expect(result.error?.code).toBe('USER.ACCOUNT_BLOCKED');
       }
       // No debería verificar contraseña si está bloqueado
       expect(hasher.verify).not.toHaveBeenCalled();

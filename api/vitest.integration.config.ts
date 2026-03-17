@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import swc from 'unplugin-swc';
 import path from 'path';
 
 /**
@@ -7,6 +8,11 @@ import path from 'path';
  * Ejecutar con: npm run test:integration
  */
 export default defineConfig({
+  plugins: [
+    swc.vite({
+      module: { type: 'es6' },
+    }),
+  ],
   resolve: {
     alias: {
       '@prisma-main': path.resolve(__dirname, 'prisma/main/generated/client.ts'),
@@ -24,6 +30,13 @@ export default defineConfig({
 
     // Solo archivos de integración (convención: *.integration-spec.ts)
     include: ['**/*.integration-spec.ts'],
+
+    // Inlinear dependencias que no son ESM puro
+    server: {
+      deps: {
+        inline: ['@prisma/client'],
+      },
+    },
 
     // Timeout más generoso para operaciones DDL
     testTimeout: 60_000,

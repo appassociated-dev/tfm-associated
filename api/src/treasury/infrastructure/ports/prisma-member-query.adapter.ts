@@ -20,7 +20,7 @@ export class PrismaMemberQueryAdapter implements MemberQueryPort {
 
   /** Obtiene el PrismaClient del tenant actual. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get prisma(): any {
+  private async getPrisma(): Promise<any> {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaMemberQueryAdapter. Llamar setTenantId() primero.',
@@ -31,7 +31,9 @@ export class PrismaMemberQueryAdapter implements MemberQueryPort {
 
   /** Busca un socio por su identificador. */
   async findById(memberId: string): Promise<MemberDto | null> {
-    const raw = await this.prisma.member.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).member.findUnique({
       where: { id: memberId },
       select: {
         id: true,
@@ -60,7 +62,9 @@ export class PrismaMemberQueryAdapter implements MemberQueryPort {
 
   /** Obtiene todos los socios activos (cuyo estado no es LEAVE). */
   async findActiveMembers(): Promise<MemberDto[]> {
-    const rawList = await this.prisma.member.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).member.findMany({
       where: { current_status: { not: 'LEAVE' } },
       select: {
         id: true,
@@ -98,7 +102,9 @@ export class PrismaMemberQueryAdapter implements MemberQueryPort {
    * Retorna coincidencias parciales para facilitar la búsqueda en el registro de cobros.
    */
   async searchMembers(query: string): Promise<MemberDto[]> {
-    const rawList = await this.prisma.member.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).member.findMany({
       where: {
         OR: [
           { name: { contains: query, mode: 'insensitive' } },

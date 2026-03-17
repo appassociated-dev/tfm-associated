@@ -56,7 +56,7 @@ describe('MemberTypeRulesEvaluator', () => {
       const result = evaluator.evaluateAgeEligibility(mt, birthDate);
 
       expect(result.eligible).toBe(false);
-      expect(result.reason).toBeDefined();
+      expect(result.reason).toContain('not within the accepted range');
     });
 
     it('debería ser elegible cuando no hay restricción de edad', () => {
@@ -99,7 +99,7 @@ describe('MemberTypeRulesEvaluator', () => {
       const result = evaluator.evaluateVotingRight(mt, registrationDate);
 
       expect(result.hasRight).toBe(false);
-      expect(result.reason).toBeDefined();
+      expect(result.reason).toContain('Insufficient seniority');
       expect(result.monthsRemaining).toBeGreaterThan(0);
     });
 
@@ -111,7 +111,7 @@ describe('MemberTypeRulesEvaluator', () => {
       const result = evaluator.evaluateVotingRight(mt, registrationDate);
 
       expect(result.hasRight).toBe(false);
-      expect(result.reason).toBeDefined();
+      expect(result.reason).toContain('does not have voting rights');
     });
   });
 
@@ -144,7 +144,7 @@ describe('MemberTypeRulesEvaluator', () => {
       const result = evaluator.evaluateOfficeEligibility(mt, registrationDate);
 
       expect(result.eligible).toBe(false);
-      expect(result.reason).toBeDefined();
+      expect(result.reason).toContain('Insufficient seniority');
       expect(result.monthsRemaining).toBeGreaterThan(0);
     });
 
@@ -156,7 +156,7 @@ describe('MemberTypeRulesEvaluator', () => {
       const result = evaluator.evaluateOfficeEligibility(mt, registrationDate);
 
       expect(result.eligible).toBe(false);
-      expect(result.reason).toBeDefined();
+      expect(result.reason).toContain('is not eligible for office');
     });
   });
 

@@ -28,7 +28,7 @@ export class PrismaRegistrationChargeAdapter implements RegistrationChargePort {
 
   /** Obtiene el PrismaClient del tenant actual. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get prisma(): any {
+  private async getPrisma(): Promise<any> {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaRegistrationChargeAdapter. Llamar setTenantId() primero.',
@@ -42,7 +42,9 @@ export class PrismaRegistrationChargeAdapter implements RegistrationChargePort {
    * Retorna null si no existe ninguno activo.
    */
   async findRegistrationPlan(): Promise<RegistrationPlanInfo | null> {
-    const plan = await this.prisma.feePlan.findFirst({
+    const plan = await (
+      await this.getPrisma()
+    ).feePlan.findFirst({
       where: {
         type: 'ONE_TIME',
         active: true,
@@ -74,7 +76,7 @@ export class PrismaRegistrationChargeAdapter implements RegistrationChargePort {
   ): Promise<RegistrationChargeResult> {
     // Usar el cliente transaccional si se proporciona, o el cliente normal
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const client = (tx ?? this.prisma) as any;
+    const client = (tx ?? (await this.getPrisma())) as any;
     const now = new Date();
 
     // 1. Crear MemberAccount
