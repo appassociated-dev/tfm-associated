@@ -31,9 +31,10 @@ export class ValidatePreconditionsHandler implements IQueryHandler<ValidatePreco
   ) {}
 
   async execute(query: ValidatePreconditionsQuery): Promise<PreconditionsResponseDto> {
-    // Establecer tenantId en los repositorios (ADR-002)
+    // Establecer tenantId en los repositorios y puertos (ADR-002)
     this.fiscalYearRepository.setTenantId(query.tenantId);
     this.memberTypeRepository.setTenantId(query.tenantId);
+    this.registrationChargePort.setTenantId(query.tenantId);
 
     const dto = new PreconditionsResponseDto();
     dto.errors = [];
@@ -62,6 +63,13 @@ export class ValidatePreconditionsHandler implements IQueryHandler<ValidatePreco
       dto.errors.push(
         'No existe un plan de cuota de alta activo (ONE_TIME). Es necesario configurar uno.',
       );
+    } else if (registrationPlan) {
+      // Incluir info del plan para que el frontend muestre el importe real
+      dto.registrationPlan = {
+        feePlanId: registrationPlan.feePlanId,
+        name: registrationPlan.name,
+        amount: registrationPlan.amount,
+      };
     }
 
     return dto;

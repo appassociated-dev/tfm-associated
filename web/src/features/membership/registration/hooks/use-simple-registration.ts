@@ -14,7 +14,7 @@ export function useSimpleRegistration() {
       queryClient.invalidateQueries({ queryKey: ['members'] });
       notifications.show({
         title: 'Socio dado de alta',
-        message: `Socio registrado correctamente. Numero asignado: ${data.memberNumber}`,
+        message: `Socio registrado correctamente. Número asignado: ${data.memberNumber}`,
         color: 'green',
       });
     },

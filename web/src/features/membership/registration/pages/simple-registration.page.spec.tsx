@@ -11,6 +11,7 @@ import { SimpleRegistrationPage } from './simple-registration.page';
 
 const mockUseMemberTypes = vi.fn();
 const mockUseSimpleRegistration = vi.fn();
+const mockUsePreconditions = vi.fn();
 
 vi.mock('../hooks/use-member-types', () => ({
   useMemberTypes: () => mockUseMemberTypes(),
@@ -18,6 +19,10 @@ vi.mock('../hooks/use-member-types', () => ({
 
 vi.mock('../hooks/use-simple-registration', () => ({
   useSimpleRegistration: () => mockUseSimpleRegistration(),
+}));
+
+vi.mock('../hooks/use-preconditions', () => ({
+  usePreconditions: () => mockUsePreconditions(),
 }));
 
 // Mock de react-router: useBlocker requiere data router, lo sustituimos por no-op
@@ -108,6 +113,21 @@ function renderPage() {
 describe('SimpleRegistrationPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default: precondiciones cumplidas
+    mockUsePreconditions.mockReturnValue({
+      data: {
+        hasFiscalYear: true,
+        hasMemberTypes: true,
+        hasRegistrationPlan: true,
+        registrationPlan: {
+          feePlanId: '550e8400-e29b-41d4-a716-446655440001',
+          name: 'Cuota de Alta',
+          amount: 5000,
+        },
+        errors: [],
+      },
+      isLoading: false,
+    });
   });
 
   it('deberia renderizar el Stepper con 3 pasos', () => {
@@ -125,7 +145,7 @@ describe('SimpleRegistrationPage', () => {
     // Verificar las etiquetas de los 3 pasos
     expect(screen.getByText('Datos Personales')).toBeInTheDocument();
     expect(screen.getByText('Tipo de Socio')).toBeInTheDocument();
-    expect(screen.getByText('Confirmacion')).toBeInTheDocument();
+    expect(screen.getByText('Confirmación')).toBeInTheDocument();
   });
 
   it('deberia mostrar "Datos Personales" como etiqueta del primer paso', () => {
@@ -142,7 +162,7 @@ describe('SimpleRegistrationPage', () => {
 
     expect(screen.getByText('Datos Personales')).toBeInTheDocument();
     // La descripcion del primer paso
-    expect(screen.getByText('Informacion del aspirante')).toBeInTheDocument();
+    expect(screen.getByText('Información del aspirante')).toBeInTheDocument();
   });
 
   it('deberia mostrar "Alta de Socio" como titulo de la pagina', () => {

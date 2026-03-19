@@ -121,7 +121,14 @@ describe('feePlanSchema', () => {
     expect(result.type).toBe('ONE_TIME');
   });
 
-  it('deberia aceptar plan con amount 0 (minimo valido)', () => {
+  it('deberia aceptar plan con amount 1 (minimo valido en centavos)', () => {
+    const minPlan = { ...validFeePlan, amount: 1 };
+    const result = feePlanSchema.parse(minPlan);
+
+    expect(result.amount).toBe(1);
+  });
+
+  it('deberia aceptar plan con amount 0 (plan gratuito o placeholder)', () => {
     const freeplan = { ...validFeePlan, amount: 0 };
     const result = feePlanSchema.parse(freeplan);
 
@@ -169,19 +176,32 @@ describe('createFeePlanInputSchema', () => {
     expect(() => createFeePlanInputSchema.parse(invalid)).toThrow(ZodError);
   });
 
-  it('deberia aceptar sin frequency (campo opcional)', () => {
+  it('deberia rechazar RECURRING sin frequency', () => {
     const withoutFreq = { ...validCreateInput };
     delete (withoutFreq as Record<string, unknown>).frequency;
 
-    const result = createFeePlanInputSchema.parse(withoutFreq);
-    expect(result.frequency).toBeUndefined();
+    expect(() => createFeePlanInputSchema.parse(withoutFreq)).toThrow(ZodError);
   });
 
-  it('deberia aceptar sin billingMonths (campo opcional)', () => {
+  it('deberia rechazar RECURRING sin billingMonths', () => {
     const withoutMonths = { ...validCreateInput };
     delete (withoutMonths as Record<string, unknown>).billingMonths;
 
-    const result = createFeePlanInputSchema.parse(withoutMonths);
+    expect(() => createFeePlanInputSchema.parse(withoutMonths)).toThrow(ZodError);
+  });
+
+  it('deberia aceptar ONE_TIME sin frequency ni billingMonths', () => {
+    const oneTimeInput = {
+      code: 'ALTA',
+      name: 'Cuota de alta',
+      description: null,
+      type: 'ONE_TIME' as const,
+      amount: 5000,
+    };
+
+    const result = createFeePlanInputSchema.parse(oneTimeInput);
+    expect(result.type).toBe('ONE_TIME');
+    expect(result.frequency).toBeUndefined();
     expect(result.billingMonths).toBeUndefined();
   });
 });

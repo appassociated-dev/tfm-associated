@@ -1,8 +1,10 @@
 import { useEffect, useMemo } from 'react';
 import { Alert, Grid, Group, Loader, Stack, Text, TextInput } from '@mantine/core';
+import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 
 import { useCheckDni } from '../hooks/use-check-dni';
+import { useCheckEmail } from '../hooks/use-check-email';
 import { validateIdentityDocument, calculateAge } from '../utils/dni-validator';
 import type { PersonalData } from '../schemas/member-registration.schemas';
 
@@ -15,9 +17,9 @@ interface PersonalDataStepProps {
 
 // === Constantes ===
 
-/** Fecha maxima seleccionable: hoy en formato yyyy-MM-dd. */
-function getTodayIso(): string {
-  return new Date().toISOString().split('T')[0];
+/** Fecha maxima seleccionable: hoy. */
+function getToday(): Date {
+  return new Date();
 }
 
 // === Componente ===
@@ -33,7 +35,9 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       dni: initialValues?.dni ?? '',
       firstName: initialValues?.firstName ?? '',
       lastName: initialValues?.lastName ?? '',
-      birthDate: initialValues?.birthDate ?? '',
+      birthDate: initialValues?.birthDate
+        ? new Date(initialValues.birthDate)
+        : (null as Date | null),
       email: initialValues?.email ?? '',
       phone: initialValues?.phone ?? '',
       address: initialValues?.address ?? '',
@@ -59,7 +63,7 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       },
       birthDate: (value) => {
         if (!value) return 'Fecha de nacimiento es obligatoria';
-        if (isNaN(Date.parse(value))) return 'Fecha invalida';
+        if (isNaN(value.getTime())) return 'Fecha invalida';
         return null;
       },
       email: (value) => {
@@ -78,6 +82,10 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
   const currentDni = form.getValues().dni;
   const { data: dniCheck, isFetching: isDniChecking } = useCheckDni(currentDni);
 
+  // Consulta debounced de unicidad de email (Issue P2-8)
+  const currentEmail = form.getValues().email;
+  const { data: emailCheck, isFetching: isEmailChecking } = useCheckEmail(currentEmail);
+
   // Validacion client-side del DNI (para el icono inline)
   const dniClientValidation = useMemo(() => {
     const value = currentDni.trim();
@@ -89,7 +97,10 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
   const currentBirthDate = form.getValues().birthDate;
   const computedAge = useMemo(() => {
     if (!currentBirthDate) return null;
-    const age = calculateAge(currentBirthDate);
+    const date = currentBirthDate instanceof Date ? currentBirthDate : new Date(currentBirthDate);
+    if (isNaN(date.getTime())) return null;
+    const isoStr = date.toISOString().split('T')[0];
+    const age = calculateAge(isoStr);
     return age >= 0 ? age : null;
   }, [currentBirthDate]);
 
@@ -127,6 +138,26 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
     return undefined;
   }, [currentDni, dniClientValidation, isDniChecking, dniCheck]);
 
+  // Indicador visual del campo email (derecha del input) — Issue P2-8
+  const emailRightSection = useMemo(() => {
+    const value = currentEmail.trim();
+    if (!value || !/^\S+@\S+\.\S+$/.test(value)) return undefined;
+
+    if (isEmailChecking) {
+      return <Loader size="xs" color="brand" />;
+    }
+
+    if (emailCheck?.exists) {
+      return (
+        <Text c="orange" size="xs" fw={600}>
+          ⚠
+        </Text>
+      );
+    }
+
+    return undefined;
+  }, [currentEmail, isEmailChecking, emailCheck]);
+
   // Notificar al padre cada vez que cambia la validez del formulario
   const values = form.getValues();
   const errors = form.errors;
@@ -137,7 +168,7 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       values.dni.trim() !== '' &&
       values.firstName.trim() !== '' &&
       values.lastName.trim() !== '' &&
-      values.birthDate !== '' &&
+      values.birthDate !== null &&
       values.email.trim() !== '';
 
     // Validar que no hay errores activos del formulario
@@ -163,11 +194,13 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       emailValid &&
       postalCodeValid
     ) {
+      const bd = values.birthDate instanceof Date ? values.birthDate : new Date(values.birthDate);
+      const birthDateIso = !isNaN(bd.getTime()) ? bd.toISOString().split('T')[0] : '';
       const personalData: PersonalData = {
         dni: values.dni.trim(),
         firstName: values.firstName.trim(),
         lastName: values.lastName.trim(),
-        birthDate: values.birthDate,
+        birthDate: birthDateIso,
         email: values.email.trim(),
         phone: values.phone.trim() || null,
         address: values.address.trim() || null,
@@ -191,6 +224,7 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
     errors,
     dniClientValidation?.valid,
     dniCheck,
+    onValidChange,
   ]);
 
   return (
@@ -237,33 +271,43 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
         </Grid.Col>
       </Grid>
 
-      {/* Fecha de nacimiento con edad calculada */}
+      {/* Fecha de nacimiento con edad calculada — Issue P1-1: DateInput nativo de Mantine */}
       <Group align="flex-end" gap="sm">
-        <TextInput
-          type="date"
+        <DateInput
           label="Fecha de nacimiento"
+          placeholder="dd/mm/aaaa"
           required
-          max={getTodayIso()}
+          valueFormat="DD/MM/YYYY"
+          locale="es"
+          maxDate={getToday()}
+          clearable
           style={{ flex: 1 }}
           key={form.key('birthDate')}
           {...form.getInputProps('birthDate')}
         />
         {computedAge !== null && (
           <Text size="sm" c="dimmed" pb={8}>
-            ({computedAge} {computedAge === 1 ? 'ano' : 'anos'})
+            ({computedAge} {computedAge === 1 ? 'año' : 'años'})
           </Text>
         )}
       </Group>
 
-      {/* Email */}
+      {/* Email — Issue P2-8: consulta de unicidad */}
       <TextInput
         type="email"
         label="Email"
         placeholder="correo@ejemplo.com"
         required
+        rightSection={emailRightSection}
         key={form.key('email')}
         {...form.getInputProps('email')}
       />
+      {emailCheck?.exists && (
+        <Alert color="yellow" variant="light">
+          Este email ya esta registrado en otro socio. El alta continuara, pero se recomienda
+          verificar que no se trata de un duplicado.
+        </Alert>
+      )}
 
       {/* Telefono */}
       <TextInput

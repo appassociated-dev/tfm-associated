@@ -14,12 +14,22 @@ import {
   type FeePlanTemplate,
 } from '../schemas/fee-plan.schemas';
 
-const FEE_PLANS_BASE = '/v1/fee-plans';
+const FEE_PLANS_BASE = '/v1/treasury/fee-plans';
 const MEMBER_TYPES_BASE = '/v1/member-types';
 
 /** Obtiene listado de planes, opcionalmente filtrado por estado. */
 export async function getFeePlans(params?: { active?: boolean }): Promise<FeePlan[]> {
-  const { data } = await httpClient.get(FEE_PLANS_BASE, { params });
+  // Construir query params limpiando valores undefined para evitar serialización ambigua
+  const cleanParams: Record<string, string> = {};
+  if (params?.active !== undefined) {
+    cleanParams['active'] = String(params.active);
+  }
+  const hasParams = Object.keys(cleanParams).length > 0;
+
+  const { data } = await httpClient.get(
+    FEE_PLANS_BASE,
+    hasParams ? { params: cleanParams } : undefined,
+  );
   const payload = data.data ?? data;
   return z.array(feePlanSchema).parse(payload);
 }
@@ -47,6 +57,11 @@ export async function deactivateFeePlan(id: string): Promise<void> {
   await httpClient.patch(`${FEE_PLANS_BASE}/${id}/deactivate`);
 }
 
+/** Activa un plan de cuota inactivo. */
+export async function activateFeePlan(id: string): Promise<void> {
+  await httpClient.patch(`${FEE_PLANS_BASE}/${id}/activate`);
+}
+
 /** Vincula tipos de socio a un plan. */
 export async function linkMemberTypes(planId: string, links: LinkMemberTypeInput[]): Promise<void> {
   await httpClient.post(`${FEE_PLANS_BASE}/${planId}/link-member-types`, { links });
@@ -69,7 +84,7 @@ export async function getTemplates(collectivityType: string): Promise<FeePlanTem
 
 /** Importa plantillas predefinidas para un tipo de colectividad. */
 export async function importTemplate(collectivityType: string): Promise<FeePlan[]> {
-  const { data } = await httpClient.post(`${FEE_PLANS_BASE}/templates/import`, {
+  const { data } = await httpClient.post(`${FEE_PLANS_BASE}/import-template`, {
     collectivityType,
   });
   const payload = data.data ?? data;

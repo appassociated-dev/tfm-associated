@@ -9,9 +9,14 @@ import { PersonalDataStep } from './personal-data-step';
 // === Mocks ===
 
 const mockUseCheckDni = vi.fn();
+const mockUseCheckEmail = vi.fn();
 
 vi.mock('../hooks/use-check-dni', () => ({
   useCheckDni: (...args: unknown[]) => mockUseCheckDni(...args),
+}));
+
+vi.mock('../hooks/use-check-email', () => ({
+  useCheckEmail: (...args: unknown[]) => mockUseCheckEmail(...args),
 }));
 
 // === Helpers ===
@@ -50,6 +55,11 @@ describe('PersonalDataStep', () => {
     vi.clearAllMocks();
     // Mock por defecto: sin resultado de verificacion de DNI
     mockUseCheckDni.mockReturnValue({
+      data: undefined,
+      isFetching: false,
+    });
+    // Mock por defecto: sin resultado de verificacion de email
+    mockUseCheckEmail.mockReturnValue({
       data: undefined,
       isFetching: false,
     });
@@ -98,7 +108,7 @@ describe('PersonalDataStep', () => {
     });
 
     // La edad calculada deberia ser 30 (nacido en 1996, estamos en 2026)
-    expect(screen.getByText(/30 anos/)).toBeInTheDocument();
+    expect(screen.getByText(/30 años/)).toBeInTheDocument();
 
     vi.useRealTimers();
   });
@@ -118,11 +128,13 @@ describe('PersonalDataStep', () => {
     expect(emailInput).toHaveAttribute('type', 'email');
   });
 
-  it('deberia tener el campo fecha de nacimiento con type date', () => {
+  it('deberia tener el campo fecha de nacimiento con placeholder dd/mm/aaaa', () => {
     renderStep();
 
     const birthDateInput = screen.getByLabelText(/Fecha de nacimiento/);
-    expect(birthDateInput).toHaveAttribute('type', 'date');
+    // DateInput de Mantine renderiza un input text con placeholder personalizado
+    expect(birthDateInput).toBeInTheDocument();
+    expect(birthDateInput).toHaveAttribute('placeholder', 'dd/mm/aaaa');
   });
 
   it('deberia mostrar alerta de DNI duplicado cuando la API indica que existe', () => {

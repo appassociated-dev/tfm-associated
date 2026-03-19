@@ -1,35 +1,135 @@
-/* Estilos para NavLink sobre fondo oscuro del sidebar */
+/* ============================================
+ * Estilos del sidebar y navegacion de AppShell
+ * Usa variables semanticas de Mantine que se
+ * adaptan automaticamente a light/dark mode.
+ * ============================================ */
+
+/* === Navbar (sidebar) === */
+
+.navbar {
+  transition: width 200ms ease;
+}
+
+/* === Header === */
+
+.headerLogo {
+  display: block;
+}
+
+/* Boton toggle del sidebar en el header */
+.headerToggle {
+  color: var(--mantine-color-dimmed);
+
+  &:hover {
+    color: var(--mantine-color-text);
+    background-color: var(--mantine-color-default-hover);
+  }
+}
+
+/* Contenedor del isotipo colapsado con hover → toggle */
+.isotipoToggle {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--mantine-radius-sm);
+
+  &:hover {
+    background-color: var(--mantine-color-default-hover);
+  }
+
+  /* Isotipo visible por defecto, oculto en hover */
+  & .isotipoImg {
+    display: block;
+  }
+  & .isotipoToggleIcon {
+    display: none;
+    color: var(--mantine-color-text);
+  }
+
+  &:hover .isotipoImg {
+    display: none;
+  }
+  &:hover .isotipoToggleIcon {
+    display: block;
+  }
+}
+
+/* === NavLink === */
 
 .navLink {
   border-radius: var(--mantine-radius-sm);
-  color: white;
-  opacity: 0.6;
+  color: var(--mantine-color-dimmed);
   background-color: transparent;
-  border-left: 3px solid transparent;
   margin-bottom: 4px;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-    opacity: 0.9;
+    background-color: var(--mantine-color-default-hover);
+    color: var(--mantine-color-text);
   }
 }
 
 .navLinkActive {
-  opacity: 1;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-left: 3px solid rgba(255, 255, 255, 0.6);
+  color: var(--mantine-color-brand-filled);
+  background-color: var(--mantine-color-brand-light);
+  font-weight: 600;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.12);
-    opacity: 1;
+    background-color: var(--mantine-color-brand-light-hover);
+    color: var(--mantine-color-brand-filled);
   }
 }
 
+/* Estilo cuando el sidebar esta colapsado: centrar el icono */
+.navLinkCollapsed {
+  display: flex;
+  justify-content: center;
+  padding-inline: 0;
+}
+
 .navLinkLabel {
-  color: white;
+  color: inherit;
   font-weight: 400;
 }
 
 .navLinkLabelActive {
   font-weight: 600;
+}
+
+/* === Encabezados de seccion del sidebar === */
+
+.sectionHeader {
+  color: var(--mantine-color-dimmed);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 var(--mantine-spacing-sm);
+  margin-top: var(--mantine-spacing-md);
+  margin-bottom: var(--mantine-spacing-xs);
+}
+
+/* Separador entre secciones cuando el sidebar esta colapsado */
+.sectionDivider {
+  margin-top: var(--mantine-spacing-sm);
+  margin-bottom: var(--mantine-spacing-sm);
+}
+
+/* === Footer del sidebar === */
+
+.sidebarFooter {
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+.tenantName {
+  color: var(--mantine-color-dimmed);
+  padding: 0 var(--mantine-spacing-xs);
+}
+
+.tenantIconContainer {
+  display: flex;
+  justify-content: center;
 }

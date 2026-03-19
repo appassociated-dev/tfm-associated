@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router';
 import { Center, Loader } from '@mantine/core';
 import { ProtectedRoute } from '@/shared/components/protected-route';
 import { AppLayout } from '@/shared/components/layout/app-shell';
+import { RouteError } from '@/shared/components/route-error';
 
 // Carga lazy de páginas para code splitting
 const LoginPage = lazy(() =>
@@ -72,6 +73,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <ProtectedRoute />,
+    errorElement: <RouteError />,
     children: [
       {
         element: <AppLayout />,
@@ -128,7 +130,7 @@ export const router = createBrowserRouter([
             ],
           },
           {
-            path: 'members/:id/leave',
+            path: 'members/:memberId/leave',
             element: <ProtectedRoute permissions={['membership:members:deactivate']} />,
             children: [
               {
@@ -142,7 +144,7 @@ export const router = createBrowserRouter([
             ],
           },
           {
-            path: 'members/:id/nonpayment-leave',
+            path: 'members/:memberId/nonpayment-leave',
             element: <ProtectedRoute permissions={['membership:members:deactivate']} />,
             children: [
               {
@@ -156,7 +158,7 @@ export const router = createBrowserRouter([
             ],
           },
           {
-            path: 'members/:id/reinstate',
+            path: 'members/:memberId/reinstate',
             element: <ProtectedRoute permissions={['membership:members:reinstate']} />,
             children: [
               {

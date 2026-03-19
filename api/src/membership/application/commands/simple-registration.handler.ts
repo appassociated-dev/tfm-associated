@@ -208,8 +208,8 @@ export class SimpleRegistrationHandler implements ICommandHandler<SimpleRegistra
 
       const member = registerResult.value;
 
-      // 11c. Guardar member via repositorio
-      await this.memberRepository.save(member);
+      // 11c. Guardar member via repositorio (dentro de la transacción — atomicidad)
+      await this.memberRepository.save(member, tx);
 
       // 11d. Crear artefactos de tesorería via RegistrationChargePort
       const now = new Date();

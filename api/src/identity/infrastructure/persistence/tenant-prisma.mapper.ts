@@ -18,7 +18,7 @@ export interface PrismaRawTenant {
   type: string;
   status: string;
   databaseName: string;
-  databaseUser?: string;
+  databaseUser: string | null;
   contactEmail: string;
   createdAt: Date;
 }

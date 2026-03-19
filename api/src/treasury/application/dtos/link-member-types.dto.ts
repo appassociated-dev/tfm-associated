@@ -6,7 +6,6 @@ import {
   IsArray,
   ValidateNested,
   Min,
-  ArrayMinSize,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
@@ -50,7 +49,6 @@ export class LinkMemberTypesDto {
     type: [MemberTypeLinkDto],
   })
   @IsArray({ message: 'links debe ser un array.' })
-  @ArrayMinSize(1, { message: 'Debe incluir al menos una vinculación.' })
   @ValidateNested({ each: true })
   @Type(() => MemberTypeLinkDto)
   links!: MemberTypeLinkDto[];

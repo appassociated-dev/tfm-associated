@@ -50,34 +50,33 @@ const sampleSummary: LeaveSummary = {
   memberName: 'María Fernández Ruiz',
   memberNumber: 'SOC-042',
   currentStatus: 'ACTIVE',
-  availableLeaveTypes: ['VOLUNTARY_LEAVE'],
   effectiveDateOptions: [
     {
       type: 'IMMEDIATE',
       effectiveDate: '2026-03-15T00:00:00.000Z',
       label: 'Inmediata',
-      description: 'Baja efectiva desde hoy',
     },
     {
       type: 'END_OF_FISCAL_YEAR',
       effectiveDate: '2026-12-31T00:00:00.000Z',
       label: 'Fin de ejercicio',
-      description: 'Baja al final del año fiscal',
     },
   ],
   activeSubscriptions: [
     {
-      id: VALID_UUID_2,
-      planName: 'Cuota Anual Ordinaria',
-      effectiveAmount: 12000,
-      periodicity: 'ANNUAL',
+      subscriptionId: VALID_UUID_2,
+      feePlanCode: 'ANNUAL',
+      feePlanName: 'Cuota Anual Ordinaria',
+      amount: 12000,
+      startDate: '2026-01-01T00:00:00.000Z',
     },
   ],
   pendingCharges: [
     {
-      id: VALID_UUID_2,
-      description: 'Cuota Marzo 2026',
+      chargeId: VALID_UUID_2,
+      concept: 'Cuota Marzo 2026',
       amount: 3000,
+      issueDate: '2026-03-01T00:00:00.000Z',
       dueDate: '2026-03-31T00:00:00.000Z',
     },
   ],
@@ -121,8 +120,19 @@ describe('VoluntaryLeavePage', () => {
   it('deberia renderizar datos del socio desde el resumen de baja', () => {
     renderPage();
 
-    expect(screen.getByText('María Fernández Ruiz')).toBeInTheDocument();
+    // El nombre aparece tanto en el breadcrumb como en los datos del socio
+    const nameElements = screen.getAllByText('María Fernández Ruiz');
+    expect(nameElements.length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('#SOC-042')).toBeInTheDocument();
+  });
+
+  it('deberia renderizar breadcrumbs con la jerarquia correcta', () => {
+    renderPage();
+
+    expect(screen.getByText('Socios')).toBeInTheDocument();
+    // "Baja Voluntaria" aparece tanto en breadcrumb como en titulo y boton
+    const breadcrumbsContainer = document.querySelector('.mantine-Breadcrumbs-root');
+    expect(breadcrumbsContainer).toBeInTheDocument();
   });
 
   it('deberia mostrar opciones de fecha efectiva', () => {

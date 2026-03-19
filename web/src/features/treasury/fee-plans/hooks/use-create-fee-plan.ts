@@ -16,15 +16,27 @@ export function useCreateFeePlan() {
         title: 'Plan creado',
         message: 'El plan de cuota se ha creado correctamente',
         color: 'green',
+        autoClose: 4000,
       });
     },
     onError: (error: unknown) => {
-      const status = (error as { response?: { status?: number } })?.response?.status;
+      const response = (error as { response?: { status?: number; data?: { message?: string } } })
+        ?.response;
+      const status = response?.status;
       if (status === 409) {
         notifications.show({
-          title: 'Codigo duplicado',
-          message: 'Ya existe un plan con ese codigo. Pruebe con otro.',
+          title: 'Código duplicado',
+          message: 'Ya existe un plan con ese código. Pruebe con otro.',
           color: 'red',
+          autoClose: 4000,
+        });
+      } else {
+        const backendMessage = response?.data?.message;
+        notifications.show({
+          title: 'Error al crear plan',
+          message: backendMessage ?? 'Ocurrió un error inesperado. Intente de nuevo.',
+          color: 'red',
+          autoClose: 4000,
         });
       }
     },

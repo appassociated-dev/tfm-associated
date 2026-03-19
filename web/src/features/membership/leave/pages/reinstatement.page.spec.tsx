@@ -5,6 +5,7 @@ import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router';
 
+import { ApiError } from '@/shared/api/api-error';
 import type { ReinstatementSummary } from '../schemas/member-leave.schemas';
 import { ReinstatementPage } from './reinstatement.page';
 
@@ -95,10 +96,21 @@ describe('ReinstatementPage', () => {
   it('deberia renderizar datos del ex-socio', () => {
     renderPage();
 
-    expect(screen.getByText('Carlos Rodríguez Martín')).toBeInTheDocument();
+    // El nombre aparece tanto en el breadcrumb como en los datos del socio
+    const nameElements = screen.getAllByText('Carlos Rodríguez Martín');
+    expect(nameElements.length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('#SOC-015')).toBeInTheDocument();
     // Tipo de baja se muestra como StatusBadge
     expect(screen.getByText('Baja Voluntaria')).toBeInTheDocument();
+  });
+
+  it('deberia renderizar breadcrumbs con la jerarquia correcta', () => {
+    renderPage();
+
+    expect(screen.getByText('Socios')).toBeInTheDocument();
+    expect(screen.getByText('Rehabilitacion')).toBeInTheDocument();
+    const breadcrumbsContainer = document.querySelector('.mantine-Breadcrumbs-root');
+    expect(breadcrumbsContainer).toBeInTheDocument();
   });
 
   it('deberia mostrar tabla de desglose de costes', () => {
@@ -175,6 +187,7 @@ describe('ReinstatementPage', () => {
       data: undefined,
       isLoading: false,
       isError: true,
+      error: new Error('Network error'),
       refetch: vi.fn(),
     });
 
@@ -182,5 +195,27 @@ describe('ReinstatementPage', () => {
 
     expect(screen.getByText('Error al cargar datos de rehabilitacion')).toBeInTheDocument();
     expect(screen.getByText('Reintentar')).toBeInTheDocument();
+  });
+
+  it('deberia mostrar mensaje especifico cuando el socio no puede ser rehabilitado (422)', () => {
+    const cannotReinstateError = new ApiError(422, {
+      code: 'MEMBERSHIP.CANNOT_REINSTATE',
+      message: "El socio no puede ser rehabilitado desde el estado 'ACTIVE'.",
+      details: null,
+    });
+
+    mockUseReinstatementSummary.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+      error: cannotReinstateError,
+      refetch: vi.fn(),
+    });
+
+    renderPage();
+
+    expect(screen.getByText('Rehabilitacion no disponible')).toBeInTheDocument();
+    expect(screen.getByText(/estado activo/)).toBeInTheDocument();
+    expect(screen.getByText('Volver al perfil del socio')).toBeInTheDocument();
   });
 });

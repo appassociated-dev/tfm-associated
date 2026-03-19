@@ -172,15 +172,15 @@ describe('MemberTypeStep', () => {
     renderStep();
 
     // Rango completo
-    expect(screen.getByText('Edad: 18-65 anos')).toBeInTheDocument();
+    expect(screen.getByText('Edad: 18-65 años')).toBeInTheDocument();
     // Solo maximo
-    expect(screen.getByText('Edad: hasta 17 anos')).toBeInTheDocument();
+    expect(screen.getByText('Edad: hasta 17 años')).toBeInTheDocument();
     // Solo minimo
-    expect(screen.getByText('Edad: 66+ anos')).toBeInTheDocument();
+    expect(screen.getByText('Edad: 66+ años')).toBeInTheDocument();
   });
 
   it('deberia marcar tipos incompatibles segun la edad del aspirante', () => {
-    // Aspirante de 36 anos (nacido en 1990, estamos en 2026-06-15)
+    // Aspirante de 36 años (nacido en 1990, estamos en 2026-06-15)
     mockUseMemberTypes.mockReturnValue({
       data: [memberTypeNumerario, memberTypeJuvenil],
       isLoading: false,
@@ -190,7 +190,7 @@ describe('MemberTypeStep', () => {
 
     renderStep({ birthDate: '1990-05-15' });
 
-    // Juvenil no es compatible (max 17 anos)
+    // Juvenil no es compatible (max 17 años)
     expect(screen.getByText(/No compatible con la edad del aspirante/)).toBeInTheDocument();
   });
 

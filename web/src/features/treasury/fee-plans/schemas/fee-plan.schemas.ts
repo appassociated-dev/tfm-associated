@@ -13,7 +13,7 @@ export const feePlanSchema = z.object({
   name: z.string().min(1).max(100),
   description: z.string().nullable(),
   type: planTypeSchema,
-  amount: z.number().min(0),
+  amount: z.number().int().min(0),
   frequency: frequencySchema.nullable(),
   billingMonths: z.array(z.number().int().min(1).max(12)),
   active: z.boolean(),
@@ -72,17 +72,47 @@ export const feePlanTemplateSchema = z.object({
 
 // === Schemas de input (creación/edición) ===
 
-export const createFeePlanInputSchema = z.object({
-  code: z.string().min(1).max(20),
+/** Schema base (sin refinements) para reusar con .partial() */
+const createFeePlanInputBaseSchema = z.object({
+  code: z.string().min(2).max(20),
   name: z.string().min(1).max(100),
   description: z.string().nullable().optional(),
   type: planTypeSchema,
-  amount: z.number().min(0),
+  amount: z.number().int().min(1),
   frequency: frequencySchema.nullable().optional(),
   billingMonths: z.array(z.number().int().min(1).max(12)).optional(),
 });
 
-export const updateFeePlanInputSchema = createFeePlanInputSchema.partial().omit({ code: true });
+/** Schema con validacion condicional: si es RECURRING, frequency y billingMonths son obligatorios. */
+export const createFeePlanInputSchema = createFeePlanInputBaseSchema
+  .refine(
+    (data) => {
+      // Si es RECURRING, frequency es obligatorio
+      if (data.type === 'RECURRING') {
+        return data.frequency != null && data.frequency !== '';
+      }
+      return true;
+    },
+    {
+      message: 'La periodicidad es obligatoria para planes periodicos',
+      path: ['frequency'],
+    },
+  )
+  .refine(
+    (data) => {
+      // Si es RECURRING, billingMonths debe tener al menos 1 mes
+      if (data.type === 'RECURRING') {
+        return data.billingMonths != null && data.billingMonths.length > 0;
+      }
+      return true;
+    },
+    {
+      message: 'Seleccione al menos un mes de facturacion para planes periodicos',
+      path: ['billingMonths'],
+    },
+  );
+
+export const updateFeePlanInputSchema = createFeePlanInputBaseSchema.partial().omit({ code: true });
 
 export const linkMemberTypeInputSchema = z.object({
   memberTypeId: z.string().uuid(),

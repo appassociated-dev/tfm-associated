@@ -53,7 +53,10 @@ export class LinkMemberTypesHandler implements ICommandHandler<LinkMemberTypesCo
       throw new FeePlanNotFoundError(command.feePlanId);
     }
 
-    // 2. Verificar existencia de cada tipo de socio y gestionar defaults
+    // 2. Eliminar vinculaciones anteriores de este plan (semántica de reemplazo)
+    await this.memberTypeFeePlanRepository.deleteByFeePlanId(feePlanId);
+
+    // 3. Verificar existencia de cada tipo de socio y gestionar defaults
     const assignments: MemberTypeFeePlan[] = [];
     const events: FeePlanLinkedToMemberTypeEvent[] = [];
 
@@ -65,6 +68,7 @@ export class LinkMemberTypesHandler implements ICommandHandler<LinkMemberTypesCo
       }
 
       // Si este link es default, desmarcar el default anterior de este memberType
+      // (puede haber otro plan que sea default para este tipo de socio)
       if (link.isDefault) {
         const currentDefault = await this.memberTypeFeePlanRepository.findDefault(
           link.memberTypeId,
@@ -97,10 +101,10 @@ export class LinkMemberTypesHandler implements ICommandHandler<LinkMemberTypesCo
       );
     }
 
-    // 3. Persistir todas las asignaciones
+    // 4. Persistir todas las nuevas asignaciones
     await this.memberTypeFeePlanRepository.saveMany(assignments);
 
-    // 4. Publicar eventos de dominio al outbox
+    // 5. Publicar eventos de dominio al outbox
     if (events.length > 0) {
       await this.outboxPublisher.publish(command.tenantId, events);
     }

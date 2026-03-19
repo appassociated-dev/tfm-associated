@@ -5,6 +5,8 @@ import { MemberId } from '../../domain/value-objects/member-id';
 import { MemberStatus } from '../../domain/value-objects/member-status';
 import { IdentityDocument } from '../../domain/value-objects/identity-document';
 import { OptimisticLockingError } from '../../domain/exceptions/optimistic-locking.exception';
+import { EmailAlreadyExistsError } from '../../domain/exceptions/email-already-exists.exception';
+import { DocumentAlreadyExistsError } from '../../domain/exceptions';
 import { PrismaTenantService } from '../../../shared/infrastructure/persistence/prisma-tenant.service';
 import { MemberPrismaMapper, PrismaRawMember } from './member-prisma.mapper';
 
@@ -56,21 +58,45 @@ export class PrismaMemberRepository implements MemberRepository {
    * - Si existe: update verificando la versión previa de forma atómica
    * - Si la versión no coincide: lanza OptimisticLockingError
    * Cifra el IBAN antes de persistir (RNF-006).
+   * @param member Aggregate a persistir.
+   * @param tx Cliente transaccional opcional. Cuando se provee, las operaciones
+   *           se ejecutan dentro de la transacción en curso para garantizar atomicidad.
    */
-  async save(member: Member): Promise<void> {
+  async save(member: Member, tx?: unknown): Promise<void> {
     const data = await this.mapper.toPersistence(member);
     const memberId = member.id.toValue();
 
+    // Usar el cliente transaccional si se provee, o el cliente del tenant
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const client = (tx ?? (await this.getPrisma())) as any;
+
     // Verificar si el registro existe en BD
-    const existing = await (
-      await this.getPrisma()
-    ).member.findUnique({
+    const existing = await client.member.findUnique({
       where: { id: memberId },
     });
 
     if (!existing) {
       // Crear nuevo registro
-      await (await this.getPrisma()).member.create({ data });
+      try {
+        await client.member.create({ data });
+      } catch (error: unknown) {
+        // Prisma P2002: Unique constraint violation — traducir a errores de dominio
+        if (
+          error instanceof Error &&
+          'code' in error &&
+          (error as { code: string }).code === 'P2002'
+        ) {
+          const meta = (error as { meta?: { target?: string[] } }).meta;
+          const fields = meta?.target ?? [];
+          if (fields.includes('email')) {
+            throw new EmailAlreadyExistsError(String(data.email ?? memberId));
+          }
+          if (fields.includes('document_type') || fields.includes('document_number')) {
+            throw new DocumentAlreadyExistsError(String(data.document_number ?? memberId));
+          }
+        }
+        throw error;
+      }
     } else {
       // Optimistic locking: verificar versión previa ANTES de actualizar
       const expectedPreviousVersion = member.version - 1;
@@ -80,9 +106,7 @@ export class PrismaMemberRepository implements MemberRepository {
       }
 
       try {
-        await (
-          await this.getPrisma()
-        ).member.update({
+        await client.member.update({
           where: { id: memberId },
           data,
         });

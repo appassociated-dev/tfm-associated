@@ -13,6 +13,7 @@ import {
 import { CreateFeePlanHandler } from './application/commands/create-fee-plan.handler';
 import { UpdateFeePlanHandler } from './application/commands/update-fee-plan.handler';
 import { DeactivateFeePlanHandler } from './application/commands/deactivate-fee-plan.handler';
+import { ActivateFeePlanHandler } from './application/commands/activate-fee-plan.handler';
 import { ImportFeePlanTemplateHandler } from './application/commands/import-fee-plan-template.handler';
 import { LinkMemberTypesHandler } from './application/commands/link-member-types.handler';
 import { CreateSubscriptionHandler } from './application/commands/create-subscription.handler';
@@ -97,6 +98,7 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
     CreateFeePlanHandler,
     UpdateFeePlanHandler,
     DeactivateFeePlanHandler,
+    ActivateFeePlanHandler,
     ImportFeePlanTemplateHandler,
     LinkMemberTypesHandler,
 

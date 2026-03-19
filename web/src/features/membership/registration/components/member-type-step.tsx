@@ -36,13 +36,13 @@ export function MemberTypeStep({ birthDate, onValidChange }: MemberTypeStepProps
   /** Genera la etiqueta descriptiva del rango de edad del tipo. */
   function getAgeRangeLabel(type: MemberType): string {
     if (type.ageRangeMin !== null && type.ageRangeMax !== null) {
-      return `Edad: ${type.ageRangeMin}-${type.ageRangeMax} anos`;
+      return `Edad: ${type.ageRangeMin}-${type.ageRangeMax} años`;
     }
     if (type.ageRangeMin !== null) {
-      return `Edad: ${type.ageRangeMin}+ anos`;
+      return `Edad: ${type.ageRangeMin}+ años`;
     }
     if (type.ageRangeMax !== null) {
-      return `Edad: hasta ${type.ageRangeMax} anos`;
+      return `Edad: hasta ${type.ageRangeMax} años`;
     }
     return 'Sin restriccion de edad';
   }
@@ -102,7 +102,7 @@ export function MemberTypeStep({ birthDate, onValidChange }: MemberTypeStepProps
       {/* Alerta de incompatibilidad de edad */}
       {selectedType && !isAgeCompatible(selectedType) && (
         <Alert color="yellow" title="Edad incompatible">
-          El aspirante tiene {applicantAge} anos, pero &quot;{selectedType.name}&quot; requiere{' '}
+          El aspirante tiene {applicantAge} años, pero &quot;{selectedType.name}&quot; requiere{' '}
           {getAgeRangeLabel(selectedType).toLowerCase()}. Seleccione un tipo compatible.
         </Alert>
       )}
@@ -176,7 +176,7 @@ export function MemberTypeStep({ birthDate, onValidChange }: MemberTypeStepProps
               {/* Indicador de compatibilidad inline */}
               {!compatible && (
                 <Text size="xs" c="yellow">
-                  No compatible con la edad del aspirante ({applicantAge} anos)
+                  No compatible con la edad del aspirante ({applicantAge} años)
                 </Text>
               )}
             </Stack>

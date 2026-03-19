@@ -19,9 +19,12 @@ import { formatMoney } from '@/shared/utils/format-money';
 
 import type { FeePlan } from '../schemas/fee-plan.schemas';
 import { useFeePlans } from '../hooks/use-fee-plans';
+import { useFeePlan } from '../hooks/use-fee-plan';
+import { useActivateFeePlan } from '../hooks/use-activate-fee-plan';
 import { FeePlanCreateModal } from '../components/fee-plan-create-modal';
 import { FeePlanEditModal } from '../components/fee-plan-edit-modal';
 import { DeactivateFeePlanModal } from '../components/deactivate-fee-plan-modal';
+import { LinkMemberTypesModal } from '../components/link-member-types-modal';
 import { ImportTemplateModal } from '../components/import-template-modal';
 
 // === Constantes ===
@@ -58,20 +61,25 @@ export function FeePlansListPage() {
   const [createOpened, { open: openCreate, close: closeCreate }] = useDisclosure(false);
   const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false);
   const [deactivateOpened, { open: openDeactivate, close: closeDeactivate }] = useDisclosure(false);
+  const [linkOpened, { open: openLink, close: closeLink }] = useDisclosure(false);
   const [importOpened, { open: openImport, close: closeImport }] = useDisclosure(false);
 
-  // Plan seleccionado para editar
+  // Plan seleccionado para editar/vincular/desactivar
   const [selectedPlan, setSelectedPlan] = useState<FeePlan | null>(null);
 
-  // Datos
+  // Detalle del plan seleccionado (para obtener vinculaciones existentes)
+  const { data: planDetail } = useFeePlan(selectedPlan?.id ?? '');
+
+  // Mutación de activación
+  const activateFeePlanMutation = useActivateFeePlan();
+
+  // Datos: sin filtro (todos) cuando showInactive está activo, solo activos en caso contrario
   const {
     data: plans,
     isLoading,
     isError,
     refetch,
-  } = useFeePlans({
-    active: showInactive ? undefined : true,
-  });
+  } = useFeePlans(showInactive ? undefined : { active: true });
 
   const canCreate = hasPermission('treasury:fee-plans:create');
   const canEdit = hasPermission('treasury:fee-plans:update');
@@ -81,6 +89,12 @@ export function FeePlansListPage() {
   function handleEdit(plan: FeePlan): void {
     setSelectedPlan(plan);
     openEdit();
+  }
+
+  /** Abre el modal de vinculación con el plan seleccionado. */
+  function handleLink(plan: FeePlan): void {
+    setSelectedPlan(plan);
+    openLink();
   }
 
   /** Abre el modal de inactivación con el plan seleccionado. */
@@ -228,7 +242,15 @@ export function FeePlansListPage() {
                       </Menu.Target>
                       <Menu.Dropdown>
                         {canEdit && <Menu.Item onClick={() => handleEdit(plan)}>Editar</Menu.Item>}
-                        <Menu.Item>Ver vinculaciones</Menu.Item>
+                        <Menu.Item onClick={() => handleLink(plan)}>Ver vinculaciones</Menu.Item>
+                        {canEdit && !plan.active && (
+                          <Menu.Item
+                            color="green"
+                            onClick={() => activateFeePlanMutation.mutate(plan.id)}
+                          >
+                            Activar
+                          </Menu.Item>
+                        )}
                         {canDeactivate && plan.active && (
                           <Menu.Item color="red" onClick={() => handleDeactivate(plan)}>
                             Inactivar
@@ -252,6 +274,15 @@ export function FeePlansListPage() {
         onClose={closeDeactivate}
         plan={selectedPlan}
       />
+      {selectedPlan && (
+        <LinkMemberTypesModal
+          opened={linkOpened}
+          onClose={closeLink}
+          planId={selectedPlan.id}
+          planName={selectedPlan.name}
+          currentLinks={planDetail?.linkedMemberTypes ?? []}
+        />
+      )}
       <ImportTemplateModal opened={importOpened} onClose={closeImport} />
     </>
   );

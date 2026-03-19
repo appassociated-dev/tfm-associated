@@ -15,6 +15,7 @@ export function useDeactivateFeePlan() {
         title: 'Plan inactivado',
         message: 'El plan de cuota se ha inactivado correctamente',
         color: 'green',
+        autoClose: 4000,
       });
     },
     onError: (error: unknown) => {
@@ -24,6 +25,7 @@ export function useDeactivateFeePlan() {
           title: 'No se puede inactivar',
           message: 'No se puede inactivar: el plan tiene suscripciones activas',
           color: 'red',
+          autoClose: 4000,
         });
       }
     },

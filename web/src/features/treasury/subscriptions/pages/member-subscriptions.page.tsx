@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import {
   Alert,
   Badge,
+  Breadcrumbs,
   Button,
   Card,
   Collapse,
@@ -130,77 +131,92 @@ export function MemberSubscriptionsPage() {
   }
 
   return (
-    <Stack gap="xl">
-      {/* Cabecera */}
-      <Group justify="space-between" align="center">
-        <div>
-          <Title order={2}>Suscripciones</Title>
-          {memberName && (
-            <Text c="dimmed" size="sm">
-              {memberName}
-            </Text>
+    <>
+      <Breadcrumbs mb="md">
+        <Text c="dimmed" size="sm">
+          Tesoreria
+        </Text>
+        <Text c="dimmed" size="sm">
+          Cuentas de Socio
+        </Text>
+        <Text c="dimmed" size="sm">
+          {memberName}
+        </Text>
+        <Text size="sm">Suscripciones</Text>
+      </Breadcrumbs>
+
+      <Stack gap="xl">
+        {/* Cabecera */}
+        <Group justify="space-between" align="center">
+          <div>
+            <Title order={2}>Suscripciones</Title>
+            {memberName && (
+              <Text c="dimmed" size="sm">
+                {memberName}
+              </Text>
+            )}
+          </div>
+        </Group>
+
+        {/* Sección: Suscripción Activa */}
+        <Stack gap="md">
+          <Title order={4}>Suscripción Activa</Title>
+
+          {activeSubscription ? (
+            <ActiveSubscriptionCard
+              subscription={activeSubscription}
+              canUpdate={canUpdate}
+              onChangePlan={openChangePlan}
+              onUpdateDiscount={openDiscount}
+              onExemption={openExemption}
+            />
+          ) : (
+            <NoActiveSubscription canCreate={canCreate} onCreateClick={openCreate} />
           )}
-        </div>
-      </Group>
+        </Stack>
 
-      {/* Sección: Suscripción Activa */}
-      <Stack gap="md">
-        <Title order={4}>Suscripción Activa</Title>
+        {/* Sección: Histórico de Suscripciones */}
+        {closedSubscriptions.length > 0 && (
+          <Stack gap="md">
+            <Title order={4}>Histórico de Suscripciones</Title>
+            <SubscriptionTimeline subscriptions={closedSubscriptions} />
+          </Stack>
+        )}
 
-        {activeSubscription ? (
-          <ActiveSubscriptionCard
-            subscription={activeSubscription}
-            canUpdate={canUpdate}
-            onChangePlan={openChangePlan}
-            onUpdateDiscount={openDiscount}
-            onExemption={openExemption}
+        {/* Modal de creación */}
+        <Modal opened={createOpened} onClose={closeCreate} title="Crear Suscripción" size="lg">
+          <SubscriptionSelector
+            memberTypeId={memberTypeId}
+            typeDiscount={typeDiscount}
+            onSelect={handleCreateSubscription}
           />
-        ) : (
-          <NoActiveSubscription canCreate={canCreate} onCreateClick={openCreate} />
+        </Modal>
+
+        {/* Modales de acciones sobre suscripción activa */}
+        {activeSubscription && memberId && (
+          <>
+            <ChangePlanModal
+              opened={changePlanOpened}
+              onClose={closeChangePlan}
+              memberAccountId={memberId}
+              subscription={activeSubscription}
+            />
+            <UpdateDiscountModal
+              opened={discountOpened}
+              onClose={closeDiscount}
+              memberAccountId={memberId}
+              subscription={activeSubscription}
+            />
+            <ExemptionModal
+              opened={exemptionOpened}
+              onClose={closeExemption}
+              memberAccountId={memberId}
+              subscriptionId={activeSubscription.id}
+            />
+          </>
         )}
       </Stack>
-
-      {/* Sección: Histórico de Suscripciones */}
-      {closedSubscriptions.length > 0 && (
-        <Stack gap="md">
-          <Title order={4}>Histórico de Suscripciones</Title>
-          <SubscriptionTimeline subscriptions={closedSubscriptions} />
-        </Stack>
-      )}
-
-      {/* Modal de creación */}
-      <Modal opened={createOpened} onClose={closeCreate} title="Crear Suscripción" size="lg">
-        <SubscriptionSelector
-          memberTypeId={memberTypeId}
-          typeDiscount={typeDiscount}
-          onSelect={handleCreateSubscription}
-        />
-      </Modal>
-
-      {/* Modales de acciones sobre suscripción activa */}
-      {activeSubscription && memberId && (
-        <>
-          <ChangePlanModal
-            opened={changePlanOpened}
-            onClose={closeChangePlan}
-            memberAccountId={memberId}
-            subscription={activeSubscription}
-          />
-          <UpdateDiscountModal
-            opened={discountOpened}
-            onClose={closeDiscount}
-            memberAccountId={memberId}
-            subscription={activeSubscription}
-          />
-          <ExemptionModal
-            opened={exemptionOpened}
-            onClose={closeExemption}
-            memberAccountId={memberId}
-            subscriptionId={activeSubscription.id}
-          />
-        </>
-      )}
-    </Stack>
+    </>
   );
 }
 

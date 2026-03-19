@@ -56,11 +56,15 @@ export class GetLeaveSummaryHandler implements IQueryHandler<GetLeaveSummaryQuer
       ? `${member.personalData.name} ${member.personalData.surnames}`
       : '';
 
-    // 7. Construir respuesta
+    // 7. Obtener documento de identidad del socio
+    const memberDni = member.identityDocument?.number;
+
+    // 8. Construir respuesta
     return LeaveSummaryResponseDto.fromResult({
       memberId: query.memberId,
       memberName,
       memberNumber: member.memberNumber?.value ?? '',
+      memberDni,
       currentStatus: member.getCurrentStatus().value,
       effectiveDateOptions,
       activeSubscriptions,

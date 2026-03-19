@@ -1,10 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Box, Button, Center, PasswordInput, Stack, TextInput, Title } from '@mantine/core';
+import {
+  Box,
+  Button,
+  Center,
+  PasswordInput,
+  Stack,
+  TextInput,
+  Title,
+  useComputedColorScheme,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { ApiError } from '@/shared/api/api-error';
 import logoStacked from '@/shared/assets/logo-stacked.svg';
+import logoStackedWhite from '@/shared/assets/logo-stacked-white.svg';
 import { useAuth } from '../context/use-auth';
 import type { LoginRequest, TenantSelectorResponse } from '../schemas/auth.schemas';
 import { isTenantSelectorResponse } from '../schemas/auth.schemas';
@@ -21,6 +31,8 @@ import { TenantSelector } from '../components/tenant-selector';
 export function LoginPage() {
   const navigate = useNavigate();
   const auth = useAuth();
+  const colorScheme = useComputedColorScheme('light');
+  const currentLogo = colorScheme === 'dark' ? logoStackedWhite : logoStacked;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tenantSelectionData, setTenantSelectionData] = useState<TenantSelectorResponse | null>(
@@ -104,7 +116,7 @@ export function LoginPage() {
       <Center mih="100vh">
         <Box w="100%" maw={400}>
           <Stack align="center" gap="lg">
-            <img src={logoStacked} alt="Associated" width={140} />
+            <img src={currentLogo} alt="Associated" width={140} />
             <TenantSelector tenants={tenantSelectionData.tenants} onSelect={handleTenantSelect} />
           </Stack>
         </Box>
@@ -119,7 +131,7 @@ export function LoginPage() {
       <Box w="100%" maw={400}>
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack align="center" gap="lg">
-            <img src={logoStacked} alt="Associated" width={140} />
+            <img src={currentLogo} alt="Associated" width={140} />
 
             <Title order={3}>Iniciar sesión</Title>
 

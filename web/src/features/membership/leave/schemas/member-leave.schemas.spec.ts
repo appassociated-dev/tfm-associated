@@ -23,28 +23,27 @@ const validLeaveSummary = {
   memberName: 'Juan García López',
   memberNumber: 'SOC-001',
   currentStatus: 'ACTIVE',
-  availableLeaveTypes: ['VOLUNTARY_LEAVE'],
   effectiveDateOptions: [
     {
       type: 'IMMEDIATE' as const,
       effectiveDate: VALID_DATETIME,
       label: 'Inmediata',
-      description: 'La baja se procesa de forma inmediata',
     },
   ],
   activeSubscriptions: [
     {
-      id: VALID_UUID_2,
-      planName: 'Cuota Anual',
-      effectiveAmount: 12000,
-      periodicity: 'ANNUAL',
+      subscriptionId: VALID_UUID_2,
+      feePlanCode: 'ANNUAL-001',
+      feePlanName: 'Cuota Anual',
+      amount: 12000,
+      startDate: VALID_DATETIME,
     },
   ],
   pendingCharges: [
     {
-      id: VALID_UUID_2,
-      description: 'Cuota pendiente Marzo 2026',
+      chargeId: VALID_UUID_2,
       amount: 5000,
+      issueDate: VALID_DATETIME,
       dueDate: VALID_DATETIME,
     },
   ],
@@ -54,15 +53,13 @@ const validLeaveSummary = {
 const validReinstatementSummary = {
   memberId: VALID_UUID,
   memberName: 'Juan García López',
-  memberNumber: 'SOC-001',
   leaveDate: VALID_DATETIME,
-  leaveType: 'VOLUNTARY_LEAVE' as const,
+  leaveType: 'VOLUNTARY_LEAVE',
   pendingDebt: 5000,
   penalty: 2000,
   newRegistrationFee: 3000,
   totalToPay: 10000,
   keepSeniority: true,
-  previousSeniorityMonths: 36,
 };
 
 const validStatusHistoryEntry = {
@@ -116,7 +113,6 @@ describe('leaveSummarySchema', () => {
     expect(result.memberName).toBe('Juan García López');
     expect(result.memberNumber).toBe('SOC-001');
     expect(result.currentStatus).toBe('ACTIVE');
-    expect(result.availableLeaveTypes).toEqual(['VOLUNTARY_LEAVE']);
     expect(result.effectiveDateOptions).toHaveLength(1);
     expect(result.activeSubscriptions).toHaveLength(1);
     expect(result.pendingCharges).toHaveLength(1);
@@ -216,12 +212,12 @@ describe('reinstatementSummarySchema', () => {
     expect(result.newRegistrationFee).toBe(3000);
     expect(result.totalToPay).toBe(10000);
     expect(result.keepSeniority).toBe(true);
-    expect(result.previousSeniorityMonths).toBe(36);
   });
 
-  it('deberia rechazar leaveType invalido', () => {
-    const invalid = { ...validReinstatementSummary, leaveType: 'INVALID' };
-    expect(() => reinstatementSummarySchema.parse(invalid)).toThrow(ZodError);
+  it('deberia aceptar cualquier string como leaveType', () => {
+    const withCustomType = { ...validReinstatementSummary, leaveType: 'NONPAYMENT_LEAVE' };
+    const result = reinstatementSummarySchema.parse(withCustomType);
+    expect(result.leaveType).toBe('NONPAYMENT_LEAVE');
   });
 });
 

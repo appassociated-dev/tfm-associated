@@ -91,6 +91,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Ref al refresh token para acceso sincrónico en callbacks
   const refreshTokenRef = useRef<string | null>(null);
+  // Ref al access token para acceso sincrónico en interceptors (evita stale closures)
+  const accessTokenRef = useRef<string | null>(null);
 
   const isAuthenticated = accessToken !== null && user !== null;
 
@@ -119,6 +121,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
           const tokens = await authApi.refreshTokens(currentRefresh);
           setAccessToken(tokens.accessToken);
+          accessTokenRef.current = tokens.accessToken;
 
           // Actualizar refresh token si el backend rota tokens
           localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
@@ -139,39 +142,45 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const clearAuthState = useCallback(() => {
     clearRefreshTimer();
     setAccessToken(null);
+    accessTokenRef.current = null;
     setUser(null);
     setTenant(null);
     setRole(null);
     setPermissions([]);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem('associated_tenant_id');
     refreshTokenRef.current = null;
   }, [clearRefreshTimer]);
 
-  /** Aplica la respuesta de login directo o selectTenant al estado. */
+  /**
+   * Aplica la respuesta de login directo o selectTenant al estado.
+   * ASYNC: espera a que los permisos se carguen ANTES de retornar,
+   * evitando race condition donde la UI navega con permissions=[].
+   */
   const applyLoginResponse = useCallback(
-    (response: LoginResponse) => {
-      setAccessToken(response.tokens.accessToken);
+    async (response: LoginResponse): Promise<void> => {
+      setAccessToken(response.accessToken);
+      accessTokenRef.current = response.accessToken;
       setUser(response.user);
       setTenant(response.tenant);
       setRole(response.role);
-      // Los permisos no vienen en LoginResponse — se cargan desde getCurrentUser
-      // Disparar carga de perfil completo para obtener permisos
-      authApi
-        .getCurrentUser()
-        .then((profile) => {
-          setPermissions(profile.permissions);
-        })
-        .catch(() => {
-          // Si falla obtener permisos, dejamos array vacío
-          setPermissions([]);
-        });
 
-      // Guardar refresh token en localStorage
-      localStorage.setItem(REFRESH_TOKEN_KEY, response.tokens.refreshToken);
-      refreshTokenRef.current = response.tokens.refreshToken;
+      // Guardar tenant ID y refresh token en localStorage
+      localStorage.setItem('associated_tenant_id', response.tenant.id);
+      localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+      refreshTokenRef.current = response.refreshToken;
 
       // Programar auto-refresh
-      scheduleTokenRefresh(response.tokens.expiresIn);
+      scheduleTokenRefresh(response.expiresIn);
+
+      // Cargar permisos ANTES de retornar — sin esto la UI navega con permissions=[]
+      try {
+        const profile = await authApi.getCurrentUser();
+        setPermissions(profile.permissions);
+      } catch {
+        // Si falla obtener permisos, dejamos array vacío
+        setPermissions([]);
+      }
     },
     [scheduleTokenRefresh],
   );
@@ -184,7 +193,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // Si es login directo (un solo tenant), aplicar estado completo
       if (!isTenantSelectorResponse(response)) {
-        applyLoginResponse(response);
+        await applyLoginResponse(response);
       }
       // Si requiere selección de tenant, devolver sin cambiar estado.
       // La UI manejará la selección y llamará a selectTenant().
@@ -212,10 +221,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = useCallback(async (): Promise<void> => {
     const currentRefresh = refreshTokenRef.current;
-    // Limpiar estado inmediatamente (UX: no esperar al servidor)
-    clearAuthState();
 
-    // Intentar invalidar el token en el backend (best-effort)
+    // Intentar invalidar el token en el backend ANTES de limpiar estado
+    // (si limpiamos primero, el interceptor no tiene token y da 401)
     if (currentRefresh) {
       try {
         await authApi.logout(currentRefresh);
@@ -223,16 +231,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Error al cerrar sesión en backend no bloquea el flujo local
       }
     }
+
+    // Limpiar estado después de la llamada API
+    clearAuthState();
   }, [clearAuthState]);
 
   // --- Registrar token accessors para interceptors ---
 
   useEffect(() => {
     registerTokenAccessors(
-      () => accessToken,
+      () => accessTokenRef.current,
       (tokens) => {
         if (tokens) {
           setAccessToken(tokens.accessToken);
+          accessTokenRef.current = tokens.accessToken;
           localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
           refreshTokenRef.current = tokens.refreshToken;
           scheduleTokenRefresh(tokens.expiresIn);
@@ -241,7 +253,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       },
     );
-  }, [accessToken, scheduleTokenRefresh, clearAuthState]);
+  }, [scheduleTokenRefresh, clearAuthState]);
 
   // --- Restauración de sesión al montar ---
 
@@ -258,6 +270,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Paso 1: Renovar tokens
         const tokens = await authApi.refreshTokens(storedRefresh);
         setAccessToken(tokens.accessToken);
+        accessTokenRef.current = tokens.accessToken;
         localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
         refreshTokenRef.current = tokens.refreshToken;
 

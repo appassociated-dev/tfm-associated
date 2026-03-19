@@ -116,7 +116,7 @@ describe('validateNie', () => {
   });
 
   it('deberia aceptar NIE con prefijo Y — Y1234567X', () => {
-    // Y→1, numero completo: 11234567, 11234567 mod 23 = ?
+    // Y→1, número completo: 11234567, 11234567 mod 23 = ?
     // Calcular: 11234567 % 23 = 11234567 - (488459 * 23) = 11234567 - 11234557 = 10 → X
     const result = validateNie('Y1234567X');
 
@@ -124,7 +124,7 @@ describe('validateNie', () => {
   });
 
   it('deberia aceptar NIE con prefijo Z — Z0000000W', () => {
-    // Z→2, numero completo: 20000000, 20000000 mod 23 = ?
+    // Z→2, número completo: 20000000, 20000000 mod 23 = ?
     // 20000000 % 23 = 20000000 - (869565 * 23) = 20000000 - 19999995 = 5... no, recalcular
     // 869565 * 23 = 19999995, 20000000 - 19999995 = 5 → M
     // Entonces probemos con la letra correcta
@@ -233,7 +233,7 @@ describe('calculateAge', () => {
     vi.useRealTimers();
   });
 
-  it('deberia calcular la edad correctamente para una persona de 30 anos', () => {
+  it('deberia calcular la edad correctamente para una persona de 30 años', () => {
     // Fijar la fecha a 2026-06-15 para tests deterministas
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-06-15'));
@@ -264,7 +264,7 @@ describe('calculateAge', () => {
     expect(result).toBe(-1);
   });
 
-  it('deberia restar un ano si el cumpleanos aun no ocurrio este ano', () => {
+  it('deberia restar un año si el cumpleaños aun no ocurrio este año', () => {
     vi.useFakeTimers();
     // Fecha actual: 15 de marzo de 2026
     vi.setSystemTime(new Date('2026-03-15'));
@@ -275,7 +275,7 @@ describe('calculateAge', () => {
     expect(result).toBe(35);
   });
 
-  it('deberia contar el ano si el cumpleanos ya paso este ano', () => {
+  it('deberia contar el año si el cumpleaños ya paso este año', () => {
     vi.useFakeTimers();
     // Fecha actual: 15 de diciembre de 2026
     vi.setSystemTime(new Date('2026-12-15'));
@@ -286,7 +286,7 @@ describe('calculateAge', () => {
     expect(result).toBe(36);
   });
 
-  it('deberia contar correctamente el dia exacto del cumpleanos', () => {
+  it('deberia contar correctamente el dia exacto del cumpleaños', () => {
     vi.useFakeTimers();
     // Fecha actual: 15 de junio de 2026
     vi.setSystemTime(new Date('2026-06-15'));

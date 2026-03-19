@@ -10,7 +10,7 @@ import {
   type CancelReason,
 } from '../schemas/subscription.schemas';
 
-const BASE = '/v1/member-accounts';
+const BASE = '/v1/treasury/member-accounts';
 
 /** Obtiene suscripciones (activa + historicas) de un socio. */
 export async function getSubscriptions(

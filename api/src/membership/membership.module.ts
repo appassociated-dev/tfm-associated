@@ -32,6 +32,7 @@ import { GetAvailableTransitionsHandler } from './application/queries/get-availa
 import { GetMemberHandler } from './application/queries/get-member.handler';
 import { ListMembersHandler } from './application/queries/list-members.handler';
 import { CheckDniHandler } from './application/queries/check-dni.handler';
+import { CheckEmailHandler } from './application/queries/check-email.handler';
 import { ValidatePreconditionsHandler } from './application/queries/validate-preconditions.handler';
 import { GetLeaveSummaryHandler } from './application/queries/leave-summary.handler';
 import { GetReinstatementSummaryHandler } from './application/queries/reinstatement-summary.handler';
@@ -78,8 +79,11 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
     MemberTypesController,
     FiscalYearsController,
     MemberStatusController,
-    MembersController,
+    // RegistrationController DEBE ir antes de MembersController para que
+    // rutas específicas como /preconditions, /check-dni, /simple-registration
+    // se resuelvan antes que la ruta genérica :id (ParseUUIDPipe).
     RegistrationController,
+    MembersController,
     MemberLeaveController,
   ],
   providers: [
@@ -130,6 +134,7 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
 
     // Handlers CQRS — Queries (Member - UC-011)
     CheckDniHandler,
+    CheckEmailHandler,
     ValidatePreconditionsHandler,
 
     // Handlers CQRS — Queries (Member - UC-013)

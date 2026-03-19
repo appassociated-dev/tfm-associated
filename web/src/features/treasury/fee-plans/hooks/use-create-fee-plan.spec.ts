@@ -123,7 +123,7 @@ describe('useCreateFeePlan', () => {
     await waitFor(() => {
       expect(mockNotificationsShow).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Codigo duplicado',
+          title: 'Código duplicado',
           color: 'red',
         }),
       );

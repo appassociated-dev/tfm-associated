@@ -250,6 +250,18 @@ describe('MemberSubscriptionsPage', () => {
     setupDefaultMocks();
     renderPage();
 
-    expect(screen.getByText('Juan Garcia')).toBeInTheDocument();
+    // El nombre aparece tanto en el breadcrumb como en la cabecera
+    const nameElements = screen.getAllByText('Juan Garcia');
+    expect(nameElements.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('deberia renderizar breadcrumbs con la jerarquia correcta', () => {
+    setupDefaultMocks();
+    renderPage();
+
+    expect(screen.getByText('Tesoreria')).toBeInTheDocument();
+    expect(screen.getByText('Cuentas de Socio')).toBeInTheDocument();
+    const breadcrumbsContainer = document.querySelector('.mantine-Breadcrumbs-root');
+    expect(breadcrumbsContainer).toBeInTheDocument();
   });
 });

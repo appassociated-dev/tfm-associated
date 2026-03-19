@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { MantineProvider } from '@mantine/core';
+import { DatesProvider } from '@mantine/dates';
 import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router';
@@ -26,18 +27,20 @@ interface AppProvidersProps {
 
 /**
  * Jerarquía de proveedores de la aplicación.
- * Orden: ErrorBoundary → MantineProvider → Notifications → AuthProvider → QueryClientProvider → RouterProvider.
+ * Orden: ErrorBoundary → MantineProvider → DatesProvider → Notifications → AuthProvider → QueryClientProvider → RouterProvider.
  */
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <ErrorBoundary>
-      <MantineProvider theme={associatedTheme} forceColorScheme="light">
-        <Notifications />
-        <AuthProvider>
-          <QueryClientProvider client={queryClient}>
-            {children ?? <RouterProvider router={router} />}
-          </QueryClientProvider>
-        </AuthProvider>
+      <MantineProvider theme={associatedTheme} defaultColorScheme="auto">
+        <DatesProvider settings={{ locale: 'es' }}>
+          <Notifications />
+          <AuthProvider>
+            <QueryClientProvider client={queryClient}>
+              {children ?? <RouterProvider router={router} />}
+            </QueryClientProvider>
+          </AuthProvider>
+        </DatesProvider>
       </MantineProvider>
     </ErrorBoundary>
   );

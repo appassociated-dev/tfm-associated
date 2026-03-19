@@ -1,4 +1,5 @@
 import { Button, Loader, Stack, Text } from '@mantine/core';
+import { IconUserMinus, IconUserPlus } from '@tabler/icons-react';
 import { useNavigate } from 'react-router';
 
 import { usePermissions } from '@/features/auth/context/use-permissions';
@@ -53,6 +54,7 @@ export function LeaveActions({ memberId }: LeaveActionsProps) {
         <Button
           color="red"
           variant="outline"
+          leftSection={<IconUserMinus size={18} stroke={1.5} />}
           onClick={() => navigate(`/members/${memberId}/leave`)}
         >
           Procesar Baja Voluntaria
@@ -61,7 +63,11 @@ export function LeaveActions({ memberId }: LeaveActionsProps) {
 
       {/* Boton de rehabilitacion */}
       {isRehabilitableStatus && hasPermission('membership:members:reinstate') && (
-        <Button color="green" onClick={() => navigate(`/members/${memberId}/reinstate`)}>
+        <Button
+          color="green"
+          leftSection={<IconUserPlus size={18} stroke={1.5} />}
+          onClick={() => navigate(`/members/${memberId}/reinstate`)}
+        >
           Rehabilitar Socio
         </Button>
       )}

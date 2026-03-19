@@ -73,8 +73,30 @@ export const registrationResponseSchema = z.object({
 
 export const dniCheckResponseSchema = z.object({
   exists: z.boolean(),
-  memberName: z.string().nullable(),
-  memberNumber: z.string().nullable(),
+  memberName: z.string().nullish(),
+  memberNumber: z.string().nullish(),
+});
+
+// === Schema de verificación de unicidad de email ===
+
+export const emailCheckResponseSchema = z.object({
+  exists: z.boolean(),
+});
+
+// === Schema de precondiciones del alta simple ===
+
+export const registrationPlanInfoSchema = z.object({
+  feePlanId: z.string().uuid(),
+  name: z.string(),
+  amount: z.number(),
+});
+
+export const preconditionsResponseSchema = z.object({
+  hasFiscalYear: z.boolean(),
+  hasMemberTypes: z.boolean(),
+  hasRegistrationPlan: z.boolean(),
+  registrationPlan: registrationPlanInfoSchema.nullish(),
+  errors: z.array(z.string()),
 });
 
 // === Tipos inferidos ===
@@ -85,3 +107,5 @@ export type RegistrationCharge = z.infer<typeof registrationChargeSchema>;
 export type SimpleRegistrationRequest = z.infer<typeof simpleRegistrationRequestSchema>;
 export type RegistrationResponse = z.infer<typeof registrationResponseSchema>;
 export type DniCheckResponse = z.infer<typeof dniCheckResponseSchema>;
+export type EmailCheckResponse = z.infer<typeof emailCheckResponseSchema>;
+export type PreconditionsResponse = z.infer<typeof preconditionsResponseSchema>;

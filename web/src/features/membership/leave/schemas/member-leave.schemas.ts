@@ -24,29 +24,34 @@ export const leaveSummarySchema = z.object({
   memberId: z.string().uuid(),
   memberName: z.string(),
   memberNumber: z.string(),
+  /** DNI del socio (opcional — el backend puede no incluirlo en esta fase). */
+  memberDni: z.string().optional(),
   currentStatus: z.string(),
-  availableLeaveTypes: z.array(leaveTypeSchema),
+  /** El backend no envía availableLeaveTypes en la respuesta actual. */
+  availableLeaveTypes: z.array(leaveTypeSchema).optional(),
   effectiveDateOptions: z.array(
     z.object({
       type: effectiveDateConfigSchema,
       effectiveDate: z.string().datetime(),
       label: z.string(),
-      description: z.string(),
     }),
   ),
   activeSubscriptions: z.array(
     z.object({
-      id: z.string().uuid(),
-      planName: z.string(),
-      effectiveAmount: z.number(),
-      periodicity: z.string(),
+      subscriptionId: z.string().uuid(),
+      feePlanCode: z.string(),
+      feePlanName: z.string(),
+      amount: z.number(),
+      startDate: z.string().datetime(),
     }),
   ),
   pendingCharges: z.array(
     z.object({
-      id: z.string().uuid(),
-      description: z.string(),
+      chargeId: z.string().uuid(),
+      /** Concepto del cargo (opcional — el backend puede omitirlo si no hay concepto). */
+      concept: z.string().optional(),
       amount: z.number(),
+      issueDate: z.string().datetime(),
       dueDate: z.string().datetime(),
     }),
   ),
@@ -79,15 +84,18 @@ export const leaveResponseSchema = z.object({
 export const reinstatementSummarySchema = z.object({
   memberId: z.string().uuid(),
   memberName: z.string(),
-  memberNumber: z.string(),
+  /** El backend no envía memberNumber ni memberDni en el resumen de rehabilitación. */
+  memberNumber: z.string().optional(),
+  memberDni: z.string().optional(),
   leaveDate: z.string().datetime(),
-  leaveType: leaveTypeSchema,
+  leaveType: z.string(),
   pendingDebt: z.number(),
   penalty: z.number(),
   newRegistrationFee: z.number(),
   totalToPay: z.number(),
   keepSeniority: z.boolean(),
-  previousSeniorityMonths: z.number(),
+  /** El backend no envía previousSeniorityMonths en la respuesta actual. */
+  previousSeniorityMonths: z.number().optional(),
 });
 
 /** Peticion de rehabilitacion: requiere confirmacion de pago. */

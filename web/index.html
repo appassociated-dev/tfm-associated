@@ -29,6 +29,19 @@
     <meta name="twitter:description" content="ERP ligero para asociaciones culturales, peñas festeras, clubes deportivos y cofradías." />
     <meta name="twitter:image" content="/og-image.png" />
 
+    <!-- Mantine: detectar color scheme del sistema para prevenir FOUC -->
+    <script>
+      try {
+        var scheme = localStorage.getItem('mantine-color-scheme-value');
+        if (!scheme || scheme === '"auto"') {
+          scheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-mantine-color-scheme', scheme);
+      } catch(e) {
+        document.documentElement.setAttribute('data-mantine-color-scheme', 'light');
+      }
+    </script>
+
     <!-- Fuente -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

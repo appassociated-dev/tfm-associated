@@ -2,16 +2,25 @@ import { useMemo } from 'react';
 import { Button, Card, Divider, Group, List, Stack, Text, Title } from '@mantine/core';
 
 import { formatDateLong } from '@/shared/utils/format-date';
+import { formatMoney } from '@/shared/utils/format-money';
 
 import { calculateAge } from '../utils/dni-validator';
 import type { PersonalData, MemberType } from '../schemas/member-registration.schemas';
 
 // === Tipos ===
 
+interface RegistrationPlanInfo {
+  feePlanId: string;
+  name: string;
+  amount: number;
+}
+
 interface ConfirmationStepProps {
   personalData: PersonalData;
   memberTypeId: string;
   memberTypes: MemberType[];
+  /** Informacion del plan de alta activo (importe real). */
+  registrationPlan?: RegistrationPlanInfo | null;
   onConfirm: () => Promise<void>;
   isSubmitting: boolean;
 }
@@ -27,6 +36,7 @@ export function ConfirmationStep({
   personalData,
   memberTypeId,
   memberTypes,
+  registrationPlan,
   onConfirm,
   isSubmitting,
 }: ConfirmationStepProps) {
@@ -62,7 +72,7 @@ export function ConfirmationStep({
           <SummaryRow label="DNI/NIE" value={personalData.dni} />
           <SummaryRow
             label="Fecha de nacimiento"
-            value={`${birthDateFormatted} (${age} ${age === 1 ? 'ano' : 'anos'})`}
+            value={`${birthDateFormatted} (${age} ${age === 1 ? 'año' : 'años'})`}
           />
           <SummaryRow label="Email" value={personalData.email} />
           {personalData.phone && <SummaryRow label="Telefono" value={personalData.phone} />}
@@ -79,21 +89,24 @@ export function ConfirmationStep({
         </Stack>
       </Card>
 
-      {/* Seccion: Cargos a generar */}
+      {/* Seccion: Cargos a generar — Issue P1-3: importe real con formatMoney */}
       <Card shadow="sm" padding="lg" radius="md" withBorder>
         <Stack gap="md">
           <Title order={4}>Cargos a generar</Title>
 
           <Group justify="space-between" align="center">
-            <Text size="sm">Cuota de inscripcion</Text>
-            <Text size="sm" c="dimmed">
-              Determinada por el plan vigente
+            <Text size="sm">
+              {registrationPlan ? registrationPlan.name : 'Cuota de inscripcion'}
+            </Text>
+            <Text size="sm" fw={600}>
+              {registrationPlan
+                ? formatMoney(registrationPlan.amount)
+                : 'Determinada por el plan vigente'}
             </Text>
           </Group>
 
           <Text size="xs" c="dimmed">
-            El cargo de inscripcion se generara automaticamente segun el plan de cuota unica
-            configurado. El importe exacto sera determinado por el backend al confirmar el alta.
+            El cargo de inscripcion se generara automaticamente al confirmar el alta.
           </Text>
         </Stack>
       </Card>
@@ -106,7 +119,7 @@ export function ConfirmationStep({
           <List size="sm" spacing="xs">
             <List.Item>Se creara el socio en estado Activo</List.Item>
             <List.Item>Se generara cargo de inscripcion</List.Item>
-            <List.Item>Se asignara numero de socio automaticamente</List.Item>
+            <List.Item>Se asignará número de socio automáticamente</List.Item>
           </List>
         </Stack>
       </Card>

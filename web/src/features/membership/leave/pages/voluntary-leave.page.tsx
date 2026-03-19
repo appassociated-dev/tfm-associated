@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router';
 import {
   Alert,
+  Breadcrumbs,
   Button,
   Group,
   Modal,
@@ -131,6 +132,16 @@ export function VoluntaryLeavePage() {
 
   return (
     <>
+      <Breadcrumbs mb="md">
+        <Text c="dimmed" size="sm">
+          Socios
+        </Text>
+        <Text c="dimmed" size="sm">
+          {summary.memberName}
+        </Text>
+        <Text size="sm">Baja Voluntaria</Text>
+      </Breadcrumbs>
+
       <Stack gap="xl">
         {/* Titulo */}
         <Title order={2}>Baja Voluntaria</Title>
@@ -147,9 +158,15 @@ export function VoluntaryLeavePage() {
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Numero de socio
+                Número de socio
               </Text>
               <Text size="sm">#{summary.memberNumber}</Text>
+            </div>
+            <div>
+              <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+                DNI
+              </Text>
+              <Text size="sm">{summary.memberDni ?? 'No disponible'}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
@@ -180,7 +197,6 @@ export function VoluntaryLeavePage() {
                     key={option.type}
                     value={option.type}
                     label={`${option.label} (${formatDateLong(new Date(option.effectiveDate))})`}
-                    description={option.description}
                   />
                 ))}
               </Stack>
@@ -248,12 +264,12 @@ export function VoluntaryLeavePage() {
                 </Table.Thead>
                 <Table.Tbody>
                   {summary.activeSubscriptions.map((sub) => (
-                    <Table.Tr key={sub.id}>
-                      <Table.Td>{sub.planName}</Table.Td>
+                    <Table.Tr key={sub.subscriptionId}>
+                      <Table.Td>{sub.feePlanName}</Table.Td>
                       <Table.Td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
-                        {formatMoney(sub.effectiveAmount)}
+                        {formatMoney(sub.amount)}
                       </Table.Td>
-                      <Table.Td>{sub.periodicity}</Table.Td>
+                      <Table.Td>{sub.feePlanCode}</Table.Td>
                     </Table.Tr>
                   ))}
                 </Table.Tbody>
@@ -305,8 +321,8 @@ export function VoluntaryLeavePage() {
                 </Table.Thead>
                 <Table.Tbody>
                   {summary.pendingCharges.map((charge) => (
-                    <Table.Tr key={charge.id}>
-                      <Table.Td>{charge.description}</Table.Td>
+                    <Table.Tr key={charge.chargeId}>
+                      <Table.Td>{charge.concept ?? '—'}</Table.Td>
                       <Table.Td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
                         {formatMoney(charge.amount)}
                       </Table.Td>

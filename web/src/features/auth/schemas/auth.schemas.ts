@@ -30,7 +30,9 @@ export const loginRequestSchema = z.object({
 // === Schemas de respuesta ===
 
 export const loginResponseSchema = z.object({
-  tokens: authTokensSchema,
+  accessToken: z.string(),
+  refreshToken: z.string(),
+  expiresIn: z.number(),
   user: userInfoSchema,
   tenant: tenantInfoSchema,
   role: z.string(),

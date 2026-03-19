@@ -18,6 +18,17 @@ export function useLinkMemberTypes() {
         title: 'Vinculaciones actualizadas',
         message: 'Las vinculaciones de tipos de socio se han actualizado correctamente',
         color: 'green',
+        autoClose: 4000,
+      });
+    },
+    onError: (error: unknown) => {
+      const backendMessage = (error as { response?: { data?: { message?: string } } })?.response
+        ?.data?.message;
+      notifications.show({
+        title: 'Error al guardar vinculaciones',
+        message: backendMessage ?? 'Ocurrió un error al guardar las vinculaciones.',
+        color: 'red',
+        autoClose: 4000,
       });
     },
   });

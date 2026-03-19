@@ -18,6 +18,7 @@ export function useUpdateFeePlan() {
         title: 'Plan actualizado',
         message: 'El plan de cuota se ha actualizado correctamente',
         color: 'green',
+        autoClose: 4000,
       });
     },
   });

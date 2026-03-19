@@ -7,6 +7,139 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260318-001-acester-CLAUDECODE
+
+- **Fecha de sesion:** 18 de marzo de 2026
+- **Hora de inicio:** 00:49
+- **Hora de ultimos trabajos:** 02:31
+- **Documento de sesion:** [doc/agents-sessions/20260318-001-acester-CLAUDECODE.md](doc/agents-sessions/20260318-001-acester-CLAUDECODE.md)
+
+#### Added
+
+- Informe de auditoria exhaustiva del frontend fase 1 en doc/reports/frontend-fase1-audit.md: 6 P0 criticos, 12 P1, 18 P2, 12 P3 detectados por 6 subagentes en paralelo
+- Componente RouteError para errores de ruta con pagina amigable (en vez de stack trace)
+- errorElement configurado en router.tsx para rutas protegidas
+
+#### Changed
+
+- Reestructurado sidebar con NAV_SECTIONS agrupadas por Bounded Context (secciones Socios y Tesoreria con labels al 30% opacidad)
+- Permisos de NAV_ITEMS alineados con SYSTEM_ROLES canonicos del backend
+- Campo birthDate migrado de input nativo type="date" a Mantine DateInput con locale espanol y formato DD/MM/YYYY
+- Paso 3 del wizard de alta ahora muestra importe real de inscripcion con formatMoney() en vez de texto generico
+- Validacion condicional en schema createFeePlanInput: frequency y billingMonths requeridos solo para RECURRING
+- MemberRepository.save() acepta tx transaccional opcional — alta de socio ahora es atomica con artefactos de tesoreria
+- PrismaMemberRepository captura P2002 y lanza EmailAlreadyExistsError/DocumentAlreadyExistsError en vez de error Prisma crudo
+- Botones "Cancelar Baja" y "Generar Certificado PDF" deshabilitados con tooltip explicativo (requieren endpoints backend)
+- AppShell padding cambiado de md (16px) a lg (24px) segun guidelines de marca
+- Creado postcss.config.cjs con postcss-preset-mantine y postcss-simple-vars para responsive mixins
+- Iconos en Stepper del wizard de alta (IconUser, IconCategory, IconCheck)
+- useBlocker migrado de window.confirm() a Modal Mantine con proceed/reset
+- Tildes corregidas en 8 archivos fuente (anos→anos, Numero→Numero)
+- Iconos en sidebar (IconDashboard, IconUserPlus, IconReceipt)
+- Iconos en LeaveActions (IconUserMinus, IconUserPlus)
+- Comentario corregido en theme: defaultColorScheme → forceColorScheme
+- Script inline en index.html para data-mantine-color-scheme="light" (previene FOUC)
+- Rediseñado layout: logo Associated en header brand (horizontal abierto, isotipo colapsado), sidebar colapsable en desktop con toggle
+- Tenant name movido del header al footer del sidebar
+- Sidebar CSS: opacidad de section headers (55%), iconos inactivos (70%), hover sin perder texto
+- Sidebar colapsado: solo iconos centrados (70px) con tooltips, dividers en vez de section headers
+- DatesProvider con locale español añadido a providers.tsx para @mantine/dates
+- Reordenados controllers en membership.module.ts: RegistrationController antes de MembersController (fix ruta preconditions vs :id)
+- Validacion importe minimo 0.01€ en formulario de planes de cuota (NumberInput min + schema min(1) centavo)
+- Validacion codigo minimo 2 caracteres en formulario de planes de cuota + errores backend en toast
+- Toast autoClose reducido a 4000ms en los 5 hooks de fee-plans
+- Min-width 120px en boton Guardar de fee plans (fix loading spinner descentrado)
+- MantineProvider: forceColorScheme="light" cambiado a defaultColorScheme="auto" — detecta preferencia del sistema (light/dark)
+- Logos adaptativos en header: useComputedColorScheme swapea entre versiones color y white segun color scheme
+- CSS del sidebar migrado de variables fijas (gray-X) a variables semanticas de Mantine (dimmed, text, default-hover, default-border) para compatibilidad dark mode
+- Header brand section con ancho fijo alineado al sidebar (240px abierto, 70px colapsado)
+- Borde del header brand usa var(--mantine-color-default-border) para consistencia con el tema
+- Parametros del filtro de planes de cuota limpiados: params undefined cuando no hay filtro en vez de { active: undefined }
+- Botones "Generar Certificado PDF" y "Cancelar Baja - Regularizacion" cambiados de disabled a variant="outline" color="brand" con notificacion onClick (disabled no era visible en dark mode)
+- "Ejecutar Baja por Impago" ahora disabled con tooltip cuando workflow de morosidad esta incompleto
+- Loading spinner de botones arreglado globalmente en theme: Button.extend() con loaderProps type dots + minWidth 100px
+
+#### Fixed
+
+- Corregido sistema de permisos frontend: implementado matchPermission() con soporte de wildcards (`*`, `bc:*`) portado del backend PermissionsGuard — sidebar ahora muestra todos los items segun rol
+- Corregida race condition de permisos: applyLoginResponse ahora async con await getCurrentUser() — permisos disponibles antes de renderizar sidebar
+- Corregido route param mismatch: `:id` cambiado a `:memberId` en 3 rutas de leave en router.tsx — paginas de baja/rehabilitacion ahora funcionales
+- Anadidos Breadcrumbs (Mantine) a 4 paginas internas: voluntary-leave, nonpayment-leave, reinstatement, member-subscriptions
+- Corregido await faltante en login(): applyLoginResponse se llamaba sin await, causando sidebar vacio al re-login
+- Corregidas URLs de API de tesoreria: fee-plans y subscriptions apuntaban a `/v1/fee-plans` y `/v1/member-accounts` en vez de `/v1/treasury/fee-plans` y `/v1/treasury/member-accounts`
+- Corregida sub-ruta de importar plantilla: `templates/import` cambiado a `import-template` para coincidir con backend
+- Corregido test pre-existente auth.schemas.spec.ts: fixture y assertion actualizados de formato nested a flat
+- Corregida race condition de token stale: accessTokenRef sincronico para interceptor Axios, evita 401 al re-login
+- Corregido boton "Siguiente" deshabilitado en wizard de alta de socio: onValidChange faltaba en dependency array del useEffect
+- Corregida validacion de codigo de plan de cuota: regex ahora acepta guiones y underscores (`/^[a-zA-Z0-9_-]+$/`)
+- Corregida creacion/edicion de planes de cuota unica (ONE_TIME): frequency ahora @IsOptional() en DTOs del backend, frontend evita loop infinito con useRef
+- Corregido logout 401: API de invalidacion de refresh token ahora se llama ANTES de limpiar el estado de auth (el token es necesario para autenticar la peticion)
+- Corregido loop infinito en wizard de alta de socio: callbacks handleStep0ValidChange y handleStep1ValidChange envueltos en useCallback para evitar re-renders infinitos al estar onValidChange en dependency array del useEffect
+- Corregida URL de check-dni: frontend ahora envia `/check-dni/DNI/73155707K` (2 segmentos) para coincidir con endpoint del backend `/check-dni/:documentType/:documentNumber`
+- Corregido schema dniCheckResponseSchema: memberName/memberNumber de `.nullable()` a `.nullish()` (backend no envia los campos cuando exists=false)
+- Corregido payload de alta simple: transformacion firstName→name, lastName→surnames, dni→documentType+documentNumber en capa API para coincidir con DTO del backend
+- Corregida version de @mantine/notifications: 8.3.16 actualizada a 8.3.18 para evitar doble instancia de @mantine/core que causaba crash de DateInput
+- Corregido crash de DateInput al seleccionar fecha del calendario: verificacion defensiva con instanceof Date antes de llamar toISOString()
+- Corregido error TypeScript en prisma-member.repository.ts: String() wrapper en argumentos de EmailAlreadyExistsError y DocumentAlreadyExistsError
+- Corregidos bordes inconsistentes del sidebar en dark mode: eliminado borde explicito de .navbar (Mantine gestiona el suyo), eliminado color hardcodeado de Divider de secciones
+- Corregido login logo en dark mode: useComputedColorScheme swapea a logo-stacked-white.svg
+- Corregido filtro "Mostrar inactivos" de planes de cuota: schema Zod de respuesta cambiado de min(1) a min(0) (un plan inactivo con importe 0 causaba error silencioso de Zod)
+- Corregidas vinculaciones de tipos de socio a planes: (1) GetFeePlanHandler ahora devuelve linkedMemberTypes, (2) LinkMemberTypesHandler con semantica de reemplazo (delete + save), (3) DTO acepta arrays vacios
+- Corregidas precondiciones de alta de socio: (1) validate-preconditions.handler.ts ahora llama setTenantId() en registrationChargePort, (2) frontend maneja isError del hook con alerta roja
+- Corregidos 7 mismatches en schemas Zod de leave (leaveSummarySchema y reinstatementSummarySchema): nombres de campos, campos faltantes y tipos alineados con respuesta real del backend
+- Backend ahora envia memberDni en respuestas de leave-summary y reinstatement-summary (antes mostraba "No disponible")
+- Pagina /reinstate maneja error 422 para socios ACTIVE con alerta descriptiva en vez de error generico
+
+#### Added
+
+- Endpoint PATCH /api/v1/treasury/fee-plans/:id/activate para reactivar planes de cuota inactivos (dominio, comando, handler, controller, modulo)
+- Hook useActivateFeePlan con invalidacion de queries y notificacion de exito
+- Boton "Activar" condicional en menu de acciones de planes inactivos (verde)
+- Endpoint GET /api/v1/members/check-email/:email para verificacion de email duplicado (query, handler, controller)
+- Endpoint GET /api/v1/members/preconditions para validacion de precondiciones del alta simple
+- Hook usePreconditions con alerta bloqueante cuando faltan precondiciones (ejercicio fiscal, tipos socio, plan ONE_TIME)
+- Hook useCheckEmail con debounce 500ms y warning no-bloqueante en wizard de alta
+- Cableado LinkMemberTypesModal al menu item "Ver vinculaciones" en planes de cuota
+- Alerta de workflow de morosidad incompleto en pagina de baja por impago
+- Campo DNI en seccion datos del socio en las 3 paginas de leave (voluntary, nonpayment, reinstatement)
+- Alerta amarilla "Rehabilitacion no disponible" en pagina /reinstate para socios en estado ACTIVE (en vez de error generico)
+
+#### Removed
+
+[Sin cambios]
+
+---
+
+### 20260317-002-acester-CLAUDECODE
+
+- **Fecha de sesion:** 17 de marzo de 2026
+- **Hora de inicio:** 23:54
+- **Hora de ultimos trabajos:** 23:54
+- **Documento de sesion:** [doc/agents-sessions/20260317-002-acester-CLAUDECODE.md](doc/agents-sessions/20260317-002-acester-CLAUDECODE.md)
+
+#### Added
+
+[Sin cambios]
+
+#### Changed
+
+- Actualizado loginResponseSchema en auth.schemas.ts: tokens de formato nested a flat para coincidir con respuesta real del backend
+- Actualizado AuthProvider: response.tokens.X a response.X + persistencia de tenant ID en localStorage
+
+#### Fixed
+
+- Corregido prisma-client.stub.d.ts: agregados campos databaseUser y databasePasswordEncrypted a PrismaRawTenant, y opcion select a PrismaDelegate.findUnique
+- Corregidos tipos en tenant-prisma.mapper.ts y tenant.ts: databaseUser de optional/undefined a string | null
+- Corregida migracion tenant incompleta: generada migracion add_all_tenant_models con todos los modelos del schema
+- Corregido login silenciosamente fallido: loginResponseSchema no coincidia con formato flat del backend
+- Corregido header X-Tenant-Id faltante: AuthProvider no persistia tenant ID en localStorage tras login
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260317-001-acester-CLAUDE
 
 - **Fecha de sesion:** 17 de marzo de 2026

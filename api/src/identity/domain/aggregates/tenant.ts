@@ -22,7 +22,7 @@ export interface TenantProps {
   type: CollectivityType;
   status: TenantStatus;
   databaseName: string;
-  databaseUser?: string;
+  databaseUser: string | null;
   contactEmail: string;
   createdAt: Date;
 }
@@ -38,7 +38,7 @@ export class Tenant extends AggregateRoot<TenantId> {
   private readonly _type: CollectivityType;
   private readonly _status: TenantStatus;
   private readonly _databaseName: string;
-  private readonly _databaseUser: string | undefined;
+  private readonly _databaseUser: string | null;
   private readonly _contactEmail: string;
   private readonly _createdAt: Date;
 
@@ -81,7 +81,7 @@ export class Tenant extends AggregateRoot<TenantId> {
     return this._databaseName;
   }
 
-  get databaseUser(): string | undefined {
+  get databaseUser(): string | null {
     return this._databaseUser;
   }
 

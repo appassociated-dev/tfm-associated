@@ -96,6 +96,8 @@ describe('GetReinstatementSummaryHandler', () => {
     expect(result).toBeDefined();
     expect(result.memberId).toBe(MEMBER_ID);
     expect(result.memberName).toBe('Juan García López');
+    expect(result.memberNumber).toBe('00001');
+    expect(result.memberDni).toBe('12345678Z');
     expect(result.leaveDate).toEqual(LEAVE_DATE);
     expect(result.leaveType).toBe('VOLUNTARY_LEAVE');
     expect(result.pendingDebt).toBe(8000);

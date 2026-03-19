@@ -1,6 +1,7 @@
 import { useParams } from 'react-router';
 import {
   Alert,
+  Breadcrumbs,
   Button,
   Card,
   Group,
@@ -11,6 +12,7 @@ import {
   Text,
   Timeline,
   Title,
+  Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -136,6 +138,16 @@ export function NonpaymentLeavePage() {
 
   return (
     <>
+      <Breadcrumbs mb="md">
+        <Text c="dimmed" size="sm">
+          Socios
+        </Text>
+        <Text c="dimmed" size="sm">
+          {summary.memberName}
+        </Text>
+        <Text size="sm">Baja por Impago</Text>
+      </Breadcrumbs>
+
       <Stack gap="xl">
         {/* Titulo */}
         <Title order={2}>Baja por Impago</Title>
@@ -152,9 +164,15 @@ export function NonpaymentLeavePage() {
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Numero de socio
+                Número de socio
               </Text>
               <Text size="sm">#{summary.memberNumber}</Text>
+            </div>
+            <div>
+              <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
+                DNI
+              </Text>
+              <Text size="sm">{summary.memberDni ?? 'No disponible'}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
@@ -168,6 +186,11 @@ export function NonpaymentLeavePage() {
         {/* Seccion: Resumen workflow de morosidad */}
         <Stack gap="sm">
           <Title order={4}>Resumen workflow de morosidad</Title>
+          <Alert color="yellow" title="Workflow de morosidad incompleto">
+            El workflow de baja por impago consta de 5 fases obligatorias. Todas las fases previas
+            deben completarse antes de ejecutar la baja efectiva. El seguimiento de fechas y
+            notificaciones se gestiona desde el backend.
+          </Alert>
           <DelinquencyTimeline />
         </Stack>
 
@@ -228,8 +251,8 @@ export function NonpaymentLeavePage() {
                   </Table.Thead>
                   <Table.Tbody>
                     {summary.pendingCharges.map((charge) => (
-                      <Table.Tr key={charge.id}>
-                        <Table.Td>{charge.description}</Table.Td>
+                      <Table.Tr key={charge.chargeId}>
+                        <Table.Td>{charge.concept ?? '—'}</Table.Td>
                         <Table.Td
                           style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}
                         >
@@ -256,6 +279,27 @@ export function NonpaymentLeavePage() {
                   {formatMoney(summary.totalPendingDebt)}
                 </Text>
               </Group>
+
+              {/* Boton de generacion de certificado PDF */}
+              <Group justify="flex-end">
+                <Tooltip label="Requiere endpoint de backend" withArrow>
+                  <Button
+                    variant="outline"
+                    color="brand"
+                    onClick={() =>
+                      notifications.show({
+                        title: 'No disponible',
+                        message:
+                          'La generacion de certificado PDF requiere un endpoint de backend que aun no esta implementado.',
+                        color: 'yellow',
+                        autoClose: 4000,
+                      })
+                    }
+                  >
+                    Generar Certificado PDF
+                  </Button>
+                </Tooltip>
+              </Group>
             </Stack>
           </Card>
         </Stack>
@@ -268,15 +312,36 @@ export function NonpaymentLeavePage() {
             socio volvera al estado activo.
           </Alert>
           <Group>
-            <Button color="brand">Cancelar Baja - Regularizacion</Button>
+            <Tooltip label="Requiere endpoint de backend" withArrow>
+              <Button
+                variant="outline"
+                color="brand"
+                onClick={() =>
+                  notifications.show({
+                    title: 'No disponible',
+                    message:
+                      'La cancelacion de baja por regularizacion requiere un endpoint de backend que aun no esta implementado.',
+                    color: 'yellow',
+                    autoClose: 4000,
+                  })
+                }
+              >
+                Cancelar Baja - Regularizacion
+              </Button>
+            </Tooltip>
           </Group>
         </Stack>
 
         {/* Boton de confirmacion */}
         <Group justify="flex-end">
-          <Button color="red" onClick={openConfirm}>
-            Ejecutar Baja por Impago
-          </Button>
+          <Tooltip
+            label="Complete todas las fases del workflow antes de ejecutar la baja"
+            withArrow
+          >
+            <Button color="red" disabled>
+              Ejecutar Baja por Impago
+            </Button>
+          </Tooltip>
         </Group>
       </Stack>
 

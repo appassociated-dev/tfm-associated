@@ -60,10 +60,16 @@ export class GetReinstatementSummaryHandler implements IQueryHandler<GetReinstat
       ? `${member.personalData.name} ${member.personalData.surnames}`
       : '';
 
-    // 7. Construir respuesta
+    // 7. Obtener datos adicionales del socio
+    const memberNumber = member.memberNumber?.value;
+    const memberDni = member.identityDocument?.number;
+
+    // 8. Construir respuesta
     return ReinstatementSummaryResponseDto.fromResult({
       memberId: query.memberId,
       memberName,
+      memberNumber,
+      memberDni,
       leaveDate: member.leaveDate ?? new Date(),
       leaveType: member.getCurrentStatus().value,
       pendingDebt,

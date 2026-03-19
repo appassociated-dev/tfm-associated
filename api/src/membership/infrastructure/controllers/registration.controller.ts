@@ -20,6 +20,8 @@ import { DniCheckResponseDto } from '../../application/dtos/dni-check-response.d
 import { PreconditionsResponseDto } from '../../application/dtos/preconditions-response.dto';
 import { SimpleRegistrationCommand } from '../../application/commands/simple-registration.command';
 import { CheckDniQuery } from '../../application/queries/check-dni.query';
+import { CheckEmailQuery } from '../../application/queries/check-email.query';
+import { EmailCheckResponseDto } from '../../application/dtos/email-check-response.dto';
 import { ValidatePreconditionsQuery } from '../../application/queries/validate-preconditions.query';
 
 /**
@@ -108,6 +110,31 @@ export class RegistrationController {
     @Req() req: Request & { tenantId: string },
   ): Promise<DniCheckResponseDto> {
     const query = new CheckDniQuery(req.tenantId, documentType, documentNumber);
+    return this.queryBus.execute(query);
+  }
+
+  /**
+   * Verifica si un email ya está registrado en el tenant.
+   * Devuelve un indicador (no bloquea el alta, solo advierte).
+   */
+  @Get('check-email/:email')
+  @RequirePermissions('membership:members:read')
+  @ApiOperation({ summary: 'Verificar existencia de email en el tenant' })
+  @ApiParam({
+    name: 'email',
+    type: String,
+    description: 'Email a verificar',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Resultado de la verificación',
+    type: EmailCheckResponseDto,
+  })
+  async checkEmail(
+    @Param('email') email: string,
+    @Req() req: Request & { tenantId: string },
+  ): Promise<EmailCheckResponseDto> {
+    const query = new CheckEmailQuery(req.tenantId, decodeURIComponent(email));
     return this.queryBus.execute(query);
   }
 

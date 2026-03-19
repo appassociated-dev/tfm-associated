@@ -2,7 +2,7 @@
 // Generado a partir de doc/brand/002-associated-ui-product-guidelines.md (Seccion 1.3)
 // Todos los valores provienen de la especificacion de marca — no modificar sin actualizar el doc.
 
-import { createTheme, MantineColorsTuple } from '@mantine/core';
+import { Button, createTheme, MantineColorsTuple } from '@mantine/core';
 
 /** Paleta de marca: 10 shades generados desde el gris azulado del isotipo (#5B7682). */
 const brand: MantineColorsTuple = [
@@ -99,11 +99,19 @@ export const associatedTheme = createTheme({
 
   // --- Defaults de componentes ---
   components: {
-    Button: {
+    Button: Button.extend({
       defaultProps: {
         radius: 'sm', // 4px — bordes sutiles, no redondeados
+        loaderProps: { type: 'dots' },
       },
-    },
+      styles: {
+        root: {
+          // Evita que el boton colapse en ancho cuando entra en estado loading,
+          // lo que causaba que el spinner apareciera descentrado o fuera del boton.
+          minWidth: '100px',
+        },
+      },
+    }),
     Paper: {
       defaultProps: {
         radius: 'md', // 8px
@@ -166,6 +174,6 @@ export const associatedTheme = createTheme({
     },
   },
 
-  // Color scheme: se configura en MantineProvider con defaultColorScheme="light".
-  // No se soporta dark mode en MVP.
+  // Color scheme: se configura en MantineProvider con defaultColorScheme="auto".
+  // Detecta la preferencia del sistema (light/dark) automaticamente.
 });

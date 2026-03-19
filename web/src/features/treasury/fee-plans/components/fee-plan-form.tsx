@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   Button,
   Chip,
@@ -97,8 +97,10 @@ export function FeePlanForm({
     validate: {
       code: (value) => {
         if (!value.trim()) return 'El código es obligatorio';
+        if (value.length < 2) return 'Mínimo 2 caracteres';
         if (value.length > 20) return 'Máximo 20 caracteres';
-        if (!/^[a-zA-Z0-9]+$/.test(value)) return 'Solo caracteres alfanuméricos';
+        if (!/^[a-zA-Z0-9_-]+$/.test(value))
+          return 'Solo caracteres alfanuméricos, guiones y guiones bajos';
         return null;
       },
       name: (value) => {
@@ -111,7 +113,7 @@ export function FeePlanForm({
         return null;
       },
       amountEuros: (value) => {
-        if (value < 0) return 'El importe no puede ser negativo';
+        if (value < 0.01) return 'El importe mínimo es 0,01 €';
         return null;
       },
       billingMonths: (value, values) => {
@@ -123,11 +125,21 @@ export function FeePlanForm({
     },
   });
 
-  // Preseleccionar meses cuando cambia la frecuencia
+  // Preseleccionar meses cuando cambia la frecuencia o el tipo vuelve a RECURRING
   const currentFrequency = form.getValues().frequency;
   const currentType = form.getValues().type;
 
+  const prevFrequencyRef = useRef(currentFrequency);
+  const prevTypeRef = useRef(currentType);
+
   useEffect(() => {
+    const freqChanged = prevFrequencyRef.current !== currentFrequency;
+    const typeChanged = prevTypeRef.current !== currentType;
+    prevFrequencyRef.current = currentFrequency;
+    prevTypeRef.current = currentType;
+
+    // Solo actuar si hubo un cambio real en frecuencia o tipo
+    if (!freqChanged && !typeChanged) return;
     if (currentType !== 'RECURRING') return;
     if (currentFrequency === 'CUSTOM' || currentFrequency === '') return;
 
@@ -135,8 +147,7 @@ export function FeePlanForm({
     if (preselected) {
       form.setFieldValue('billingMonths', preselected);
     }
-    // Solo reaccionar a cambios en frecuencia
-  }, [currentFrequency]);
+  }, [currentFrequency, currentType, form]);
 
   /** Envía el formulario convirtiendo euros a centavos. */
   async function handleSubmit(values: FormValues) {
@@ -209,7 +220,7 @@ export function FeePlanForm({
         <NumberInput
           label="Importe"
           placeholder="0,00"
-          min={0}
+          min={0.01}
           decimalScale={2}
           suffix=" €"
           step={0.01}
@@ -266,7 +277,7 @@ export function FeePlanForm({
 
         {/* Botón de envío */}
         <Group justify="flex-end" mt="md">
-          <Button type="submit" color="brand" loading={isSubmitting}>
+          <Button type="submit" color="brand" loading={isSubmitting} miw={120}>
             Guardar
           </Button>
         </Group>

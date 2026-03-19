@@ -11,6 +11,15 @@ export class ReinstatementSummaryResponseDto {
   @ApiProperty({ description: 'Nombre completo del socio' })
   memberName!: string;
 
+  @ApiProperty({ description: 'Número de socio', required: false })
+  memberNumber?: string;
+
+  @ApiProperty({
+    description: 'Documento de identidad del socio (DNI/NIE/Pasaporte)',
+    required: false,
+  })
+  memberDni?: string;
+
   @ApiProperty({ description: 'Fecha de baja del socio' })
   leaveDate!: Date;
 
@@ -38,6 +47,8 @@ export class ReinstatementSummaryResponseDto {
   static fromResult(params: {
     memberId: string;
     memberName: string;
+    memberNumber?: string;
+    memberDni?: string;
     leaveDate: Date;
     leaveType: string;
     pendingDebt: number;
@@ -49,6 +60,8 @@ export class ReinstatementSummaryResponseDto {
     const dto = new ReinstatementSummaryResponseDto();
     dto.memberId = params.memberId;
     dto.memberName = params.memberName;
+    dto.memberNumber = params.memberNumber;
+    dto.memberDni = params.memberDni;
     dto.leaveDate = params.leaveDate;
     dto.leaveType = params.leaveType;
     dto.pendingDebt = params.pendingDebt;

@@ -8,5 +8,6 @@ export function useReinstatementSummary(memberId: string | undefined) {
     queryKey: ['reinstatement-summary', memberId],
     queryFn: () => getReinstatementSummary(memberId!),
     enabled: !!memberId,
+    retry: false,
   });
 }

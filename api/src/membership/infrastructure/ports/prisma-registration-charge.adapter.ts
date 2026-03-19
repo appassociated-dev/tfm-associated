@@ -105,7 +105,7 @@ export class PrismaRegistrationChargeAdapter implements RegistrationChargePort {
       data: {
         memberAccountId: memberAccount.id,
         feeSubscriptionId: feeSubscription.id,
-        concept: params.concept,
+        description: params.concept,
         finalAmount: params.effectiveAmount,
         billingYear: params.billingYear,
         status: 'PENDING',

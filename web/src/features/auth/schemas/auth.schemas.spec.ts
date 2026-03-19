@@ -13,11 +13,9 @@ import {
 const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
 
 const validLoginResponse = {
-  tokens: {
-    accessToken: 'jwt-access-token',
-    refreshToken: 'jwt-refresh-token',
-    expiresIn: 3600,
-  },
+  accessToken: 'jwt-access-token',
+  refreshToken: 'jwt-refresh-token',
+  expiresIn: 3600,
   user: {
     id: VALID_UUID,
     email: 'socio@club.es',
@@ -68,14 +66,14 @@ describe('loginResponseSchema', () => {
   it('deberia aceptar datos validos de login directo', () => {
     const result = loginResponseSchema.parse(validLoginResponse);
 
-    expect(result.tokens.accessToken).toBe('jwt-access-token');
+    expect(result.accessToken).toBe('jwt-access-token');
     expect(result.user.email).toBe('socio@club.es');
     expect(result.tenant.slug).toBe('club-deportivo');
     expect(result.role).toBe('admin');
   });
 
-  it('deberia rechazar datos sin tokens', () => {
-    const invalid = { ...validLoginResponse, tokens: undefined };
+  it('deberia rechazar datos sin accessToken', () => {
+    const { accessToken: _, ...invalid } = validLoginResponse;
 
     expect(() => loginResponseSchema.parse(invalid)).toThrow(ZodError);
   });

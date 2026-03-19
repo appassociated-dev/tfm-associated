@@ -27,6 +27,7 @@ import { FeePlanTemplateResponseDto } from '../../application/dtos/fee-plan-temp
 import { CreateFeePlanCommand } from '../../application/commands/create-fee-plan.command';
 import { UpdateFeePlanCommand } from '../../application/commands/update-fee-plan.command';
 import { DeactivateFeePlanCommand } from '../../application/commands/deactivate-fee-plan.command';
+import { ActivateFeePlanCommand } from '../../application/commands/activate-fee-plan.command';
 import { ImportFeePlanTemplateCommand } from '../../application/commands/import-fee-plan-template.command';
 import { LinkMemberTypesCommand } from '../../application/commands/link-member-types.command';
 import { GetFeePlanQuery } from '../../application/queries/get-fee-plan.query';
@@ -72,13 +73,16 @@ export class FeePlansController {
     @Body() dto: CreateFeePlanDto,
     @Req() req: Request & { tenantId: string },
   ): Promise<FeePlanResponseDto> {
+    // Para ONE_TIME, la frecuencia no aplica pero el dominio requiere un valor válido
+    const frequency = dto.frequency ?? (dto.type === 'ONE_TIME' ? 'MONTHLY' : 'MONTHLY');
+
     const command = new CreateFeePlanCommand(
       req.tenantId,
       dto.code,
       dto.name,
       dto.description ?? null,
       dto.type,
-      dto.frequency,
+      frequency,
       dto.amount,
       dto.billingMonths,
     );
@@ -201,13 +205,16 @@ export class FeePlansController {
     @Body() dto: UpdateFeePlanDto,
     @Req() req: Request & { tenantId: string },
   ): Promise<FeePlanResponseDto> {
+    // Para ONE_TIME, la frecuencia no aplica pero el dominio requiere un valor válido
+    const frequency = dto.frequency ?? (dto.type === 'ONE_TIME' ? 'MONTHLY' : 'MONTHLY');
+
     const command = new UpdateFeePlanCommand(
       req.tenantId,
       id,
       dto.name,
       dto.description ?? null,
       dto.type,
-      dto.frequency,
+      frequency,
       dto.amount,
       dto.billingMonths,
     );
@@ -234,6 +241,23 @@ export class FeePlansController {
     @Req() req: Request & { tenantId: string },
   ): Promise<void> {
     const command = new DeactivateFeePlanCommand(req.tenantId, id);
+    await this.commandBus.execute(command);
+  }
+
+  /**
+   * Activa un plan de cuota inactivo.
+   */
+  @Patch(':id/activate')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @RequirePermissions('treasury:fee-plans:update')
+  @ApiOperation({ summary: 'Activar un plan de cuota' })
+  @ApiResponse({ status: 204, description: 'Plan de cuota activado' })
+  @ApiResponse({ status: 404, description: 'Plan de cuota no encontrado' })
+  async activate(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Req() req: Request & { tenantId: string },
+  ): Promise<void> {
+    const command = new ActivateFeePlanCommand(req.tenantId, id);
     await this.commandBus.execute(command);
   }
 

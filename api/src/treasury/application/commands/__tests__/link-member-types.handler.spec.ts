@@ -101,6 +101,7 @@ describe('LinkMemberTypesHandler', () => {
     expect(memberTypeQueryPort.setTenantId).toHaveBeenCalledWith(TENANT_ID);
 
     expect(feePlanRepository.findById).toHaveBeenCalledTimes(1);
+    expect(memberTypeFeePlanRepository.deleteByFeePlanId).toHaveBeenCalledTimes(1);
     expect(memberTypeQueryPort.findById).toHaveBeenCalledTimes(2);
     expect(memberTypeFeePlanRepository.saveMany).toHaveBeenCalledTimes(1);
     expect(outboxPublisher.publish).toHaveBeenCalledTimes(1);
