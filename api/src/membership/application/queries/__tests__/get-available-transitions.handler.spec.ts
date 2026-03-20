@@ -61,9 +61,10 @@ describe('GetAvailableTransitionsHandler', () => {
     expect(statuses).toContain('SUSPENDED');
     expect(statuses).toContain('VOLUNTARY_LEAVE');
 
-    // Verificar que cada transición tiene descripción
+    // Verificar que cada transición tiene descripción concreta
     for (const transition of result.availableTransitions) {
-      expect(transition.description).toBeTruthy();
+      expect(typeof transition.description).toBe('string');
+      expect(transition.description.length).toBeGreaterThan(5);
     }
   });
 

@@ -84,7 +84,7 @@ export class ReinstateMemberHandler implements ICommandHandler<ReinstateMemberCo
     const keepSeniority = true;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const prisma = this.prismaTenantService.getClient(command.tenantId) as any;
+    const prisma = (await this.prismaTenantService.getClient(command.tenantId)) as any;
 
     await prisma.$transaction(async (tx: unknown) => {
       // 6a. Marcar cargos como pagados

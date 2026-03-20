@@ -22,7 +22,7 @@ export class PrismaStatusHistoryRepository implements StatusHistoryRepository {
   }
 
   /** Obtiene el PrismaClient del tenant actual. */
-  private get prisma() {
+  private async getPrisma() {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaStatusHistoryRepository. Llamar setTenantId() primero.',
@@ -35,12 +35,14 @@ export class PrismaStatusHistoryRepository implements StatusHistoryRepository {
   async save(entry: StatusHistory): Promise<void> {
     const data = StatusHistoryPrismaMapper.toPersistence(entry);
 
-    await this.prisma.statusHistory.create({ data });
+    await (await this.getPrisma()).statusHistory.create({ data });
   }
 
   /** Busca el historial de estados de un socio, ordenado por changed_at DESC. */
   async findByMemberId(memberId: MemberId): Promise<StatusHistory[]> {
-    const rawList = await this.prisma.statusHistory.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).statusHistory.findMany({
       where: { member_id: memberId.toValue() },
       orderBy: { changed_at: 'desc' },
     });

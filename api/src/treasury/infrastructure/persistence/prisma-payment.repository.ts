@@ -25,7 +25,7 @@ export class PrismaPaymentRepository implements PaymentRepository {
 
   /** Obtiene el PrismaClient del tenant actual. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get prisma(): any {
+  private async getPrisma(): Promise<any> {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaPaymentRepository. Llamar setTenantId() primero.',
@@ -37,7 +37,9 @@ export class PrismaPaymentRepository implements PaymentRepository {
   /** Persiste un pago individual. */
   async save(payment: Payment): Promise<void> {
     // Necesitamos el memberAccountId — lo obtenemos del cargo asociado
-    const charge = await this.prisma.charge.findUnique({
+    const charge = await (
+      await this.getPrisma()
+    ).charge.findUnique({
       where: { id: payment.chargeId.toValue() },
       select: { memberAccountId: true },
     });
@@ -50,7 +52,7 @@ export class PrismaPaymentRepository implements PaymentRepository {
 
     const data = PaymentPrismaMapper.toPersistence(payment, charge.memberAccountId);
 
-    await this.prisma.payment.create({ data });
+    await (await this.getPrisma()).payment.create({ data });
   }
 
   /** Persiste múltiples pagos en una sola operación (cobro multi-cargo). */
@@ -60,7 +62,9 @@ export class PrismaPaymentRepository implements PaymentRepository {
     // Obtener los chargeIds únicos para resolver memberAccountId
     const chargeIds = [...new Set(payments.map((p) => p.chargeId.toValue()))];
 
-    const charges = await this.prisma.charge.findMany({
+    const charges = await (
+      await this.getPrisma()
+    ).charge.findMany({
       where: { id: { in: chargeIds } },
       select: { id: true, memberAccountId: true },
     });
@@ -80,12 +84,14 @@ export class PrismaPaymentRepository implements PaymentRepository {
       return PaymentPrismaMapper.toPersistence(payment, memberAccountId);
     });
 
-    await this.prisma.payment.createMany({ data });
+    await (await this.getPrisma()).payment.createMany({ data });
   }
 
   /** Busca todos los pagos asociados a un cargo, ordenados por fecha de creación descendente. */
   async findByChargeId(chargeId: ChargeId): Promise<Payment[]> {
-    const rawList = await this.prisma.payment.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).payment.findMany({
       where: { chargeId: chargeId.toValue() },
       orderBy: { createdAt: 'desc' },
     });
@@ -95,7 +101,9 @@ export class PrismaPaymentRepository implements PaymentRepository {
 
   /** Busca todos los pagos de una cuenta de socio, ordenados por fecha de pago descendente. */
   async findByMemberAccountId(memberAccountId: MemberAccountId): Promise<Payment[]> {
-    const rawList = await this.prisma.payment.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).payment.findMany({
       where: { memberAccountId: memberAccountId.toValue() },
       orderBy: { paymentDate: 'desc' },
     });
@@ -113,15 +121,20 @@ export class PrismaPaymentRepository implements PaymentRepository {
     const pattern = `${prefix}-${year}-%`;
 
     // Raw query con advisory lock para concurrencia segura
-    const result = await this.prisma.$queryRawUnsafe(
+    const result = await (
+      await this.getPrisma()
+    ).$queryRawUnsafe(
       `SELECT COALESCE(MAX(CAST(SPLIT_PART(payment_reference, '-', 3) AS INTEGER)), 0) + 1 AS next_seq
        FROM payments
        WHERE payment_reference LIKE $1`,
       pattern,
     );
 
-    // El resultado de $queryRawUnsafe es un array de objetos
-    const row = (result as Array<{ next_seq: bigint | number }>)[0];
+    // El resultado de $queryRawUnsafe es un array de objetos — validación en runtime
+    if (!Array.isArray(result) || result.length === 0) {
+      return 1;
+    }
+    const row = result[0] as { next_seq: bigint | number };
     return Number(row.next_seq);
   }
 
@@ -133,14 +146,20 @@ export class PrismaPaymentRepository implements PaymentRepository {
   async getNextReceiptSequence(year: number): Promise<number> {
     const pattern = `REC-${year}-%`;
 
-    const result = await this.prisma.$queryRawUnsafe(
+    const result = await (
+      await this.getPrisma()
+    ).$queryRawUnsafe(
       `SELECT COALESCE(MAX(CAST(SPLIT_PART(receipt_number, '-', 3) AS INTEGER)), 0) + 1 AS next_seq
        FROM payments
        WHERE receipt_number LIKE $1`,
       pattern,
     );
 
-    const row = (result as Array<{ next_seq: bigint | number }>)[0];
+    // Validación en runtime en vez de casteo inseguro
+    if (!Array.isArray(result) || result.length === 0) {
+      return 1;
+    }
+    const row = result[0] as { next_seq: bigint | number };
     return Number(row.next_seq);
   }
 
@@ -148,7 +167,9 @@ export class PrismaPaymentRepository implements PaymentRepository {
    * Busca un pago por su ID. Usado para obtener el recibo de un pago.
    */
   async findById(paymentId: string): Promise<Payment | null> {
-    const raw = await this.prisma.payment.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).payment.findUnique({
       where: { id: paymentId },
     });
 
@@ -163,7 +184,9 @@ export class PrismaPaymentRepository implements PaymentRepository {
     receiptNumber: string,
     receiptDocument: Buffer,
   ): Promise<void> {
-    await this.prisma.payment.update({
+    await (
+      await this.getPrisma()
+    ).payment.update({
       where: { id: paymentId },
       data: {
         receiptNumber,
@@ -176,7 +199,9 @@ export class PrismaPaymentRepository implements PaymentRepository {
    * Obtiene el documento del recibo de un pago.
    */
   async getReceiptDocument(paymentId: string): Promise<Buffer | null> {
-    const raw = await this.prisma.payment.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).payment.findUnique({
       where: { id: paymentId },
       select: { receiptDocument: true },
     });

@@ -180,7 +180,7 @@ export class SimpleRegistrationHandler implements ICommandHandler<SimpleRegistra
 
     // 11. Ejecutar operaciones transaccionales con prisma.$transaction
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const prisma = this.prismaTenantService.getClient(command.tenantId) as any;
+    const prisma = (await this.prismaTenantService.getClient(command.tenantId)) as any;
 
     const result = await prisma.$transaction(async (tx: unknown) => {
       // 11a. Obtener siguiente número de socio (dentro de la transacción para evitar colisiones)
@@ -208,8 +208,8 @@ export class SimpleRegistrationHandler implements ICommandHandler<SimpleRegistra
 
       const member = registerResult.value;
 
-      // 11c. Guardar member via repositorio
-      await this.memberRepository.save(member);
+      // 11c. Guardar member via repositorio (dentro de la transacción — atomicidad)
+      await this.memberRepository.save(member, tx);
 
       // 11d. Crear artefactos de tesorería via RegistrationChargePort
       const now = new Date();

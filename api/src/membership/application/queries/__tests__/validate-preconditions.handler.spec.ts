@@ -186,12 +186,13 @@ describe('ValidatePreconditionsHandler', () => {
     expect(result.errors).toHaveLength(3);
   });
 
-  it('should set tenantId on repositories', async () => {
+  it('should set tenantId on repositories and ports', async () => {
     const query = new ValidatePreconditionsQuery(TENANT_ID);
 
     await handler.execute(query);
 
     expect(fiscalYearRepository.setTenantId).toHaveBeenCalledWith(TENANT_ID);
     expect(memberTypeRepository.setTenantId).toHaveBeenCalledWith(TENANT_ID);
+    expect(registrationChargePort.setTenantId).toHaveBeenCalledWith(TENANT_ID);
   });
 });

@@ -5,6 +5,7 @@ import { TenantProvisionedResponseDto } from '../application/dtos/tenant-provisi
 import { CifAlreadyExistsError } from '../domain/exceptions/cif-already-exists.error';
 import { TenantProvisioningFailedError } from '../domain/exceptions/tenant-provisioning-failed.error';
 import type { DatabaseProvisioningPort } from '../application/ports/database-provisioning.port';
+import type { TenantCredentialPort } from '../application/ports/tenant-credential.port';
 import type { ErrorReporter } from '../../shared/domain';
 import { PrismaMainService } from '../../shared/infrastructure/persistence/prisma-main.service';
 import { PrismaTenantRepository } from '../infrastructure/persistence/prisma-tenant.repository';
@@ -108,7 +109,11 @@ async function cleanupKnownProvisioningFixtures(prisma: PrismaMainService): Prom
       email: { in: emails },
     },
   });
-  const tenants = await (prisma.tenant as any).findMany({
+  const tenants = await (
+    prisma.tenant as unknown as {
+      findMany: (args: Record<string, unknown>) => Promise<{ id: string }[]>;
+    }
+  ).findMany({
     where: { cif: { in: cifs } },
     select: { id: true },
   });
@@ -139,11 +144,14 @@ async function cleanupKnownProvisioningFixtures(prisma: PrismaMainService): Prom
  * - Rollback ante fallos
  * - Rechazo de CIF duplicado
  */
-describe('TenantProvisioning Integration', () => {
+// Verificar disponibilidad de PostgreSQL ANTES de definir el describe.
+// Si PG no está disponible, vitest marca los tests como SKIPPED (no como passed).
+const pgAvailable = await isPostgresAvailable();
+
+describe.skipIf(!pgAvailable)('TenantProvisioning Integration', () => {
   let prisma: PrismaMainService;
   let handler: ProvisionTenantHandler;
   let dbProvisioningService: DatabaseProvisioningService;
-  let pgAvailable: boolean;
 
   // Recursos para limpieza
   const createdTenants: {
@@ -154,15 +162,6 @@ describe('TenantProvisioning Integration', () => {
   }[] = [];
 
   beforeAll(async () => {
-    pgAvailable = await isPostgresAvailable();
-    if (!pgAvailable) {
-      console.warn(
-        '⚠️  PostgreSQL no disponible. Saltando tests de integración.\n' +
-          'Iniciar con: docker compose up -d postgres',
-      );
-      return;
-    }
-
     // Configurar la variable de entorno para PrismaMainService
     process.env.DATABASE_MAIN_URL = DATABASE_MAIN_URL;
 
@@ -182,16 +181,21 @@ describe('TenantProvisioning Integration', () => {
 
     const tenantRepository = new PrismaTenantRepository(prisma);
 
+    // Mock de TenantCredentialPort — en integración no ciframos credenciales
+    const tenantCredentialPort: TenantCredentialPort = {
+      persistCredentials: vi.fn().mockResolvedValue(undefined),
+      getCredentials: vi.fn().mockResolvedValue(null),
+    };
+
     handler = new ProvisionTenantHandler(
       tenantRepository,
       dbProvisioningService as unknown as DatabaseProvisioningPort,
+      tenantCredentialPort,
       errorReporter,
     );
   });
 
   afterAll(async () => {
-    if (!pgAvailable) return;
-
     // Limpiar todos los recursos creados durante los tests
     for (const resource of createdTenants) {
       await cleanupTenant(prisma, resource.tenantId, resource.databaseName, resource.username);
@@ -230,8 +234,6 @@ describe('TenantProvisioning Integration', () => {
   // Test 1: Flujo completo de provisión (happy path)
   // ====================================================================
   it('should provision a tenant with isolated database', async () => {
-    if (!pgAvailable) return;
-
     const command = createValidCommand('A28015550');
     const result = await handler.execute(command);
 
@@ -288,10 +290,10 @@ describe('TenantProvisioning Integration', () => {
     }
 
     // Verificar: PRESIDENT tiene permiso '*'
+    // permissions es Json en Prisma → Prisma lo devuelve como array nativo (Bug 3 fix)
     const presidentRole = roles.find((r) => r.code === 'PRESIDENT');
     expect(presidentRole).toBeDefined();
-    const presidentPermissions = JSON.parse(presidentRole!.permissions as string);
-    expect(presidentPermissions).toContain('*');
+    expect(presidentRole!.permissions).toContain('*');
 
     // Verificar: usuario admin creado
     const adminUser = await prisma.user.findUnique({
@@ -318,8 +320,6 @@ describe('TenantProvisioning Integration', () => {
   // Test 2: Rechazo de CIF duplicado
   // ====================================================================
   it('should reject duplicate CIF', async () => {
-    if (!pgAvailable) return;
-
     // Provisionar un primer tenant con CIF X
     const command1 = createValidCommand('G33340241');
     const result1 = await handler.execute(command1);
@@ -360,8 +360,6 @@ describe('TenantProvisioning Integration', () => {
   // Test 3: Rollback ante fallo
   // ====================================================================
   it('should rollback on provisioning failure', async () => {
-    if (!pgAvailable) return;
-
     // Crear un handler con un servicio de provisión parcialmente mockeado
     // que falla en seedRoles
     const errorReporter: ErrorReporter = {
@@ -375,6 +373,8 @@ describe('TenantProvisioning Integration', () => {
       createDatabase: dbProvisioningService.createDatabase.bind(dbProvisioningService),
       createDatabaseUser: dbProvisioningService.createDatabaseUser.bind(dbProvisioningService),
       grantPermissions: dbProvisioningService.grantPermissions.bind(dbProvisioningService),
+      grantSchemaPermissions:
+        dbProvisioningService.grantSchemaPermissions.bind(dbProvisioningService),
       runMigrations: dbProvisioningService.runMigrations.bind(dbProvisioningService),
       buildDatabaseUrl: dbProvisioningService.buildDatabaseUrl.bind(dbProvisioningService),
       // seedRoles falla a propósito para provocar rollback
@@ -386,9 +386,14 @@ describe('TenantProvisioning Integration', () => {
     };
 
     const tenantRepository = new PrismaTenantRepository(prisma);
+    const failingCredentialPort: TenantCredentialPort = {
+      persistCredentials: vi.fn().mockResolvedValue(undefined),
+      getCredentials: vi.fn().mockResolvedValue(null),
+    };
     const failingHandler = new ProvisionTenantHandler(
       tenantRepository,
       failingDbService,
+      failingCredentialPort,
       errorReporter,
     );
 
@@ -431,8 +436,6 @@ describe('TenantProvisioning Integration', () => {
   // Test 4: Usuario PostgreSQL con permisos limitados
   // ====================================================================
   it('should create PostgreSQL user with limited permissions', async () => {
-    if (!pgAvailable) return;
-
     const command = createValidCommand('Q0801175A');
     const result = await handler.execute(command);
 
@@ -467,8 +470,6 @@ describe('TenantProvisioning Integration', () => {
   // Test 5: Seed de roles predefinidos correcto
   // ====================================================================
   it('should seed predefined roles correctly', async () => {
-    if (!pgAvailable) return;
-
     const command = createValidCommand('S0800001J');
     const result = await handler.execute(command);
 
@@ -497,37 +498,35 @@ describe('TenantProvisioning Integration', () => {
     }
 
     // Verificar: PRESIDENT tiene todos los permisos ('*')
+    // permissions es Json en Prisma → Prisma lo devuelve como array nativo (Bug 3 fix)
     const president = roles.find((r) => r.code === 'PRESIDENT');
     expect(president).toBeDefined();
     expect(president!.name).toBe('Presidente');
-    const presPerms = JSON.parse(president!.permissions as string);
-    expect(presPerms).toEqual(['*']);
+    expect(president!.permissions).toEqual(['*']);
 
     // Verificar: SECRETARY tiene permisos correctos
     const secretary = roles.find((r) => r.code === 'SECRETARY');
     expect(secretary).toBeDefined();
-    const secPerms = JSON.parse(secretary!.permissions as string);
-    expect(secPerms).toEqual(
+    expect(secretary!.permissions).toEqual(
       expect.arrayContaining(['membership:*', 'documents:*', 'communication:*']),
     );
 
     // Verificar: TREASURER tiene permisos correctos
     const treasurer = roles.find((r) => r.code === 'TREASURER');
     expect(treasurer).toBeDefined();
-    const tresPerms = JSON.parse(treasurer!.permissions as string);
-    expect(tresPerms).toEqual(expect.arrayContaining(['treasury:*', 'membership:members:read']));
+    expect(treasurer!.permissions).toEqual(
+      expect.arrayContaining(['treasury:*', 'membership:members:read']),
+    );
 
     // Verificar: BOARD_MEMBER tiene permisos vacíos (configurable)
     const boardMember = roles.find((r) => r.code === 'BOARD_MEMBER');
     expect(boardMember).toBeDefined();
-    const bmPerms = JSON.parse(boardMember!.permissions as string);
-    expect(bmPerms).toEqual([]);
+    expect(boardMember!.permissions).toEqual([]);
 
     // Verificar: MEMBER tiene permisos básicos de lectura propia
     const member = roles.find((r) => r.code === 'MEMBER');
     expect(member).toBeDefined();
-    const memPerms = JSON.parse(member!.permissions as string);
-    expect(memPerms).toEqual(
+    expect(member!.permissions).toEqual(
       expect.arrayContaining(['membership:members:read:own', 'treasury:payments:read:own']),
     );
   }, 60_000);

@@ -1,7 +1,13 @@
 import { defineConfig } from 'vitest/config';
+import swc from 'unplugin-swc';
 import path from 'path';
 
 export default defineConfig({
+  plugins: [
+    swc.vite({
+      module: { type: 'es6' },
+    }),
+  ],
   resolve: {
     alias: {
       '@prisma-main': path.resolve(__dirname, 'prisma/main/generated/client.ts'),
@@ -19,6 +25,22 @@ export default defineConfig({
 
     // Patrones de archivos de test
     include: ['**/*.spec.ts', '**/*.test.ts'],
+
+    // SWC + threads para evitar el fallback lento de esbuild con decorators
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        maxThreads: 4,
+        minThreads: 1,
+      },
+    },
+
+    // Inlinear dependencias que no son ESM puro
+    server: {
+      deps: {
+        inline: ['@prisma/client'],
+      },
+    },
 
     // Cobertura de código
     coverage: {

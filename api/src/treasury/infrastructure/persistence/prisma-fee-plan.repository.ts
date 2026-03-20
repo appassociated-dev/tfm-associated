@@ -24,7 +24,7 @@ export class PrismaFeePlanRepository implements FeePlanRepository {
 
   /** Obtiene el PrismaClient del tenant actual. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get prisma(): any {
+  private async getPrisma(): Promise<any> {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaFeePlanRepository. Llamar setTenantId() primero.',
@@ -37,7 +37,9 @@ export class PrismaFeePlanRepository implements FeePlanRepository {
   async save(feePlan: FeePlan): Promise<void> {
     const data = FeePlanPrismaMapper.toPersistence(feePlan);
 
-    await this.prisma.feePlan.upsert({
+    await (
+      await this.getPrisma()
+    ).feePlan.upsert({
       where: { id: feePlan.id.toValue() },
       create: data,
       update: data,
@@ -46,7 +48,9 @@ export class PrismaFeePlanRepository implements FeePlanRepository {
 
   /** Busca un plan de cuota por su identificador único. */
   async findById(id: FeePlanId): Promise<FeePlan | null> {
-    const raw = await this.prisma.feePlan.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).feePlan.findUnique({
       where: { id: id.toValue() },
     });
 
@@ -55,7 +59,9 @@ export class PrismaFeePlanRepository implements FeePlanRepository {
 
   /** Busca un plan de cuota por su código. */
   async findByCode(code: FeePlanCode): Promise<FeePlan | null> {
-    const raw = await this.prisma.feePlan.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).feePlan.findUnique({
       where: { code: code.value },
     });
 
@@ -64,7 +70,9 @@ export class PrismaFeePlanRepository implements FeePlanRepository {
 
   /** Obtiene todos los planes de cuota del tenant. */
   async findAll(): Promise<FeePlan[]> {
-    const rawList = await this.prisma.feePlan.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).feePlan.findMany({
       orderBy: { createdAt: 'asc' },
     });
 
@@ -73,7 +81,9 @@ export class PrismaFeePlanRepository implements FeePlanRepository {
 
   /** Verifica si ya existe un plan de cuota con el código dado. */
   async existsByCode(code: FeePlanCode): Promise<boolean> {
-    const raw = await this.prisma.feePlan.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).feePlan.findUnique({
       where: { code: code.value },
     });
 
@@ -85,7 +95,9 @@ export class PrismaFeePlanRepository implements FeePlanRepository {
    * Consulta la tabla fee_subscriptions con status distinto de COMPLETED y CANCELLED.
    */
   async hasActiveSubscriptions(id: FeePlanId): Promise<boolean> {
-    const count = await this.prisma.feeSubscription.count({
+    const count = await (
+      await this.getPrisma()
+    ).feeSubscription.count({
       where: {
         feePlanId: id.toValue(),
         status: { notIn: ['COMPLETED', 'CANCELLED'] },

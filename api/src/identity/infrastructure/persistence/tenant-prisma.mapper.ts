@@ -18,6 +18,7 @@ export interface PrismaRawTenant {
   type: string;
   status: string;
   databaseName: string;
+  databaseUser: string | null;
   contactEmail: string;
   createdAt: Date;
 }
@@ -41,6 +42,7 @@ export class TenantPrismaMapper {
       type: CollectivityType.fromString(raw.type),
       status: TenantStatus.fromString(raw.status),
       databaseName: raw.databaseName,
+      databaseUser: raw.databaseUser,
       contactEmail: raw.contactEmail,
       createdAt: raw.createdAt,
     });
@@ -59,6 +61,7 @@ export class TenantPrismaMapper {
       type: tenant.type.value,
       status: tenant.status.value,
       databaseName: tenant.databaseName,
+      databaseUser: tenant.databaseUser,
       contactEmail: tenant.contactEmail,
       createdAt: tenant.createdAt,
     };

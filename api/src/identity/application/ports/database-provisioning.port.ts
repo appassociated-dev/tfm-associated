@@ -25,6 +25,13 @@ export interface DatabaseProvisioningPort {
   /** Otorga permisos al usuario del tenant sobre su base de datos. */
   grantPermissions(databaseName: string, username: string): Promise<void>;
 
+  /**
+   * Otorga permisos a nivel de schema al usuario del tenant sobre las tablas
+   * ya existentes en su BD. Debe ejecutarse DESPUÉS de runMigrations para que
+   * las tablas creadas por las migraciones sean accesibles.
+   */
+  grantSchemaPermissions(databaseName: string, username: string): Promise<void>;
+
   /** Ejecuta las migraciones del schema tenant en la base de datos indicada. */
   runMigrations(databaseUrl: string): Promise<void>;
 

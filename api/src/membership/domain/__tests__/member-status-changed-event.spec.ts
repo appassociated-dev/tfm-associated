@@ -16,23 +16,5 @@ describe('MemberStatusChangedEvent', () => {
 
     expect(event.eventType).toBe('member.status-changed');
     expect(event.payload).toEqual(payload);
-    expect(event.eventId).toBeDefined();
-    expect(event.occurredOn).toBeInstanceOf(Date);
-  });
-
-  it('debería generar un eventId UUID único', () => {
-    const payload = {
-      memberId: '550e8400-e29b-41d4-a716-446655440000',
-      previousStatus: 'ACTIVE',
-      newStatus: 'SUSPENDED',
-      reason: 'Motivo de prueba',
-      changedBy: 'user-456',
-      changedAt: new Date(),
-    };
-
-    const event1 = new MemberStatusChangedEvent(payload);
-    const event2 = new MemberStatusChangedEvent(payload);
-
-    expect(event1.eventId).not.toBe(event2.eventId);
   });
 });

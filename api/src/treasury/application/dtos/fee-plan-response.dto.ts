@@ -2,6 +2,30 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { FeePlan } from '../../domain/aggregates/fee-plan';
 
 /**
+ * DTO de una vinculación de tipo de socio a un plan de cuota.
+ * Incluye datos del tipo de socio y la configuración de la vinculación.
+ */
+export class LinkedMemberTypeDto {
+  @ApiProperty({ description: 'ID del tipo de socio (UUID)' })
+  memberTypeId!: string;
+
+  @ApiProperty({ description: 'Nombre del tipo de socio' })
+  memberTypeName!: string;
+
+  @ApiProperty({ description: 'ID del plan de cuota (UUID)' })
+  feePlanId!: string;
+
+  @ApiProperty({ description: 'Si esta vinculación es la predeterminada' })
+  isDefault!: boolean;
+
+  @ApiProperty({ description: 'Orden de presentación' })
+  order!: number;
+
+  @ApiProperty({ description: 'Estado activo de la vinculación' })
+  active!: boolean;
+}
+
+/**
  * DTO de respuesta para un plan de cuota.
  * Representa la vista pública del aggregate FeePlan.
  */
@@ -44,6 +68,12 @@ export class FeePlanResponseDto {
 
   @ApiProperty({ description: 'Fecha de última actualización' })
   updatedAt!: Date;
+
+  @ApiPropertyOptional({
+    description: 'Tipos de socio vinculados (solo en detalle individual)',
+    type: [LinkedMemberTypeDto],
+  })
+  linkedMemberTypes?: LinkedMemberTypeDto[];
 
   /**
    * Construye un DTO de respuesta a partir del aggregate de dominio.

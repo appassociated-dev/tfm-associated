@@ -118,6 +118,7 @@ describe('GetLeaveSummaryHandler', () => {
     expect(result.memberId).toBe(MEMBER_ID);
     expect(result.memberName).toBe('Juan García López');
     expect(result.memberNumber).toBe('00001');
+    expect(result.memberDni).toBe('12345678Z');
     expect(result.currentStatus).toBe('ACTIVE');
     expect(result.totalPendingDebt).toBe(6000);
 

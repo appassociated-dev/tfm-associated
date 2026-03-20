@@ -19,7 +19,7 @@
 - Formulario de programación de reintento: fecha, notificación previa
 - Informe de devoluciones agrupado por código de motivo con acciones sugeridas
 - Descarga de informe en PDF/CSV
-- Indicadores visuales: badges de estado de adeudo (COLLECTED, RETURNED), alertas por tipo de acción
+- Indicadores visuales: badges de estado de adeudo (COLLECTED=`color="green"`, RETURNED=`color="red"`) con `variant="light"` y `radius="sm"`, alertas por tipo de acción
 - Historial de reintentos por cargo
 - TanStack Query hooks para registro, reintento e informe
 - Validación Zod de DTOs
@@ -56,6 +56,8 @@
 
 | Documento | Contenido relevante |
 |-----------|-------------------|
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 | `uc/uc-024.md` | Flujo: registro manual, clasificación por código (Tabla 9), reintento, informe |
 | `us/us-066.md` | Criterios: registro de devolución, clasificación, reintento |
 | `us/us-067.md` | Criterios: gastos bancarios, informe |
@@ -63,9 +65,9 @@
 
 ## Puntos críticos
 
-1. **Select de código SEPA informativo.** Cada opción del select muestra código + descripción + icono de acción. Ejemplo: "AM04 - Fondos insuficientes 🔄 (Reintento posible)" vs "MS02 - Rechazo del deudor ⛔ (Mandato revocado automáticamente)". Tooltip con más detalle al hover.
+1. **Select de código SEPA informativo.** Cada opción del select muestra código + descripción + icono de acción. Ejemplo: "AM04 - Fondos insuficientes `IconRefresh` (Reintento posible)" vs "MS02 - Rechazo del deudor `IconLock` (Mandato revocado automáticamente)". Tooltip con más detalle al hover. En la implementación, usar iconos de `@tabler/icons-react` en lugar de emoji (`IconRefresh`, `IconLock`, `IconAlertTriangle`).
 
-2. **Acciones automáticas visibles.** Tras registrar devolución, el sistema muestra un panel con las acciones ejecutadas: "Mandato revocado", "Cargo de penalización de 3.50€ creado", "Reintento sugerido en 15 días". El usuario ve el resultado de cada acción con confirmación visual.
+2. **Acciones automáticas visibles.** Tras registrar devolución, el sistema muestra un panel con las acciones ejecutadas: "Mandato revocado", "Cargo de penalización de `formatMoney(350)` → 3,50 € creado", "Reintento sugerido en 15 días". Importes formateados con `formatMoney()` de `@/shared/utils/format-money.ts`. El usuario ve el resultado de cada acción con confirmación visual.
 
 3. **Bloqueo de reintento por motivo no resuelto.** Si el código es AC01 (IBAN incorrecto) y el IBAN no ha cambiado, el botón "Programar reintento" se muestra disabled con tooltip: "Actualice el IBAN del socio antes de reintentar". Link directo a la ficha del socio.
 
@@ -88,28 +90,28 @@
 ### Paso 3: Componentes
 
 - **`ReturnCodeSelect.tsx`**: Select con opciones enriquecidas
-  - Cada opción: código + descripción + badge de acción (🔄 Reintento / ⛔ Bloqueo / ⚠️ Manual)
+  - Cada opción: código + descripción + badge de acción (`IconRefresh` Reintento / `IconLock` Bloqueo / `IconAlertTriangle` Manual) de `@tabler/icons-react`. En la implementación, usar iconos de `@tabler/icons-react` en lugar de emoji. Badges de acción usan `variant="light"` y `radius="sm"`
   - Al seleccionar, muestra panel informativo con la acción automática que se ejecutará
 - **`RecordReturnForm.tsx`**: Formulario de registro de devolución
   - Select de adeudo devuelto (lista de adeudos de la remesa)
   - `ReturnCodeSelect` para código de motivo
-  - DateInput para fecha de devolución
-  - NumberInput para gastos bancarios
+  - DateInput para fecha de devolución. Fechas en formato español: `dd/MM/yyyy` (ej: "14/03/2026") usando `Intl.DateTimeFormat('es-ES')` o `dayjs` con locale `es`
+  - NumberInput para gastos bancarios. Importes formateados con `formatMoney()` de `@/shared/utils/format-money.ts`
   - Checkboxes: repercutir gastos, notificar socio
 - **`ReturnActionsPanel.tsx`**: Panel post-registro con acciones ejecutadas
-  - Cards con icono + descripción: "Mandato revocado", "Penalización creada: 3.50€", "Reintento sugerido: 05/03/2025"
-  - Botones: "Programar reintento", "Ir a ficha del socio", "Contactar socio"
+  - Cards con icono + descripción: "Mandato revocado", "Penalización creada: `formatMoney(350)` → 3,50 €", "Reintento sugerido: 05/03/2025". Iconos usan `@tabler/icons-react` exclusivamente
+  - Botones: "Programar reintento" usa `color="brand"`, "Ir a ficha del socio", "Contactar socio". Nunca `variant="gradient"` para botones primarios
 - **`RetryScheduleForm.tsx`**: Formulario de programación de reintento
   - DateInput para fecha de reintento (precargado con fecha sugerida)
   - NumberInput para días de notificación previa
   - Nota informativa: "El cargo se incluirá automáticamente en la remesa de esa fecha"
   - Disabled si el cargo no permite reintento (código no retriable o límite alcanzado)
 - **`ReturnReportSection.tsx`**: Sección en detalle de remesa
-  - Agrupado por código de motivo: título + count + importe total
+  - Agrupado por código de motivo: título + count + importe total formateado con `formatMoney()`. Columnas de importes usan `fontVariantNumeric: 'tabular-nums'` y `textAlign: 'right'`
   - Lista de socios afectados con enlaces a sus fichas
-  - Botones: "Descargar PDF", "Descargar CSV"
+  - Botones: "Descargar PDF", "Descargar CSV". Botones primarios usan `color="brand"`, acciones destructivas usan `color="red"` (nunca `variant="gradient"`)
 - **`RetryHistoryTimeline.tsx`**: Timeline de reintentos de un cargo
-  - Cada entrada: fecha devolución, código, fecha reintento, resultado
+  - Cada entrada: fecha devolución, código, fecha reintento, resultado. Fechas en formato español: `dd/MM/yyyy` usando `Intl.DateTimeFormat('es-ES')` o `dayjs` con locale `es`. Importes formateados con `formatMoney()` de `@/shared/utils/format-money.ts`
 
 ### Paso 4: Integración en página de remesa
 
@@ -117,7 +119,7 @@ Ampliar `RemittanceDetailPage` (de UC-023) con:
 
 - Tab "Devoluciones" con sección de registro + informe
 - Estadísticas actualizadas: cobrados / devueltos / pendientes
-- Botón "+ Registrar devolución" que abre formulario
+- Botón "+ Registrar devolución" que abre formulario, usa `color="red"` por ser acción destructiva
 - Sección de informe descargable
 
 ### Paso 5: Tests

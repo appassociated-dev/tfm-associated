@@ -19,10 +19,10 @@
 - Pago que cubre múltiples cargos: seleccionar varios cargos y pagar en una operación
 - Generación y descarga de recibo PDF tras registrar cobro
 - Adjuntar justificante de pago (PDF, JPG, PNG, max 5MB)
-- Visualización de estados de pago con badges de color
+- Visualización de estados de pago con badges de color (`variant="light"`, `radius="sm"`)
 - Componente `MemberSearchCombobox` (de UC-006) para buscar socio
-- Componentes `ChargeStatusBadge`, `ChargeDetailDrawer` (de UC-019) reutilizados
-- Formateo de importes centavos → euros
+- Componentes `ChargeStatusBadge`, `ChargeDetailDrawer` (de UC-019) reutilizados. Todos los badges de estado usan `variant="light"` y `radius="sm"`
+- Formateo de importes centavos → euros usando `formatMoney()` de `@/shared/utils/format-money.ts` (el backend envía centavos como enteros: 34500 → "345,00 €")
 - TanStack Query hooks para registro y consulta de pagos
 - Validación Zod: importe > 0, fecha no futura, método de pago válido
 - Tests unitarios (componentes + hooks)
@@ -57,6 +57,8 @@
 
 | Documento | Contenido relevante |
 |-----------|-------------------|
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 | `uc/uc-021.md` | Flujo: cobro efectivo, transferencia, Bizum, pagos parciales, múltiples cargos, recibos |
 | `us/us-053.md` a `us/us-057.md` | Criterios por método de pago, estados, justificantes, recibos |
 | `bc/bc-treasury.md` | Entity Payment, PaymentMethod, PaymentStatus |
@@ -90,16 +92,18 @@
   - Paso 1: `MemberSearchCombobox` para buscar socio
   - Paso 2: Lista de cargos pendientes del socio con checkboxes y totales
   - Paso 3: Formulario de pago: `PaymentMethodSelect`, importe, fecha, referencia, observaciones
-  - Paso 4: Resumen y confirmación con botones de recibo
-- **`PaymentMethodSelect.tsx`**: Select con iconos por método (💵 Efectivo, 🏦 Transferencia, 📱 Bizum, etc.)
-- **`PendingChargesList.tsx`**: Lista de cargos pendientes con checkbox, concepto, importe, vencimiento, estado
-- **`PaymentConfirmation.tsx`**: Card con resumen del pago + botones Descargar/Imprimir/Email recibo
+  - Paso 4: Resumen y confirmación con botones de recibo. Botón de confirmar cobro usa `color="brand"` (nunca `variant="gradient"`)
+- **`PaymentMethodSelect.tsx`**: Select con iconos por método (Efectivo, Transferencia, Bizum, etc.). En la implementación, reemplazar emoji por iconos de `@tabler/icons-react` (ej: `IconCash`, `IconBuildingBank`, `IconDeviceMobile`)
+- **`PendingChargesList.tsx`**: Lista de cargos pendientes con checkbox, concepto, importe, vencimiento, estado. Las columnas de importes usan `fontVariantNumeric: 'tabular-nums'` y `textAlign: 'right'`. Importes formateados con `formatMoney()` de `@/shared/utils/format-money.ts`
+- **`PaymentConfirmation.tsx`**: Card con resumen del pago + botones Descargar/Imprimir/Email recibo. Botón principal usa `color="brand"` (nunca `variant="gradient"`)
 - **`AttachmentUpload.tsx`**: Dropzone para subir justificante (PDF/JPG/PNG, max 5MB)
 
 ### Paso 4: Página principal
 
 - **`PaymentsPage.tsx`**: Tabs: "Pagos registrados" (listado) + "Registrar cobro" (wizard)
   - Listado con filtros: socio, método de pago, fecha, estado
+  - Las columnas de importes en la tabla usan `fontVariantNumeric: 'tabular-nums'` y `textAlign: 'right'`
+  - Fechas formateadas en formato español: `dd/MM/yyyy` (ej: "14/03/2026") usando `Intl.DateTimeFormat('es-ES')` o `dayjs` con locale `es`
   - Clic en pago → detalle con recibo descargable
 
 ### Paso 5: Tests

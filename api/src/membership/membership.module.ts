@@ -32,6 +32,7 @@ import { GetAvailableTransitionsHandler } from './application/queries/get-availa
 import { GetMemberHandler } from './application/queries/get-member.handler';
 import { ListMembersHandler } from './application/queries/list-members.handler';
 import { CheckDniHandler } from './application/queries/check-dni.handler';
+import { CheckEmailHandler } from './application/queries/check-email.handler';
 import { ValidatePreconditionsHandler } from './application/queries/validate-preconditions.handler';
 import { GetLeaveSummaryHandler } from './application/queries/leave-summary.handler';
 import { GetReinstatementSummaryHandler } from './application/queries/reinstatement-summary.handler';
@@ -43,12 +44,10 @@ import { MEMBER_REPOSITORY } from './domain/repositories/member.repository';
 import { PrismaMemberRepository } from './infrastructure/persistence/prisma-member.repository';
 import { STATUS_HISTORY_REPOSITORY } from './domain/repositories/status-history.repository';
 import { PrismaStatusHistoryRepository } from './infrastructure/persistence/prisma-status-history.repository';
-import { ENCRYPTION_SERVICE } from './domain/ports/encryption-service.port';
 import { REGISTRATION_CHARGE_PORT } from './domain/ports/registration-charge.port';
 import { PrismaRegistrationChargeAdapter } from './infrastructure/ports/prisma-registration-charge.adapter';
 import { SUBSCRIPTION_QUERY_PORT } from './domain/ports/subscription-query.port';
 import { PrismaSubscriptionQueryAdapter } from './infrastructure/ports/prisma-subscription-query.adapter';
-import { Aes256EncryptionService } from './infrastructure/services/aes256-encryption.service';
 import { MemberPrismaMapper } from './infrastructure/persistence/member-prisma.mapper';
 import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma-tenant.service';
 import { PrismaMemberOutboxPublisher } from './infrastructure/services/prisma-member-outbox.publisher';
@@ -68,9 +67,11 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
  * - MemberLeaveController para endpoints REST de baja y rehabilitación de socio (UC-013)
  * - Handlers CQRS: crear, actualizar, desactivar, importar plantillas, registro simple, baja, rehabilitación, consultas
  * - Repositorios MemberType, FiscalYear, Member y StatusHistory vía inyección por token
- * - Aes256EncryptionService para cifrado de IBAN (RNF-006)
  * - MemberPrismaMapper como servicio inyectable
  * - PrismaTenantService para acceso a la BD del tenant (ADR-002)
+ *
+ * ENCRYPTION_SERVICE y TENANT_CREDENTIAL_PROVIDER provistos globalmente
+ * por TenantCredentialsModule (RNF-004, RNF-006).
  */
 @Module({
   imports: [CqrsModule],
@@ -78,8 +79,11 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
     MemberTypesController,
     FiscalYearsController,
     MemberStatusController,
-    MembersController,
+    // RegistrationController DEBE ir antes de MembersController para que
+    // rutas específicas como /preconditions, /check-dni, /simple-registration
+    // se resuelvan antes que la ruta genérica :id (ParseUUIDPipe).
     RegistrationController,
+    MembersController,
     MemberLeaveController,
   ],
   providers: [
@@ -130,6 +134,7 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
 
     // Handlers CQRS — Queries (Member - UC-011)
     CheckDniHandler,
+    CheckEmailHandler,
     ValidatePreconditionsHandler,
 
     // Handlers CQRS — Queries (Member - UC-013)
@@ -166,11 +171,7 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
       useClass: PrismaSubscriptionQueryAdapter,
     },
 
-    // Servicio de cifrado (RNF-006)
-    {
-      provide: ENCRYPTION_SERVICE,
-      useClass: Aes256EncryptionService,
-    },
+    // ENCRYPTION_SERVICE provisto globalmente por TenantCredentialsModule (RNF-006)
 
     // Mapper inyectable para Member
     MemberPrismaMapper,

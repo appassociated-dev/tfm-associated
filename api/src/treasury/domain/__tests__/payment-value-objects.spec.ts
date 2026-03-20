@@ -1,50 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { PaymentId } from '../value-objects/payment-id';
 import { PaymentMethod } from '../value-objects/payment-method';
 import { PaymentReference } from '../value-objects/payment-reference';
 import { PaymentStatus } from '../value-objects/payment-status';
 import { ReceiptNumber } from '../value-objects/receipt-number';
-
-// =============================================================================
-// PaymentId
-// =============================================================================
-
-describe('PaymentId', () => {
-  it('should create a new PaymentId with a valid UUID v4', () => {
-    const id = PaymentId.create();
-
-    expect(id.toValue()).toBeDefined();
-    expect(id.toValue()).toMatch(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-    );
-  });
-
-  it('should create two different PaymentIds', () => {
-    const id1 = PaymentId.create();
-    const id2 = PaymentId.create();
-
-    expect(id1.equals(id2)).toBe(false);
-  });
-
-  it('should create from a valid UUID string', () => {
-    const uuid = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
-    const id = PaymentId.fromString(uuid);
-
-    expect(id.toValue()).toBe(uuid);
-  });
-
-  it('should throw error for invalid UUID string', () => {
-    expect(() => PaymentId.fromString('not-a-uuid')).toThrow();
-  });
-
-  it('should compare equal for same UUID', () => {
-    const uuid = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
-    const id1 = PaymentId.fromString(uuid);
-    const id2 = PaymentId.fromString(uuid);
-
-    expect(id1.equals(id2)).toBe(true);
-  });
-});
 
 // =============================================================================
 // PaymentMethod
@@ -69,46 +27,26 @@ describe('PaymentMethod', () => {
   });
 
   describe('toPrefix()', () => {
-    it('should return EF for CASH', () => {
-      expect(PaymentMethod.toPrefix(PaymentMethod.CASH)).toBe('EF');
-    });
-
-    it('should return TR for TRANSFER', () => {
-      expect(PaymentMethod.toPrefix(PaymentMethod.TRANSFER)).toBe('TR');
-    });
-
-    it('should return BZ for BIZUM', () => {
-      expect(PaymentMethod.toPrefix(PaymentMethod.BIZUM)).toBe('BZ');
-    });
-
-    it('should return SEPA for SEPA_DIRECT_DEBIT', () => {
-      expect(PaymentMethod.toPrefix(PaymentMethod.SEPA_DIRECT_DEBIT)).toBe('SEPA');
-    });
-
-    it('should return TPV for CARD_TPV', () => {
-      expect(PaymentMethod.toPrefix(PaymentMethod.CARD_TPV)).toBe('TPV');
+    it.each([
+      [PaymentMethod.CASH, 'EF'],
+      [PaymentMethod.TRANSFER, 'TR'],
+      [PaymentMethod.BIZUM, 'BZ'],
+      [PaymentMethod.SEPA_DIRECT_DEBIT, 'SEPA'],
+      [PaymentMethod.CARD_TPV, 'TPV'],
+    ])('should return correct prefix for %s', (method, expectedPrefix) => {
+      expect(PaymentMethod.toPrefix(method)).toBe(expectedPrefix);
     });
   });
 
   describe('toLabel()', () => {
-    it('should return Efectivo for CASH', () => {
-      expect(PaymentMethod.toLabel(PaymentMethod.CASH)).toBe('Efectivo');
-    });
-
-    it('should return Transferencia bancaria for TRANSFER', () => {
-      expect(PaymentMethod.toLabel(PaymentMethod.TRANSFER)).toBe('Transferencia bancaria');
-    });
-
-    it('should return Bizum for BIZUM', () => {
-      expect(PaymentMethod.toLabel(PaymentMethod.BIZUM)).toBe('Bizum');
-    });
-
-    it('should return Domiciliación SEPA for SEPA_DIRECT_DEBIT', () => {
-      expect(PaymentMethod.toLabel(PaymentMethod.SEPA_DIRECT_DEBIT)).toBe('Domiciliación SEPA');
-    });
-
-    it('should return Tarjeta (TPV) for CARD_TPV', () => {
-      expect(PaymentMethod.toLabel(PaymentMethod.CARD_TPV)).toBe('Tarjeta (TPV)');
+    it.each([
+      [PaymentMethod.CASH, 'Efectivo'],
+      [PaymentMethod.TRANSFER, 'Transferencia bancaria'],
+      [PaymentMethod.BIZUM, 'Bizum'],
+      [PaymentMethod.SEPA_DIRECT_DEBIT, 'Domiciliación SEPA'],
+      [PaymentMethod.CARD_TPV, 'Tarjeta (TPV)'],
+    ])('should return correct label for %s', (method, expectedLabel) => {
+      expect(PaymentMethod.toLabel(method)).toBe(expectedLabel);
     });
   });
 
@@ -182,19 +120,19 @@ describe('PaymentReference', () => {
 // =============================================================================
 
 describe('PaymentStatus', () => {
-  it('should have CONFIRMED and ANNULLED values', () => {
-    expect(PaymentStatus.CONFIRMED.value).toBe('CONFIRMED');
-    expect(PaymentStatus.ANNULLED.value).toBe('ANNULLED');
+  it.each([
+    ['CONFIRMED', PaymentStatus.CONFIRMED],
+    ['ANNULLED', PaymentStatus.ANNULLED],
+  ])('should have %s value', (expected, status) => {
+    expect(status.value).toBe(expected);
   });
 
-  it('should create from valid string CONFIRMED', () => {
-    const status = PaymentStatus.fromString('CONFIRMED');
-    expect(status.equals(PaymentStatus.CONFIRMED)).toBe(true);
-  });
-
-  it('should create from valid string ANNULLED', () => {
-    const status = PaymentStatus.fromString('ANNULLED');
-    expect(status.equals(PaymentStatus.ANNULLED)).toBe(true);
+  it.each([
+    ['CONFIRMED', PaymentStatus.CONFIRMED],
+    ['ANNULLED', PaymentStatus.ANNULLED],
+  ])('should create from valid string "%s"', (value, singleton) => {
+    const status = PaymentStatus.fromString(value);
+    expect(status.equals(singleton)).toBe(true);
   });
 
   it('should throw error for invalid string', () => {

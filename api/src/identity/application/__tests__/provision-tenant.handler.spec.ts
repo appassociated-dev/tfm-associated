@@ -8,6 +8,7 @@ import { TenantProvisionedEvent } from '../../domain/events/tenant-provisioned.e
 import { UserCreatedEvent } from '../../domain/events/user-created.event';
 import type { TenantRepository } from '../../domain/repositories/tenant.repository';
 import type { DatabaseProvisioningPort } from '../ports/database-provisioning.port';
+import type { TenantCredentialPort } from '../ports/tenant-credential.port';
 import type { ErrorReporter } from '../../../shared/domain';
 
 // Mock de argon2 para evitar cómputo real de hashing en tests unitarios
@@ -19,6 +20,7 @@ describe('ProvisionTenantHandler', () => {
   let handler: ProvisionTenantHandler;
   let tenantRepository: Record<string, ReturnType<typeof vi.fn>>;
   let databaseProvisioningService: Record<string, ReturnType<typeof vi.fn>>;
+  let tenantCredentialPort: Record<string, ReturnType<typeof vi.fn>>;
   let errorReporter: Record<string, ReturnType<typeof vi.fn>>;
 
   const validCommand: ProvisionTenantCommand = new ProvisionTenantCommand(
@@ -40,6 +42,7 @@ describe('ProvisionTenantHandler', () => {
       findById: vi.fn(),
       findByCif: vi.fn(),
       findBySlug: vi.fn(),
+      deleteById: vi.fn().mockResolvedValue(undefined),
     };
 
     databaseProvisioningService = {
@@ -49,6 +52,7 @@ describe('ProvisionTenantHandler', () => {
         password: 'tenant_pass',
       }),
       grantPermissions: vi.fn().mockResolvedValue(undefined),
+      grantSchemaPermissions: vi.fn().mockResolvedValue(undefined),
       runMigrations: vi.fn().mockResolvedValue(undefined),
       seedRoles: vi.fn().mockResolvedValue(undefined),
       createAdminUser: vi.fn().mockResolvedValue('admin-user-id-123'),
@@ -56,6 +60,11 @@ describe('ProvisionTenantHandler', () => {
       buildDatabaseUrl: vi
         .fn()
         .mockReturnValue('postgresql://tenant_user:tenant_pass@localhost:5432/db'),
+    };
+
+    tenantCredentialPort = {
+      persistCredentials: vi.fn().mockResolvedValue(undefined),
+      getCredentials: vi.fn(),
     };
 
     errorReporter = {
@@ -68,6 +77,7 @@ describe('ProvisionTenantHandler', () => {
     handler = new ProvisionTenantHandler(
       tenantRepository as unknown as TenantRepository,
       databaseProvisioningService as unknown as DatabaseProvisioningPort,
+      tenantCredentialPort as unknown as TenantCredentialPort,
       errorReporter as unknown as ErrorReporter,
     );
   });
@@ -107,7 +117,9 @@ describe('ProvisionTenantHandler', () => {
     expect(tenantRepository.save).toHaveBeenCalledOnce();
 
     // Verificar respuesta
-    expect(result.tenantId).toBeDefined();
+    expect(result.tenantId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    );
     expect(result.slug).toBe('pena-el-buen-gusto');
     expect(result.adminUserId).toBe('admin-user-id-123');
   });
@@ -156,8 +168,10 @@ describe('ProvisionTenantHandler', () => {
 
     await expect(handler.execute(validCommand)).rejects.toThrow(TenantProvisioningFailedError);
 
-    // Rollback debe haberse ejecutado
+    // Rollback de infraestructura debe haberse ejecutado
     expect(databaseProvisioningService.rollback).toHaveBeenCalledOnce();
+    // Tenant no fue guardado → no debe intentar deleteById
+    expect(tenantRepository.deleteById).not.toHaveBeenCalled();
 
     // ErrorReporter debe haberse invocado
     expect(errorReporter.captureException).toHaveBeenCalledOnce();
@@ -169,11 +183,14 @@ describe('ProvisionTenantHandler', () => {
 
     await expect(handler.execute(validCommand)).rejects.toThrow(TenantProvisioningFailedError);
 
-    // Rollback con dbName y username
+    // Rollback de infraestructura con dbName y username
     expect(databaseProvisioningService.rollback).toHaveBeenCalledOnce();
     const rollbackArgs = databaseProvisioningService.rollback.mock.calls[0];
     expect(rollbackArgs[0]).toMatch(/^associated_/);
     expect(rollbackArgs[1]).toBe('tenant_user');
+
+    // Tenant ya fue guardado → debe limpiarse
+    expect(tenantRepository.deleteById).toHaveBeenCalledOnce();
 
     // ErrorReporter invocado
     expect(errorReporter.captureException).toHaveBeenCalledOnce();
@@ -185,8 +202,10 @@ describe('ProvisionTenantHandler', () => {
 
     await expect(handler.execute(validCommand)).rejects.toThrow(TenantProvisioningFailedError);
 
-    // Rollback ejecutado
+    // Rollback de infraestructura ejecutado
     expect(databaseProvisioningService.rollback).toHaveBeenCalledOnce();
+    // Tenant ya fue guardado → debe limpiarse
+    expect(tenantRepository.deleteById).toHaveBeenCalledOnce();
   });
 
   it('debería ejecutar rollback si falla el save del tenant', async () => {
@@ -195,8 +214,10 @@ describe('ProvisionTenantHandler', () => {
 
     await expect(handler.execute(validCommand)).rejects.toThrow(TenantProvisioningFailedError);
 
-    // Rollback ejecutado
+    // Rollback de infraestructura ejecutado
     expect(databaseProvisioningService.rollback).toHaveBeenCalledOnce();
+    // Save falló → tenantSaved=false → no debe intentar deleteById
+    expect(tenantRepository.deleteById).not.toHaveBeenCalled();
   });
 
   it('debería hashear la contraseña con argon2', async () => {
@@ -209,6 +230,29 @@ describe('ProvisionTenantHandler', () => {
     const adminParams = databaseProvisioningService.createAdminUser.mock.calls[0][0];
     expect(adminParams.passwordHash).not.toBe('SecurePass123');
     expect(adminParams.passwordHash).toBe('$argon2id$hashed_password');
+  });
+
+  it('deberia llamar a persistCredentials con las credenciales generadas tras crear usuario de BD', async () => {
+    await handler.execute(validCommand);
+
+    expect(tenantCredentialPort.persistCredentials).toHaveBeenCalledOnce();
+    const [tenantId, username, password] = tenantCredentialPort.persistCredentials.mock.calls[0];
+    expect(tenantId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+    expect(username).toBe('tenant_user');
+    expect(password).toBe('tenant_pass');
+  });
+
+  it('deberia fallar la saga si persistCredentials falla', async () => {
+    const credentialError = new Error('Credential persistence failed');
+    tenantCredentialPort.persistCredentials.mockRejectedValue(credentialError);
+
+    await expect(handler.execute(validCommand)).rejects.toThrow(TenantProvisioningFailedError);
+
+    // Rollback de infraestructura debe haberse ejecutado
+    expect(databaseProvisioningService.rollback).toHaveBeenCalledOnce();
+    // El tenant ya fue guardado en DB-Main antes de persistCredentials, se debe limpiar
+    expect(tenantRepository.deleteById).toHaveBeenCalledOnce();
+    expect(errorReporter.captureException).toHaveBeenCalledOnce();
   });
 
   it('debería reportar el contexto del error al ErrorReporter en caso de fallo', async () => {

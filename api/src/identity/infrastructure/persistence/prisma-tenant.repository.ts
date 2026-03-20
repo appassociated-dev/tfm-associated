@@ -61,4 +61,9 @@ export class PrismaTenantRepository implements TenantRepository {
 
     return !!raw;
   }
+
+  /** Elimina un tenant por su UUID (compensación de saga). */
+  async deleteById(id: string): Promise<void> {
+    await this.prisma.tenant.deleteMany({ where: { id } });
+  }
 }

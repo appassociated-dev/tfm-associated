@@ -134,7 +134,7 @@ describe('ReinstateMemberHandler', () => {
     };
 
     prismaTenantService = {
-      getClient: vi.fn().mockReturnValue({
+      getClient: vi.fn().mockResolvedValue({
         $transaction: vi.fn().mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
           return fn({});
         }),

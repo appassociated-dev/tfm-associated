@@ -82,6 +82,8 @@ Antes de iniciar esta tarea, verificar que:
 | `us/us-035.md` | Criterios de aceptación: rehabilitación con pago de deuda, mantenimiento de antigüedad |
 | `bc/bc-membership.md` | Aggregate Member (deactivate, changeStatus), MemberStatus (VOLUNTARY_LEAVE, NONPAYMENT_LEAVE, DISCIPLINARY_LEAVE), DisciplinaryCase |
 | `uc/uc-007.md` | Máquina de estados, transiciones permitidas, estados terminales |
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 
 ## Puntos críticos
 
@@ -101,7 +103,7 @@ Antes de iniciar esta tarea, verificar que:
 |--------|-------------|---------|------------|
 | Baja accidental sin confirmación suficiente | Media | Alto | Implementar confirmación de doble paso con resumen de impacto; requerir re-escritura de texto "CONFIRMAR BAJA" |
 | Endpoint `leave-summary` no disponible y se confirma baja sin ver impacto | Baja | Alto | Bloquear botón "Confirmar" si leave-summary no cargó; mostrar alerta si no se pudo obtener resumen |
-| Cargos pendientes no visibles al secretario antes de confirmar baja | Baja | Medio | Sección destacada (alerta naranja) con listado de cargos pendientes y su importe total |
+| Cargos pendientes no visibles al secretario antes de confirmar baja | Baja | Medio | Sección destacada (alerta amarilla, `color="yellow"`) con listado de cargos pendientes y su importe total |
 | BC-Treasury no responde al consultar estado de cuotas (FE-2) | Baja | Medio | Mostrar "Estado de cuotas temporalmente no disponible" con opción de reintentar; permitir baja con advertencia |
 
 ## Plan de implementación
@@ -274,7 +276,7 @@ Crear en `web/src/features/membership/leave/hooks/`:
         queryClient.invalidateQueries({ queryKey: ['leave-summary'] });
         notifications.show({
           title: 'Baja voluntaria procesada',
-          message: `Baja efectiva el ${new Date(data.effectiveDate).toLocaleDateString('es-ES')}. Suscripciones cerradas: ${data.subscriptionsClosed}`,
+          message: `Baja efectiva el ${formatDate(data.effectiveDate)}. Suscripciones cerradas: ${data.subscriptionsClosed}`,
           color: 'green',
         });
       },
@@ -315,28 +317,44 @@ Crear en `web/src/features/membership/leave/components/`:
 - **`status-badge.tsx`**: Componente para mostrar estado del socio como badge con color:
   ```typescript
   const STATUS_CONFIG = {
-    ACTIVE: { color: 'green', label: 'Activo' },
-    PENDING_PAYMENT: { color: 'yellow', label: 'Pendiente de Pago' },
-    SUSPENDED: { color: 'orange', label: 'Suspendido' },
-    APPLICANT: { color: 'blue', label: 'Aspirante' },
-    VOLUNTARY_LEAVE: { color: 'gray', label: 'Baja Voluntaria' },
-    NONPAYMENT_LEAVE: { color: 'red', label: 'Baja por Impago' },
-    DISCIPLINARY_LEAVE: { color: 'dark', label: 'Baja Disciplinaria' },
-    DECEASED: { color: 'dark', label: 'Fallecido' },
+    ACTIVE: { color: 'green', label: 'Activo', variant: 'light' },
+    APPLICANT: { color: 'blue', label: 'Aspirante', variant: 'light' },
+    PENDING_PAYMENT: { color: 'yellow', label: 'Pendiente de Pago', variant: 'light' },
+    SUSPENDED: { color: 'red', label: 'Suspendido', variant: 'light' },
+    VOLUNTARY_LEAVE: { color: 'gray', label: 'Baja Voluntaria', variant: 'light' },
+    NONPAYMENT_LEAVE: { color: 'red', label: 'Baja por Impago', variant: 'filled' },
+    DISCIPLINARY_LEAVE: { color: 'dark', label: 'Baja Disciplinaria', variant: 'light' },
+    DECEASED: { color: 'dark', label: 'Fallecido', variant: 'filled' },
   };
   ```
-  Renderiza un Mantine Badge con el color y texto correspondiente al estado.
+
+  Mapeo de estados a colores según sistema de marca:
+
+  | Estado | Color | Token Mantine |
+  |--------|-------|---------------|
+  | ACTIVE | green | `color="green"` |
+  | APPLICANT | blue | `color="blue"` |
+  | PENDING_PAYMENT | yellow | `color="yellow"` |
+  | SUSPENDED | red | `color="red"` |
+  | VOLUNTARY_LEAVE | gray | `color="gray"` |
+  | NONPAYMENT_LEAVE | red | `color="red"` variant="filled" (para diferenciar de SUSPENDED que usa variant="light") |
+  | DISCIPLINARY_LEAVE | dark | `color="dark"` |
+  | DECEASED | dark | `color="dark"` variant="filled" |
+
+  Los estados DISCIPLINARY_LEAVE y DECEASED usan `color="dark"` como extensión del mapeo de marca. NONPAYMENT_LEAVE usa `variant="filled"` para diferenciarse visualmente de SUSPENDED, ambos en rojo.
+
+  Renderiza un Mantine Badge con el color, variant y texto correspondiente al estado. Todos los badges usan `radius="sm"` como default de marca.
 
 - **`status-timeline.tsx`**: Componente de timeline de historial de estados:
   - Usa Mantine Timeline component
   - Cada entrada muestra:
     - Icono de color según el nuevo estado
-    - Fecha formateada
+    - Fecha formateada (formato largo: "8 de marzo de 2026", dd/MM/yyyy en contextos compactos. NUNCA formato anglosajón)
     - Transición: "Estado anterior -> Estado nuevo"
     - Motivo del cambio
     - Quién ejecutó el cambio (nombre o "Sistema")
   - Entradas ordenadas cronológicamente (más reciente arriba)
-  - Badge diferenciado para cambios automáticos (Sistema) vs manuales
+  - Badge diferenciado para cambios automáticos (Sistema) vs manuales. Badges con `variant="light"` y `radius="sm"` como defaults de marca.
 
 ### Paso 5: Página de baja voluntaria
 
@@ -355,22 +373,25 @@ Crear en `web/src/features/membership/leave/pages/`:
       - "Baja a fin de ejercicio ([fecha])" — efectiva 31/12/YYYY
       - "Baja tras preaviso de 30 días ([fecha])" — efectiva hoy + 30 días
     - Cada opción muestra la fecha efectiva calculada
+    - Formato de fechas: largo "8 de marzo de 2026", compacto "08/03/2026" (dd/MM/yyyy). NUNCA usar formato anglosajón.
   - **Sección: Impacto financiero**
-    - Alerta informativa (naranja si hay deuda, verde si no hay):
+    - Alerta informativa (amarilla `color="yellow"` si hay deuda, verde si no hay):
     - Tabla de suscripciones activas que se cerrarán:
       - Plan, importe efectivo, periodicidad
     - Tabla de cargos pendientes que se mantienen:
       - Descripción, importe, fecha vencimiento
     - Total deuda pendiente (destacado, tamaño grande, rojo si > 0)
+    - Usar `formatMoney()` de `@/shared/utils/format-money.ts` para mostrar todos los importes.
+      Backend envía centavos como enteros: 34500 → "345,00 €"
     - Notas: "Los cargos pendientes se mantienen como deuda" y "No se generarán nuevos cargos futuros"
   - **Sección: Motivo**
     - Campo motivo (Textarea, @mantine/form, requerido, min 3 chars, max 500)
   - **Confirmación:**
-    - Botón "Confirmar Baja Voluntaria" (color rojo, loading state)
+    - Botón "Confirmar Baja Voluntaria" (`color="red"`, loading state). Nunca usar `variant="gradient"`.
     - Al pulsar: modal de confirmación de doble paso:
       - Resumen: "Se dará de baja al socio [Nombre] (#XXXXX) con fecha efectiva [fecha]"
       - "Esta acción cerrará X suscripciones activas"
-      - "Los cargos pendientes (XXX EUR) se mantienen"
+      - "Los cargos pendientes (XXX,XX €) se mantienen" (usar `formatMoney()`)
       - Botón "Confirmar" (rojo) y "Cancelar"
 
 ### Paso 6: Pantalla de baja por impago
@@ -391,12 +412,12 @@ Crear en `web/src/features/membership/leave/pages/`:
     - Datos del socio
     - Deuda detallada (cargos, importes, fechas)
     - Fechas de notificaciones enviadas
-    - Botón "Generar Certificado PDF" (descarga el PDF generado por backend)
+    - Botón "Generar Certificado PDF" (`color="brand"`, descarga el PDF generado por backend). Nunca usar `variant="gradient"`.
   - **Sección: Oportunidad de regularización**
-    - Si el socio paga antes del plazo, mostrar botón "Cancelar Baja - Regularización"
+    - Si el socio paga antes del plazo, mostrar botón "Cancelar Baja - Regularización" (`color="brand"`)
     - Al pulsar: confirmar que se cancela el proceso y el socio vuelve a ACTIVO
   - **Confirmación de baja:**
-    - Botón "Ejecutar Baja por Impago" (color rojo, con confirmación de doble paso)
+    - Botón "Ejecutar Baja por Impago" (`color="red"`, con confirmación de doble paso). Nunca usar `variant="gradient"`.
 
 ### Paso 7: Pantalla de rehabilitación
 
@@ -410,17 +431,19 @@ Crear en `web/src/features/membership/leave/pages/`:
     - Nombre, número, fecha de baja, tipo de baja (StatusBadge)
   - **Sección: Desglose de importe a pagar**
     - Tabla desglosada (Mantine Table):
-      - Deuda pendiente: XXX EUR
-      - Penalización: XXX EUR (si aplica según estatutos)
-      - Nueva inscripción: XXX EUR (si aplica)
-      - **Total a pagar: XXX EUR** (destacado)
-    - Alerta: "El pago debe ser completo. No se permiten pagos parciales." (FE-3)
+      - Deuda pendiente: XXX,XX €
+      - Penalización: XXX,XX € (si aplica según estatutos)
+      - Nueva inscripción: XXX,XX € (si aplica)
+      - **Total a pagar: XXX,XX €** (destacado)
+    - Usar `formatMoney()` de `@/shared/utils/format-money.ts` para mostrar todos los importes.
+      Backend envía centavos como enteros: 34500 → "345,00 €"
+    - Alerta (`color="yellow"`): "El pago debe ser completo. No se permiten pagos parciales." (FE-3)
   - **Sección: Antigüedad**
     - Si `keepSeniority = true`: "Se recuperará la antigüedad anterior (XX meses)"
     - Si `keepSeniority = false`: "La antigüedad comenzará desde la fecha de rehabilitación"
   - **Confirmación:**
-    - Checkbox: "Confirmo que el pago de XXX EUR ha sido recibido" (obligatorio)
-    - Botón "Rehabilitar Socio" (color verde, loading state, deshabilitado hasta confirmar pago)
+    - Checkbox: "Confirmo que el pago de XXX,XX € ha sido recibido" (obligatorio, usar `formatMoney()`)
+    - Botón "Rehabilitar Socio" (`color="green"`, loading state, deshabilitado hasta confirmar pago). Nunca usar `variant="gradient"`.
     - Al confirmar exitoso: notificación de éxito + redirigir a ficha del socio
 
 ### Paso 8: Integración con ficha del socio
@@ -430,15 +453,15 @@ Crear en `web/src/features/membership/leave/components/`:
 - **`leave-actions.tsx`**: Componente de acciones de baja integrable en la ficha del socio:
   - Consulta transiciones disponibles via `useAvailableTransitions(memberId)`
   - Si el socio puede darse de baja (transición a VOLUNTARY_LEAVE disponible):
-    - Botón "Procesar Baja Voluntaria" (color rojo outline, icono `IconUserMinus`)
+    - Botón "Procesar Baja Voluntaria" (`color="red"`, `variant="outline"`, icono `IconUserMinus`)
     - Link a `/members/:id/leave`
   - Si el socio está en estado terminal rehabilitable:
-    - Botón "Rehabilitar Socio" (color verde, icono `IconUserPlus`)
+    - Botón "Rehabilitar Socio" (`color="green"`, icono `IconUserPlus`)
     - Link a `/members/:id/reinstate`
   - Si el socio está en estado terminal inmutable (DISCIPLINARY_LEAVE, DECEASED):
     - Texto informativo: "Este socio está dado de baja de forma permanente"
   - Si el socio está en PENDING_PAYMENT y es tesorero:
-    - Botón "Procesar Baja por Impago" (color naranja)
+    - Botón "Procesar Baja por Impago" (`color="yellow"`, warning según sistema de marca)
 
 ### Paso 9: Integración con AppShell y rutas
 

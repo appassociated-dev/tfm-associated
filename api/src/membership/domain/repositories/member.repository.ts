@@ -28,8 +28,12 @@ export interface MemberRepository {
   /** Busca un socio por su identificador único. */
   findById(id: MemberId): Promise<Member | null>;
 
-  /** Persiste un socio (creación o actualización con optimistic locking). */
-  save(member: Member): Promise<void>;
+  /**
+   * Persiste un socio (creación o actualización con optimistic locking).
+   * @param member Aggregate a persistir.
+   * @param tx Cliente transaccional opcional para garantizar atomicidad con otras operaciones.
+   */
+  save(member: Member, tx?: unknown): Promise<void>;
 
   /** Busca socios por estado. */
   findByStatus(status: MemberStatus): Promise<Member[]>;

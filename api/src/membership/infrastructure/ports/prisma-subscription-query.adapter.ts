@@ -27,7 +27,7 @@ export class PrismaSubscriptionQueryAdapter implements SubscriptionQueryPort {
 
   /** Obtiene el PrismaClient del tenant actual. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get prisma(): any {
+  private async getPrisma(): Promise<any> {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaSubscriptionQueryAdapter. Llamar setTenantId() primero.',
@@ -42,7 +42,9 @@ export class PrismaSubscriptionQueryAdapter implements SubscriptionQueryPort {
    */
   async getActiveSubscriptions(memberId: string): Promise<SubscriptionSummary[]> {
     // Obtener la cuenta del socio
-    const memberAccount = await this.prisma.memberAccount.findFirst({
+    const memberAccount = await (
+      await this.getPrisma()
+    ).memberAccount.findFirst({
       where: { memberId },
     });
 
@@ -51,7 +53,9 @@ export class PrismaSubscriptionQueryAdapter implements SubscriptionQueryPort {
     }
 
     // Buscar suscripciones activas (sin fecha de baja)
-    const subscriptions = await this.prisma.feeSubscription.findMany({
+    const subscriptions = await (
+      await this.getPrisma()
+    ).feeSubscription.findMany({
       where: {
         memberAccountId: memberAccount.id,
         leaveDate: null,
@@ -77,7 +81,9 @@ export class PrismaSubscriptionQueryAdapter implements SubscriptionQueryPort {
    */
   async getPendingCharges(memberId: string): Promise<PendingChargeSummary[]> {
     // Obtener la cuenta del socio
-    const memberAccount = await this.prisma.memberAccount.findFirst({
+    const memberAccount = await (
+      await this.getPrisma()
+    ).memberAccount.findFirst({
       where: { memberId },
     });
 
@@ -86,7 +92,9 @@ export class PrismaSubscriptionQueryAdapter implements SubscriptionQueryPort {
     }
 
     // Buscar cargos pendientes
-    const charges = await this.prisma.charge.findMany({
+    const charges = await (
+      await this.getPrisma()
+    ).charge.findMany({
       where: {
         memberAccountId: memberAccount.id,
         status: 'PENDING',
@@ -109,7 +117,9 @@ export class PrismaSubscriptionQueryAdapter implements SubscriptionQueryPort {
    */
   async getTotalPendingDebt(memberId: string): Promise<number> {
     // Obtener la cuenta del socio
-    const memberAccount = await this.prisma.memberAccount.findFirst({
+    const memberAccount = await (
+      await this.getPrisma()
+    ).memberAccount.findFirst({
       where: { memberId },
     });
 
@@ -118,7 +128,9 @@ export class PrismaSubscriptionQueryAdapter implements SubscriptionQueryPort {
     }
 
     // Sumar cargos pendientes
-    const result = await this.prisma.charge.aggregate({
+    const result = await (
+      await this.getPrisma()
+    ).charge.aggregate({
       _sum: {
         finalAmount: true,
       },
@@ -138,7 +150,7 @@ export class PrismaSubscriptionQueryAdapter implements SubscriptionQueryPort {
    */
   async closeSubscriptions(memberId: string, cancelReason: string, tx?: unknown): Promise<number> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const client = (tx ?? this.prisma) as any;
+    const client = (tx ?? (await this.getPrisma())) as any;
     const now = new Date();
 
     // Obtener la cuenta del socio
@@ -172,7 +184,7 @@ export class PrismaSubscriptionQueryAdapter implements SubscriptionQueryPort {
    */
   async markChargesAsPaid(memberId: string, chargeIds: string[], tx?: unknown): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const client = (tx ?? this.prisma) as any;
+    const client = (tx ?? (await this.getPrisma())) as any;
 
     // Obtener la cuenta del socio para verificar pertenencia
     const memberAccount = await client.memberAccount.findFirst({

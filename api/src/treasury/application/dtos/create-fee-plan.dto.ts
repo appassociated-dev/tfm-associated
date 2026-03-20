@@ -53,16 +53,17 @@ export class CreateFeePlanDto {
   })
   type!: string;
 
-  @ApiProperty({
-    description: 'Frecuencia de cobro: MONTHLY, QUARTERLY, BIANNUAL, ANNUAL, CUSTOM',
+  @ApiPropertyOptional({
+    description:
+      'Frecuencia de cobro: MONTHLY, QUARTERLY, BIANNUAL, ANNUAL, CUSTOM. Obligatoria para RECURRING, ignorada para ONE_TIME',
     example: 'ANNUAL',
     enum: ['MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANNUAL', 'CUSTOM'],
   })
-  @IsNotEmpty({ message: 'La frecuencia es obligatoria.' })
+  @IsOptional()
   @IsEnum(['MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANNUAL', 'CUSTOM'], {
     message: 'La frecuencia debe ser MONTHLY, QUARTERLY, BIANNUAL, ANNUAL o CUSTOM.',
   })
-  frequency!: string;
+  frequency?: string | null;
 
   @ApiProperty({
     description: 'Importe en centavos (entero >= 0)',

@@ -24,7 +24,7 @@ export class PrismaMemberAccountRepository implements MemberAccountRepository {
 
   /** Obtiene el PrismaClient del tenant actual. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private get prisma(): any {
+  private async getPrisma(): Promise<any> {
     if (!this.tenantId) {
       throw new Error(
         'tenantId no establecido en PrismaMemberAccountRepository. Llamar setTenantId() primero.',
@@ -40,83 +40,91 @@ export class PrismaMemberAccountRepository implements MemberAccountRepository {
   async save(account: MemberAccount): Promise<void> {
     const accountData = MemberAccountPrismaMapper.toPersistence(account);
 
-    await this.prisma.$transaction(async (tx: any) => {
-      await tx.memberAccount.upsert({
-        where: { id: account.id.toValue() },
-        create: {
-          id: accountData.id,
-          memberId: accountData.memberId,
-          createdAt: accountData.createdAt,
-        },
-        update: {
-          memberId: accountData.memberId,
-        },
-      });
-
-      for (const subscription of account.subscriptions) {
-        const subData = FeeSubscriptionPrismaMapper.toPersistence(subscription);
-        await tx.feeSubscription.upsert({
-          where: { id: subscription.id.toValue() },
-          create: { ...subData, memberAccountId: account.id.toValue() },
-          update: subData,
+    await (
+      await this.getPrisma()
+    ).$transaction(
+      async (tx: {
+        [model: string]: { upsert: (args: Record<string, unknown>) => Promise<unknown> };
+      }) => {
+        await tx.memberAccount.upsert({
+          where: { id: account.id.toValue() },
+          create: {
+            id: accountData.id,
+            memberId: accountData.memberId,
+            createdAt: accountData.createdAt,
+          },
+          update: {
+            memberId: accountData.memberId,
+          },
         });
-      }
 
-      for (const charge of account.charges) {
-        const chargeData = {
-          id: charge.id.toValue(),
-          memberAccountId: account.id.toValue(),
-          feeSubscriptionId: charge.subscriptionId?.toValue() ?? null,
-          baseAmount: charge.baseAmount.amount,
-          finalAmount: charge.finalAmount.amount,
-          description: charge.description.description,
-          fiscalYearId: charge.description.fiscalYearId ?? null,
-          billingMonth: charge.billingMonth,
-          billingYear: charge.billingYear,
-          issueDate: charge.issueDate,
-          dueDate: charge.dueDate,
-          status: charge.status.value,
-          paidAmount: charge.paidAmount.amount,
-          isProrated: charge.isProrated,
-          isManual: charge.isManual,
-          createdAt: charge.createdAt,
-        };
+        for (const subscription of account.subscriptions) {
+          const subData = FeeSubscriptionPrismaMapper.toPersistence(subscription);
+          await tx.feeSubscription.upsert({
+            where: { id: subscription.id.toValue() },
+            create: { ...subData, memberAccountId: account.id.toValue() },
+            update: subData,
+          });
+        }
 
-        await tx.charge.upsert({
-          where: { id: charge.id.toValue() },
-          create: chargeData,
-          update: chargeData,
-        });
-      }
+        for (const charge of account.charges) {
+          const chargeData = {
+            id: charge.id.toValue(),
+            memberAccountId: account.id.toValue(),
+            feeSubscriptionId: charge.subscriptionId?.toValue() ?? null,
+            baseAmount: charge.baseAmount.amount,
+            finalAmount: charge.finalAmount.amount,
+            description: charge.description.description,
+            fiscalYearId: charge.description.fiscalYearId ?? null,
+            billingMonth: charge.billingMonth,
+            billingYear: charge.billingYear,
+            issueDate: charge.issueDate,
+            dueDate: charge.dueDate,
+            status: charge.status.value,
+            paidAmount: charge.paidAmount.amount,
+            isProrated: charge.isProrated,
+            isManual: charge.isManual,
+            createdAt: charge.createdAt,
+          };
 
-      for (const payment of account.payments) {
-        const paymentData = {
-          id: payment.id.toValue(),
-          memberAccountId: account.id.toValue(),
-          chargeId: payment.chargeId.toValue(),
-          amount: payment.amount.amount,
-          paymentMethod: payment.paymentMethod.value,
-          paymentDate: payment.paymentDate,
-          paymentReference: payment.paymentReference.value,
-          receiptNumber: payment.receiptNumber?.value ?? null,
-          notes: payment.notes,
-          registeredBy: payment.registeredBy,
-          status: payment.status.value,
-          createdAt: payment.createdAt,
-        };
+          await tx.charge.upsert({
+            where: { id: charge.id.toValue() },
+            create: chargeData,
+            update: chargeData,
+          });
+        }
 
-        await tx.payment.upsert({
-          where: { id: payment.id.toValue() },
-          create: paymentData,
-          update: paymentData,
-        });
-      }
-    });
+        for (const payment of account.payments) {
+          const paymentData = {
+            id: payment.id.toValue(),
+            memberAccountId: account.id.toValue(),
+            chargeId: payment.chargeId.toValue(),
+            amount: payment.amount.amount,
+            paymentMethod: payment.paymentMethod.value,
+            paymentDate: payment.paymentDate,
+            paymentReference: payment.paymentReference.value,
+            receiptNumber: payment.receiptNumber?.value ?? null,
+            notes: payment.notes,
+            registeredBy: payment.registeredBy,
+            status: payment.status.value,
+            createdAt: payment.createdAt,
+          };
+
+          await tx.payment.upsert({
+            where: { id: payment.id.toValue() },
+            create: paymentData,
+            update: paymentData,
+          });
+        }
+      },
+    );
   }
 
   /** Busca una cuenta de socio por su identificador único, incluyendo suscripciones. */
   async findById(id: MemberAccountId): Promise<MemberAccount | null> {
-    const raw = await this.prisma.memberAccount.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).memberAccount.findUnique({
       where: { id: id.toValue() },
       include: { subscriptions: true, charges: true, payments: true },
     });
@@ -128,7 +136,9 @@ export class PrismaMemberAccountRepository implements MemberAccountRepository {
 
   /** Busca una cuenta de socio por el identificador del socio asociado. */
   async findByMemberId(memberId: string): Promise<MemberAccount | null> {
-    const raw = await this.prisma.memberAccount.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).memberAccount.findUnique({
       where: { memberId },
       include: { subscriptions: true, charges: true, payments: true },
     });
@@ -140,7 +150,9 @@ export class PrismaMemberAccountRepository implements MemberAccountRepository {
 
   /** Verifica si ya existe una cuenta de socio para el socio dado. */
   async existsByMemberId(memberId: string): Promise<boolean> {
-    const raw = await this.prisma.memberAccount.findUnique({
+    const raw = await (
+      await this.getPrisma()
+    ).memberAccount.findUnique({
       where: { memberId },
     });
 
@@ -152,7 +164,9 @@ export class PrismaMemberAccountRepository implements MemberAccountRepository {
    * Incluye las suscripciones para poder evaluar las activas en el dominio.
    */
   async findAllWithActiveSubscriptions(): Promise<MemberAccount[]> {
-    const rawList = await this.prisma.memberAccount.findMany({
+    const rawList = await (
+      await this.getPrisma()
+    ).memberAccount.findMany({
       where: {
         subscriptions: {
           some: { status: 'ACTIVE' },

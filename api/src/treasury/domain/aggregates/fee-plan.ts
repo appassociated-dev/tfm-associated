@@ -362,6 +362,12 @@ export class FeePlan extends AggregateRoot<FeePlanId> {
     this._updatedAt = new Date();
   }
 
+  /** Activa el plan de cuota. */
+  activate(): void {
+    this._active = true;
+    this._updatedAt = new Date();
+  }
+
   /** Indica si el plan es de tipo recurrente. */
   isRecurring(): boolean {
     return this._type.equals(PlanType.RECURRING);

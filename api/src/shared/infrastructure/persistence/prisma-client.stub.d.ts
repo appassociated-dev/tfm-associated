@@ -18,6 +18,8 @@ declare module '@prisma-main' {
     type: string;
     status: string;
     databaseName: string;
+    databaseUser: string | null;
+    databasePasswordEncrypted: string | null;
     contactEmail: string;
     createdAt: Date;
   }
@@ -94,6 +96,7 @@ declare module '@prisma-main' {
     findUnique(args: {
       where: Record<string, unknown>;
       include?: Record<string, boolean>;
+      select?: Record<string, boolean>;
     }): Promise<TRaw | null>;
     findFirst(args: {
       where: Record<string, unknown>;

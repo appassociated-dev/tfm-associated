@@ -4,6 +4,8 @@ import { GetFeePlanQuery } from '../get-fee-plan.query';
 import { ListFeePlansHandler } from '../list-fee-plans.handler';
 import { ListFeePlansQuery } from '../list-fee-plans.query';
 import { FeePlanRepository } from '../../../domain/repositories/fee-plan.repository';
+import { MemberTypeFeePlanRepository } from '../../../domain/repositories/member-type-fee-plan.repository';
+import { MemberTypeQueryPort } from '../../../domain/ports/member-type-query.port';
 import { FeePlan } from '../../../domain/aggregates/fee-plan';
 import { FeePlanNotFoundError } from '../../../domain/exceptions';
 
@@ -37,6 +39,8 @@ function createExistingFeePlan(
 describe('GetFeePlanHandler', () => {
   let handler: GetFeePlanHandler;
   let feePlanRepository: FeePlanRepository;
+  let memberTypeFeePlanRepository: MemberTypeFeePlanRepository;
+  let memberTypeQueryPort: MemberTypeQueryPort;
 
   beforeEach(() => {
     feePlanRepository = {
@@ -49,10 +53,35 @@ describe('GetFeePlanHandler', () => {
       hasActiveSubscriptions: vi.fn(),
     };
 
-    handler = new GetFeePlanHandler(feePlanRepository);
+    memberTypeFeePlanRepository = {
+      setTenantId: vi.fn(),
+      save: vi.fn(),
+      saveMany: vi.fn(),
+      findByFeePlanId: vi.fn().mockResolvedValue([]),
+      findByMemberTypeId: vi.fn(),
+      findDefault: vi.fn(),
+      deleteByFeePlanId: vi.fn(),
+    };
+
+    memberTypeQueryPort = {
+      setTenantId: vi.fn(),
+      findAllActive: vi.fn(),
+      findById: vi.fn().mockResolvedValue({
+        id: 'mt-1',
+        code: 'NUMERARIO',
+        name: 'Socio Numerario',
+        active: true,
+      }),
+    };
+
+    handler = new GetFeePlanHandler(
+      feePlanRepository,
+      memberTypeFeePlanRepository,
+      memberTypeQueryPort,
+    );
   });
 
-  it('should return fee plan DTO when found', async () => {
+  it('should return fee plan DTO with empty linkedMemberTypes when found', async () => {
     const query = new GetFeePlanQuery(TENANT_ID, FEE_PLAN_ID);
 
     const result = await handler.execute(query);
@@ -68,9 +97,38 @@ describe('GetFeePlanHandler', () => {
     expect(result.currency).toBe('EUR');
     expect(result.billingMonths).toEqual([1]);
     expect(result.active).toBe(true);
+    expect(result.linkedMemberTypes).toEqual([]);
 
     expect(feePlanRepository.setTenantId).toHaveBeenCalledWith(TENANT_ID);
+    expect(memberTypeFeePlanRepository.setTenantId).toHaveBeenCalledWith(TENANT_ID);
+    expect(memberTypeQueryPort.setTenantId).toHaveBeenCalledWith(TENANT_ID);
     expect(feePlanRepository.findById).toHaveBeenCalledTimes(1);
+    expect(memberTypeFeePlanRepository.findByFeePlanId).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return fee plan DTO with linkedMemberTypes populated', async () => {
+    const { MemberTypeFeePlan } = await import('../../../domain/entities/member-type-fee-plan');
+    const assignment = MemberTypeFeePlan.create({
+      memberTypeId: 'mt-1',
+      feePlanId: FEE_PLAN_ID,
+      isDefault: true,
+      order: 1,
+      active: true,
+    });
+    (memberTypeFeePlanRepository.findByFeePlanId as ReturnType<typeof vi.fn>).mockResolvedValue([
+      assignment,
+    ]);
+
+    const query = new GetFeePlanQuery(TENANT_ID, FEE_PLAN_ID);
+    const result = await handler.execute(query);
+
+    expect(result.linkedMemberTypes).toHaveLength(1);
+    expect(result.linkedMemberTypes![0].memberTypeId).toBe('mt-1');
+    expect(result.linkedMemberTypes![0].memberTypeName).toBe('Socio Numerario');
+    expect(result.linkedMemberTypes![0].feePlanId).toBe(FEE_PLAN_ID);
+    expect(result.linkedMemberTypes![0].isDefault).toBe(true);
+    expect(result.linkedMemberTypes![0].order).toBe(1);
+    expect(result.linkedMemberTypes![0].active).toBe(true);
   });
 
   it('should throw FeePlanNotFoundError when plan does not exist (404)', async () => {

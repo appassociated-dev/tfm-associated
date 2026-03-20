@@ -62,6 +62,33 @@ describe('Tenant', () => {
     expect(tenant.databaseName).toBe(expectedDbName);
   });
 
+  it('deberia generar un databaseUser correcto (tenant_{id} con guiones bajos)', () => {
+    const tenant = Tenant.create(validProps);
+    const expectedDbUser = `tenant_${tenant.id.toValue().replace(/-/g, '_')}`;
+
+    expect(tenant.databaseUser).toBe(expectedDbUser);
+  });
+
+  it('deberia reconstituir databaseUser desde persistencia', () => {
+    const tenant = Tenant.create(validProps);
+    tenant.pullDomainEvents();
+
+    const reconstituted = Tenant.reconstitute({
+      id: tenant.id,
+      name: tenant.name,
+      slug: tenant.slug,
+      cif: tenant.cif,
+      type: tenant.type,
+      status: tenant.status,
+      databaseName: tenant.databaseName,
+      databaseUser: 'custom_user',
+      contactEmail: tenant.contactEmail,
+      createdAt: tenant.createdAt,
+    });
+
+    expect(reconstituted.databaseUser).toBe('custom_user');
+  });
+
   it('debería establecer el status como ACTIVE', () => {
     const tenant = Tenant.create(validProps);
 

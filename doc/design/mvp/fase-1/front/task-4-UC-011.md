@@ -83,6 +83,8 @@ Antes de iniciar esta tarea, verificar que:
 | `bc/bc-treasury.md` | Entity FeeSubscription (plan UNICA, cierre automático), Charge (cargo de inscripción) |
 | `adr/adr-010.md` | Formato de respuesta API, headers |
 | `rnf/rnf-001.md` | Validación de DNI (RNFT-009): algoritmo mod 23, soporte NIE |
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 
 ## Puntos críticos
 
@@ -316,7 +318,7 @@ Crear en `web/src/features/membership/registration/pages/`:
       memberTypeId: string | null;
     }>({ personalData: null, memberTypeId: null });
     ```
-  - Botones "Anterior" / "Siguiente" / "Confirmar Alta" según paso activo
+  - Botones "Anterior" (`variant="default"`) / "Siguiente" (`color="brand"`) / "Confirmar Alta" (`color="brand"`) según paso activo. Nunca usar `variant="gradient"`.
   - `useBlocker` de React Router para prevenir navegación accidental con datos sin guardar
 
 ### Paso 6: Paso 1 — Datos personales
@@ -334,6 +336,7 @@ Crear en `web/src/features/membership/registration/components/`:
   - Campo `birthDate` (DateInput de Mantine, requerido):
     - Calcula y muestra la edad automáticamente: "(30 años)"
     - Fecha máxima: hoy
+    - Formato de visualización: dd/MM/yyyy (ej. "08/03/2026"). NUNCA usar formato anglosajón.
   - Campo `email` (TextInput, type email, requerido)
   - Campo `phone` (TextInput, opcional, formato ES)
   - Campo `address` (TextInput, opcional)
@@ -350,11 +353,11 @@ Crear en `web/src/features/membership/registration/components/`:
   - Cada tipo se renderiza como Mantine Card (radio button visual):
     - Nombre del tipo (título)
     - Rango de edad (si definido): "Edad: 35+ años" o "Edad: 18-34 años"
-    - Derechos: badges "Voto" (verde), "Elegible para cargos" (azul)
+    - Derechos: badges "Voto" (`color="green"`), "Elegible para cargos" (`color="blue"`), ambos con `variant="light"` y `radius="sm"` (defaults de marca)
     - Descripción del tipo
   - Al seleccionar un tipo, verificar compatibilidad de edad:
     - Si la edad del aspirante NO cumple el rango del tipo:
-      - Alerta naranja: "El aspirante tiene 30 años, pero 'Adulto' requiere 35+ años"
+      - Alerta amarilla (color `yellow`): "El aspirante tiene 30 años, pero 'Adulto' requiere 35+ años"
       - Sugerencia: resaltar tipos compatibles con la edad del aspirante
       - Permitir continuar solo si se selecciona un tipo compatible
     - Si la edad SÍ cumple: indicador verde "Edad compatible"
@@ -373,20 +376,23 @@ Crear en `web/src/features/membership/registration/components/`:
     - Email
     - Tipo de socio seleccionado
     - Fecha de alta (hoy)
+    - Formato de fechas: largo "8 de marzo de 2026", compacto "08/03/2026" (dd/MM/yyyy). NUNCA usar formato anglosajón.
   - Sección "Cargos a generar":
-    - Checkbox (marcado por defecto, no editable): "Cuota de inscripción: 50.00EUR (UNICA)"
+    - Checkbox (marcado por defecto, no editable): "Cuota de inscripción: 345,00 € (UNICA)"
+    - Usar `formatMoney()` de `@/shared/utils/format-money.ts` para mostrar importes.
+      Backend envía centavos como enteros: 34500 → "345,00 €"
     - Si no hay plan de inscripción (FE-4): alerta roja bloqueante "Debe configurar un plan de cuota de inscripción" con link a configuración
   - Sección "Al confirmar":
     - Texto informativo con iconos:
       - "Se creará el socio en estado Activo"
       - "Se generará cargo de inscripción"
       - "Se asignará número de socio automáticamente"
-  - Botón "Confirmar Alta" con loading state y doble-click prevention
+  - Botón "Confirmar Alta" (`color="brand"`) con loading state y doble-click prevention. Nunca usar `variant="gradient"`.
   - Al confirmar exitoso:
     - Modal de éxito con datos del socio creado:
       - Número de socio asignado (#00343)
-      - Cargo de inscripción generado (50EUR, pendiente)
-    - Botones: "Dar de alta otro socio" (resetea wizard) / "Ver ficha del socio" (navega a detalle)
+      - Cargo de inscripción generado (pendiente). Usar `formatMoney()` para mostrar importe.
+    - Botones: "Dar de alta otro socio" (resetea wizard, `color="brand"`) / "Ver ficha del socio" (navega a detalle, `color="brand"`)
 
 ### Paso 9: Integración con AppShell y rutas
 

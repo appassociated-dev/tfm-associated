@@ -67,6 +67,12 @@ export class LeaveSummaryResponseDto {
   @ApiProperty({ description: 'Número de socio' })
   memberNumber!: string;
 
+  @ApiProperty({
+    description: 'Documento de identidad del socio (DNI/NIE/Pasaporte)',
+    required: false,
+  })
+  memberDni?: string;
+
   @ApiProperty({ description: 'Estado actual del socio' })
   currentStatus!: string;
 
@@ -95,6 +101,7 @@ export class LeaveSummaryResponseDto {
     memberId: string;
     memberName: string;
     memberNumber: string;
+    memberDni?: string;
     currentStatus: string;
     effectiveDateOptions: EffectiveDateOption[];
     activeSubscriptions: SubscriptionSummary[];
@@ -105,6 +112,7 @@ export class LeaveSummaryResponseDto {
     dto.memberId = params.memberId;
     dto.memberName = params.memberName;
     dto.memberNumber = params.memberNumber;
+    dto.memberDni = params.memberDni;
     dto.currentStatus = params.currentStatus;
     dto.totalPendingDebt = params.totalPendingDebt;
 

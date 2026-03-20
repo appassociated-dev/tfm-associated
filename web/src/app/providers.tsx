@@ -1,10 +1,12 @@
 import { type ReactNode } from 'react';
 import { MantineProvider } from '@mantine/core';
+import { DatesProvider } from '@mantine/dates';
 import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router';
+import { AuthProvider } from '@/features/auth/context/auth.provider';
 import { ErrorBoundary } from '@/shared/observability/error-boundary';
-import { theme } from './theme';
+import { associatedTheme } from '@/shared/theme/associated-theme';
 import { router } from './router';
 
 /** Cliente de React Query con configuración por defecto. */
@@ -25,16 +27,20 @@ interface AppProvidersProps {
 
 /**
  * Jerarquía de proveedores de la aplicación.
- * Orden: ErrorBoundary → MantineProvider → QueryClientProvider → RouterProvider.
+ * Orden: ErrorBoundary → MantineProvider → DatesProvider → Notifications → AuthProvider → QueryClientProvider → RouterProvider.
  */
 export function AppProviders({ children }: AppProvidersProps) {
   return (
     <ErrorBoundary>
-      <MantineProvider theme={theme}>
-        <Notifications />
-        <QueryClientProvider client={queryClient}>
-          {children ?? <RouterProvider router={router} />}
-        </QueryClientProvider>
+      <MantineProvider theme={associatedTheme} defaultColorScheme="auto">
+        <DatesProvider settings={{ locale: 'es' }}>
+          <Notifications />
+          <AuthProvider>
+            <QueryClientProvider client={queryClient}>
+              {children ?? <RouterProvider router={router} />}
+            </QueryClientProvider>
+          </AuthProvider>
+        </DatesProvider>
       </MantineProvider>
     </ErrorBoundary>
   );

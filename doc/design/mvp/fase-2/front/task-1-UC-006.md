@@ -71,6 +71,8 @@ Antes de iniciar esta tarea, verificar que:
 
 | Documento | Contenido relevante |
 |-----------|-------------------|
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 | `uc/uc-006.md` | Flujo completo: creación, actualización, consulta, campos específicos por colectividad |
 | `us/us-009.md` | Criterios: datos obligatorios, validaciones |
 | `us/us-010.md` | Criterios: campos específicos de cofradías |
@@ -91,6 +93,12 @@ Antes de iniciar esta tarea, verificar que:
 4. **Componente MemberSearchCombobox.** Componente reutilizable de búsqueda con debounce (300ms) que permite buscar socios por nombre, apellidos, DNI o número de socio. Usa `Mantine Combobox` con búsqueda asíncrona. Este componente se reutiliza en UC-020, UC-021, UC-023 y UC-024.
 
 5. **Rendimiento del listado.** La tabla de socios puede tener miles de registros. Usar paginación server-side con TanStack Query (`keepPreviousData: true`). Búsqueda con debounce de 400ms. Filtros: estado, tipo de socio, fecha de alta.
+
+6. **Biblioteca de iconos.** Todos los iconos deben usar exclusivamente `@tabler/icons-react`. No usar `lucide-react`, emojis ni ninguna otra biblioteca de iconos.
+
+7. **Formato de fechas.** Todas las fechas se muestran en formato español: formato largo "8 de marzo de 2026", formato compacto "08/03/2026" (dd/MM/yyyy). Nunca usar formato anglosajón (MM/dd/yyyy).
+
+8. **Botones de acción primaria.** Todos los botones de acción primaria deben usar `color="brand"`. Nunca usar `variant="gradient"`.
 
 ## Riesgos
 
@@ -150,11 +158,13 @@ Crear en `web/src/features/members/pages/`:
 
 - **`MembersListPage.tsx`**: Página principal `/members`
   - Tabla con columnas: nº socio, nombre, apellidos, DNI, tipo, estado, fecha alta
+    - Columnas numéricas y de fecha: `fontVariantNumeric: 'tabular-nums'`, `textAlign: 'right'`
+    - Headers de columna: `uppercase`, `fz="xs"`, `fw={600}`, `c="dimmed"`
   - Barra de búsqueda con debounce 400ms
   - Filtros: Select de estado (Activo, Baja voluntaria, etc.), Select de tipo de socio, DatePicker rango de fecha
   - Paginación con selector de tamaño de página (10, 25, 50)
   - Clic en fila → navega a `/members/:memberId`
-  - Badge de color según estado (verde=Activo, rojo=Baja, amarillo=Pendiente)
+  - Badge de color según estado (verde=Activo, rojo=Baja, amarillo=Pendiente). Todos los badges: `variant="light"`, `radius="sm"` según guía de marca
   - `usePermissions()` para mostrar/ocultar botones de acción
 
 ### Paso 5: Página de detalle/edición de ficha
@@ -162,14 +172,14 @@ Crear en `web/src/features/members/pages/`:
 Crear en `web/src/features/members/pages/`:
 
 - **`MemberDetailPage.tsx`**: Página `/members/:memberId`
-  - Cabecera: nombre completo, nº socio, estado (badge), foto placeholder
+  - Cabecera: nombre completo, nº socio, estado (badge con `variant="light"`, `radius="sm"`), foto placeholder
   - Tabs con Mantine Tabs:
     - **Datos personales**: formulario editable con datos base (nombre, apellidos, fecha nacimiento, DNI disabled)
     - **Contacto**: email, teléfono, dirección completa
     - **Datos bancarios**: IBAN (campo con máscara ES00 0000 0000 0000 0000 0000), titular
     - **Campos específicos**: renderizado dinámico según tipo de colectividad
     - **Historial**: timeline visual de cambios de estado
-  - Botones: Guardar (submit formulario), Cancelar (volver a listado)
+  - Botones: Guardar (`color="brand"`, nunca `variant="gradient"`), Cancelar (volver a listado)
   - Formulario con `useForm` de Mantine + resolver Zod
   - Loading skeleton mientras carga datos
   - Toast de confirmación tras guardar exitoso
