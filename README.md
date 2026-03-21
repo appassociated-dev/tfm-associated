@@ -2,13 +2,13 @@
 
 **Gestión para colectividades**
 
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)
-![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Playwright](https://img.shields.io/badge/Playwright-1.58-45BA4B?style=for-the-badge&logo=playwright&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6)
+![NestJS](https://img.shields.io/badge/NestJS-11-E0234E)
+![React](https://img.shields.io/badge/React-19-61DAFB)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-4169E1)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)
+![Playwright](https://img.shields.io/badge/Playwright-1.58-45BA4B)
 
 ---
 
