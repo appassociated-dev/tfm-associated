@@ -23,8 +23,8 @@ export const tenantInfoSchema = z.object({
 // === Schemas de request ===
 
 export const loginRequestSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().email({ error: 'Ingrese un correo electrónico válido' }),
+  password: z.string().min(1, { error: 'La contraseña es obligatoria' }),
 });
 
 // === Schemas de respuesta ===

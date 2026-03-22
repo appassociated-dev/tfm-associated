@@ -86,7 +86,6 @@ async function renderLoginFlow() {
 
 /**
  * Rellena el formulario de login con email y password usando userEvent.
- * Mantine useForm con mode uncontrolled necesita typing real.
  */
 async function fillLoginForm(
   user: ReturnType<typeof userEvent.setup>,

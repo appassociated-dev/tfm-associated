@@ -10,14 +10,15 @@ import {
   Title,
   useComputedColorScheme,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ApiError } from '@/shared/api/api-error';
 import logoStacked from '@/shared/assets/logo-stacked.svg';
 import logoStackedWhite from '@/shared/assets/logo-stacked-white.svg';
 import { useAuth } from '../context/use-auth';
 import type { LoginRequest, TenantSelectorResponse } from '../schemas/auth.schemas';
-import { isTenantSelectorResponse } from '../schemas/auth.schemas';
+import { isTenantSelectorResponse, loginRequestSchema } from '../schemas/auth.schemas';
 import { TenantSelector } from '../components/tenant-selector';
 
 /**
@@ -39,15 +40,15 @@ export function LoginPage() {
     null,
   );
 
-  const form = useForm<LoginRequest>({
-    initialValues: {
+  const {
+    register,
+    handleSubmit: rhfHandleSubmit,
+    formState: { errors },
+  } = useForm<LoginRequest>({
+    resolver: zodResolver(loginRequestSchema),
+    defaultValues: {
       email: '',
       password: '',
-    },
-    validate: {
-      email: (value) =>
-        /^\S+@\S+\.\S+$/.test(value) ? null : 'Ingrese un correo electrónico válido',
-      password: (value) => (value.length >= 1 ? null : 'La contraseña es obligatoria'),
     },
   });
 
@@ -129,7 +130,7 @@ export function LoginPage() {
   return (
     <Center mih="100vh">
       <Box w="100%" maw={400}>
-        <form onSubmit={form.onSubmit(handleSubmit)}>
+        <form noValidate onSubmit={rhfHandleSubmit(handleSubmit)}>
           <Stack align="center" gap="lg">
             <img src={currentLogo} alt="Associated" width={140} />
 
@@ -141,16 +142,16 @@ export function LoginPage() {
                 label="Correo electrónico"
                 placeholder="tu@email.com"
                 autoComplete="email"
-                key={form.key('email')}
-                {...form.getInputProps('email')}
+                {...register('email')}
+                error={errors.email?.message}
               />
 
               <PasswordInput
                 label="Contraseña"
                 placeholder="Tu contraseña"
                 autoComplete="current-password"
-                key={form.key('password')}
-                {...form.getInputProps('password')}
+                {...register('password')}
+                error={errors.password?.message}
               />
 
               <Button type="submit" color="brand" fullWidth loading={isSubmitting}>

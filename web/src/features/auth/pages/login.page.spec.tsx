@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor, fireEvent } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { render } from '@/test/helpers/render';
 import { ApiError } from '@/shared/api/api-error';
@@ -31,20 +32,15 @@ vi.mock('react-router', async () => {
 
 // === Helpers ===
 
-/**
- * Simula input nativo que dispara onChange de Mantine useForm.
- * Mantine useForm con key={form.key(...)} usa modo uncontrolled
- * y requiere eventos nativos de input + change para actualizarse.
- */
-function setInputValue(input: HTMLElement, value: string) {
-  fireEvent.input(input, { target: { value } });
-  fireEvent.change(input, { target: { value } });
-}
-
-/** Enviar formulario. */
-function submitForm() {
-  const form = document.querySelector('form')!;
-  fireEvent.submit(form);
+/** Rellena el formulario de login usando userEvent (compatible con RHF). */
+async function fillAndSubmit(
+  user: ReturnType<typeof userEvent.setup>,
+  email: string,
+  password: string,
+) {
+  await user.type(screen.getByPlaceholderText('tu@email.com'), email);
+  await user.type(screen.getByPlaceholderText('Tu contraseña'), password);
+  await user.click(screen.getByRole('button', { name: /acceder/i }));
 }
 
 // === Tests ===
@@ -67,11 +63,10 @@ describe('LoginPage', () => {
 
   describe('validacion del formulario', () => {
     it('deberia mostrar error de validacion para email invalido al enviar', async () => {
+      const user = userEvent.setup();
       render(<LoginPage />, { auth: { isAuthenticated: false } });
 
-      setInputValue(screen.getByPlaceholderText('tu@email.com'), 'no-es-email');
-      setInputValue(screen.getByPlaceholderText('Tu contraseña'), 'password123');
-      submitForm();
+      await fillAndSubmit(user, 'no-es-email', 'password123');
 
       await waitFor(() => {
         expect(screen.getByText('Ingrese un correo electrónico válido')).toBeInTheDocument();
@@ -79,10 +74,11 @@ describe('LoginPage', () => {
     });
 
     it('deberia mostrar error de validacion para contrasena vacia al enviar', async () => {
+      const user = userEvent.setup();
       render(<LoginPage />, { auth: { isAuthenticated: false } });
 
-      setInputValue(screen.getByPlaceholderText('tu@email.com'), 'test@club.es');
-      submitForm();
+      await user.type(screen.getByPlaceholderText('tu@email.com'), 'test@club.es');
+      await user.click(screen.getByRole('button', { name: /acceder/i }));
 
       await waitFor(() => {
         expect(screen.getByText('La contraseña es obligatoria')).toBeInTheDocument();
@@ -90,11 +86,10 @@ describe('LoginPage', () => {
     });
 
     it('deberia mostrar error para segundo email invalido diferente (triangulacion)', async () => {
+      const user = userEvent.setup();
       render(<LoginPage />, { auth: { isAuthenticated: false } });
 
-      setInputValue(screen.getByPlaceholderText('tu@email.com'), '@sinusuario.com');
-      setInputValue(screen.getByPlaceholderText('Tu contraseña'), 'algo123');
-      submitForm();
+      await fillAndSubmit(user, '@sinusuario.com', 'algo123');
 
       await waitFor(() => {
         expect(screen.getByText('Ingrese un correo electrónico válido')).toBeInTheDocument();
@@ -104,6 +99,7 @@ describe('LoginPage', () => {
 
   describe('login directo (un solo tenant)', () => {
     it('deberia navegar a /dashboard tras login exitoso', async () => {
+      const user = userEvent.setup();
       // Arrange: login mock devuelve respuesta de un solo tenant
       const mockLogin = vi.fn().mockResolvedValue({
         accessToken: 'at',
@@ -118,9 +114,7 @@ describe('LoginPage', () => {
         auth: { isAuthenticated: false, login: mockLogin },
       });
 
-      setInputValue(screen.getByPlaceholderText('tu@email.com'), 'test@club.es');
-      setInputValue(screen.getByPlaceholderText('Tu contraseña'), 'password123');
-      submitForm();
+      await fillAndSubmit(user, 'test@club.es', 'password123');
 
       await waitFor(() => {
         expect(mockLogin).toHaveBeenCalledWith({
@@ -134,6 +128,7 @@ describe('LoginPage', () => {
 
   describe('login multi-tenant (selector de colectividad)', () => {
     it('deberia mostrar TenantSelector cuando la respuesta requiere seleccion', async () => {
+      const user = userEvent.setup();
       // Arrange: login mock devuelve respuesta multi-tenant
       const mockLogin = vi.fn().mockResolvedValue({
         requiresTenantSelection: true,
@@ -147,9 +142,7 @@ describe('LoginPage', () => {
         auth: { isAuthenticated: false, login: mockLogin },
       });
 
-      setInputValue(screen.getByPlaceholderText('tu@email.com'), 'multi@club.es');
-      setInputValue(screen.getByPlaceholderText('Tu contraseña'), 'password123');
-      submitForm();
+      await fillAndSubmit(user, 'multi@club.es', 'password123');
 
       await waitFor(() => {
         expect(screen.getByText('Selecciona una colectividad')).toBeInTheDocument();
@@ -161,23 +154,20 @@ describe('LoginPage', () => {
 
   describe('errores de login', () => {
     it('deberia mostrar notificacion de credenciales incorrectas cuando API devuelve 401', async () => {
-      const mockLogin = vi
-        .fn()
-        .mockRejectedValue(
-          new ApiError(401, {
-            message: 'Invalid credentials',
-            code: 'UNAUTHORIZED',
-            details: null,
-          }),
-        );
+      const user = userEvent.setup();
+      const mockLogin = vi.fn().mockRejectedValue(
+        new ApiError(401, {
+          message: 'Invalid credentials',
+          code: 'UNAUTHORIZED',
+          details: null,
+        }),
+      );
 
       render(<LoginPage />, {
         auth: { isAuthenticated: false, login: mockLogin },
       });
 
-      setInputValue(screen.getByPlaceholderText('tu@email.com'), 'wrong@club.es');
-      setInputValue(screen.getByPlaceholderText('Tu contraseña'), 'wrongpassword');
-      submitForm();
+      await fillAndSubmit(user, 'wrong@club.es', 'wrongpassword');
 
       await waitFor(() => {
         expect(mockNotificationsShow).toHaveBeenCalledWith(
@@ -190,6 +180,7 @@ describe('LoginPage', () => {
     });
 
     it('deberia mostrar notificacion de cuenta bloqueada cuando API devuelve 423', async () => {
+      const user = userEvent.setup();
       const mockLogin = vi
         .fn()
         .mockRejectedValue(
@@ -200,9 +191,7 @@ describe('LoginPage', () => {
         auth: { isAuthenticated: false, login: mockLogin },
       });
 
-      setInputValue(screen.getByPlaceholderText('tu@email.com'), 'locked@club.es');
-      setInputValue(screen.getByPlaceholderText('Tu contraseña'), 'password123');
-      submitForm();
+      await fillAndSubmit(user, 'locked@club.es', 'password123');
 
       await waitFor(() => {
         expect(mockNotificationsShow).toHaveBeenCalledWith(
@@ -215,15 +204,14 @@ describe('LoginPage', () => {
     });
 
     it('deberia mostrar notificacion de error de conexion para errores genericos', async () => {
+      const user = userEvent.setup();
       const mockLogin = vi.fn().mockRejectedValue(new Error('Network Error'));
 
       render(<LoginPage />, {
         auth: { isAuthenticated: false, login: mockLogin },
       });
 
-      setInputValue(screen.getByPlaceholderText('tu@email.com'), 'test@club.es');
-      setInputValue(screen.getByPlaceholderText('Tu contraseña'), 'password123');
-      submitForm();
+      await fillAndSubmit(user, 'test@club.es', 'password123');
 
       await waitFor(() => {
         expect(mockNotificationsShow).toHaveBeenCalledWith(
@@ -238,6 +226,7 @@ describe('LoginPage', () => {
 
   describe('estado de carga', () => {
     it('deberia mostrar loading en el boton mientras se procesa el login', async () => {
+      const user = userEvent.setup();
       // Arrange: login que tarda en resolver (controlado para cleanup)
       let resolveLogin: ((value: unknown) => void) | undefined;
       const mockLogin = vi.fn().mockImplementation(
@@ -251,9 +240,7 @@ describe('LoginPage', () => {
         auth: { isAuthenticated: false, login: mockLogin },
       });
 
-      setInputValue(screen.getByPlaceholderText('tu@email.com'), 'test@club.es');
-      setInputValue(screen.getByPlaceholderText('Tu contraseña'), 'password123');
-      submitForm();
+      await fillAndSubmit(user, 'test@club.es', 'password123');
 
       await waitFor(() => {
         const button = screen.getByText('Acceder').closest('button');

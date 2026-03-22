@@ -120,6 +120,36 @@ export const linkMemberTypeInputSchema = z.object({
   order: z.number().int().min(0),
 });
 
+// === Schema interno del formulario fee-plan (amountEuros en euros, no centavos) ===
+
+export const feePlanFormSchema = z
+  .object({
+    code: z
+      .string()
+      .min(1, 'El código es obligatorio')
+      .min(2, 'Mínimo 2 caracteres')
+      .max(20, 'Máximo 20 caracteres')
+      .regex(/^[a-zA-Z0-9_-]+$/, 'Solo caracteres alfanuméricos, guiones y guiones bajos'),
+    name: z.string().min(1, 'El nombre es obligatorio').max(100, 'Máximo 100 caracteres'),
+    description: z.string().max(500, 'Máximo 500 caracteres'),
+    type: planTypeSchema,
+    amountEuros: z.number().min(0.01, 'El importe mínimo es 0,01 €'),
+    frequency: z.union([frequencySchema, z.literal('')]),
+    billingMonths: z.array(z.number().int().min(1).max(12)),
+  })
+  .refine(
+    (data) => {
+      if (data.type === 'RECURRING' && data.billingMonths.length === 0) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Seleccione al menos un mes de facturación',
+      path: ['billingMonths'],
+    },
+  );
+
 // === Tipos inferidos (TODOS exportados) ===
 
 export type Frequency = z.infer<typeof frequencySchema>;
@@ -132,3 +162,4 @@ export type FeePlanTemplate = z.infer<typeof feePlanTemplateSchema>;
 export type CreateFeePlanInput = z.infer<typeof createFeePlanInputSchema>;
 export type UpdateFeePlanInput = z.infer<typeof updateFeePlanInputSchema>;
 export type LinkMemberTypeInput = z.infer<typeof linkMemberTypeInputSchema>;
+export type FeePlanFormValues = z.infer<typeof feePlanFormSchema>;

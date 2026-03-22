@@ -99,6 +99,27 @@ export const preconditionsResponseSchema = z.object({
   errors: z.array(z.string()),
 });
 
+// === Schema del formulario de datos personales (paso 1 — interno del form) ===
+// Nota: birthDate es string | null porque Mantine 8 DateInput devuelve string ("YYYY-MM-DD") en onChange.
+// El schema de API (personalDataSchema) espera string ISO — la conversion se hace en el useEffect de onValidChange.
+
+export const personalDataFormSchema = z.object({
+  dni: z.string().min(1, 'DNI/NIE es obligatorio').max(20),
+  firstName: z.string().min(1, 'Nombre es obligatorio').max(100),
+  lastName: z.string().min(1, 'Apellidos es obligatorio').max(200),
+  birthDate: z
+    .string({ error: 'Fecha de nacimiento es obligatoria' })
+    .nullable()
+    .refine((val) => val !== null && val.trim() !== '', 'Fecha de nacimiento es obligatoria'),
+  email: z.string().min(1, 'Email es obligatorio').email('Email invalido'),
+  phone: z.string().max(20),
+  address: z.string().max(300),
+  postalCode: z.string().refine((val) => !val || /^\d{5}$/.test(val), 'Debe ser 5 digitos'),
+  city: z.string().max(100),
+});
+
+export type PersonalDataFormValues = z.infer<typeof personalDataFormSchema>;
+
 // === Tipos inferidos ===
 
 export type PersonalData = z.infer<typeof personalDataSchema>;

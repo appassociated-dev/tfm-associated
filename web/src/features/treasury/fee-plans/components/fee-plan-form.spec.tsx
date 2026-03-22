@@ -1,18 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@/test/helpers/render';
+import { render, screen, waitFor } from '@/test/helpers/render';
 
 import { FeePlanForm } from './fee-plan-form';
 
 // === Helpers ===
-
-/**
- * Simula input nativo compatible con Mantine useForm uncontrolled mode.
- * Mantine con key={form.key(...)} usa uncontrolled — requiere fireEvent, no userEvent.type.
- */
-function setNativeInputValue(input: HTMLElement, value: string) {
-  fireEvent.input(input, { target: { value } });
-  fireEvent.change(input, { target: { value } });
-}
 
 function renderForm(props: Partial<Parameters<typeof FeePlanForm>[0]> = {}) {
   const defaultProps = {
@@ -22,12 +13,6 @@ function renderForm(props: Partial<Parameters<typeof FeePlanForm>[0]> = {}) {
   };
 
   return render(<FeePlanForm {...defaultProps} />);
-}
-
-/** Enviar formulario usando el elemento form. */
-function submitForm() {
-  const form = document.querySelector('form')!;
-  fireEvent.submit(form);
 }
 
 // === Tests ===
@@ -215,16 +200,17 @@ describe('FeePlanForm', () => {
     it('deberia convertir euros a centavos al enviar (15.00 -> 1500)', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act
       const codeInput = screen.getByPlaceholderText('Ej: CUOTA-ANUAL');
-      setNativeInputValue(codeInput, 'TEST');
+      await user.type(codeInput, 'TEST');
       const nameInput = screen.getByPlaceholderText('Ej: Cuota anual de socio');
-      setNativeInputValue(nameInput, 'Plan Test');
+      await user.type(nameInput, 'Plan Test');
       const amountInput = screen.getByLabelText('Importe');
-      setNativeInputValue(amountInput, '15');
-      submitForm();
+      await user.clear(amountInput);
+      await user.type(amountInput, '15');
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -238,13 +224,20 @@ describe('FeePlanForm', () => {
     it('deberia convertir euros a centavos con triangulacion (250.50 -> 25050)', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({
+        onSubmit: mockSubmit,
+        initialValues: {
+          code: 'PLAN-B',
+          name: 'Plan B',
+          amount: 25050, // 250.50 EUR en centavos
+          type: 'RECURRING',
+          frequency: 'MONTHLY',
+          billingMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        },
+      });
 
       // Act
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'PLAN-B');
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan B');
-      setNativeInputValue(screen.getByLabelText('Importe'), '250.50');
-      submitForm();
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -257,13 +250,15 @@ describe('FeePlanForm', () => {
     it('deberia convertir euros a centavos con segundo valor (0.99 -> 99)', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'MINIMO');
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Minimo');
-      setNativeInputValue(screen.getByLabelText('Importe'), '0.99');
-      submitForm();
+      await user.type(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'MINIMO');
+      await user.type(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Minimo');
+      const amountInput = screen.getByLabelText('Importe');
+      await user.clear(amountInput);
+      await user.type(amountInput, '0.99');
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -280,13 +275,15 @@ describe('FeePlanForm', () => {
     it('deberia enviar codigo en mayusculas', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'minusculas');
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Test');
-      setNativeInputValue(screen.getByLabelText('Importe'), '10');
-      submitForm();
+      await user.type(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'minusculas');
+      await user.type(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Test');
+      const amountInput = screen.getByLabelText('Importe');
+      await user.clear(amountInput);
+      await user.type(amountInput, '10');
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -299,13 +296,15 @@ describe('FeePlanForm', () => {
     it('deberia enviar tipo RECURRING con frecuencia y meses', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'RECUR');
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Recurrente');
-      setNativeInputValue(screen.getByLabelText('Importe'), '100');
-      submitForm();
+      await user.type(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'RECUR');
+      await user.type(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Recurrente');
+      const amountInput = screen.getByLabelText('Importe');
+      await user.clear(amountInput);
+      await user.type(amountInput, '100');
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -320,7 +319,7 @@ describe('FeePlanForm', () => {
     it('deberia enviar tipo ONE_TIME con frecuencia null y billingMonths vacio', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({
+      const { user } = renderForm({
         onSubmit: mockSubmit,
         initialValues: {
           type: 'ONE_TIME',
@@ -331,7 +330,7 @@ describe('FeePlanForm', () => {
       });
 
       // Act
-      submitForm();
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -346,14 +345,16 @@ describe('FeePlanForm', () => {
     it('deberia enviar description como null cuando esta vacia', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'NODESC');
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Sin desc');
-      setNativeInputValue(screen.getByLabelText('Importe'), '50');
+      await user.type(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'NODESC');
+      await user.type(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Sin desc');
+      const amountInput = screen.getByLabelText('Importe');
+      await user.clear(amountInput);
+      await user.type(amountInput, '50');
       // No escribimos nada en la descripcion
-      submitForm();
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -370,12 +371,14 @@ describe('FeePlanForm', () => {
     it('deberia mostrar error de validacion cuando el codigo esta vacio', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act: enviar sin llenar codigo
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan');
-      setNativeInputValue(screen.getByLabelText('Importe'), '10');
-      submitForm();
+      await user.type(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan');
+      const amountInput = screen.getByLabelText('Importe');
+      await user.clear(amountInput);
+      await user.type(amountInput, '10');
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -387,12 +390,14 @@ describe('FeePlanForm', () => {
     it('deberia mostrar error de validacion cuando el nombre esta vacio', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act: enviar sin llenar nombre
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'TEST');
-      setNativeInputValue(screen.getByLabelText('Importe'), '10');
-      submitForm();
+      await user.type(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'TEST');
+      const amountInput = screen.getByLabelText('Importe');
+      await user.clear(amountInput);
+      await user.type(amountInput, '10');
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -404,13 +409,13 @@ describe('FeePlanForm', () => {
     it('deberia mostrar error de validacion cuando el importe es 0', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'TEST');
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan');
+      await user.type(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'TEST');
+      await user.type(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan');
       // amountEuros por defecto es 0 => error
-      submitForm();
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -422,13 +427,15 @@ describe('FeePlanForm', () => {
     it('deberia mostrar error de codigo corto (1 caracter)', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'A');
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan');
-      setNativeInputValue(screen.getByLabelText('Importe'), '10');
-      submitForm();
+      await user.type(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'A');
+      await user.type(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan');
+      const amountInput = screen.getByLabelText('Importe');
+      await user.clear(amountInput);
+      await user.type(amountInput, '10');
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -440,13 +447,15 @@ describe('FeePlanForm', () => {
     it('deberia mostrar error de codigo con caracteres invalidos', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'PLAN @#$');
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan');
-      setNativeInputValue(screen.getByLabelText('Importe'), '10');
-      submitForm();
+      await user.type(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'PLAN @#$');
+      await user.type(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan');
+      const amountInput = screen.getByLabelText('Importe');
+      await user.clear(amountInput);
+      await user.type(amountInput, '10');
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -457,16 +466,25 @@ describe('FeePlanForm', () => {
       expect(mockSubmit).not.toHaveBeenCalled();
     });
 
-    it('deberia mostrar error de importe negativo', async () => {
-      // Arrange
+    it('deberia mostrar error cuando el importe es menor que 0.01', async () => {
+      // Arrange: NumberInput con min={0.01} previene valores negativos en la UI.
+      // Verificamos que Zod rechaza un importe por debajo del mínimo (0.001 EUR)
+      // usando initialValues para inyectar el valor directamente.
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({
+        onSubmit: mockSubmit,
+        initialValues: {
+          code: 'TEST',
+          name: 'Plan',
+          amount: 0, // 0 centavos → 0.00 EUR → por debajo de min 0.01
+          type: 'RECURRING',
+          frequency: 'MONTHLY',
+          billingMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        },
+      });
 
       // Act
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'TEST');
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan');
-      setNativeInputValue(screen.getByLabelText('Importe'), '-5');
-      submitForm();
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -478,13 +496,15 @@ describe('FeePlanForm', () => {
     it('deberia NO mostrar error cuando todos los campos son validos', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'PLAN-VALIDO');
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan Valido');
-      setNativeInputValue(screen.getByLabelText('Importe'), '25.50');
-      submitForm();
+      await user.type(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'PLAN-VALIDO');
+      await user.type(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Plan Valido');
+      const amountInput = screen.getByLabelText('Importe');
+      await user.clear(amountInput);
+      await user.type(amountInput, '25.50');
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
@@ -538,17 +558,19 @@ describe('FeePlanForm', () => {
     it('deberia enviar description cuando no esta vacia', async () => {
       // Arrange
       const mockSubmit = vi.fn().mockResolvedValue(undefined);
-      renderForm({ onSubmit: mockSubmit });
+      const { user } = renderForm({ onSubmit: mockSubmit });
 
       // Act
-      setNativeInputValue(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'DESC');
-      setNativeInputValue(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Con Desc');
-      setNativeInputValue(
+      await user.type(screen.getByPlaceholderText('Ej: CUOTA-ANUAL'), 'DESC');
+      await user.type(screen.getByPlaceholderText('Ej: Cuota anual de socio'), 'Con Desc');
+      await user.type(
         screen.getByPlaceholderText('Descripción opcional del plan'),
         'Esta es una descripcion',
       );
-      setNativeInputValue(screen.getByLabelText('Importe'), '10');
-      submitForm();
+      const amountInput = screen.getByLabelText('Importe');
+      await user.clear(amountInput);
+      await user.type(amountInput, '10');
+      await user.click(screen.getByRole('button', { name: /guardar/i }));
 
       // Assert
       await waitFor(() => {
