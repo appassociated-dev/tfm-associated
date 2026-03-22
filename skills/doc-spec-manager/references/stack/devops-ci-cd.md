@@ -3,6 +3,7 @@
 ### 7.1 Control de Versiones: Git + GitHub
 
 **Estrategia de branching:** GitHub Flow (simplificado)
+
 - `main`: producción, siempre deployable
 - `feature/*`: desarrollo de features
 - PRs obligatorias con review
@@ -10,6 +11,7 @@
 ### 7.2 CI: GitHub Actions
 
 **Workflow principal (.github/workflows/ci.yml):**
+
 ```yaml
 name: CI
 
@@ -96,21 +98,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      
+
       - name: Install Playwright
         run: npx playwright install --with-deps
-      
+
       - name: Run E2E Tests
         run: npm run test:e2e
 ```
 
 ### 7.3 Quality Gates (RNF-058)
 
-| Gate | Umbral | Herramienta |
-|------|--------|-------------|
-| Line Coverage | ≥80% | Vitest + Codecov |
-| Branch Coverage | ≥70% | Vitest + Codecov |
-| Diff Coverage (PRs) | ≥85% lines, ≥75% branch | Codecov |
-| Linting | 0 errors | ESLint |
-| Type Check | 0 errors | TypeScript |
-| Security Audit | 0 critical/high | npm audit |
+| Gate                | Umbral                  | Herramienta      |
+| ------------------- | ----------------------- | ---------------- |
+| Line Coverage       | ≥80%                    | Vitest + Codecov |
+| Branch Coverage     | ≥70%                    | Vitest + Codecov |
+| Diff Coverage (PRs) | ≥85% lines, ≥75% branch | Codecov          |
+| Linting             | 0 errors                | ESLint           |
+| Type Check          | 0 errors                | TypeScript       |
+| Security Audit      | 0 critical/high         | npm audit        |
