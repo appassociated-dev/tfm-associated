@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="doc/brand/assets/banner-associated.png" alt="Associated banner" width="100%" />
+</p>
+
 # Associated
 
 **Gestión para colectividades**
