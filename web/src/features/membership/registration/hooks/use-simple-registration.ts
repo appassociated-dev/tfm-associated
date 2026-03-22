@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
 import { simpleRegistration } from '../api/registration.api';
+import { ApiError } from '@/shared/api/api-error';
 import type { SimpleRegistrationRequest } from '../schemas/member-registration.schemas';
 
 /** Mutation para alta simple de socio (UC-011). */
@@ -19,9 +20,8 @@ export function useSimpleRegistration() {
       });
     },
     onError: (error: unknown) => {
-      const status = (error as { response?: { status?: number } })?.response?.status;
-      const detail = (error as { response?: { data?: { message?: string } } })?.response?.data
-        ?.message;
+      const status = error instanceof ApiError ? error.status : undefined;
+      const detail = error instanceof ApiError ? error.message : undefined;
 
       if (status === 409) {
         notifications.show({

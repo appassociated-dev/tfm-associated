@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
 import { changePlan } from '../api/subscription.api';
+import { ApiError } from '@/shared/api/api-error';
 import type { ChangePlanInput } from '../schemas/subscription.schemas';
 
 /** Hook para cambiar el plan de una suscripcion activa. */
@@ -22,7 +23,7 @@ export function useChangePlan(memberAccountId: string) {
       });
     },
     onError: (error: unknown) => {
-      const status = (error as { response?: { status?: number } })?.response?.status;
+      const status = error instanceof ApiError ? error.status : undefined;
       if (status === 422) {
         notifications.show({
           title: 'Cambio no permitido',

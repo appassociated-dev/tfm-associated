@@ -1,50 +1,51 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { createElement } from 'react';
-import { MantineProvider } from '@mantine/core';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router';
+import { screen, waitFor } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
 
+import { render } from '@/test/helpers/render';
+import { server } from '@/test/msw/server';
+import { apiResponse } from '@/test/msw/utils';
 import { LeaveActions } from './leave-actions';
 
 // === Mocks ===
 
-const mockUseAvailableTransitions = vi.fn();
+const mockNavigate = vi.fn();
+vi.mock('react-router', async () => {
+  const actual = await vi.importActual<typeof import('react-router')>('react-router');
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
-vi.mock('../hooks/use-available-transitions', () => ({
-  useAvailableTransitions: (...args: unknown[]) => mockUseAvailableTransitions(...args),
-}));
+// === Constantes ===
 
-const mockHasPermission = vi.fn();
-
-vi.mock('@/features/auth/context/use-permissions', () => ({
-  usePermissions: () => ({
-    permissions: [],
-    hasPermission: mockHasPermission,
-    hasAnyPermission: vi.fn(),
-    hasAllPermissions: vi.fn(),
-  }),
-}));
+const MEMBER_ID = '550e8400-e29b-41d4-a716-446655440000';
 
 // === Helpers ===
 
-function TestWrapper({ children }: { children: React.ReactNode }) {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
+function renderActions(memberId = MEMBER_ID, authOverrides?: { permissions: string[] }) {
+  return render(<LeaveActions memberId={memberId} />, {
+    auth: authOverrides,
   });
-  return createElement(
-    MemoryRouter,
-    null,
-    createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      createElement(MantineProvider, null, children),
-    ),
-  );
 }
 
-function renderActions(memberId = '550e8400-e29b-41d4-a716-446655440000') {
-  return render(createElement(LeaveActions, { memberId }), { wrapper: TestWrapper });
+/** Configura MSW para devolver transiciones disponibles. */
+function setupTransitions(
+  currentStatus: string,
+  transitions: Array<{ status: string; description: string }> = [],
+) {
+  server.use(
+    http.get('*/v1/members/:memberId/available-transitions', () =>
+      HttpResponse.json(
+        apiResponse({
+          memberId: MEMBER_ID,
+          currentStatus,
+          availableTransitions: transitions,
+        }),
+      ),
+    ),
+  );
 }
 
 // === Tests ===
@@ -52,105 +53,162 @@ function renderActions(memberId = '550e8400-e29b-41d4-a716-446655440000') {
 describe('LeaveActions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Configuracion por defecto: no transiciones, con permisos
-    mockUseAvailableTransitions.mockReturnValue({
-      data: { currentStatus: 'ACTIVE', availableTransitions: [] },
-      isLoading: false,
-    });
-    mockHasPermission.mockReturnValue(true);
   });
 
-  it('deberia mostrar boton de baja voluntaria cuando la transicion esta disponible y tiene permiso', () => {
-    mockUseAvailableTransitions.mockReturnValue({
-      data: {
-        currentStatus: 'ACTIVE',
-        availableTransitions: [{ status: 'VOLUNTARY_LEAVE', description: 'Baja voluntaria' }],
-      },
-      isLoading: false,
+  describe('boton de baja voluntaria', () => {
+    it('deberia mostrar boton cuando la transicion esta disponible y tiene permiso', async () => {
+      setupTransitions('ACTIVE', [{ status: 'VOLUNTARY_LEAVE', description: 'Baja voluntaria' }]);
+
+      renderActions(MEMBER_ID, {
+        permissions: ['membership:members:deactivate'],
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Procesar Baja Voluntaria')).toBeInTheDocument();
+      });
     });
-    mockHasPermission.mockImplementation(
-      (perm: string) => perm === 'membership:members:deactivate',
-    );
 
-    renderActions();
+    it('deberia navegar a la pagina de baja al hacer click', async () => {
+      setupTransitions('ACTIVE', [{ status: 'VOLUNTARY_LEAVE', description: 'Baja voluntaria' }]);
 
-    expect(screen.getByText('Procesar Baja Voluntaria')).toBeInTheDocument();
+      const { user } = renderActions(MEMBER_ID, {
+        permissions: ['membership:members:deactivate'],
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Procesar Baja Voluntaria')).toBeInTheDocument();
+      });
+
+      // Act
+      await user.click(screen.getByText('Procesar Baja Voluntaria'));
+
+      // Assert
+      expect(mockNavigate).toHaveBeenCalledWith(`/members/${MEMBER_ID}/leave`);
+    });
+
+    it('deberia ocultar boton sin permiso membership:members:deactivate', async () => {
+      setupTransitions('ACTIVE', [{ status: 'VOLUNTARY_LEAVE', description: 'Baja voluntaria' }]);
+
+      renderActions(MEMBER_ID, {
+        permissions: ['membership:members:read'], // sin deactivate
+      });
+
+      // Esperar a que cargue (el componente pide transiciones)
+      await waitFor(() => {
+        expect(screen.queryByText('Procesar Baja Voluntaria')).not.toBeInTheDocument();
+      });
+    });
   });
 
-  it('deberia mostrar boton de rehabilitacion para estado VOLUNTARY_LEAVE', () => {
-    mockUseAvailableTransitions.mockReturnValue({
-      data: {
-        currentStatus: 'VOLUNTARY_LEAVE',
-        availableTransitions: [],
-      },
-      isLoading: false,
+  describe('boton de rehabilitacion', () => {
+    it('deberia mostrar boton para estado VOLUNTARY_LEAVE con permiso', async () => {
+      setupTransitions('VOLUNTARY_LEAVE', []);
+
+      renderActions(MEMBER_ID, {
+        permissions: ['membership:members:reinstate'],
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Rehabilitar Socio')).toBeInTheDocument();
+      });
     });
-    mockHasPermission.mockImplementation((perm: string) => perm === 'membership:members:reinstate');
 
-    renderActions();
+    it('deberia mostrar boton para estado NONPAYMENT_LEAVE (triangulacion)', async () => {
+      setupTransitions('NONPAYMENT_LEAVE', []);
 
-    expect(screen.getByText('Rehabilitar Socio')).toBeInTheDocument();
+      renderActions(MEMBER_ID, {
+        permissions: ['membership:members:reinstate'],
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Rehabilitar Socio')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia navegar a la pagina de rehabilitacion al hacer click', async () => {
+      setupTransitions('VOLUNTARY_LEAVE', []);
+
+      const { user } = renderActions(MEMBER_ID, {
+        permissions: ['membership:members:reinstate'],
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Rehabilitar Socio')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('Rehabilitar Socio'));
+
+      expect(mockNavigate).toHaveBeenCalledWith(`/members/${MEMBER_ID}/reinstate`);
+    });
+
+    it('deberia ocultar boton sin permiso membership:members:reinstate', async () => {
+      setupTransitions('VOLUNTARY_LEAVE', []);
+
+      renderActions(MEMBER_ID, {
+        permissions: ['membership:members:read'], // sin reinstate
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Rehabilitar Socio')).not.toBeInTheDocument();
+      });
+    });
   });
 
-  it('deberia mostrar texto permanente para estado DISCIPLINARY_LEAVE', () => {
-    mockUseAvailableTransitions.mockReturnValue({
-      data: {
-        currentStatus: 'DISCIPLINARY_LEAVE',
-        availableTransitions: [],
-      },
-      isLoading: false,
+  describe('estados terminales permanentes', () => {
+    it('deberia mostrar texto permanente para estado DISCIPLINARY_LEAVE', async () => {
+      setupTransitions('DISCIPLINARY_LEAVE', []);
+
+      renderActions();
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Este socio está dado de baja de forma permanente'),
+        ).toBeInTheDocument();
+      });
     });
 
-    renderActions();
+    it('deberia mostrar texto permanente para estado DECEASED', async () => {
+      setupTransitions('DECEASED', []);
 
-    expect(
-      screen.getByText('Este socio está dado de baja de forma permanente'),
-    ).toBeInTheDocument();
+      renderActions();
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Este socio está dado de baja de forma permanente'),
+        ).toBeInTheDocument();
+      });
+    });
   });
 
-  it('deberia ocultar botones sin permisos', () => {
-    mockUseAvailableTransitions.mockReturnValue({
-      data: {
-        currentStatus: 'VOLUNTARY_LEAVE',
-        availableTransitions: [{ status: 'VOLUNTARY_LEAVE', description: 'Baja voluntaria' }],
-      },
-      isLoading: false,
+  describe('estado de carga', () => {
+    it('deberia mostrar loader durante estado de carga', () => {
+      // MSW que nunca responde
+      server.use(
+        http.get('*/v1/members/:memberId/available-transitions', () => new Promise(() => {})),
+      );
+
+      const { container } = renderActions();
+
+      const loader = container.querySelector('.mantine-Loader-root');
+      expect(loader).toBeInTheDocument();
     });
-    // Sin permisos
-    mockHasPermission.mockReturnValue(false);
-
-    renderActions();
-
-    expect(screen.queryByText('Procesar Baja Voluntaria')).not.toBeInTheDocument();
-    expect(screen.queryByText('Rehabilitar Socio')).not.toBeInTheDocument();
   });
 
-  it('deberia mostrar loader durante estado de carga', () => {
-    mockUseAvailableTransitions.mockReturnValue({
-      data: undefined,
-      isLoading: true,
+  describe('estado ACTIVE sin transiciones disponibles', () => {
+    it('no deberia mostrar botones cuando no hay transiciones y el estado no es terminal', async () => {
+      setupTransitions('ACTIVE', []);
+
+      renderActions(MEMBER_ID, {
+        permissions: ['membership:members:deactivate', 'membership:members:reinstate'],
+      });
+
+      // Esperar a que cargue
+      await waitFor(() => {
+        // No hay transiciones disponibles, no deberia haber boton de baja
+        expect(screen.queryByText('Procesar Baja Voluntaria')).not.toBeInTheDocument();
+        // ACTIVE no es rehabilitable tampoco
+        expect(screen.queryByText('Rehabilitar Socio')).not.toBeInTheDocument();
+      });
     });
-
-    const { container } = renderActions();
-
-    // Mantine Loader renderiza un span con role o clase mantine-Loader-root
-    const loader = container.querySelector('.mantine-Loader-root');
-    expect(loader).toBeInTheDocument();
-  });
-
-  it('deberia mostrar texto permanente para estado DECEASED', () => {
-    mockUseAvailableTransitions.mockReturnValue({
-      data: {
-        currentStatus: 'DECEASED',
-        availableTransitions: [],
-      },
-      isLoading: false,
-    });
-
-    renderActions();
-
-    expect(
-      screen.getByText('Este socio está dado de baja de forma permanente'),
-    ).toBeInTheDocument();
   });
 });

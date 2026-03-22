@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
 import { closeSubscription } from '../api/subscription.api';
+import { ApiError } from '@/shared/api/api-error';
 import type { CancelReason } from '../schemas/subscription.schemas';
 
 /** Hook para cerrar una suscripcion con motivo. */
@@ -22,7 +23,7 @@ export function useCloseSubscription(memberAccountId: string) {
       });
     },
     onError: (error: unknown) => {
-      const status = (error as { response?: { status?: number } })?.response?.status;
+      const status = error instanceof ApiError ? error.status : undefined;
       if (status === 409) {
         notifications.show({
           title: 'Error',

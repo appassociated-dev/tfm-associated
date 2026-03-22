@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
 import { createFeePlan } from '../api/fee-plan.api';
+import { ApiError } from '@/shared/api/api-error';
 import type { CreateFeePlanInput } from '../schemas/fee-plan.schemas';
 
 /** Hook para crear un nuevo plan de cuota. */
@@ -20,9 +21,8 @@ export function useCreateFeePlan() {
       });
     },
     onError: (error: unknown) => {
-      const response = (error as { response?: { status?: number; data?: { message?: string } } })
-        ?.response;
-      const status = response?.status;
+      const status = error instanceof ApiError ? error.status : undefined;
+      const backendMessage = error instanceof ApiError ? error.message : undefined;
       if (status === 409) {
         notifications.show({
           title: 'Código duplicado',
@@ -31,7 +31,6 @@ export function useCreateFeePlan() {
           autoClose: 4000,
         });
       } else {
-        const backendMessage = response?.data?.message;
         notifications.show({
           title: 'Error al crear plan',
           message: backendMessage ?? 'Ocurrió un error inesperado. Intente de nuevo.',

@@ -1,37 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook } from '@testing-library/react';
-import type { ReactNode } from 'react';
-import { createElement } from 'react';
-import { AuthContext, type AuthContextValue } from './auth.provider';
+import { describe, it, expect } from 'vitest';
+
+import { renderHook } from '@/test/helpers/render';
 import { usePermissions, matchPermission } from './use-permissions';
 
-// === Helpers ===
-
-/** Valor base del contexto de auth para tests. */
-const baseAuthValue: AuthContextValue = {
-  user: null,
-  tenant: null,
-  role: null,
-  permissions: [],
-  accessToken: null,
-  isAuthenticated: false,
-  isLoading: false,
-  login: vi.fn(),
-  selectTenant: vi.fn(),
-  switchTenant: vi.fn(),
-  logout: vi.fn(),
-};
-
-/** Crea un wrapper con AuthProvider mockeado y permisos personalizados. */
-function createWrapper(permissions: string[]) {
-  const value: AuthContextValue = { ...baseAuthValue, permissions };
-
-  return function Wrapper({ children }: { children: ReactNode }) {
-    return createElement(AuthContext.Provider, { value }, children);
-  };
-}
-
-// === Tests de matchPermission (función pura) ===
+// === Tests de matchPermission (funcion pura) ===
 
 describe('matchPermission', () => {
   describe('coincidencia exacta', () => {
@@ -110,7 +82,7 @@ describe('matchPermission', () => {
     });
   });
 
-  describe('roles del sistema (SYSTEM_ROLES canónicos)', () => {
+  describe('roles del sistema (SYSTEM_ROLES canonicos)', () => {
     it('PRESIDENT (*) deberia tener acceso a todo', () => {
       expect(matchPermission(['*'], 'membership:members:read')).toBe(true);
       expect(matchPermission(['*'], 'treasury:fee-plans:read')).toBe(true);
@@ -149,7 +121,7 @@ describe('usePermissions', () => {
   describe('hasPermission (con wildcards)', () => {
     it('deberia retornar true para un permiso exacto', () => {
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper(['members:read', 'members:write']),
+        auth: { permissions: ['members:read', 'members:write'] },
       });
 
       expect(result.current.hasPermission('members:read')).toBe(true);
@@ -157,7 +129,7 @@ describe('usePermissions', () => {
 
     it('deberia retornar false para un permiso inexistente', () => {
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper(['members:read']),
+        auth: { permissions: ['members:read'] },
       });
 
       expect(result.current.hasPermission('treasury:write')).toBe(false);
@@ -165,7 +137,7 @@ describe('usePermissions', () => {
 
     it('deberia retornar false cuando no hay permisos', () => {
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper([]),
+        auth: { permissions: [] },
       });
 
       expect(result.current.hasPermission('members:read')).toBe(false);
@@ -173,7 +145,7 @@ describe('usePermissions', () => {
 
     it('deberia soportar wildcard total (*)', () => {
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper(['*']),
+        auth: { permissions: ['*'] },
       });
 
       expect(result.current.hasPermission('treasury:fee-plans:read')).toBe(true);
@@ -182,7 +154,7 @@ describe('usePermissions', () => {
 
     it('deberia soportar wildcard jerarquico (treasury:*)', () => {
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper(['treasury:*']),
+        auth: { permissions: ['treasury:*'] },
       });
 
       expect(result.current.hasPermission('treasury:fee-plans:read')).toBe(true);
@@ -193,7 +165,7 @@ describe('usePermissions', () => {
   describe('hasAnyPermission (con wildcards)', () => {
     it('deberia retornar true si al menos un permiso coincide via wildcard', () => {
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper(['treasury:*']),
+        auth: { permissions: ['treasury:*'] },
       });
 
       expect(
@@ -203,7 +175,7 @@ describe('usePermissions', () => {
 
     it('deberia retornar false si ningun permiso coincide', () => {
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper(['membership:members:read']),
+        auth: { permissions: ['membership:members:read'] },
       });
 
       expect(result.current.hasAnyPermission(['treasury:read', 'treasury:write'])).toBe(false);
@@ -211,7 +183,7 @@ describe('usePermissions', () => {
 
     it('deberia retornar false con lista vacia de permisos requeridos', () => {
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper(['members:read']),
+        auth: { permissions: ['members:read'] },
       });
 
       // Array.some sobre [] retorna false
@@ -222,7 +194,7 @@ describe('usePermissions', () => {
   describe('hasAllPermissions (con wildcards)', () => {
     it('deberia retornar true si wildcard cubre todos los permisos requeridos', () => {
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper(['*']),
+        auth: { permissions: ['*'] },
       });
 
       expect(
@@ -230,9 +202,9 @@ describe('usePermissions', () => {
       ).toBe(true);
     });
 
-    it('deberia retornar false si no todos los permisos están cubiertos', () => {
+    it('deberia retornar false si no todos los permisos estan cubiertos', () => {
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper(['treasury:*']),
+        auth: { permissions: ['treasury:*'] },
       });
 
       expect(
@@ -242,11 +214,32 @@ describe('usePermissions', () => {
 
     it('deberia retornar true con lista vacia de permisos requeridos', () => {
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper(['members:read']),
+        auth: { permissions: ['members:read'] },
       });
 
       // Array.every sobre [] retorna true
       expect(result.current.hasAllPermissions([])).toBe(true);
+    });
+
+    it('deberia verificar permisos realistas de SECRETARY (triangulacion)', () => {
+      const secretaryPerms = ['membership:*', 'documents:*', 'communication:*'];
+      const { result } = renderHook(() => usePermissions(), {
+        auth: { permissions: secretaryPerms },
+      });
+
+      // SECRETARY puede todo en membership + documents + communication
+      expect(
+        result.current.hasAllPermissions([
+          'membership:members:read',
+          'documents:categories:read',
+          'communication:templates:read',
+        ]),
+      ).toBe(true);
+
+      // Pero NO puede treasury
+      expect(
+        result.current.hasAllPermissions(['membership:members:read', 'treasury:fee-plans:read']),
+      ).toBe(false);
     });
   });
 
@@ -254,10 +247,19 @@ describe('usePermissions', () => {
     it('deberia exponer el array de permisos del contexto', () => {
       const perms = ['members:read', 'treasury:write'];
       const { result } = renderHook(() => usePermissions(), {
-        wrapper: createWrapper(perms),
+        auth: { permissions: perms },
       });
 
       expect(result.current.permissions).toEqual(perms);
+    });
+
+    it('deberia exponer array vacio cuando no hay permisos', () => {
+      const { result } = renderHook(() => usePermissions(), {
+        auth: { permissions: [] },
+      });
+
+      expect(result.current.permissions).toEqual([]);
+      expect(result.current.permissions).toHaveLength(0);
     });
   });
 });

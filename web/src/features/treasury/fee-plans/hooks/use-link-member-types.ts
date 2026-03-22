@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
 import { linkMemberTypes } from '../api/fee-plan.api';
+import { ApiError } from '@/shared/api/api-error';
 import type { LinkMemberTypeInput } from '../schemas/fee-plan.schemas';
 
 /** Hook para vincular tipos de socio a un plan de cuota. */
@@ -22,8 +23,7 @@ export function useLinkMemberTypes() {
       });
     },
     onError: (error: unknown) => {
-      const backendMessage = (error as { response?: { data?: { message?: string } } })?.response
-        ?.data?.message;
+      const backendMessage = error instanceof ApiError ? error.message : undefined;
       notifications.show({
         title: 'Error al guardar vinculaciones',
         message: backendMessage ?? 'Ocurrió un error al guardar las vinculaciones.',

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
 import { deactivateFeePlan } from '../api/fee-plan.api';
+import { ApiError } from '@/shared/api/api-error';
 
 /** Hook para inactivar un plan de cuota. */
 export function useDeactivateFeePlan() {
@@ -19,7 +20,7 @@ export function useDeactivateFeePlan() {
       });
     },
     onError: (error: unknown) => {
-      const status = (error as { response?: { status?: number } })?.response?.status;
+      const status = error instanceof ApiError ? error.status : undefined;
       if (status === 422) {
         notifications.show({
           title: 'No se puede inactivar',

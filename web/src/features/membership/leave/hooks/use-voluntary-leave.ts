@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
 import { processVoluntaryLeave } from '../api/member-leave.api';
+import { ApiError } from '@/shared/api/api-error';
 import type { VoluntaryLeaveRequest } from '../schemas/member-leave.schemas';
 
 /** Mutation para procesar baja voluntaria de socio (UC-013). */
@@ -21,7 +22,7 @@ export function useVoluntaryLeave() {
       });
     },
     onError: (error: unknown) => {
-      const status = (error as { response?: { status?: number } })?.response?.status;
+      const status = error instanceof ApiError ? error.status : undefined;
 
       if (status === 422) {
         notifications.show({
