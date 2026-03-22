@@ -44,34 +44,34 @@ Ninguna. Esta es la primera tarea del proyecto.
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Estructura de módulos NestJS por BC | Todas las tareas de backend |
-| Shared kernel (clases base DDD) | Todas las tareas de backend |
-| PrismaTenantService + TenantMiddleware | UC-001 (provisión), UC-002 (autenticación) |
-| Prisma schema main (DB-Main) | UC-001, UC-002 |
-| Prisma schema tenant (DB-Tenant template) | UC-001 (ejecución de migrations en provisión) |
-| Puertos de observabilidad (`ErrorReporter`, `EventTracker`) | Todas las tareas de backend y frontend |
-| HttpClient configurado (axios + interceptors) | Todas las tareas de frontend |
-| Estructura de features del frontend | Todas las tareas de frontend |
-| Docker Compose funcional | Desarrollo local de todas las tareas |
-| Pipeline CI operativo | Todas las tareas (quality gates) |
+| Artefacto                                                   | Consumido por                                 |
+| ----------------------------------------------------------- | --------------------------------------------- |
+| Estructura de módulos NestJS por BC                         | Todas las tareas de backend                   |
+| Shared kernel (clases base DDD)                             | Todas las tareas de backend                   |
+| PrismaTenantService + TenantMiddleware                      | UC-001 (provisión), UC-002 (autenticación)    |
+| Prisma schema main (DB-Main)                                | UC-001, UC-002                                |
+| Prisma schema tenant (DB-Tenant template)                   | UC-001 (ejecución de migrations en provisión) |
+| Puertos de observabilidad (`ErrorReporter`, `EventTracker`) | Todas las tareas de backend y frontend        |
+| HttpClient configurado (axios + interceptors)               | Todas las tareas de frontend                  |
+| Estructura de features del frontend                         | Todas las tareas de frontend                  |
+| Docker Compose funcional                                    | Desarrollo local de todas las tareas          |
+| Pipeline CI operativo                                       | Todas las tareas (quality gates)              |
 
 ## Referencia de especificación
 
-| Documento | Relevancia |
-|-----------|------------|
-| ADR-001 | Monolito modular — estructura general |
-| ADR-002 | Multi-tenant por BD — PrismaTenantService, esquema de BDs |
-| ADR-003 | Módulos por BC — estructura de carpetas |
-| ADR-004 | Domain Events in-process — EventDispatcher |
-| ADR-005 | PostgreSQL — configuración de BD |
-| ADR-008 | Outbox pattern — tabla `outbox_events`, procesador |
-| ADR-009 | Clean Architecture — capas por módulo |
-| ADR-010 | API REST — convenciones de endpoints y respuestas |
-| ADR-012 | Testing — Vitest, pirámide 70/20/10 |
-| RNFT-004 | Multi-tenant con Prisma — código de referencia |
-| Stack completo | Versiones de dependencias y justificaciones |
+| Documento      | Relevancia                                                |
+| -------------- | --------------------------------------------------------- |
+| ADR-001        | Monolito modular — estructura general                     |
+| ADR-002        | Multi-tenant por BD — PrismaTenantService, esquema de BDs |
+| ADR-003        | Módulos por BC — estructura de carpetas                   |
+| ADR-004        | Domain Events in-process — EventDispatcher                |
+| ADR-005        | PostgreSQL — configuración de BD                          |
+| ADR-008        | Outbox pattern — tabla `outbox_events`, procesador        |
+| ADR-009        | Clean Architecture — capas por módulo                     |
+| ADR-010        | API REST — convenciones de endpoints y respuestas         |
+| ADR-012        | Testing — Vitest, pirámide 70/20/10                       |
+| RNFT-004       | Multi-tenant con Prisma — código de referencia            |
+| Stack completo | Versiones de dependencias y justificaciones               |
 
 ## Puntos críticos
 
@@ -89,13 +89,13 @@ Ninguna. Esta es la primera tarea del proyecto.
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Prisma multi-schema no genera tipos correctos | Media | Alto | Verificar generación de tipos con ambos schemas antes de continuar |
-| Docker Compose con volúmenes de PostgreSQL causa problemas en WSL2 | Media | Bajo | Usar named volumes, no bind mounts para datos de BD |
-| Versiones de dependencias incompatibles entre sí | Baja | Medio | Fijar versiones exactas en package.json, ejecutar `npm ci` |
-| Shared Kernel demasiado acoplado a infraestructura | Media | Alto | Solo tipos e interfaces en `shared/domain/`, sin dependencias de npm |
-| Sentry SDK introduce overhead en desarrollo local | Baja | Bajo | Inyectar `ConsoleErrorReporter` en desarrollo, `SentryErrorReporter` solo en staging/prod via variable de entorno |
+| Riesgo                                                             | Probabilidad | Impacto | Mitigación                                                                                                        |
+| ------------------------------------------------------------------ | ------------ | ------- | ----------------------------------------------------------------------------------------------------------------- |
+| Prisma multi-schema no genera tipos correctos                      | Media        | Alto    | Verificar generación de tipos con ambos schemas antes de continuar                                                |
+| Docker Compose con volúmenes de PostgreSQL causa problemas en WSL2 | Media        | Bajo    | Usar named volumes, no bind mounts para datos de BD                                                               |
+| Versiones de dependencias incompatibles entre sí                   | Baja         | Medio   | Fijar versiones exactas en package.json, ejecutar `npm ci`                                                        |
+| Shared Kernel demasiado acoplado a infraestructura                 | Media        | Alto    | Solo tipos e interfaces en `shared/domain/`, sin dependencias de npm                                              |
+| Sentry SDK introduce overhead en desarrollo local                  | Baja         | Bajo    | Inyectar `ConsoleErrorReporter` en desarrollo, `SentryErrorReporter` solo en staging/prod via variable de entorno |
 
 ## Plan de implementación
 
@@ -268,6 +268,7 @@ Crear en `web/src/shared/observability/`:
 - Integrar `ErrorBoundary` en `providers.tsx` envolviendo toda la aplicación
 
 Añadir a `.env.example` (ambos workspaces):
+
 - `SENTRY_DSN=` (vacía en desarrollo, se configura en staging/producción)
 - `VITE_SENTRY_DSN=` (frontend, vacía en desarrollo)
 
@@ -297,7 +298,8 @@ Añadir a `.env.example` (ambos workspaces):
 
 - Crear proyecto Vite con template `react-ts` en `web/`
 - Instalar dependencias:
-  - `@mantine/core`, `@mantine/hooks`, `@mantine/form`, `@mantine/notifications`
+  - `@mantine/core`, `@mantine/hooks`, `@mantine/notifications`
+  - `react-hook-form` 7.71.2, `@hookform/resolvers`
   - `@tanstack/react-query`
   - `react-router`
   - `axios`
@@ -358,17 +360,20 @@ Crear `docker-compose.yml` en la raíz:
 ### Paso 9: Testing
 
 **Backend (Vitest):**
+
 - Configurar `vitest.config.ts` con environment `node`
 - Coverage provider `v8` con thresholds (lines: 80%, branches: 70%)
 - Excluir de coverage: `*.dto.ts`, `*.module.ts`, `index.ts`, `*.config.ts`, migraciones
 - Scripts: `test:unit`, `test:integration`, `test:cov`
 
 **Frontend (Vitest):**
+
 - Configurar `vitest.config.ts` con environment `jsdom`
 - Coverage provider `v8` con mismos thresholds
 - Scripts: `test`, `test:cov`
 
 **E2E (Playwright):**
+
 - Configurar `playwright.config.ts` en raíz
 - `testDir: './e2e'`, timeout 30s, retries 2
 - Base URL `http://localhost:5173`

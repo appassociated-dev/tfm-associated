@@ -27,17 +27,17 @@
 
 ### 1.1 Stack Seleccionado
 
-| Capa | Tecnología | Versión |
-|------|------------|---------|
-| **Backend** | TypeScript + NestJS | TS 5.9.x, Nest 11.x |
-| **Frontend** | React + TypeScript | React 19.x |
-| **Base de Datos** | PostgreSQL | 18.x |
-| **ORM** | Prisma | 7.x |
-| **Object Storage** | MinIO (dev) / S3 (prod) | - |
-| **Contenedores** | Docker + Docker Compose | 29.x |
-| **CI/CD** | GitHub Actions | - |
-| **Testing** | Vitest + Playwright | - |
-| **Observabilidad** | Sentry | - |
+| Capa               | Tecnología              | Versión             |
+| ------------------ | ----------------------- | ------------------- |
+| **Backend**        | TypeScript + NestJS     | TS 5.9.x, Nest 11.x |
+| **Frontend**       | React + TypeScript      | React 19.x          |
+| **Base de Datos**  | PostgreSQL              | 18.x                |
+| **ORM**            | Prisma                  | 7.x                 |
+| **Object Storage** | MinIO (dev) / S3 (prod) | -                   |
+| **Contenedores**   | Docker + Docker Compose | 29.x                |
+| **CI/CD**          | GitHub Actions          | -                   |
+| **Testing**        | Vitest + Playwright     | -                   |
+| **Observabilidad** | Sentry                  | -                   |
 
 ### 1.2 Principios de Selección
 
@@ -55,16 +55,17 @@
 
 **Seleccionado:** TypeScript
 
-| Criterio | TypeScript | C#/.NET | Java/Spring | Go |
-|----------|------------|---------|-------------|-----|
-| Tipado estático | ✅ Excelente | ✅ Excelente | ✅ Excelente | ✅ Bueno |
-| Soporte DDD | ✅ Bueno | ✅ Excelente | ✅ Excelente | ⚠️ Manual |
-| Full-stack (mismo lenguaje) | ✅ Sí | ❌ No | ❌ No | ❌ No |
-| Curva aprendizaje | ✅ Baja | ⚠️ Media | ⚠️ Media-Alta | ⚠️ Media |
-| Ecosistema npm | ✅ Masivo | N/A | N/A | ⚠️ Menor |
-| Tooling moderno | ✅ Excelente | ✅ Bueno | ⚠️ Pesado | ✅ Bueno |
+| Criterio                    | TypeScript   | C#/.NET      | Java/Spring   | Go        |
+| --------------------------- | ------------ | ------------ | ------------- | --------- |
+| Tipado estático             | ✅ Excelente | ✅ Excelente | ✅ Excelente  | ✅ Bueno  |
+| Soporte DDD                 | ✅ Bueno     | ✅ Excelente | ✅ Excelente  | ⚠️ Manual |
+| Full-stack (mismo lenguaje) | ✅ Sí        | ❌ No        | ❌ No         | ❌ No     |
+| Curva aprendizaje           | ✅ Baja      | ⚠️ Media     | ⚠️ Media-Alta | ⚠️ Media  |
+| Ecosistema npm              | ✅ Masivo    | N/A          | N/A           | ⚠️ Menor  |
+| Tooling moderno             | ✅ Excelente | ✅ Bueno     | ⚠️ Pesado     | ✅ Bueno  |
 
 **Justificación:**
+
 - Tipado fuerte permite modelar Value Objects con precisión
 - Mismo lenguaje en frontend y backend reduce context switching
 - Decoradores nativos facilitan implementación de Clean Architecture
@@ -72,6 +73,7 @@
 - Excelente soporte en IDEs (VS Code, WebStorm)
 
 **Configuración recomendada (tsconfig.json):**
+
 ```json
 {
   "compilerOptions": {
@@ -88,16 +90,17 @@
 
 **Seleccionado:** NestJS
 
-| Criterio | NestJS | Express | Fastify | Hono |
-|----------|--------|---------|---------|------|
-| Arquitectura modular | ✅ Nativa | ❌ Manual | ❌ Manual | ❌ Manual |
-| Inyección dependencias | ✅ Nativa | ❌ Externa | ❌ Externa | ❌ Externa |
-| OpenAPI/Swagger | ✅ Integrado | ⚠️ Manual | ⚠️ Manual | ⚠️ Manual |
-| Validación | ✅ class-validator | ⚠️ Manual | ⚠️ Manual | ⚠️ Manual |
-| CQRS support | ✅ @nestjs/cqrs | ❌ No | ❌ No | ❌ No |
-| Documentación | ✅ Excelente | ✅ Buena | ✅ Buena | ⚠️ Creciendo |
+| Criterio               | NestJS             | Express    | Fastify    | Hono         |
+| ---------------------- | ------------------ | ---------- | ---------- | ------------ |
+| Arquitectura modular   | ✅ Nativa          | ❌ Manual  | ❌ Manual  | ❌ Manual    |
+| Inyección dependencias | ✅ Nativa          | ❌ Externa | ❌ Externa | ❌ Externa   |
+| OpenAPI/Swagger        | ✅ Integrado       | ⚠️ Manual  | ⚠️ Manual  | ⚠️ Manual    |
+| Validación             | ✅ class-validator | ⚠️ Manual  | ⚠️ Manual  | ⚠️ Manual    |
+| CQRS support           | ✅ @nestjs/cqrs    | ❌ No      | ❌ No      | ❌ No        |
+| Documentación          | ✅ Excelente       | ✅ Buena   | ✅ Buena   | ⚠️ Creciendo |
 
 **Justificación:**
+
 - **Módulos nativos** → mapeo directo a Bounded Contexts (ADR-003)
 - **Inyección de dependencias** → facilita Clean Architecture (ADR-009)
 - **OpenAPI integrado** → documentación automática (ADR-010)
@@ -105,6 +108,7 @@
 - **Guards y Interceptors** → implementación limpia de RBAC (ADR-007)
 
 **Estructura de módulo alineada con ADR-003:**
+
 ```
 src/
 ├── modules/
@@ -128,19 +132,19 @@ src/
 
 ### 2.3 Librerías Backend Complementarias
 
-| Librería | Propósito | Versión | ADR/RNF |
-|----------|-----------|---------|---------|
-| `@nestjs/passport` | Autenticación | 11.x | ADR-006 |
-| `@nestjs/jwt` | Tokens JWT | 11.x | ADR-006 |
-| `passport-jwt` | Estrategia JWT | 4.x | ADR-006 |
-| `@nestjs/swagger` | OpenAPI docs | 11.x | ADR-010 |
-| `class-validator` | Validación DTOs | 0.14.x | RNF-008 |
-| `class-transformer` | Serialización | 0.5.x | - |
-| `@nestjs/cqrs` | CQRS pattern | 11.x | ADR-009 |
-| `@nestjs/schedule` | Jobs programados | 6.x | ADR-008 |
-| `argon2` | Hash passwords | 0.44.x | RNF-006 |
-| `date-fns` | Manipulación fechas | 4.x | - |
-| `sepa-xml` | Generación SEPA | 0.4.x *(pendiente de evaluación — posible abandono)* | N4RF17-23 |
+| Librería            | Propósito           | Versión                                              | ADR/RNF   |
+| ------------------- | ------------------- | ---------------------------------------------------- | --------- |
+| `@nestjs/passport`  | Autenticación       | 11.x                                                 | ADR-006   |
+| `@nestjs/jwt`       | Tokens JWT          | 11.x                                                 | ADR-006   |
+| `passport-jwt`      | Estrategia JWT      | 4.x                                                  | ADR-006   |
+| `@nestjs/swagger`   | OpenAPI docs        | 11.x                                                 | ADR-010   |
+| `class-validator`   | Validación DTOs     | 0.14.x                                               | RNF-008   |
+| `class-transformer` | Serialización       | 0.5.x                                                | -         |
+| `@nestjs/cqrs`      | CQRS pattern        | 11.x                                                 | ADR-009   |
+| `@nestjs/schedule`  | Jobs programados    | 6.x                                                  | ADR-008   |
+| `argon2`            | Hash passwords      | 0.44.x                                               | RNF-006   |
+| `date-fns`          | Manipulación fechas | 4.x                                                  | -         |
+| `sepa-xml`          | Generación SEPA     | 0.4.x _(pendiente de evaluación — posible abandono)_ | N4RF17-23 |
 
 ---
 
@@ -150,16 +154,17 @@ src/
 
 **Seleccionado:** React
 
-| Criterio | React | Vue 3 | Angular | Svelte |
-|----------|-------|-------|---------|--------|
-| Ecosistema | ✅ Masivo | ✅ Grande | ✅ Grande | ⚠️ Creciendo |
-| TypeScript | ✅ Excelente | ✅ Bueno | ✅ Nativo | ✅ Bueno |
-| Componentes UI | ✅ Muchos | ✅ Varios | ⚠️ Menos | ⚠️ Pocos |
-| PWA support | ✅ Maduro | ✅ Bueno | ✅ Bueno | ⚠️ Manual |
-| Learning curve | ⚠️ Media | ✅ Baja | ❌ Alta | ✅ Baja |
-| Server Components | ✅ Sí | ❌ No | ❌ No | ❌ No |
+| Criterio          | React        | Vue 3     | Angular   | Svelte       |
+| ----------------- | ------------ | --------- | --------- | ------------ |
+| Ecosistema        | ✅ Masivo    | ✅ Grande | ✅ Grande | ⚠️ Creciendo |
+| TypeScript        | ✅ Excelente | ✅ Bueno  | ✅ Nativo | ✅ Bueno     |
+| Componentes UI    | ✅ Muchos    | ✅ Varios | ⚠️ Menos  | ⚠️ Pocos     |
+| PWA support       | ✅ Maduro    | ✅ Bueno  | ✅ Bueno  | ⚠️ Manual    |
+| Learning curve    | ⚠️ Media     | ✅ Baja   | ❌ Alta   | ✅ Baja      |
+| Server Components | ✅ Sí        | ❌ No     | ❌ No     | ❌ No        |
 
 **Justificación:**
+
 - Ecosistema más grande = más soluciones probadas
 - Excelente integración con TypeScript (mismo lenguaje que backend)
 - Librerías de componentes maduras (MUI, Ant Design, shadcn/ui)
@@ -170,17 +175,18 @@ src/
 
 **Seleccionado:** Vite + React Router (sin meta-framework)
 
-> **Nota:** Un *meta-framework* es un framework construido sobre otro que añade convenciones y funcionalidades (ej: Next.js sobre React, Nuxt sobre Vue). Incluyen routing, SSR/SSG, data fetching patterns y optimizaciones integradas.
+> **Nota:** Un _meta-framework_ es un framework construido sobre otro que añade convenciones y funcionalidades (ej: Next.js sobre React, Nuxt sobre Vue). Incluyen routing, SSR/SSG, data fetching patterns y optimizaciones integradas.
 
-| Criterio | Vite + RR | Next.js | Remix |
-|----------|-----------|---------|-------|
-| Complejidad | ✅ Baja | ⚠️ Media | ⚠️ Media |
-| SPA puro | ✅ Ideal | ⚠️ Posible | ⚠️ Posible |
-| Build speed | ✅ Muy rápido | ✅ Rápido | ✅ Rápido |
-| Bundle size | ✅ Óptimo | ⚠️ Mayor | ⚠️ Mayor |
-| Backend separado | ✅ Natural | ⚠️ Conflicto | ⚠️ Conflicto |
+| Criterio         | Vite + RR     | Next.js      | Remix        |
+| ---------------- | ------------- | ------------ | ------------ |
+| Complejidad      | ✅ Baja       | ⚠️ Media     | ⚠️ Media     |
+| SPA puro         | ✅ Ideal      | ⚠️ Posible   | ⚠️ Posible   |
+| Build speed      | ✅ Muy rápido | ✅ Rápido    | ✅ Rápido    |
+| Bundle size      | ✅ Óptimo     | ⚠️ Mayor     | ⚠️ Mayor     |
+| Backend separado | ✅ Natural    | ⚠️ Conflicto | ⚠️ Conflicto |
 
 **Justificación:**
+
 - El backend es NestJS separado → no necesitamos SSR framework ni API routes integradas
 - Vite ofrece HMR instantáneo y builds optimizados con ESBuild
 - React Router v7 (paquete unificado `react-router`) para routing client-side
@@ -189,34 +195,34 @@ src/
 
 ### 3.3 Librerías Frontend
 
-| Librería | Propósito | Versión | ADR/RNF |
-|----------|-----------|---------|---------|
-| `@tanstack/react-query` | Estado servidor | 5.x | RNF-015-016 |
-| `react-router` | Routing | 7.x | - |
-| `@mantine/core` | Componentes UI | 8.x | RNF-045-047 |
-| `@mantine/hooks` | Hooks utilidad | 8.x | - |
-| `@mantine/form` | Formularios | 8.x | - |
-| `react-hook-form` | Forms avanzados | 7.x | - |
-| `zod` | Validación schemas | 4.x | RNF-008 |
-| `axios` | HTTP client | 1.x | - |
-| `date-fns` | Fechas | 4.x | - |
-| `react-i18next` | i18n | 16.x | RNF-047 |
-| `vite-plugin-pwa` | PWA/Service Worker | 1.x | RNF-056 |
+| Librería                | Propósito          | Versión | ADR/RNF     |
+| ----------------------- | ------------------ | ------- | ----------- |
+| `@tanstack/react-query` | Estado servidor    | 5.x     | RNF-015-016 |
+| `react-router`          | Routing            | 7.x     | -           |
+| `@mantine/core`         | Componentes UI     | 8.x     | RNF-045-047 |
+| `@mantine/hooks`        | Hooks utilidad     | 8.x     | -           |
+| `react-hook-form`       | Forms avanzados    | 7.x     | -           |
+| `zod`                   | Validación schemas | 4.x     | RNF-008     |
+| `axios`                 | HTTP client        | 1.x     | -           |
+| `date-fns`              | Fechas             | 4.x     | -           |
+| `react-i18next`         | i18n               | 16.x    | RNF-047     |
+| `vite-plugin-pwa`       | PWA/Service Worker | 1.x     | RNF-056     |
 
 ### 3.4 UI Kit: Mantine
 
 **Seleccionado:** Mantine
 
-| Criterio | Mantine | MUI | Ant Design | shadcn/ui |
-|----------|---------|-----|------------|-----------|
-| Bundle size | ✅ Ligero | ❌ Pesado | ❌ Pesado | ✅ Ligero |
-| Customización | ✅ Fácil | ⚠️ Theme | ⚠️ Theme | ✅ Total |
-| Accesibilidad | ✅ WCAG AA | ✅ WCAG AA | ✅ Buena | ✅ WCAG AA |
-| Componentes | ✅ Completo | ✅ Completo | ✅ Completo | ⚠️ Básicos |
-| Hooks incluidos | ✅ Sí | ❌ No | ❌ No | ❌ No |
-| Dark mode | ✅ Nativo | ✅ Nativo | ✅ Nativo | ✅ Manual |
+| Criterio        | Mantine     | MUI         | Ant Design  | shadcn/ui  |
+| --------------- | ----------- | ----------- | ----------- | ---------- |
+| Bundle size     | ✅ Ligero   | ❌ Pesado   | ❌ Pesado   | ✅ Ligero  |
+| Customización   | ✅ Fácil    | ⚠️ Theme    | ⚠️ Theme    | ✅ Total   |
+| Accesibilidad   | ✅ WCAG AA  | ✅ WCAG AA  | ✅ Buena    | ✅ WCAG AA |
+| Componentes     | ✅ Completo | ✅ Completo | ✅ Completo | ⚠️ Básicos |
+| Hooks incluidos | ✅ Sí       | ❌ No       | ❌ No       | ❌ No      |
+| Dark mode       | ✅ Nativo   | ✅ Nativo   | ✅ Nativo   | ✅ Manual  |
 
 **Justificación:**
+
 - Bundle size ligero (importante para PWA)
 - Accesibilidad WCAG AA incluida (RNF-046)
 - Hooks de utilidad (@mantine/hooks) muy útiles
@@ -232,6 +238,7 @@ src/
 **Decisión heredada de ADR-005**
 
 **Configuración multi-tenant (ADR-002):**
+
 ```
 PostgreSQL Instance
 ├── associated_main          (BC-Identity: usuarios, tenants)
@@ -241,6 +248,7 @@ PostgreSQL Instance
 ```
 
 **Extensiones requeridas:**
+
 - `uuid-ossp`: Generación de UUIDs
 - `pg_trgm`: Búsqueda fuzzy (RNF-019)
 - `pgcrypto`: Funciones criptográficas
@@ -249,16 +257,17 @@ PostgreSQL Instance
 
 **Seleccionado:** Prisma
 
-| Criterio | Prisma | TypeORM | Drizzle | MikroORM |
-|----------|--------|---------|---------|----------|
-| Type safety | ✅ Excelente | ⚠️ Parcial | ✅ Excelente | ✅ Bueno |
-| Migraciones | ✅ Automáticas | ⚠️ Manuales | ⚠️ Manuales | ✅ Buenas |
-| Multi-DB | ✅ Soporte | ✅ Soporte | ✅ Soporte | ✅ Soporte |
-| Query builder | ✅ Intuitivo | ⚠️ Verbose | ✅ SQL-like | ⚠️ Complejo |
-| Performance | ✅ Bueno | ⚠️ Variable | ✅ Excelente | ✅ Bueno |
-| DX | ✅ Excelente | ⚠️ Media | ✅ Buena | ⚠️ Media |
+| Criterio      | Prisma         | TypeORM     | Drizzle      | MikroORM    |
+| ------------- | -------------- | ----------- | ------------ | ----------- |
+| Type safety   | ✅ Excelente   | ⚠️ Parcial  | ✅ Excelente | ✅ Bueno    |
+| Migraciones   | ✅ Automáticas | ⚠️ Manuales | ⚠️ Manuales  | ✅ Buenas   |
+| Multi-DB      | ✅ Soporte     | ✅ Soporte  | ✅ Soporte   | ✅ Soporte  |
+| Query builder | ✅ Intuitivo   | ⚠️ Verbose  | ✅ SQL-like  | ⚠️ Complejo |
+| Performance   | ✅ Bueno       | ⚠️ Variable | ✅ Excelente | ✅ Bueno    |
+| DX            | ✅ Excelente   | ⚠️ Media    | ✅ Buena     | ⚠️ Media    |
 
 **Justificación:**
+
 - Generación automática de tipos TypeScript desde schema
 - Migraciones versionadas y reproducibles (RNF-066)
 - Prisma Studio para debugging
@@ -266,6 +275,7 @@ PostgreSQL Instance
 - Excelente documentación
 
 **Configuración multi-tenant:**
+
 ```typescript
 // prisma/schema.prisma (main)
 datasource db {
@@ -284,6 +294,7 @@ const tenantPrisma = new PrismaClient({
 ### 4.3 Caché: Sin caché dedicada (MVP)
 
 Para el MVP, no se incluye Redis u otra caché dedicada. Se usará:
+
 - Caché en memoria de Prisma (query results)
 - HTTP caching headers
 - React Query cache en frontend
@@ -299,18 +310,20 @@ Para el MVP, no se incluye Redis u otra caché dedicada. Se usará:
 **Seleccionado:** Docker + Docker Compose
 
 **Justificación:**
+
 - Entorno reproducible para desarrollo
 - Mismo artefacto para dev/staging/prod
 - Facilita onboarding de contributors
 - Compatible con cualquier cloud provider
 
 **docker-compose.yml (desarrollo):**
+
 ```yaml
 services:
   api:
     build: ./api
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - DATABASE_MAIN_URL=postgresql://...
     depends_on:
@@ -320,7 +333,7 @@ services:
   web:
     build: ./web
     ports:
-      - "5173:5173"
+      - '5173:5173'
 
   postgres:
     image: postgres:18-alpine
@@ -333,8 +346,8 @@ services:
     image: minio/minio
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     volumes:
       - minio_data:/data
 
@@ -347,23 +360,24 @@ volumes:
 
 **Decisión heredada de ADR-011**
 
-| Entorno | Solución | Justificación |
-|---------|----------|---------------|
-| Desarrollo | MinIO | S3-compatible, local, gratuito |
-| Producción | AWS S3 / Cloudflare R2 | Escalable, económico |
+| Entorno    | Solución               | Justificación                  |
+| ---------- | ---------------------- | ------------------------------ |
+| Desarrollo | MinIO                  | S3-compatible, local, gratuito |
+| Producción | AWS S3 / Cloudflare R2 | Escalable, económico           |
 
 **SDK:** `@aws-sdk/client-s3` (compatible con ambos)
 
 ### 5.3 Hosting Producción (Recomendado)
 
-| Componente | Servicio Recomendado | Alternativa |
-|------------|---------------------|-------------|
-| Backend | Railway / Render | Fly.io |
-| Frontend | Vercel / Cloudflare Pages | Netlify |
-| PostgreSQL | Railway / Supabase | Neon |
-| Object Storage | Cloudflare R2 | AWS S3 |
+| Componente     | Servicio Recomendado      | Alternativa |
+| -------------- | ------------------------- | ----------- |
+| Backend        | Railway / Render          | Fly.io      |
+| Frontend       | Vercel / Cloudflare Pages | Netlify     |
+| PostgreSQL     | Railway / Supabase        | Neon        |
+| Object Storage | Cloudflare R2             | AWS S3      |
 
 **Justificación:**
+
 - Servicios con tier gratuito o muy económico
 - Despliegue automático desde GitHub
 - Escalado automático si necesario
@@ -382,27 +396,28 @@ CI Gates: Line ≥80%, Branch ≥70%
 
 ### 6.2 Frameworks por Tipo
 
-| Tipo | Framework | Scope |
-|------|-----------|-------|
-| Unit (Domain) | Vitest | Aggregates, VOs, Domain Services |
-| Unit (Application) | Vitest + mocks | Command/Query Handlers |
-| Integration | Vitest + Supertest | Controllers, Repositories |
-| Integration DB | Testcontainers | Repository con PostgreSQL real |
-| E2E | Playwright | Flujos críticos de usuario |
+| Tipo               | Framework          | Scope                            |
+| ------------------ | ------------------ | -------------------------------- |
+| Unit (Domain)      | Vitest             | Aggregates, VOs, Domain Services |
+| Unit (Application) | Vitest + mocks     | Command/Query Handlers           |
+| Integration        | Vitest + Supertest | Controllers, Repositories        |
+| Integration DB     | Testcontainers     | Repository con PostgreSQL real   |
+| E2E                | Playwright         | Flujos críticos de usuario       |
 
 **¿Por qué Vitest sobre Jest?**
 
-| Criterio | Vitest | Jest |
-|----------|--------|------|
-| Velocidad | ✅ Muy rápido (ESBuild) | ⚠️ Lento con TypeScript |
-| Configuración con Vite | ✅ Compartida | ❌ Duplicada |
-| ESM nativo | ✅ Soporte completo | ⚠️ Problemas frecuentes |
-| API | ✅ Compatible con Jest | ✅ Estándar |
-| Watch mode | ✅ HMR instantáneo | ⚠️ Lento |
+| Criterio               | Vitest                  | Jest                    |
+| ---------------------- | ----------------------- | ----------------------- |
+| Velocidad              | ✅ Muy rápido (ESBuild) | ⚠️ Lento con TypeScript |
+| Configuración con Vite | ✅ Compartida           | ❌ Duplicada            |
+| ESM nativo             | ✅ Soporte completo     | ⚠️ Problemas frecuentes |
+| API                    | ✅ Compatible con Jest  | ✅ Estándar             |
+| Watch mode             | ✅ HMR instantáneo      | ⚠️ Lento                |
 
 ### 6.3 Configuración Testing
 
 **Vitest (backend y frontend):**
+
 ```typescript
 // vitest.config.ts
 import { defineConfig } from 'vitest/config';
@@ -415,12 +430,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        '**/*.dto.ts',
-        '**/*.module.ts',
-        '**/index.ts',
-        '**/*.config.ts',
-      ],
+      exclude: ['**/*.dto.ts', '**/*.module.ts', '**/index.ts', '**/*.config.ts'],
       thresholds: {
         lines: 80,
         branches: 70,
@@ -431,6 +441,7 @@ export default defineConfig({
 ```
 
 **Playwright (E2E):**
+
 ```typescript
 // playwright.config.ts
 export default defineConfig({
@@ -453,10 +464,8 @@ import { PostgreSqlContainer } from '@testcontainers/postgresql';
 let container: StartedPostgreSqlContainer;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer('postgres:18-alpine')
-    .withDatabase('test_db')
-    .start();
-  
+  container = await new PostgreSqlContainer('postgres:18-alpine').withDatabase('test_db').start();
+
   process.env.DATABASE_URL = container.getConnectionUri();
 });
 
@@ -472,6 +481,7 @@ afterAll(async () => {
 ### 7.1 Control de Versiones: Git + GitHub
 
 **Estrategia de branching:** GitHub Flow (simplificado)
+
 - `main`: producción, siempre deployable
 - `feature/*`: desarrollo de features
 - PRs obligatorias con review
@@ -479,6 +489,7 @@ afterAll(async () => {
 ### 7.2 CI: GitHub Actions
 
 **Workflow principal (.github/workflows/ci.yml):**
+
 ```yaml
 name: CI
 
@@ -565,24 +576,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      
+
       - name: Install Playwright
         run: npx playwright install --with-deps
-      
+
       - name: Run E2E Tests
         run: npm run test:e2e
 ```
 
 ### 7.3 Quality Gates (RNF-058)
 
-| Gate | Umbral | Herramienta |
-|------|--------|-------------|
-| Line Coverage | ≥80% | Vitest + Codecov |
-| Branch Coverage | ≥70% | Vitest + Codecov |
-| Diff Coverage (PRs) | ≥85% lines, ≥75% branch | Codecov |
-| Linting | 0 errors | ESLint |
-| Type Check | 0 errors | TypeScript |
-| Security Audit | 0 critical/high | npm audit |
+| Gate                | Umbral                  | Herramienta      |
+| ------------------- | ----------------------- | ---------------- |
+| Line Coverage       | ≥80%                    | Vitest + Codecov |
+| Branch Coverage     | ≥70%                    | Vitest + Codecov |
+| Diff Coverage (PRs) | ≥85% lines, ≥75% branch | Codecov          |
+| Linting             | 0 errors                | ESLint           |
+| Type Check          | 0 errors                | TypeScript       |
+| Security Audit      | 0 critical/high         | npm audit        |
 
 ---
 
@@ -593,6 +604,7 @@ jobs:
 **Recomendado:** VS Code
 
 **Extensiones esenciales:**
+
 - ESLint
 - Prettier
 - Prisma
@@ -602,14 +614,15 @@ jobs:
 
 ### 8.2 Linting y Formatting
 
-| Herramienta | Propósito | Configuración |
-|-------------|-----------|---------------|
-| ESLint | Linting TS/JS | @typescript-eslint |
-| Prettier | Formatting | .prettierrc |
-| Husky | Git hooks | pre-commit |
+| Herramienta | Propósito      | Configuración        |
+| ----------- | -------------- | -------------------- |
+| ESLint      | Linting TS/JS  | @typescript-eslint   |
+| Prettier    | Formatting     | .prettierrc          |
+| Husky       | Git hooks      | pre-commit           |
 | lint-staged | Lint on commit | Solo archivos staged |
 
 **Configuración Husky + lint-staged:**
+
 ```json
 // package.json
 {
@@ -622,12 +635,12 @@ jobs:
 
 ### 8.3 Documentación
 
-| Tipo | Herramienta |
-|------|-------------|
-| API | Swagger/OpenAPI (auto-generado) |
-| Código | TSDoc comments |
-| Arquitectura | Markdown + Mermaid diagrams |
-| ADRs | Markdown (ya existentes) |
+| Tipo         | Herramienta                     |
+| ------------ | ------------------------------- |
+| API          | Swagger/OpenAPI (auto-generado) |
+| Código       | TSDoc comments                  |
+| Arquitectura | Markdown + Mermaid diagrams     |
+| ADRs         | Markdown (ya existentes)        |
 
 ---
 
@@ -637,14 +650,15 @@ jobs:
 
 **Recomendado:** Resend
 
-| Criterio | Resend | SendGrid | AWS SES |
-|----------|--------|----------|---------|
-| Free tier | 3k/mes | 100/día | 62k/mes (con EC2) |
-| DX | ✅ Excelente | ⚠️ Buena | ⚠️ Compleja |
-| React Email | ✅ Nativo | ❌ No | ❌ No |
-| Pricing | Económico | Caro | Muy económico |
+| Criterio    | Resend       | SendGrid | AWS SES           |
+| ----------- | ------------ | -------- | ----------------- |
+| Free tier   | 3k/mes       | 100/día  | 62k/mes (con EC2) |
+| DX          | ✅ Excelente | ⚠️ Buena | ⚠️ Compleja       |
+| React Email | ✅ Nativo    | ❌ No    | ❌ No             |
+| Pricing     | Económico    | Caro     | Muy económico     |
 
 **Justificación:**
+
 - 3000 emails/mes gratis (suficiente para MVP)
 - SDK TypeScript moderno
 - Integración con React Email para templates
@@ -663,16 +677,17 @@ jobs:
 
 **Seleccionado:** Sentry
 
-| Criterio | Sentry | Datadog | New Relic |
-|----------|--------|---------|-----------|
-| Free tier | ✅ 5k eventos/mes | ❌ Muy limitado | ❌ Muy limitado |
-| Error tracking | ✅ Excelente | ✅ Bueno | ✅ Bueno |
-| Performance | ✅ Incluido | ✅ Incluido | ✅ Incluido |
-| Session replay | ✅ Incluido | ⚠️ Extra | ⚠️ Extra |
-| SDK TypeScript | ✅ Excelente | ✅ Bueno | ⚠️ Medio |
-| Integración NestJS | ✅ Oficial | ⚠️ Manual | ⚠️ Manual |
+| Criterio           | Sentry            | Datadog         | New Relic       |
+| ------------------ | ----------------- | --------------- | --------------- |
+| Free tier          | ✅ 5k eventos/mes | ❌ Muy limitado | ❌ Muy limitado |
+| Error tracking     | ✅ Excelente      | ✅ Bueno        | ✅ Bueno        |
+| Performance        | ✅ Incluido       | ✅ Incluido     | ✅ Incluido     |
+| Session replay     | ✅ Incluido       | ⚠️ Extra        | ⚠️ Extra        |
+| SDK TypeScript     | ✅ Excelente      | ✅ Bueno        | ⚠️ Medio        |
+| Integración NestJS | ✅ Oficial        | ⚠️ Manual       | ⚠️ Manual       |
 
 **Justificación:**
+
 - Free tier suficiente para MVP (5k eventos/mes)
 - SDK oficial para NestJS y React
 - Captura automática de errores con contexto completo
@@ -682,14 +697,15 @@ jobs:
 
 **Funcionalidades a utilizar:**
 
-| Funcionalidad | Propósito | RNF |
-|---------------|-----------|-----|
-| Error Tracking | Captura excepciones con contexto | RNF-064 |
-| Performance | Traces de transacciones, latencias | RNF-015-016 |
-| Release Health | Correlación errores/deploys | RNF-064 |
-| User Context | Identificar tenant/usuario afectado | RNF-004 |
+| Funcionalidad  | Propósito                           | RNF         |
+| -------------- | ----------------------------------- | ----------- |
+| Error Tracking | Captura excepciones con contexto    | RNF-064     |
+| Performance    | Traces de transacciones, latencias  | RNF-015-016 |
+| Release Health | Correlación errores/deploys         | RNF-064     |
+| User Context   | Identificar tenant/usuario afectado | RNF-004     |
 
 **Integración backend (NestJS):**
+
 ```typescript
 // main.ts
 import * as Sentry from '@sentry/nestjs';
@@ -703,6 +719,7 @@ Sentry.init({
 ```
 
 **Integración frontend (React):**
+
 ```typescript
 // main.tsx
 import * as Sentry from '@sentry/react';
@@ -710,10 +727,7 @@ import * as Sentry from '@sentry/react';
 Sentry.init({
   dsn: process.env.VITE_SENTRY_DSN,
   environment: import.meta.env.MODE,
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration(),
-  ],
+  integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
   tracesSampleRate: 1.0,
   replaysSessionSampleRate: 0.1,
 });
@@ -721,11 +735,11 @@ Sentry.init({
 
 ### 9.4 Servicios Complementarios (Post-MVP)
 
-| Servicio | Propósito | Cuándo incorporar |
-|----------|-----------|-------------------|
-| Better Uptime | Uptime monitoring | Producción con usuarios reales |
-| Axiom/Loki | Logging centralizado | Si Sentry no es suficiente |
-| PostHog | Product analytics | Cuando se necesiten métricas de uso |
+| Servicio      | Propósito            | Cuándo incorporar                   |
+| ------------- | -------------------- | ----------------------------------- |
+| Better Uptime | Uptime monitoring    | Producción con usuarios reales      |
+| Axiom/Loki    | Logging centralizado | Si Sentry no es suficiente          |
+| PostHog       | Product analytics    | Cuando se necesiten métricas de uso |
 
 ---
 
@@ -733,22 +747,22 @@ Sentry.init({
 
 ### 10.1 Tecnología → ADR/RNF
 
-| Tecnología | ADRs | RNFs |
-|------------|------|------|
-| TypeScript + NestJS | ADR-001, ADR-009 | RNF-057 |
-| Módulos NestJS | ADR-003 | - |
-| @nestjs/cqrs | ADR-009 | - |
-| JWT + Passport | ADR-006 | RNF-001, RNF-002 |
-| Guards NestJS | ADR-007 | RNF-003, RNF-013 |
-| PostgreSQL | ADR-005 | RNF-004, RNF-038 |
-| Prisma | ADR-002, ADR-005 | RNF-066 |
-| React + Mantine | ADR-010 | RNF-045, RNF-046, RNF-050 |
-| React Query | - | RNF-015, RNF-016 |
-| MinIO/S3 | ADR-011 | RNF-009, RNF-022 |
-| Vitest + Playwright | ADR-012 | RNF-058, RNF-059, RNF-060 |
-| Sentry | - | RNF-064 |
-| GitHub Actions | - | RNF-058 (CI gates) |
-| Docker | ADR-001 | RNF-065 |
+| Tecnología          | ADRs             | RNFs                      |
+| ------------------- | ---------------- | ------------------------- |
+| TypeScript + NestJS | ADR-001, ADR-009 | RNF-057                   |
+| Módulos NestJS      | ADR-003          | -                         |
+| @nestjs/cqrs        | ADR-009          | -                         |
+| JWT + Passport      | ADR-006          | RNF-001, RNF-002          |
+| Guards NestJS       | ADR-007          | RNF-003, RNF-013          |
+| PostgreSQL          | ADR-005          | RNF-004, RNF-038          |
+| Prisma              | ADR-002, ADR-005 | RNF-066                   |
+| React + Mantine     | ADR-010          | RNF-045, RNF-046, RNF-050 |
+| React Query         | -                | RNF-015, RNF-016          |
+| MinIO/S3            | ADR-011          | RNF-009, RNF-022          |
+| Vitest + Playwright | ADR-012          | RNF-058, RNF-059, RNF-060 |
+| Sentry              | -                | RNF-064                   |
+| GitHub Actions      | -                | RNF-058 (CI gates)        |
+| Docker              | ADR-001          | RNF-065                   |
 
 ### 10.2 Resumen de Versiones
 
@@ -784,21 +798,21 @@ codecov: v4
 
 ### Matriz Categoría → Selección
 
-| Categoría | Selección Principal | Alternativa Considerada |
-|-----------|--------------------|-----------------------|
-| Lenguaje Backend | TypeScript | C#, Java, Go |
-| Framework Backend | NestJS | Express, Fastify |
-| Lenguaje Frontend | TypeScript | - |
-| Framework Frontend | React | Vue, Angular |
-| Build Tool | Vite | Next.js, Webpack |
-| UI Kit | Mantine | MUI, shadcn/ui |
-| Base de Datos | PostgreSQL | MySQL, MongoDB |
-| ORM | Prisma | TypeORM, Drizzle |
-| Testing Unit/Integration | Vitest | Jest |
-| Testing E2E | Playwright | Cypress |
-| Observabilidad | Sentry | Datadog, New Relic |
-| CI/CD | GitHub Actions | GitLab CI |
-| Contenedores | Docker | Podman |
+| Categoría                | Selección Principal | Alternativa Considerada |
+| ------------------------ | ------------------- | ----------------------- |
+| Lenguaje Backend         | TypeScript          | C#, Java, Go            |
+| Framework Backend        | NestJS              | Express, Fastify        |
+| Lenguaje Frontend        | TypeScript          | -                       |
+| Framework Frontend       | React               | Vue, Angular            |
+| Build Tool               | Vite                | Next.js, Webpack        |
+| UI Kit                   | Mantine             | MUI, shadcn/ui          |
+| Base de Datos            | PostgreSQL          | MySQL, MongoDB          |
+| ORM                      | Prisma              | TypeORM, Drizzle        |
+| Testing Unit/Integration | Vitest              | Jest                    |
+| Testing E2E              | Playwright          | Cypress                 |
+| Observabilidad           | Sentry              | Datadog, New Relic      |
+| CI/CD                    | GitHub Actions      | GitLab CI               |
+| Contenedores             | Docker              | Podman                  |
 
 ---
 

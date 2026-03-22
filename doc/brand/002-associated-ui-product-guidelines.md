@@ -349,7 +349,7 @@ components: {
 
 **Tablas.** Se usa el componente `Table` de Mantine con `highlightOnHover`. Los importes numéricos se alinean a la derecha con `style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}`. Las cabeceras usan texto en `uppercase` y `fz="xs"` con `fw={600}` y `c="dimmed"`.
 
-**Formularios.** Se usa `@mantine/form` con validación Zod integrada. Los labels usan el tamaño por defecto de Mantine (`sm`). Los mensajes de error se muestran inline debajo del campo, en rojo, con el componente de error nativo de cada input.
+**Formularios.** Se usa `react-hook-form` 7 con `@hookform/resolvers/zod` para validación Zod integrada. Los labels usan el tamaño por defecto de Mantine (`sm`). Los mensajes de error se muestran inline debajo del campo, en rojo, con el componente de error nativo de cada input.
 
 **Estados vacíos.** Se usa un bloque centrado con texto en `c="dimmed"` y un botón de acción primaria. Sin ilustraciones decorativas — texto directo que explica qué irá ahí y cómo empezar. Coherente con el valor de funcionalidad de la marca.
 

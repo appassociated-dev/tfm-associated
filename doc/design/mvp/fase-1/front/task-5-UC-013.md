@@ -38,12 +38,12 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F1-Back Task 8 — UC-013** | Endpoints REST operativos: `POST /api/v1/members/:id/voluntary-leave`, `POST /api/v1/members/:id/nonpayment-leave`, `POST /api/v1/members/:id/reinstate`, `GET /api/v1/members/:id/leave-summary`. Contratos de DTOs definidos |
-| **F1-Back Task 5 — UC-007** | Endpoints de estados: `GET /api/v1/members/:id/available-transitions`, `GET /api/v1/members/:id/status-history`. Máquina de estados validando transiciones a VOLUNTARY_LEAVE, NONPAYMENT_LEAVE |
-| **F1-Front Task 4 — UC-011** | Listado de socios existente con navegación a ficha del socio. Schemas de socio reutilizables |
-| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado |
+| Tarea                        | Artefacto necesario                                                                                                                                                                                                            |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **F1-Back Task 8 — UC-013**  | Endpoints REST operativos: `POST /api/v1/members/:id/voluntary-leave`, `POST /api/v1/members/:id/nonpayment-leave`, `POST /api/v1/members/:id/reinstate`, `GET /api/v1/members/:id/leave-summary`. Contratos de DTOs definidos |
+| **F1-Back Task 5 — UC-007**  | Endpoints de estados: `GET /api/v1/members/:id/available-transitions`, `GET /api/v1/members/:id/status-history`. Máquina de estados validando transiciones a VOLUNTARY_LEAVE, NONPAYMENT_LEAVE                                 |
+| **F1-Front Task 4 — UC-011** | Listado de socios existente con navegación a ficha del socio. Schemas de socio reutilizables                                                                                                                                   |
+| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                                    |
 
 ### Checklist de verificación de dependencias
 
@@ -53,7 +53,7 @@ Antes de iniciar esta tarea, verificar que:
 - [ ] `web/src/shared/components/layout/app-shell.tsx` existe con sidebar funcional
 - [ ] `web/src/features/auth/context/use-permissions.ts` existe y exporta `usePermissions()`
 - [ ] `web/src/shared/observability/error-reporter.port.ts` existe y exporta la interfaz `ErrorReporter`
-- [ ] `zod` y `@mantine/form` están instalados
+- [ ] `zod`, `react-hook-form` y `@hookform/resolvers` están instalados
 - [ ] Endpoint `POST /api/v1/members/:id/voluntary-leave` responde correctamente
 - [ ] Endpoint `GET /api/v1/members/:id/leave-summary` retorna resumen de suscripciones y cargos
 - [ ] Endpoint `GET /api/v1/members/:id/available-transitions` retorna transiciones permitidas
@@ -64,26 +64,26 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Schemas Zod de baja de socio (`schemas/member-leave.schemas.ts`) | Módulos que consulten estado de baja del socio |
-| Hook `useMemberLeave()` y `useReinstateMember()` | Ficha del socio (botones de acción según estado) |
-| Componente `StatusBadge` para mostrar estado del socio | Reutilizable en listados, fichas, dashboards |
-| Componente `StatusTimeline` para historial de estados | Ficha del socio (sección de historial) |
+| Artefacto                                                        | Consumido por                                    |
+| ---------------------------------------------------------------- | ------------------------------------------------ |
+| Schemas Zod de baja de socio (`schemas/member-leave.schemas.ts`) | Módulos que consulten estado de baja del socio   |
+| Hook `useMemberLeave()` y `useReinstateMember()`                 | Ficha del socio (botones de acción según estado) |
+| Componente `StatusBadge` para mostrar estado del socio           | Reutilizable en listados, fichas, dashboards     |
+| Componente `StatusTimeline` para historial de estados            | Ficha del socio (sección de historial)           |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-013.md` | Flujo completo de baja voluntaria, por impago, disciplinaria, rehabilitación, fórmulas de fecha efectiva |
-| `us/us-032.md` | Criterios de aceptación: baja voluntaria con fecha efectiva según estatutos, registro en historial |
-| `us/us-033.md` | Criterios de aceptación: workflow de baja por impago, certificado de descubierto, oportunidad de regularización |
-| `us/us-034.md` | Criterios de aceptación: fases del expediente disciplinario, trazabilidad |
-| `us/us-035.md` | Criterios de aceptación: rehabilitación con pago de deuda, mantenimiento de antigüedad |
-| `bc/bc-membership.md` | Aggregate Member (deactivate, changeStatus), MemberStatus (VOLUNTARY_LEAVE, NONPAYMENT_LEAVE, DISCIPLINARY_LEAVE), DisciplinaryCase |
-| `uc/uc-007.md` | Máquina de estados, transiciones permitidas, estados terminales |
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
-| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
+| Documento                                           | Contenido relevante                                                                                                                 |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `uc/uc-013.md`                                      | Flujo completo de baja voluntaria, por impago, disciplinaria, rehabilitación, fórmulas de fecha efectiva                            |
+| `us/us-032.md`                                      | Criterios de aceptación: baja voluntaria con fecha efectiva según estatutos, registro en historial                                  |
+| `us/us-033.md`                                      | Criterios de aceptación: workflow de baja por impago, certificado de descubierto, oportunidad de regularización                     |
+| `us/us-034.md`                                      | Criterios de aceptación: fases del expediente disciplinario, trazabilidad                                                           |
+| `us/us-035.md`                                      | Criterios de aceptación: rehabilitación con pago de deuda, mantenimiento de antigüedad                                              |
+| `bc/bc-membership.md`                               | Aggregate Member (deactivate, changeStatus), MemberStatus (VOLUNTARY_LEAVE, NONPAYMENT_LEAVE, DISCIPLINARY_LEAVE), DisciplinaryCase |
+| `uc/uc-007.md`                                      | Máquina de estados, transiciones permitidas, estados terminales                                                                     |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                           |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets  |
 
 ## Puntos críticos
 
@@ -99,12 +99,12 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Baja accidental sin confirmación suficiente | Media | Alto | Implementar confirmación de doble paso con resumen de impacto; requerir re-escritura de texto "CONFIRMAR BAJA" |
-| Endpoint `leave-summary` no disponible y se confirma baja sin ver impacto | Baja | Alto | Bloquear botón "Confirmar" si leave-summary no cargó; mostrar alerta si no se pudo obtener resumen |
-| Cargos pendientes no visibles al secretario antes de confirmar baja | Baja | Medio | Sección destacada (alerta amarilla, `color="yellow"`) con listado de cargos pendientes y su importe total |
-| BC-Treasury no responde al consultar estado de cuotas (FE-2) | Baja | Medio | Mostrar "Estado de cuotas temporalmente no disponible" con opción de reintentar; permitir baja con advertencia |
+| Riesgo                                                                    | Probabilidad | Impacto | Mitigación                                                                                                     |
+| ------------------------------------------------------------------------- | ------------ | ------- | -------------------------------------------------------------------------------------------------------------- |
+| Baja accidental sin confirmación suficiente                               | Media        | Alto    | Implementar confirmación de doble paso con resumen de impacto; requerir re-escritura de texto "CONFIRMAR BAJA" |
+| Endpoint `leave-summary` no disponible y se confirma baja sin ver impacto | Baja         | Alto    | Bloquear botón "Confirmar" si leave-summary no cargó; mostrar alerta si no se pudo obtener resumen             |
+| Cargos pendientes no visibles al secretario antes de confirmar baja       | Baja         | Medio   | Sección destacada (alerta amarilla, `color="yellow"`) con listado de cargos pendientes y su importe total      |
+| BC-Treasury no responde al consultar estado de cuotas (FE-2)              | Baja         | Medio   | Mostrar "Estado de cuotas temporalmente no disponible" con opción de reintentar; permitir baja con advertencia |
 
 ## Plan de implementación
 
@@ -113,17 +113,19 @@ Antes de iniciar esta tarea, verificar que:
 Crear en `web/src/features/membership/leave/schemas/`:
 
 - **`member-leave.schemas.ts`**: Definir schemas Zod para procesos de baja:
+
   ```typescript
   import { z } from 'zod';
 
   // Enum de tipos de baja
-  const leaveTypeSchema = z.enum([
-    'VOLUNTARY_LEAVE', 'NONPAYMENT_LEAVE', 'DISCIPLINARY_LEAVE'
-  ]);
+  const leaveTypeSchema = z.enum(['VOLUNTARY_LEAVE', 'NONPAYMENT_LEAVE', 'DISCIPLINARY_LEAVE']);
 
   // Enum de configuraciones de fecha efectiva
   const effectiveDateConfigSchema = z.enum([
-    'IMMEDIATE', 'END_OF_FISCAL_YEAR', 'END_OF_NEXT_MONTH', 'NOTICE_PERIOD'
+    'IMMEDIATE',
+    'END_OF_FISCAL_YEAR',
+    'END_OF_NEXT_MONTH',
+    'NOTICE_PERIOD',
   ]);
 
   // Schema de resumen de baja
@@ -133,24 +135,30 @@ Crear en `web/src/features/membership/leave/schemas/`:
     memberNumber: z.string(),
     currentStatus: z.string(),
     availableLeaveTypes: z.array(leaveTypeSchema),
-    effectiveDateOptions: z.array(z.object({
-      type: effectiveDateConfigSchema,
-      effectiveDate: z.string().datetime(),
-      label: z.string(),
-      description: z.string(),
-    })),
-    activeSubscriptions: z.array(z.object({
-      id: z.string().uuid(),
-      planName: z.string(),
-      effectiveAmount: z.number(),
-      periodicity: z.string(),
-    })),
-    pendingCharges: z.array(z.object({
-      id: z.string().uuid(),
-      description: z.string(),
-      amount: z.number(),
-      dueDate: z.string().datetime(),
-    })),
+    effectiveDateOptions: z.array(
+      z.object({
+        type: effectiveDateConfigSchema,
+        effectiveDate: z.string().datetime(),
+        label: z.string(),
+        description: z.string(),
+      }),
+    ),
+    activeSubscriptions: z.array(
+      z.object({
+        id: z.string().uuid(),
+        planName: z.string(),
+        effectiveAmount: z.number(),
+        periodicity: z.string(),
+      }),
+    ),
+    pendingCharges: z.array(
+      z.object({
+        id: z.string().uuid(),
+        description: z.string(),
+        amount: z.number(),
+        dueDate: z.string().datetime(),
+      }),
+    ),
     totalPendingDebt: z.number(),
   });
 
@@ -186,7 +194,7 @@ Crear en `web/src/features/membership/leave/schemas/`:
   });
 
   const reinstatementRequestSchema = z.object({
-    paymentConfirmed: z.boolean().refine(val => val === true, 'Debe confirmar el pago'),
+    paymentConfirmed: z.boolean().refine((val) => val === true, 'Debe confirmar el pago'),
   });
 
   const reinstatementResponseSchema = z.object({
@@ -217,10 +225,12 @@ Crear en `web/src/features/membership/leave/schemas/`:
   const availableTransitionsSchema = z.object({
     memberId: z.string().uuid(),
     currentStatus: z.string(),
-    availableTransitions: z.array(z.object({
-      status: z.string(),
-      description: z.string(),
-    })),
+    availableTransitions: z.array(
+      z.object({
+        status: z.string(),
+        description: z.string(),
+      }),
+    ),
   });
 
   // Tipos inferidos
@@ -254,6 +264,7 @@ Crear en `web/src/features/membership/leave/api/`:
 Crear en `web/src/features/membership/leave/hooks/`:
 
 - **`use-leave-summary.ts`**: Hook para obtener resumen de baja:
+
   ```typescript
   const useLeaveSummary = (memberId: string) => {
     return useQuery({
@@ -265,6 +276,7 @@ Crear en `web/src/features/membership/leave/hooks/`:
   ```
 
 - **`use-voluntary-leave.ts`**: Hook de mutación para baja voluntaria:
+
   ```typescript
   const useVoluntaryLeave = () => {
     const queryClient = useQueryClient();
@@ -284,7 +296,9 @@ Crear en `web/src/features/membership/leave/hooks/`:
         if (error.response?.status === 422) {
           notifications.show({
             title: 'Transición no permitida',
-            message: error.response?.data?.message || 'No se puede procesar la baja desde el estado actual.',
+            message:
+              error.response?.data?.message ||
+              'No se puede procesar la baja desde el estado actual.',
             color: 'red',
           });
         }
@@ -298,6 +312,7 @@ Crear en `web/src/features/membership/leave/hooks/`:
 - **`use-reinstate-member.ts`**: Hook de mutación para rehabilitación. Invalida queries de members y status-history en `onSuccess`.
 
 - **`use-status-history.ts`**: Hook para historial de estados:
+
   ```typescript
   const useStatusHistory = (memberId: string) => {
     return useQuery({
@@ -315,6 +330,7 @@ Crear en `web/src/features/membership/leave/hooks/`:
 Crear en `web/src/features/membership/leave/components/`:
 
 - **`status-badge.tsx`**: Componente para mostrar estado del socio como badge con color:
+
   ```typescript
   const STATUS_CONFIG = {
     ACTIVE: { color: 'green', label: 'Activo', variant: 'light' },
@@ -330,16 +346,16 @@ Crear en `web/src/features/membership/leave/components/`:
 
   Mapeo de estados a colores según sistema de marca:
 
-  | Estado | Color | Token Mantine |
-  |--------|-------|---------------|
-  | ACTIVE | green | `color="green"` |
-  | APPLICANT | blue | `color="blue"` |
-  | PENDING_PAYMENT | yellow | `color="yellow"` |
-  | SUSPENDED | red | `color="red"` |
-  | VOLUNTARY_LEAVE | gray | `color="gray"` |
-  | NONPAYMENT_LEAVE | red | `color="red"` variant="filled" (para diferenciar de SUSPENDED que usa variant="light") |
-  | DISCIPLINARY_LEAVE | dark | `color="dark"` |
-  | DECEASED | dark | `color="dark"` variant="filled" |
+  | Estado             | Color  | Token Mantine                                                                          |
+  | ------------------ | ------ | -------------------------------------------------------------------------------------- |
+  | ACTIVE             | green  | `color="green"`                                                                        |
+  | APPLICANT          | blue   | `color="blue"`                                                                         |
+  | PENDING_PAYMENT    | yellow | `color="yellow"`                                                                       |
+  | SUSPENDED          | red    | `color="red"`                                                                          |
+  | VOLUNTARY_LEAVE    | gray   | `color="gray"`                                                                         |
+  | NONPAYMENT_LEAVE   | red    | `color="red"` variant="filled" (para diferenciar de SUSPENDED que usa variant="light") |
+  | DISCIPLINARY_LEAVE | dark   | `color="dark"`                                                                         |
+  | DECEASED           | dark   | `color="dark"` variant="filled"                                                        |
 
   Los estados DISCIPLINARY_LEAVE y DECEASED usan `color="dark"` como extensión del mapeo de marca. NONPAYMENT_LEAVE usa `variant="filled"` para diferenciarse visualmente de SUSPENDED, ambos en rojo.
 
@@ -385,7 +401,7 @@ Crear en `web/src/features/membership/leave/pages/`:
       Backend envía centavos como enteros: 34500 → "345,00 €"
     - Notas: "Los cargos pendientes se mantienen como deuda" y "No se generarán nuevos cargos futuros"
   - **Sección: Motivo**
-    - Campo motivo (Textarea, @mantine/form, requerido, min 3 chars, max 500)
+    - Campo motivo (Textarea, react-hook-form, requerido, min 3 chars, max 500)
   - **Confirmación:**
     - Botón "Confirmar Baja Voluntaria" (`color="red"`, loading state). Nunca usar `variant="gradient"`.
     - Al pulsar: modal de confirmación de doble paso:
@@ -468,6 +484,7 @@ Crear en `web/src/features/membership/leave/components/`:
 Actualizar `web/src/app/router.tsx`:
 
 - Añadir rutas protegidas:
+
   ```typescript
   {
     path: 'members/:id/leave',
@@ -504,6 +521,7 @@ Actualizar `web/src/app/router.tsx`:
 ### Paso 11: Tests
 
 **Tests unitarios (componentes):**
+
 - `VoluntaryLeavePage`:
   - Renderiza resumen del socio con datos correctos (mock useLeaveSummary)
   - Muestra opciones de fecha efectiva según estatutos
@@ -535,6 +553,7 @@ Actualizar `web/src/app/router.tsx`:
   - Oculta acciones si no tiene permisos
 
 **Tests unitarios (hooks):**
+
 - `useLeaveSummary()`:
   - Retorna resumen con suscripciones y cargos pendientes
   - Retorna error cuando la API falla
@@ -552,6 +571,7 @@ Actualizar `web/src/app/router.tsx`:
   - Retorna transiciones correctas según estado actual
 
 **Tests E2E (Playwright):**
+
 - Flujo completo de baja voluntaria: acceder a ficha de socio activo → pulsar "Procesar Baja" → seleccionar fecha efectiva → escribir motivo → confirmar → verificar estado cambiado a VOLUNTARY_LEAVE
 - Flujo de rehabilitación: acceder a ficha de ex-socio → pulsar "Rehabilitar" → confirmar pago → verificar estado cambiado a ACTIVE
 - Validaciones: intentar baja de socio ya dado de baja → verificar rechazo; intentar rehabilitación sin confirmar pago → verificar botón deshabilitado
