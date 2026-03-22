@@ -92,7 +92,7 @@ export function NonpaymentLeavePage() {
   });
 
   // Modales
-  const [confirmOpened, { open: openConfirm, close: closeConfirm }] = useDisclosure(false);
+  const [confirmOpened, { close: closeConfirm }] = useDisclosure(false);
   const [doubleConfirmOpened, { open: openDoubleConfirm, close: closeDoubleConfirm }] =
     useDisclosure(false);
 

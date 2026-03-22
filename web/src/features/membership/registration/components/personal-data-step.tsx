@@ -194,7 +194,7 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       emailValid &&
       postalCodeValid
     ) {
-      const bd = values.birthDate instanceof Date ? values.birthDate : new Date(values.birthDate);
+      const bd = values.birthDate instanceof Date ? values.birthDate : new Date(values.birthDate!);
       const birthDateIso = !isNaN(bd.getTime()) ? bd.toISOString().split('T')[0] : '';
       const personalData: PersonalData = {
         dni: values.dni.trim(),

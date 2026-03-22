@@ -89,7 +89,7 @@ export const createFeePlanInputSchema = createFeePlanInputBaseSchema
     (data) => {
       // Si es RECURRING, frequency es obligatorio
       if (data.type === 'RECURRING') {
-        return data.frequency != null && data.frequency !== '';
+        return data.frequency != null;
       }
       return true;
     },
