@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "newMember": "Nuevo Socio",
+    "feePlans": "Planes de Cuota",
+    "sections": {
+      "membership": "Membresia",
+      "treasury": "Tesoreria"
+    }
+  },
+  "menu": {
+    "openMenu": "Abrir menu",
+    "collapseMenu": "Colapsar menu",
+    "expandNavigation": "Expandir menu de navegacion",
+    "collapseNavigation": "Colapsar menu de navegacion",
+    "openNavigation": "Abrir menu de navegacion",
+    "switchTenant": "Cambiar colectividad",
+    "logout": "Cerrar sesion",
+    "userFallback": "Usuario"
+  },
+  "tenant": {
+    "switchTitle": "Cambiar de colectividad",
+    "loadError": "No se pudieron cargar las colectividades.",
+    "loadErrorDetail": "Intente nuevamente más tarde.",
+    "emptyState": "No pertenece a ninguna otra colectividad."
+  },
+  "errors": {
+    "unexpected": "Ha ocurrido un error inesperado.",
+    "somethingWentWrong": "Algo salio mal",
+    "backToDashboard": "Volver al dashboard",
+    "forbidden": "No tienes permisos para acceder a esta página."
+  },
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "retry": "Reintentar",
+    "back": "Volver",
+    "close": "Cerrar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "create": "Crear",
+    "import": "Importar"
+  },
+  "status": {
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "loading": "Cargando..."
+  }
+}

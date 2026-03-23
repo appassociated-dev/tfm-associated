@@ -38,12 +38,12 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Proyecto React + Vite + Mantine, HttpClient, TanStack Query, Router, Zod |
-| **F1-Back Task 6 — UC-006** | Endpoints REST: `GET /members` (listado paginado), `GET /members/:id` (detalle), `PUT /members/:id` (actualización), `GET /members/:id/status-history` (historial). DTOs definidos |
-| **F1-Front Task 1 — UC-002** | AuthProvider, ProtectedRoute, HttpClient con interceptors, usePermissions() |
-| **F1-Front Task 4 — UC-011** | Componentes base de formulario de socio (parcialmente reutilizables) |
+| Tarea                        | Artefacto necesario                                                                                                                                                                |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 — Scaffold**        | Proyecto React + Vite + Mantine, HttpClient, TanStack Query, Router, Zod                                                                                                           |
+| **F1-Back Task 6 — UC-006**  | Endpoints REST: `GET /members` (listado paginado), `GET /members/:id` (detalle), `PUT /members/:id` (actualización), `GET /members/:id/status-history` (historial). DTOs definidos |
+| **F1-Front Task 1 — UC-002** | AuthProvider, ProtectedRoute, HttpClient con interceptors, usePermissions()                                                                                                        |
+| **F1-Front Task 4 — UC-011** | Componentes base de formulario de socio (parcialmente reutilizables)                                                                                                               |
 
 ### Checklist de verificación de dependencias
 
@@ -59,26 +59,28 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Página `/members` (listado) | Navegación principal, layout |
-| Página `/members/:memberId` (detalle) | Links desde cualquier referencia a un socio |
-| Componente `MemberSearchCombobox` | UC-020 (seleccionar socio para cargo manual), UC-021 (buscar socio para cobro), UC-023 (mandato SEPA) |
-| Hooks `useMembers()`, `useMember()`, `useUpdateMember()` | Otras features que necesiten datos de socios |
-| Schemas Zod de validación de socio | Reutilizables en UC-011 (alta), UC-056 (importación frontend) |
+| Artefacto                                                | Consumido por                                                                                         |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Página `/members` (listado)                              | Navegación principal, layout                                                                          |
+| Página `/members/:memberId` (detalle)                    | Links desde cualquier referencia a un socio                                                           |
+| Componente `MemberSearchCombobox`                        | UC-020 (seleccionar socio para cargo manual), UC-021 (buscar socio para cobro), UC-023 (mandato SEPA) |
+| Hooks `useMembers()`, `useMember()`, `useUpdateMember()` | Otras features que necesiten datos de socios                                                          |
+| Schemas Zod de validación de socio                       | Reutilizables en UC-011 (alta), UC-056 (importación frontend)                                         |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-006.md` | Flujo completo: creación, actualización, consulta, campos específicos por colectividad |
-| `us/us-009.md` | Criterios: datos obligatorios, validaciones |
-| `us/us-010.md` | Criterios: campos específicos de cofradías |
-| `us/us-011.md` | Criterios: campos específicos de clubes deportivos |
-| `us/us-012.md` | Criterios: campos específicos de peñas festeras |
-| `us/us-013.md` | Criterios: campos específicos de asociaciones culturales |
-| `bc/bc-membership.md` | Aggregate Member, Value Objects PersonalData, ContactData, IdentityDocument, BankDetails |
-| `adr/adr-009.md` | Clean Architecture frontend: features/hooks/components |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
+| `uc/uc-006.md`                                      | Flujo completo: creación, actualización, consulta, campos específicos por colectividad                                             |
+| `us/us-009.md`                                      | Criterios: datos obligatorios, validaciones                                                                                        |
+| `us/us-010.md`                                      | Criterios: campos específicos de cofradías                                                                                         |
+| `us/us-011.md`                                      | Criterios: campos específicos de clubes deportivos                                                                                 |
+| `us/us-012.md`                                      | Criterios: campos específicos de peñas festeras                                                                                    |
+| `us/us-013.md`                                      | Criterios: campos específicos de asociaciones culturales                                                                           |
+| `bc/bc-membership.md`                               | Aggregate Member, Value Objects PersonalData, ContactData, IdentityDocument, BankDetails                                           |
+| `adr/adr-009.md`                                    | Clean Architecture frontend: features/hooks/components                                                                             |
 
 ## Puntos críticos
 
@@ -92,13 +94,19 @@ Antes de iniciar esta tarea, verificar que:
 
 5. **Rendimiento del listado.** La tabla de socios puede tener miles de registros. Usar paginación server-side con TanStack Query (`keepPreviousData: true`). Búsqueda con debounce de 400ms. Filtros: estado, tipo de socio, fecha de alta.
 
+6. **Biblioteca de iconos.** Todos los iconos deben usar exclusivamente `@tabler/icons-react`. No usar `lucide-react`, emojis ni ninguna otra biblioteca de iconos.
+
+7. **Formato de fechas.** Todas las fechas se muestran en formato español: formato largo "8 de marzo de 2026", formato compacto "08/03/2026" (dd/MM/yyyy). Nunca usar formato anglosajón (MM/dd/yyyy).
+
+8. **Botones de acción primaria.** Todos los botones de acción primaria deben usar `color="brand"`. Nunca usar `variant="gradient"`.
+
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Campos dinámicos con tipos no previstos | Media | Medio | Definir tipos soportados: text, number, date, select, checkbox, textarea. Fallback a text para tipos desconocidos |
-| Formulario complejo con muchos campos causa UX pobre | Media | Medio | Organizar en secciones colapsables con Mantine Accordion. Datos personales siempre visible, campos custom colapsados |
-| Búsqueda lenta con muchos socios | Baja | Medio | Server-side search con índices. Debounce de 400ms. Mostrar máximo 50 resultados |
+| Riesgo                                               | Probabilidad | Impacto | Mitigación                                                                                                           |
+| ---------------------------------------------------- | ------------ | ------- | -------------------------------------------------------------------------------------------------------------------- |
+| Campos dinámicos con tipos no previstos              | Media        | Medio   | Definir tipos soportados: text, number, date, select, checkbox, textarea. Fallback a text para tipos desconocidos    |
+| Formulario complejo con muchos campos causa UX pobre | Media        | Medio   | Organizar en secciones colapsables con Mantine Accordion. Datos personales siempre visible, campos custom colapsados |
+| Búsqueda lenta con muchos socios                     | Baja         | Medio   | Server-side search con índices. Debounce de 400ms. Mostrar máximo 50 resultados                                      |
 
 ## Plan de implementación
 
@@ -150,11 +158,13 @@ Crear en `web/src/features/members/pages/`:
 
 - **`MembersListPage.tsx`**: Página principal `/members`
   - Tabla con columnas: nº socio, nombre, apellidos, DNI, tipo, estado, fecha alta
+    - Columnas numéricas y de fecha: `fontVariantNumeric: 'tabular-nums'`, `textAlign: 'right'`
+    - Headers de columna: `uppercase`, `fz="xs"`, `fw={600}`, `c="dimmed"`
   - Barra de búsqueda con debounce 400ms
   - Filtros: Select de estado (Activo, Baja voluntaria, etc.), Select de tipo de socio, DatePicker rango de fecha
   - Paginación con selector de tamaño de página (10, 25, 50)
   - Clic en fila → navega a `/members/:memberId`
-  - Badge de color según estado (verde=Activo, rojo=Baja, amarillo=Pendiente)
+  - Badge de color según estado (verde=Activo, rojo=Baja, amarillo=Pendiente). Todos los badges: `variant="light"`, `radius="sm"` según guía de marca
   - `usePermissions()` para mostrar/ocultar botones de acción
 
 ### Paso 5: Página de detalle/edición de ficha
@@ -162,15 +172,15 @@ Crear en `web/src/features/members/pages/`:
 Crear en `web/src/features/members/pages/`:
 
 - **`MemberDetailPage.tsx`**: Página `/members/:memberId`
-  - Cabecera: nombre completo, nº socio, estado (badge), foto placeholder
+  - Cabecera: nombre completo, nº socio, estado (badge con `variant="light"`, `radius="sm"`), foto placeholder
   - Tabs con Mantine Tabs:
     - **Datos personales**: formulario editable con datos base (nombre, apellidos, fecha nacimiento, DNI disabled)
     - **Contacto**: email, teléfono, dirección completa
     - **Datos bancarios**: IBAN (campo con máscara ES00 0000 0000 0000 0000 0000), titular
     - **Campos específicos**: renderizado dinámico según tipo de colectividad
     - **Historial**: timeline visual de cambios de estado
-  - Botones: Guardar (submit formulario), Cancelar (volver a listado)
-  - Formulario con `useForm` de Mantine + resolver Zod
+  - Botones: Guardar (`color="brand"`, nunca `variant="gradient"`), Cancelar (volver a listado)
+  - Formulario con `useForm` de `react-hook-form` + `zodResolver`
   - Loading skeleton mientras carga datos
   - Toast de confirmación tras guardar exitoso
 
@@ -197,6 +207,7 @@ Crear en `web/src/features/members/components/`:
 ### Paso 8: Tests
 
 **Tests unitarios (componentes):**
+
 - `MemberSearchCombobox`: renderiza, búsqueda con debounce, selección de resultado
 - `DynamicFieldsRenderer`: renderiza campos de cada tipo, onChange funciona
 - `StatusTimeline`: renderiza entradas correctamente, orden correcto
@@ -204,11 +215,13 @@ Crear en `web/src/features/members/components/`:
 - `MemberDetailPage`: renderiza formulario con datos, campos protegidos disabled, submit llama API
 
 **Tests unitarios (hooks):**
+
 - `useMembers`: llama API con params correctos, paginación funciona
 - `useUpdateMember`: mutation exitosa invalida caché
 - `useMemberSearch`: debounce funciona, resultados correctos
 
 **Tests de validación:**
+
 - Schema Zod: DNI válido e inválido (mod23), IBAN válido e inválido (mod97), email
 - Campos obligatorios: formulario no se envía sin datos requeridos
 

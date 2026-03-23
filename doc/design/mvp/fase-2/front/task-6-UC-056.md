@@ -53,6 +53,8 @@
 
 | Documento | Contenido relevante |
 |-----------|-------------------|
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 | `uc/uc-056.md` | Flujo completo de importación: 5 pasos del wizard |
 | `us/us-148.md` a `us/us-151.md` | Criterios por paso: subida, mapeo, validación, ejecución |
 
@@ -89,13 +91,13 @@
 - **`ImportWizard.tsx`**: Stepper de 5 pasos con Mantine Stepper
   - Paso 1: **`FileUploadStep.tsx`** — Dropzone con validación de formato/tamaño, muestra nombre y tamaño del archivo
   - Paso 2: **`ColumnMappingStep.tsx`** — Tabla de mapeo: columna origen (texto) → select de campo destino. Campos obligatorios marcados. Opción de cargar plantilla guardada
-  - Paso 3: **`ValidationPreviewStep.tsx`** — Tabla de preview con 10 filas, celdas erróneas resaltadas, contador de errores, resumen de duplicados
-  - Paso 4: **`ReviewStep.tsx`** — Resumen: válidos/inválidos/duplicados con radio de estrategia de duplicados. Opción "Importar solo válidos"
-  - Paso 5: **`ExecutionStep.tsx`** — Barra de progreso, resultado final, botón de descarga de informe de errores
-- **`FileDropzone.tsx`**: Componente Mantine Dropzone configurado para Excel/CSV, max 10MB
+  - Paso 3: **`ValidationPreviewStep.tsx`** — Tabla de preview con 10 filas, celdas erróneas resaltadas (celdas con error usan `color="red"` con fondo `red.0`), contador de errores, resumen de duplicados
+  - Paso 4: **`ReviewStep.tsx`** — Resumen: válidos/inválidos/duplicados con radio de estrategia de duplicados. Opción "Importar solo válidos". Botón "Guardar plantilla" usa `color="brand"` (nunca `variant="gradient"`). Indicadores de estado usan `Badge` con `variant="light"` y `radius="sm"`
+  - Paso 5: **`ExecutionStep.tsx`** — Barra de progreso, resultado final, botón de descarga de informe de errores. Botón "Importar" usa `color="brand"` (nunca `variant="gradient"`)
+- **`FileDropzone.tsx`**: Componente Mantine Dropzone configurado para Excel/CSV, max 10MB. Iconos del dropzone usan `@tabler/icons-react` (ej: `IconUpload`, `IconFileSpreadsheet`)
 - **`ColumnMapper.tsx`**: Fila de mapeo: label columna origen + Select de campo destino
-- **`ValidationErrorsTable.tsx`**: Tabla con celdas erróneas resaltadas y tooltips
-- **`ImportResultCard.tsx`**: Card con resumen final: creados, actualizados, saltados, errores
+- **`ValidationErrorsTable.tsx`**: Tabla con celdas erróneas resaltadas y tooltips. Celdas con error usan `color="red"` con fondo `red.0` para resaltar
+- **`ImportResultCard.tsx`**: Card con resumen final: creados, actualizados, saltados, errores. Todos los iconos deben usar `@tabler/icons-react` exclusivamente
 
 ### Paso 4: Página principal
 

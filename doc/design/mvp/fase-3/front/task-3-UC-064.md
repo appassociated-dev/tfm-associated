@@ -70,6 +70,8 @@ Antes de iniciar esta tarea, verificar que:
 
 | Documento | Contenido relevante |
 |-----------|-------------------|
+| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 | `uc/uc-064.md` | Flujo: widgets por rol, KPIs, alertas, manejo de errores aislados, período personalizado |
 | `us/us-161.md` a `us/us-164.md` | Criterios por tipo de KPI: membresía, tesorería, alertas |
 | `bc/bc-membership.md` | Aggregate Member — estados, tipos (para distribución) |
@@ -129,7 +131,7 @@ Crear en `web/src/features/dashboard/components/`:
 - **`TreasuryKpisSection.tsx`**: Sección de widgets de tesorería
   - KpiCard de recaudación del mes (money, verde)
   - KpiCard de recaudación del ejercicio (money, azul)
-  - KpiCard de saldo pendiente (money, naranja)
+  - KpiCard de saldo pendiente (money, yellow)
   - KpiCard de tasa de morosidad (percentage, rojo si >10%)
   - KpiCard de cargos pendientes (número)
 - **`AlertsWidget.tsx`**: Widget de alertas y acciones pendientes

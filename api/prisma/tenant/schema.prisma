@@ -1,0 +1,265 @@
+// Schema tenant — DB-Tenant template (ADR-002)
+// Este schema sirve como plantilla para las BDs de tenant.
+// UC-001 ejecutará las migraciones en cada BD de tenant durante la provisión.
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+/// Evento de outbox para comunicación cross-BC (ADR-008).
+/// Cada BD de tenant necesita su propia tabla de outbox.
+model OutboxEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  eventType   String    @map("event_type") @db.VarChar(200)
+  payload     Json
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  processedAt DateTime? @map("processed_at") @db.Timestamptz()
+  retryCount  Int       @default(0) @map("retry_count")
+  nextRetryAt DateTime? @map("next_retry_at") @db.Timestamptz()
+  lastError   String?   @map("last_error") @db.Text
+
+  @@index([processedAt, retryCount, nextRetryAt])
+  @@map("outbox_events")
+}
+
+/// Tipo de socio configurable por cada colectividad (UC-008).
+model MemberType {
+  id                           String    @id @default(uuid()) @db.Uuid
+  code                         String    @unique @db.VarChar(10)
+  name                         String    @db.VarChar(100)
+  description                  String?   @db.Text
+  ageRangeMin                  Int?      @map("age_range_min")
+  ageRangeMax                  Int?      @map("age_range_max")
+  votingRight                  Boolean   @default(false) @map("voting_right")
+  eligibleForOffice            Boolean   @default(false) @map("eligible_for_office")
+  minimumSeniorityForVoting    Int       @default(0) @map("minimum_seniority_for_voting")
+  minimumSeniorityForOffice    Int       @default(0) @map("minimum_seniority_for_office")
+  automaticTransitionTargetId  String?   @map("automatic_transition_target_id") @db.Uuid
+  rulesConfig                  Json?     @map("rules_config")
+  active                       Boolean   @default(true)
+  createdAt                    DateTime  @default(now()) @map("created_at")
+  updatedAt                    DateTime  @updatedAt @map("updated_at")
+
+  automaticTransitionTarget    MemberType?  @relation("AutoTransition", fields: [automaticTransitionTargetId], references: [id])
+  transitionSources            MemberType[] @relation("AutoTransition")
+  members                      Member[]
+
+  @@map("member_types")
+}
+
+/// Ejercicio fiscal que agrupa temporalmente la actividad de la colectividad (UC-010).
+model FiscalYear {
+  id                      String    @id @default(uuid()) @db.Uuid
+  name                    String    @unique @db.VarChar(100)
+  type                    String    @db.VarChar(20)
+  startDate               DateTime  @map("start_date") @db.Date
+  endDate                 DateTime  @map("end_date") @db.Date
+  status                  String    @default("PREPARATION") @db.VarChar(20)
+  previousFiscalYearId    String?   @map("previous_fiscal_year_id") @db.Uuid
+  membersAtStart          Int       @default(0) @map("members_at_start")
+  membersAtEnd            Int?      @map("members_at_end")
+  reportId                String?   @map("report_id") @db.Uuid
+  createdAt               DateTime  @default(now()) @map("created_at")
+  closedAt                DateTime? @map("closed_at")
+
+  previousFiscalYear      FiscalYear?  @relation("FiscalYearChain", fields: [previousFiscalYearId], references: [id])
+  nextFiscalYears         FiscalYear[] @relation("FiscalYearChain")
+
+  @@map("fiscal_years")
+}
+
+/// Socio de la colectividad con ficha completa (UC-006) y máquina de estados (UC-007).
+model Member {
+  id                String    @id @default(uuid()) @db.Uuid
+  member_number     String    @unique @db.VarChar(20)
+  name              String    @db.VarChar(100)
+  surnames          String    @db.VarChar(200)
+  birth_date        DateTime  @db.Date
+  document_type     String    @db.VarChar(10)
+  document_number   String    @unique @db.VarChar(20)
+  email             String    @unique @db.VarChar(255)
+  phone             String?   @db.VarChar(20)
+  address           String?   @db.VarChar(300)
+  postal_code       String?   @db.VarChar(10)
+  city              String?   @db.VarChar(100)
+  iban_encrypted    String?   @db.Text
+  member_type_id    String    @db.Uuid
+  custom_fields     Json?
+  current_status    String    @default("APPLICANT") @db.VarChar(30)
+  registration_date DateTime  @default(now())
+  leave_date        DateTime?
+  version           Int       @default(0)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  memberType        MemberType    @relation(fields: [member_type_id], references: [id])
+  account           MemberAccount?
+
+  @@index([current_status])
+  @@index([member_type_id])
+  @@index([email])
+  @@map("members")
+}
+
+/// Plan de cuota configurable por la colectividad (BC-Treasury, UC-017).
+/// Define importes, frecuencia y tipo de cobro para suscripciones de socios.
+model FeePlan {
+  id            String    @id @default(uuid()) @db.Uuid
+  code          String    @unique @db.VarChar(20)
+  name          String    @db.VarChar(100)
+  description   String?   @db.Text
+  type          String    @db.VarChar(20) // ONE_TIME | RECURRING
+  amount        Int       // Importe en centavos
+  frequency     String    @default("ANNUAL") @db.VarChar(20) // MONTHLY | QUARTERLY | BIANNUAL | ANNUAL | CUSTOM
+  billingMonths Int[]     @map("billing_months") // Meses de facturación (1-12)
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  subscriptions      FeeSubscription[]
+  memberTypeFeePlans MemberTypeFeePlan[]
+
+  @@index([type, active])
+  @@map("fee_plans")
+}
+
+/// Relación entre tipos de socio y planes de cuota (UC-017).
+/// Permite asignar planes específicos a cada tipo de socio.
+model MemberTypeFeePlan {
+  memberTypeId  String    @map("member_type_id") @db.Uuid
+  feePlanId     String    @map("fee_plan_id") @db.Uuid
+  isDefault     Boolean   @default(false) @map("is_default")
+  displayOrder  Int       @default(0) @map("display_order")
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  feePlan       FeePlan   @relation(fields: [feePlanId], references: [id])
+
+  @@id([memberTypeId, feePlanId])
+  @@index([feePlanId])
+  @@index([memberTypeId])
+  @@map("member_type_fee_plans")
+}
+
+/// Cuenta económica de un socio (BC-Treasury).
+/// Vincula un socio con sus suscripciones y cargos.
+model MemberAccount {
+  id            String    @id @default(uuid()) @db.Uuid
+  memberId      String    @unique @map("member_id") @db.Uuid
+  balance       Int       @default(0) // Saldo en centavos
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  member        Member    @relation(fields: [memberId], references: [id])
+  subscriptions FeeSubscription[]
+  charges       Charge[]
+  payments      Payment[]
+
+  @@map("member_accounts")
+}
+
+/// Suscripción de un socio a un plan de cuota (BC-Treasury).
+/// Registra la vigencia y condiciones de la suscripción.
+model FeeSubscription {
+  id                String    @id @default(uuid()) @db.Uuid
+  memberAccountId   String    @map("member_account_id") @db.Uuid
+  feePlanId         String    @map("fee_plan_id") @db.Uuid
+  registrationDate  DateTime  @map("registration_date")
+  leaveDate         DateTime? @map("leave_date")
+  cancelReason      String?   @map("cancel_reason") @db.VarChar(200)
+  typeDiscount      Decimal   @default(0) @map("type_discount") @db.Decimal(5, 4)
+  personalDiscount  Decimal   @default(0) @map("personal_discount") @db.Decimal(5, 4)
+  personalDiscountReason String? @map("personal_discount_reason") @db.VarChar(500)
+  effectiveAmount   Int       @map("effective_amount") // Importe efectivo en centavos
+  status            String    @default("ACTIVE") @db.VarChar(20)
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  memberAccount     MemberAccount @relation(fields: [memberAccountId], references: [id])
+  feePlan           FeePlan       @relation(fields: [feePlanId], references: [id])
+  charges           Charge[]
+
+  @@index([memberAccountId])
+  @@index([feePlanId])
+  @@index([status])
+  @@map("fee_subscriptions")
+}
+
+/// Cargo individual generado a partir de una suscripción (BC-Treasury, UC-019).
+/// Representa una deuda concreta del socio. Puede ser periódico o manual.
+model Charge {
+  id                  String    @id @default(uuid()) @db.Uuid
+  memberAccountId     String    @map("member_account_id") @db.Uuid
+  feeSubscriptionId   String?   @map("fee_subscription_id") @db.Uuid
+  baseAmount          Int       @default(0) @map("base_amount") // Importe base antes de prorrateo (centavos)
+  finalAmount         Int       @default(0) @map("final_amount") // Importe final a cobrar (centavos)
+  description         String    @db.VarChar(255)
+  fiscalYearId        String?   @map("fiscal_year_id") @db.Uuid
+  billingMonth        Int?      @map("billing_month") // 1-12, NULL para cargos únicos/manuales
+  billingYear         Int       @map("billing_year")
+  issueDate           DateTime  @map("issue_date") @db.Date
+  dueDate             DateTime  @map("due_date") @db.Date
+  status              String    @default("PENDING") @db.VarChar(20) // PENDING | PAID | PARTIALLY_PAID | RETURNED | CANCELLED
+  paidAmount          Int       @default(0) @map("paid_amount") // Importe pagado (centavos)
+  isProrated          Boolean   @default(false) @map("is_prorated")
+  isManual            Boolean   @default(false) @map("is_manual")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  memberAccount       MemberAccount    @relation(fields: [memberAccountId], references: [id])
+  feeSubscription     FeeSubscription? @relation(fields: [feeSubscriptionId], references: [id])
+  payments            Payment[]
+
+  @@unique([feeSubscriptionId, billingMonth, billingYear], name: "unique_charge_per_period")
+  @@index([memberAccountId, status])
+  @@index([billingMonth, billingYear])
+  @@map("charges")
+}
+
+/// Historial de cambios de estado de un socio (UC-007).
+/// INSERT-only: nunca se actualiza ni elimina un registro.
+/// Sin FK formal a Member (decisión de diseño — repositorio propio).
+model StatusHistory {
+  id              String    @id @default(uuid()) @db.Uuid
+  member_id       String    @db.Uuid
+  previous_status String    @db.VarChar(30)
+  new_status      String    @db.VarChar(30)
+  reason          String    @db.VarChar(500)
+  changed_by      String    @db.VarChar(100)
+  changed_at      DateTime  @default(now())
+
+  @@index([member_id])
+  @@index([member_id, changed_at(sort: Desc)])
+  @@map("status_history")
+}
+
+/// Pago registrado sobre un cargo de un socio (BC-Treasury, UC-021).
+/// Vincula un importe cobrado a un cargo concreto de la cuenta de socio.
+model Payment {
+  id                String    @id @default(uuid()) @db.Uuid
+  memberAccountId   String    @map("member_account_id") @db.Uuid
+  chargeId          String    @map("charge_id") @db.Uuid
+  amount            Int
+  paymentMethod     String    @map("payment_method") @db.VarChar(30)
+  paymentDate       DateTime  @map("payment_date") @db.Date
+  paymentReference  String    @unique @map("payment_reference") @db.VarChar(30)
+  receiptNumber     String?   @unique @map("receipt_number") @db.VarChar(30)
+  receiptDocument   Bytes?    @map("receipt_document")
+  notes             String?   @db.VarChar(500)
+  registeredBy      String    @map("registered_by") @db.Uuid
+  status            String    @default("CONFIRMED") @db.VarChar(20)
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  memberAccount     MemberAccount @relation(fields: [memberAccountId], references: [id])
+  charge            Charge        @relation(fields: [chargeId], references: [id])
+
+  @@index([memberAccountId])
+  @@index([chargeId])
+  @@index([paymentDate])
+  @@map("payments")
+}

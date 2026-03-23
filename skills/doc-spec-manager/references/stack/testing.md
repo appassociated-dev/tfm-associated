@@ -9,27 +9,28 @@ CI Gates: Line ≥80%, Branch ≥70%
 
 ### 6.2 Frameworks por Tipo
 
-| Tipo | Framework | Scope |
-|------|-----------|-------|
-| Unit (Domain) | Vitest | Aggregates, VOs, Domain Services |
-| Unit (Application) | Vitest + mocks | Command/Query Handlers |
-| Integration | Vitest + Supertest | Controllers, Repositories |
-| Integration DB | Testcontainers | Repository con PostgreSQL real |
-| E2E | Playwright | Flujos críticos de usuario |
+| Tipo               | Framework          | Scope                            |
+| ------------------ | ------------------ | -------------------------------- |
+| Unit (Domain)      | Vitest             | Aggregates, VOs, Domain Services |
+| Unit (Application) | Vitest + mocks     | Command/Query Handlers           |
+| Integration        | Vitest + Supertest | Controllers, Repositories        |
+| Integration DB     | Testcontainers     | Repository con PostgreSQL real   |
+| E2E                | Playwright         | Flujos críticos de usuario       |
 
 **¿Por qué Vitest sobre Jest?**
 
-| Criterio | Vitest | Jest |
-|----------|--------|------|
-| Velocidad | ✅ Muy rápido (ESBuild) | ⚠️ Lento con TypeScript |
-| Configuración con Vite | ✅ Compartida | ❌ Duplicada |
-| ESM nativo | ✅ Soporte completo | ⚠️ Problemas frecuentes |
-| API | ✅ Compatible con Jest | ✅ Estándar |
-| Watch mode | ✅ HMR instantáneo | ⚠️ Lento |
+| Criterio               | Vitest                  | Jest                    |
+| ---------------------- | ----------------------- | ----------------------- |
+| Velocidad              | ✅ Muy rápido (ESBuild) | ⚠️ Lento con TypeScript |
+| Configuración con Vite | ✅ Compartida           | ❌ Duplicada            |
+| ESM nativo             | ✅ Soporte completo     | ⚠️ Problemas frecuentes |
+| API                    | ✅ Compatible con Jest  | ✅ Estándar             |
+| Watch mode             | ✅ HMR instantáneo      | ⚠️ Lento                |
 
 ### 6.3 Configuración Testing
 
 **Vitest (backend y frontend):**
+
 ```typescript
 // vitest.config.ts
 import { defineConfig } from 'vitest/config';
@@ -42,12 +43,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        '**/*.dto.ts',
-        '**/*.module.ts',
-        '**/index.ts',
-        '**/*.config.ts',
-      ],
+      exclude: ['**/*.dto.ts', '**/*.module.ts', '**/index.ts', '**/*.config.ts'],
       thresholds: {
         lines: 80,
         branches: 70,
@@ -58,6 +54,7 @@ export default defineConfig({
 ```
 
 **Playwright (E2E):**
+
 ```typescript
 // playwright.config.ts
 export default defineConfig({
@@ -80,10 +77,8 @@ import { PostgreSqlContainer } from '@testcontainers/postgresql';
 let container: StartedPostgreSqlContainer;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer('postgres:18-alpine')
-    .withDatabase('test_db')
-    .start();
-  
+  container = await new PostgreSqlContainer('postgres:18-alpine').withDatabase('test_db').start();
+
   process.env.DATABASE_URL = container.getConnectionUri();
 });
 

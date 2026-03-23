@@ -1,0 +1,8 @@
+{
+  "required": "Este campo es obligatorio",
+  "minChars": "Mínimo {{min}} caracteres",
+  "maxChars": "Máximo {{max}} caracteres",
+  "invalidEmail": "Dirección de correo electrónico inválida",
+  "invalidDate": "Fecha inválida",
+  "minAmount": "El importe mínimo es {{amount}}"
+}

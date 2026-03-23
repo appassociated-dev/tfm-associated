@@ -35,11 +35,11 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F1-Back Task 9 — UC-017** | Endpoints REST operativos: `POST /api/v1/fee-plans`, `GET /api/v1/fee-plans`, `GET /api/v1/fee-plans/:id`, `PUT /api/v1/fee-plans/:id`, `PATCH /api/v1/fee-plans/:id/deactivate`, `POST /api/v1/fee-plans/:id/link-member-types`, `GET /api/v1/member-types` (para vincular). Contratos de DTOs definidos |
-| **F1-Back Task 3 — UC-008** | Endpoint `GET /api/v1/member-types` operativo para obtener tipos de socio disponibles al vincular planes |
-| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado |
+| Tarea                        | Artefacto necesario                                                                                                                                                                                                                                                                                       |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **F1-Back Task 9 — UC-017**  | Endpoints REST operativos: `POST /api/v1/fee-plans`, `GET /api/v1/fee-plans`, `GET /api/v1/fee-plans/:id`, `PUT /api/v1/fee-plans/:id`, `PATCH /api/v1/fee-plans/:id/deactivate`, `POST /api/v1/fee-plans/:id/link-member-types`, `GET /api/v1/member-types` (para vincular). Contratos de DTOs definidos |
+| **F1-Back Task 3 — UC-008**  | Endpoint `GET /api/v1/member-types` operativo para obtener tipos de socio disponibles al vincular planes                                                                                                                                                                                                  |
+| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                                                                                                               |
 
 ### Checklist de verificación de dependencias
 
@@ -51,7 +51,7 @@ Antes de iniciar esta tarea, verificar que:
 - [ ] `web/src/features/auth/context/use-permissions.ts` existe y exporta `usePermissions()`
 - [ ] `web/src/shared/observability/error-reporter.port.ts` existe y exporta la interfaz `ErrorReporter`
 - [ ] `zod` está instalado y disponible como dependencia
-- [ ] `@mantine/form` está instalado y disponible
+- [ ] `react-hook-form` y `@hookform/resolvers` están instalados y disponibles
 - [ ] Endpoint `GET /api/v1/fee-plans` responde correctamente (probar con curl o REST client)
 - [ ] Endpoint `POST /api/v1/fee-plans` responde correctamente con plan creado
 - [ ] Endpoint `GET /api/v1/member-types` responde con lista de tipos de socio
@@ -60,23 +60,68 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Schemas Zod de planes de cuota (`schemas/fee-plan.schemas.ts`) | F1-Front Task 3 (UC-018 — suscripciones necesita datos de planes) |
-| Hook `useFeePlans()` y `useFeePlan(id)` | F1-Front Task 3 (UC-018 — selector de plan al crear suscripción) |
-| Página de listado y gestión de planes | Navegación desde sidebar de Tesorería |
-| Servicio API `fee-plan.api.ts` | F1-Front Task 3 (UC-018 — consulta de planes vinculados a tipo de socio) |
+| Artefacto                                                      | Consumido por                                                            |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Schemas Zod de planes de cuota (`schemas/fee-plan.schemas.ts`) | F1-Front Task 3 (UC-018 — suscripciones necesita datos de planes)        |
+| Hook `useFeePlans()` y `useFeePlan(id)`                        | F1-Front Task 3 (UC-018 — selector de plan al crear suscripción)         |
+| Página de listado y gestión de planes                          | Navegación desde sidebar de Tesorería                                    |
+| Servicio API `fee-plan.api.ts`                                 | F1-Front Task 3 (UC-018 — consulta de planes vinculados a tipo de socio) |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-017.md` | Flujo completo de creación de planes, vinculación a tipos, plantillas predefinidas, flujos de excepción |
-| `us/us-043.md` | Criterios de aceptación: creación de plan periódico, trimestral, único, importes no proporcionales |
-| `us/us-044.md` | Criterios de aceptación: vinculación de planes a tipos de socio, plan default, orden |
-| `bc/bc-treasury.md` | Aggregate FeePlan (code, name, type, amount, billingMonths, active), Entity MemberTypeFeePlan, Value Objects (Frequency, PlanType, BillingMonths) |
-| `adr/adr-010.md` | Formato de respuesta API, paginación, headers |
-| `stack/frontend.md` | React 19, Mantine 8, React Router 7, TanStack Query 5, Axios, Zod 4 |
+| Documento                                           | Contenido relevante                                                                                                                               |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `uc/uc-017.md`                                      | Flujo completo de creación de planes, vinculación a tipos, plantillas predefinidas, flujos de excepción                                           |
+| `us/us-043.md`                                      | Criterios de aceptación: creación de plan periódico, trimestral, único, importes no proporcionales                                                |
+| `us/us-044.md`                                      | Criterios de aceptación: vinculación de planes a tipos de socio, plan default, orden                                                              |
+| `bc/bc-treasury.md`                                 | Aggregate FeePlan (code, name, type, amount, billingMonths, active), Entity MemberTypeFeePlan, Value Objects (Frequency, PlanType, BillingMonths) |
+| `adr/adr-010.md`                                    | Formato de respuesta API, paginación, headers                                                                                                     |
+| `stack/frontend.md`                                 | React 19, Mantine 8, React Router 7, TanStack Query 5, Axios, Zod 4                                                                               |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                                         |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets                |
+
+## Formateo de datos
+
+### Importes monetarios
+
+Todos los importes monetarios se formatean con la utilidad estándar:
+
+```typescript
+// Utility definida en web/src/shared/utils/format-money.ts
+export function formatMoney(cents: number): string {
+  return new Intl.NumberFormat('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 2,
+  }).format(cents / 100);
+}
+// Backend envía centavos (integers): 34500 → "345,00 €"
+```
+
+### Fechas
+
+- Formato largo: "8 de marzo de 2026" (`Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })`)
+- Formato compacto: "08/03/2026" (dd/MM/yyyy)
+- NUNCA usar formato anglosajón: "03/08/2026"
+
+### Tablas con columnas numéricas
+
+Las columnas de importes en tablas deben aplicar:
+
+- `fontVariantNumeric: 'tabular-nums'` para columnas numéricas
+- `textAlign: 'right'` para columnas de importes
+- Headers de tabla: `uppercase`, `fz="xs"`, `fw={600}`, `c="dimmed"`
+
+### Badges
+
+Valores por defecto para todos los badges:
+
+- `variant="light"` como default
+- `radius="sm"` como default
+
+### Color primario
+
+Los botones de acción principal deben usar `color="brand"` en lugar del azul por defecto de Mantine. Nunca usar `variant="gradient"`.
 
 ## Puntos críticos
 
@@ -92,12 +137,12 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Contrato de API de planes no estabilizado al iniciar frontend | Media | Alto | Definir schemas Zod estrictos; cualquier cambio de API se detecta inmediatamente por error de parseo |
-| Complejidad del formulario condicional (RECURRING vs ONE_TIME) | Media | Medio | Usar discriminated union en Zod y renderizado condicional en Mantine form |
-| Endpoint de tipos de socio (BC-Membership) con latencia alta desde BC-Treasury | Baja | Medio | Cachear tipos de socio con TanStack Query (staleTime: 5 min) |
-| Código de plan duplicado no detectado hasta submit | Baja | Bajo | Validación client-side informativa + error 409 del backend manejado con notificación clara |
+| Riesgo                                                                         | Probabilidad | Impacto | Mitigación                                                                                           |
+| ------------------------------------------------------------------------------ | ------------ | ------- | ---------------------------------------------------------------------------------------------------- |
+| Contrato de API de planes no estabilizado al iniciar frontend                  | Media        | Alto    | Definir schemas Zod estrictos; cualquier cambio de API se detecta inmediatamente por error de parseo |
+| Complejidad del formulario condicional (RECURRING vs ONE_TIME)                 | Media        | Medio   | Usar discriminated union en Zod y renderizado condicional en react-hook-form                         |
+| Endpoint de tipos de socio (BC-Membership) con latencia alta desde BC-Treasury | Baja         | Medio   | Cachear tipos de socio con TanStack Query (staleTime: 5 min)                                         |
+| Código de plan duplicado no detectado hasta submit                             | Baja         | Bajo    | Validación client-side informativa + error 409 del backend manejado con notificación clara           |
 
 ## Plan de implementación
 
@@ -106,13 +151,12 @@ Antes de iniciar esta tarea, verificar que:
 Crear en `web/src/features/treasury/fee-plans/schemas/`:
 
 - **`fee-plan.schemas.ts`**: Definir schemas Zod que sirven como contrato de la API. Los tipos TypeScript se infieren automáticamente con `z.infer<>`, garantizando que la validación en runtime y el tipado en compilación estén siempre sincronizados:
+
   ```typescript
   import { z } from 'zod';
 
   // Enums
-  const frequencySchema = z.enum([
-    'MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANNUAL', 'CUSTOM'
-  ]);
+  const frequencySchema = z.enum(['MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANNUAL', 'CUSTOM']);
   const planTypeSchema = z.enum(['ONE_TIME', 'RECURRING']);
 
   // Schema base del plan de cuota
@@ -162,14 +206,16 @@ Crear en `web/src/features/treasury/fee-plans/schemas/`:
   // Schema de plantilla predefinida
   const feePlanTemplateSchema = z.object({
     collectivityType: z.string(),
-    templates: z.array(z.object({
-      code: z.string(),
-      name: z.string(),
-      type: planTypeSchema,
-      amount: z.number(),
-      frequency: frequencySchema.nullable(),
-      billingMonths: z.array(z.number().int().min(1).max(12)),
-    })),
+    templates: z.array(
+      z.object({
+        code: z.string(),
+        name: z.string(),
+        type: planTypeSchema,
+        amount: z.number(),
+        frequency: frequencySchema.nullable(),
+        billingMonths: z.array(z.number().int().min(1).max(12)),
+      }),
+    ),
   });
 
   // Tipos inferidos
@@ -205,6 +251,7 @@ Crear en `web/src/features/treasury/fee-plans/api/`:
 Crear en `web/src/features/treasury/fee-plans/hooks/`:
 
 - **`use-fee-plans.ts`**: Hook para listado de planes:
+
   ```typescript
   const useFeePlans = (params?: { active?: boolean }) => {
     return useQuery({
@@ -214,9 +261,11 @@ Crear en `web/src/features/treasury/fee-plans/hooks/`:
     });
   };
   ```
+
   Expone: `{ data: FeePlan[] | undefined, isLoading, isError, error }`
 
 - **`use-fee-plan.ts`**: Hook para detalle de un plan:
+
   ```typescript
   const useFeePlan = (id: string) => {
     return useQuery({
@@ -228,6 +277,7 @@ Crear en `web/src/features/treasury/fee-plans/hooks/`:
   ```
 
 - **`use-create-fee-plan.ts`**: Hook de mutación para crear plan:
+
   ```typescript
   const useCreateFeePlan = () => {
     const queryClient = useQueryClient();
@@ -269,19 +319,19 @@ Crear en `web/src/features/treasury/fee-plans/hooks/`:
 Crear en `web/src/features/treasury/fee-plans/pages/`:
 
 - **`fee-plans-list.page.tsx`**: Página principal del módulo de planes de cuota:
-  - Título "Planes de Cuota" con badge del conteo total
-  - Botón "Nuevo Plan" (visible solo si `can('treasury:fee-plans:create')`)
-  - Botón "Importar Plantilla" (visible solo si no hay planes y `can('treasury:fee-plans:create')`)
+  - Título "Planes de Cuota" con badge del conteo total (`variant="light"`, `radius="sm"`)
+  - Botón "Nuevo Plan" (`color="brand"`, visible solo si `can('treasury:fee-plans:create')`)
+  - Botón "Importar Plantilla" (`color="brand"`, visible solo si no hay planes y `can('treasury:fee-plans:create')`)
   - Filtro por estado: toggle "Mostrar inactivos" (Switch de Mantine)
-  - Tabla (Mantine Table) con columnas:
-    - Código (badge monospace)
+  - Tabla (Mantine Table, headers: `uppercase`, `fz="xs"`, `fw={600}`, `c="dimmed"`) con columnas:
+    - Código (badge monospace, `variant="light"`, `radius="sm"`)
     - Nombre
-    - Tipo (badge: "Periódico" verde / "Única" azul)
-    - Importe (formateado en EUR con `Intl.NumberFormat`)
+    - Tipo (badge `variant="light"` `radius="sm"`: "Periódico" verde / "Única" azul)
+    - Importe (formateado con `formatMoney()`, `textAlign: 'right'`, `fontVariantNumeric: 'tabular-nums'`)
     - Periodicidad (texto descriptivo: "Mensual", "Trimestral", etc.)
-    - Estado (badge: "Activo" verde / "Inactivo" gris)
+    - Estado (badge `variant="light"` `radius="sm"`: "Activo" verde / "Inactivo" gris)
     - Acciones (menú: Editar, Ver vinculaciones, Inactivar)
-  - Estado vacío: ilustración + texto "No hay planes de cuota configurados" + botón "Crear primer plan"
+  - Estado vacío: ilustración + texto "No hay planes de cuota configurados" + botón "Crear primer plan" (`color="brand"`)
   - Loading: skeleton de tabla con 5 filas
   - Error: alerta roja con botón de reintentar
 
@@ -289,12 +339,12 @@ Crear en `web/src/features/treasury/fee-plans/pages/`:
 
 Crear en `web/src/features/treasury/fee-plans/components/`:
 
-- **`fee-plan-form.tsx`**: Formulario reutilizable (creación y edición) con `@mantine/form`:
+- **`fee-plan-form.tsx`**: Formulario reutilizable (creación y edición) con `react-hook-form` + `zodResolver`:
   - Campo `code` (TextInput, validación: 1-20 chars alfanuméricos, requerido, transformación a mayúsculas)
   - Campo `name` (TextInput, validación: requerido, 1-100 chars)
   - Campo `description` (Textarea, opcional, max 500 chars)
   - Campo `type` (SegmentedControl: "Periódico" / "Cuota Única")
-  - Campo `amount` (NumberInput, validación: >= 0, precisión 2 decimales, sufijo "EUR")
+  - Campo `amount` (NumberInput, validación: >= 0, precisión 2 decimales, sufijo "€"). Visualización formateada con `formatMoney()` en contextos de solo lectura
   - **Sección condicional (solo si type === 'RECURRING'):**
     - Campo `frequency` (Select: Mensual, Trimestral, Semestral, Anual, Personalizada)
     - Campo `billingMonths` (Chip.Group, multi-select con los 12 meses)
@@ -305,11 +355,11 @@ Crear en `web/src/features/treasury/fee-plans/components/`:
       - ANNUAL → [1]
       - CUSTOM → sin preselección
     - Texto informativo: "Se generarán X cargos al año"
-  - Validación con `@mantine/form`:
+  - Validación con `react-hook-form` + Zod schema:
     - `code`: requerido, formato alfanumérico
     - `amount`: requerido, >= 0
     - `billingMonths`: si type=RECURRING, al menos 1 mes seleccionado
-  - Botón "Guardar" con loading state durante submit
+  - Botón "Guardar" (`color="brand"`) con loading state durante submit
   - Manejo de errores:
     - Código duplicado (409) → notificación roja con sugerencia de sufijo
     - Validación de meses inválidos (FE-4) → notificación roja
@@ -333,8 +383,8 @@ Crear en `web/src/features/treasury/fee-plans/components/`:
     - Es Default (radio button, mutuamente exclusivo — solo uno puede ser default)
     - Orden (NumberInput, para prioridad en UI de alta)
   - Validación: solo un default por tipo de socio
-  - Advertencia si un tipo ya tiene otro plan como default: "El tipo 'Adulto' ya tiene 'Anual' como plan por defecto. Se reemplazará"
-  - Botones "Cancelar" y "Guardar vinculaciones" con loading state
+  - Advertencia (`color="yellow"`) si un tipo ya tiene otro plan como default: "El tipo 'Adulto' ya tiene 'Anual' como plan por defecto. Se reemplazará"
+  - Botones "Cancelar" y "Guardar vinculaciones" (`color="brand"`) con loading state
 
 ### Paso 7: Plantillas predefinidas
 
@@ -343,10 +393,10 @@ Crear en `web/src/features/treasury/fee-plans/components/`:
 - **`import-template-modal.tsx`**: Modal para importar plantillas (FA-1):
   - Selector de tipo de colectividad (Select: Peña, Cofradía, Club Deportivo, Asociación Cultural)
   - Al seleccionar tipo, mostrar previsualización de los planes que se crearán:
-    - Tabla con nombre, tipo, importe, periodicidad de cada plan de la plantilla
+    - Tabla con nombre, tipo, importe (formateado con `formatMoney()`, `textAlign: 'right'`, `fontVariantNumeric: 'tabular-nums'`), periodicidad de cada plan de la plantilla. Headers: `uppercase`, `fz="xs"`, `fw={600}`, `c="dimmed"`
   - Texto informativo: "Se crearán X planes de cuota con la configuración estándar para [tipo]"
-  - Advertencia si ya existen planes: "Ya hay planes configurados. Los nuevos se añadirán a los existentes"
-  - Botón "Importar" con loading state y confirmación
+  - Advertencia (`color="yellow"`) si ya existen planes: "Ya hay planes configurados. Los nuevos se añadirán a los existentes"
+  - Botón "Importar" (`color="brand"`) con loading state y confirmación
   - En `onSuccess`: invalidar queries, cerrar modal, notificación de éxito
 
 ### Paso 8: Diálogo de inactivación
@@ -354,10 +404,10 @@ Crear en `web/src/features/treasury/fee-plans/components/`:
 Crear en `web/src/features/treasury/fee-plans/components/`:
 
 - **`deactivate-fee-plan-modal.tsx`**: Modal de confirmación para inactivar un plan:
-  - Si el plan tiene suscripciones activas: mostrar alerta naranja "Este plan tiene X suscripciones activas. No puede eliminarse, pero sí marcarse como inactivo."
+  - Si el plan tiene suscripciones activas: mostrar alerta amarilla (`color="yellow"`) "Este plan tiene X suscripciones activas. No puede eliminarse, pero sí marcarse como inactivo."
   - Si no tiene suscripciones: permitir inactivación directa
   - Texto: "El plan dejará de aparecer en los selectores de alta pero las suscripciones existentes no se verán afectadas"
-  - Botones "Cancelar" y "Marcar como Inactivo" (color naranja)
+  - Botones "Cancelar" y "Marcar como Inactivo" (`color="yellow"`)
 
 ### Paso 9: Integración con AppShell
 
@@ -390,6 +440,7 @@ Actualizar `web/src/app/router.tsx`:
 ### Paso 11: Tests
 
 **Tests unitarios (componentes):**
+
 - `FeePlansListPage`:
   - Renderiza tabla con planes cuando hay datos (mock useFeePlans)
   - Muestra estado vacío cuando no hay planes
@@ -412,6 +463,7 @@ Actualizar `web/src/app/router.tsx`:
   - Permite inactivar si no hay suscripciones
 
 **Tests unitarios (hooks):**
+
 - `useFeePlans()`:
   - Retorna datos correctos cuando la API responde
   - Retorna error cuando la API falla
@@ -425,6 +477,7 @@ Actualizar `web/src/app/router.tsx`:
   - Maneja error 422 con notificación de suscripciones activas
 
 **Tests E2E (Playwright):**
+
 - Flujo completo: crear plan periódico mensual → verificar aparece en listado → editar importe → verificar cambio → vincular a tipo de socio → inactivar plan
 - Flujo de plantillas: importar plantilla de peña → verificar que se crean los planes esperados
 - Validaciones: intentar crear plan con código duplicado → verificar error

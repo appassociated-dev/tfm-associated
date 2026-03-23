@@ -40,11 +40,11 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F1-Back Task 7 — UC-011** | Endpoints REST operativos: `POST /api/v1/members/simple-registration`, `GET /api/v1/members/check-dni/:dni` (verificación unicidad). Contratos de DTOs definidos (`SimpleRegistrationDto`, `MemberResponseDto`) |
-| **F1-Back Task 3 — UC-008** | Endpoint `GET /api/v1/member-types` operativo para obtener tipos de socio con sus requisitos (rangos de edad, derechos) |
-| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado |
+| Tarea                        | Artefacto necesario                                                                                                                                                                                             |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **F1-Back Task 7 — UC-011**  | Endpoints REST operativos: `POST /api/v1/members/simple-registration`, `GET /api/v1/members/check-dni/:dni` (verificación unicidad). Contratos de DTOs definidos (`SimpleRegistrationDto`, `MemberResponseDto`) |
+| **F1-Back Task 3 — UC-008**  | Endpoint `GET /api/v1/member-types` operativo para obtener tipos de socio con sus requisitos (rangos de edad, derechos)                                                                                         |
+| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                     |
 
 ### Checklist de verificación de dependencias
 
@@ -54,7 +54,7 @@ Antes de iniciar esta tarea, verificar que:
 - [ ] `web/src/shared/components/layout/app-shell.tsx` existe con sidebar funcional
 - [ ] `web/src/features/auth/context/use-permissions.ts` existe y exporta `usePermissions()`
 - [ ] `web/src/shared/observability/error-reporter.port.ts` existe y exporta la interfaz `ErrorReporter`
-- [ ] `zod` y `@mantine/form` están instalados
+- [ ] `zod`, `react-hook-form` y `@hookform/resolvers` están instalados
 - [ ] Endpoint `POST /api/v1/members/simple-registration` responde correctamente
 - [ ] Endpoint `GET /api/v1/member-types` responde con lista de tipos de socio activos
 - [ ] Endpoint `GET /api/v1/members/check-dni/:dni` responde con existencia del DNI
@@ -66,23 +66,25 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Schemas Zod de alta de socio (`schemas/member-registration.schemas.ts`) | F1-Front Task 5 (UC-013 — baja necesita datos del socio) |
-| Hook `useMemberTypes()` para listar tipos de socio | Reutilizable en otros módulos que necesiten selector de tipo |
-| Utilidad `validateDni()` para validación client-side de DNI/NIE | Reutilizable en importación masiva (UC-056, Fase 2) |
-| Página de alta como entrada de navegación en sidebar | Navegación desde "Socios > Nuevo Socio" |
+| Artefacto                                                               | Consumido por                                                |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Schemas Zod de alta de socio (`schemas/member-registration.schemas.ts`) | F1-Front Task 5 (UC-013 — baja necesita datos del socio)     |
+| Hook `useMemberTypes()` para listar tipos de socio                      | Reutilizable en otros módulos que necesiten selector de tipo |
+| Utilidad `validateDni()` para validación client-side de DNI/NIE         | Reutilizable en importación masiva (UC-056, Fase 2)          |
+| Página de alta como entrada de navegación en sidebar                    | Navegación desde "Socios > Nuevo Socio"                      |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-011.md` | Flujo completo del wizard de 3 pasos, validaciones, cargo de inscripción, evento MemberRegistered |
-| `us/us-028.md` | Criterios de aceptación: alta simple en 3 pasos, alta con pago inmediato |
-| `bc/bc-membership.md` | Aggregate Member (PersonalData, ContactData, IdentityDocument, MemberStatus, MemberType), Value Objects |
-| `bc/bc-treasury.md` | Entity FeeSubscription (plan UNICA, cierre automático), Charge (cargo de inscripción) |
-| `adr/adr-010.md` | Formato de respuesta API, headers |
-| `rnf/rnf-001.md` | Validación de DNI (RNFT-009): algoritmo mod 23, soporte NIE |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `uc/uc-011.md`                                      | Flujo completo del wizard de 3 pasos, validaciones, cargo de inscripción, evento MemberRegistered                                  |
+| `us/us-028.md`                                      | Criterios de aceptación: alta simple en 3 pasos, alta con pago inmediato                                                           |
+| `bc/bc-membership.md`                               | Aggregate Member (PersonalData, ContactData, IdentityDocument, MemberStatus, MemberType), Value Objects                            |
+| `bc/bc-treasury.md`                                 | Entity FeeSubscription (plan UNICA, cierre automático), Charge (cargo de inscripción)                                              |
+| `adr/adr-010.md`                                    | Formato de respuesta API, headers                                                                                                  |
+| `rnf/rnf-001.md`                                    | Validación de DNI (RNFT-009): algoritmo mod 23, soporte NIE                                                                        |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 
 ## Puntos críticos
 
@@ -98,12 +100,12 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Validación de DNI con algoritmo incorrecto genera falsos positivos/negativos | Baja | Alto | Implementar algoritmo estándar mod 23 con tests exhaustivos (casos límite: letras especiales, NIE con X/Y/Z) |
-| Usuario pierde datos del wizard por navegación accidental (back del navegador) | Media | Medio | Usar `beforeunload` event para advertir, y `useBlocker` de React Router para confirmar salida |
-| API de alta responde lento (>2s) y el usuario hace doble click | Media | Medio | Deshabilitar botón "Confirmar" durante submit; mostrar overlay de loading; idempotencia en backend |
-| Tipo de socio sin plan de inscripción bloquea el alta sin alternativa clara | Baja | Alto | Mostrar alerta con link directo a configuración de planes; verificar precondición al cargar el wizard |
+| Riesgo                                                                         | Probabilidad | Impacto | Mitigación                                                                                                   |
+| ------------------------------------------------------------------------------ | ------------ | ------- | ------------------------------------------------------------------------------------------------------------ |
+| Validación de DNI con algoritmo incorrecto genera falsos positivos/negativos   | Baja         | Alto    | Implementar algoritmo estándar mod 23 con tests exhaustivos (casos límite: letras especiales, NIE con X/Y/Z) |
+| Usuario pierde datos del wizard por navegación accidental (back del navegador) | Media        | Medio   | Usar `beforeunload` event para advertir, y `useBlocker` de React Router para confirmar salida                |
+| API de alta responde lento (>2s) y el usuario hace doble click                 | Media        | Medio   | Deshabilitar botón "Confirmar" durante submit; mostrar overlay de loading; idempotencia en backend           |
+| Tipo de socio sin plan de inscripción bloquea el alta sin alternativa clara    | Baja         | Alto    | Mostrar alerta con link directo a configuración de planes; verificar precondición al cargar el wizard        |
 
 ## Plan de implementación
 
@@ -112,6 +114,7 @@ Antes de iniciar esta tarea, verificar que:
 Crear en `web/src/features/membership/registration/schemas/`:
 
 - **`member-registration.schemas.ts`**: Definir schemas Zod para el proceso de alta:
+
   ```typescript
   import { z } from 'zod';
 
@@ -120,10 +123,7 @@ Crear en `web/src/features/membership/registration/schemas/`:
     dni: z.string().min(1, 'DNI/NIE es obligatorio').max(20),
     firstName: z.string().min(1, 'Nombre es obligatorio').max(100),
     lastName: z.string().min(1, 'Apellidos es obligatorio').max(200),
-    birthDate: z.string().refine(
-      (val) => !isNaN(Date.parse(val)),
-      'Fecha de nacimiento inválida'
-    ),
+    birthDate: z.string().refine((val) => !isNaN(Date.parse(val)), 'Fecha de nacimiento inválida'),
     email: z.string().email('Email inválido'),
     phone: z.string().max(20).nullable(),
     address: z.string().max(300).nullable(),
@@ -172,12 +172,14 @@ Crear en `web/src/features/membership/registration/schemas/`:
     status: z.string(),
     memberTypeName: z.string(),
     registrationDate: z.string().datetime(),
-    registrationCharge: z.object({
-      chargeId: z.string().uuid(),
-      amount: z.number(),
-      description: z.string(),
-      status: z.string(),
-    }).nullable(),
+    registrationCharge: z
+      .object({
+        chargeId: z.string().uuid(),
+        amount: z.number(),
+        description: z.string(),
+        status: z.string(),
+      })
+      .nullable(),
   });
 
   // Schema de verificación de DNI
@@ -201,6 +203,7 @@ Crear en `web/src/features/membership/registration/schemas/`:
 Crear en `web/src/features/membership/registration/utils/`:
 
 - **`dni-validator.ts`**: Funciones puras de validación:
+
   ```typescript
   /**
    * Valida formato y letra de control de DNI español.
@@ -240,6 +243,7 @@ Crear en `web/src/features/membership/registration/api/`:
 Crear en `web/src/features/membership/registration/hooks/`:
 
 - **`use-member-types.ts`**: Hook para listar tipos de socio:
+
   ```typescript
   const useMemberTypes = () => {
     return useQuery({
@@ -251,6 +255,7 @@ Crear en `web/src/features/membership/registration/hooks/`:
   ```
 
 - **`use-check-dni.ts`**: Hook para verificar unicidad de DNI (debounced):
+
   ```typescript
   const useCheckDni = (dni: string) => {
     const debouncedDni = useDebouncedValue(dni, 500);
@@ -316,14 +321,14 @@ Crear en `web/src/features/membership/registration/pages/`:
       memberTypeId: string | null;
     }>({ personalData: null, memberTypeId: null });
     ```
-  - Botones "Anterior" / "Siguiente" / "Confirmar Alta" según paso activo
+  - Botones "Anterior" (`variant="default"`) / "Siguiente" (`color="brand"`) / "Confirmar Alta" (`color="brand"`) según paso activo. Nunca usar `variant="gradient"`.
   - `useBlocker` de React Router para prevenir navegación accidental con datos sin guardar
 
 ### Paso 6: Paso 1 — Datos personales
 
 Crear en `web/src/features/membership/registration/components/`:
 
-- **`personal-data-step.tsx`**: Formulario del paso 1 con `@mantine/form`:
+- **`personal-data-step.tsx`**: Formulario del paso 1 con `react-hook-form` + `zodResolver`:
   - Campo `dni` (TextInput):
     - Validación de formato client-side (DNI/NIE) al perder foco
     - Consulta de unicidad debounced via `useCheckDni()`
@@ -334,6 +339,7 @@ Crear en `web/src/features/membership/registration/components/`:
   - Campo `birthDate` (DateInput de Mantine, requerido):
     - Calcula y muestra la edad automáticamente: "(30 años)"
     - Fecha máxima: hoy
+    - Formato de visualización: dd/MM/yyyy (ej. "08/03/2026"). NUNCA usar formato anglosajón.
   - Campo `email` (TextInput, type email, requerido)
   - Campo `phone` (TextInput, opcional, formato ES)
   - Campo `address` (TextInput, opcional)
@@ -350,11 +356,11 @@ Crear en `web/src/features/membership/registration/components/`:
   - Cada tipo se renderiza como Mantine Card (radio button visual):
     - Nombre del tipo (título)
     - Rango de edad (si definido): "Edad: 35+ años" o "Edad: 18-34 años"
-    - Derechos: badges "Voto" (verde), "Elegible para cargos" (azul)
+    - Derechos: badges "Voto" (`color="green"`), "Elegible para cargos" (`color="blue"`), ambos con `variant="light"` y `radius="sm"` (defaults de marca)
     - Descripción del tipo
   - Al seleccionar un tipo, verificar compatibilidad de edad:
     - Si la edad del aspirante NO cumple el rango del tipo:
-      - Alerta naranja: "El aspirante tiene 30 años, pero 'Adulto' requiere 35+ años"
+      - Alerta amarilla (color `yellow`): "El aspirante tiene 30 años, pero 'Adulto' requiere 35+ años"
       - Sugerencia: resaltar tipos compatibles con la edad del aspirante
       - Permitir continuar solo si se selecciona un tipo compatible
     - Si la edad SÍ cumple: indicador verde "Edad compatible"
@@ -373,20 +379,23 @@ Crear en `web/src/features/membership/registration/components/`:
     - Email
     - Tipo de socio seleccionado
     - Fecha de alta (hoy)
+    - Formato de fechas: largo "8 de marzo de 2026", compacto "08/03/2026" (dd/MM/yyyy). NUNCA usar formato anglosajón.
   - Sección "Cargos a generar":
-    - Checkbox (marcado por defecto, no editable): "Cuota de inscripción: 50.00EUR (UNICA)"
+    - Checkbox (marcado por defecto, no editable): "Cuota de inscripción: 345,00 € (UNICA)"
+    - Usar `formatMoney()` de `@/shared/utils/format-money.ts` para mostrar importes.
+      Backend envía centavos como enteros: 34500 → "345,00 €"
     - Si no hay plan de inscripción (FE-4): alerta roja bloqueante "Debe configurar un plan de cuota de inscripción" con link a configuración
   - Sección "Al confirmar":
     - Texto informativo con iconos:
       - "Se creará el socio en estado Activo"
       - "Se generará cargo de inscripción"
       - "Se asignará número de socio automáticamente"
-  - Botón "Confirmar Alta" con loading state y doble-click prevention
+  - Botón "Confirmar Alta" (`color="brand"`) con loading state y doble-click prevention. Nunca usar `variant="gradient"`.
   - Al confirmar exitoso:
     - Modal de éxito con datos del socio creado:
       - Número de socio asignado (#00343)
-      - Cargo de inscripción generado (50EUR, pendiente)
-    - Botones: "Dar de alta otro socio" (resetea wizard) / "Ver ficha del socio" (navega a detalle)
+      - Cargo de inscripción generado (pendiente). Usar `formatMoney()` para mostrar importe.
+    - Botones: "Dar de alta otro socio" (resetea wizard, `color="brand"`) / "Ver ficha del socio" (navega a detalle, `color="brand"`)
 
 ### Paso 9: Integración con AppShell y rutas
 
@@ -419,6 +428,7 @@ Actualizar `web/src/app/router.tsx`:
 ### Paso 11: Tests
 
 **Tests unitarios (componentes):**
+
 - `SimpleRegistrationPage`:
   - Renderiza stepper con 3 pasos
   - Muestra alerta si no hay ejercicio abierto
@@ -444,6 +454,7 @@ Actualizar `web/src/app/router.tsx`:
   - Muestra modal de éxito con número de socio asignado
 
 **Tests unitarios (utils):**
+
 - `validateDni()`:
   - DNI válido "12345678Z" → `{ valid: true }`
   - DNI con letra incorrecta "12345678A" → `{ valid: false, error: "..." }`
@@ -456,6 +467,7 @@ Actualizar `web/src/app/router.tsx`:
   - Fecha futura → error
 
 **Tests unitarios (hooks):**
+
 - `useMemberTypes()`:
   - Retorna tipos de socio activos
   - Cachea resultados (staleTime 5 min)
@@ -469,6 +481,7 @@ Actualizar `web/src/app/router.tsx`:
   - Maneja error 409 (DNI duplicado) con notificación específica
 
 **Tests E2E (Playwright):**
+
 - Flujo completo: llenar datos personales → seleccionar tipo de socio → confirmar alta → verificar socio creado con número asignado
 - Validación de DNI: introducir DNI existente → verificar alerta de duplicado → corregir → completar alta
 - Validación de edad: seleccionar tipo incompatible → verificar alerta → seleccionar tipo correcto → completar

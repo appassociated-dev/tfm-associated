@@ -39,16 +39,16 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Proyecto React + Vite + Mantine configurado, HttpClient (Axios) base, estructura de features, `QueryClientProvider`, `RouterProvider`, Zod instalado, `ErrorBoundary` + `ErrorReporter` configurados |
+| Tarea                       | Artefacto necesario                                                                                                                                                                                                                                                                |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 — Scaffold**       | Proyecto React + Vite + Mantine configurado, HttpClient (Axios) base, estructura de features, `QueryClientProvider`, `RouterProvider`, Zod instalado, `ErrorBoundary` + `ErrorReporter` configurados                                                                               |
 | **F1-Back Task 2 — UC-002** | Endpoints de autenticación operativos: `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `POST /auth/switch-tenant`, `GET /auth/me`. Contratos de DTOs definidos (`LoginRequestDto`, `LoginResponseDto`, `RefreshResponseDto`, `TenantSelectorDto`, `UserProfileDto`) |
 
 ### Checklist de verificación de dependencias
 
 Antes de iniciar esta tarea, verificar que:
 
-- [ ] `web/src/app/providers.tsx` existe con `MantineProvider` y `QueryClientProvider` configurados
+- [ ] **Task 0 (Brand Setup) completada:** theme de marca, `index.html` con meta tags, logos SVG en `web/src/shared/assets/`, utilities de formateo (`format-money.ts`, `format-date.ts`)
 - [ ] `web/src/shared/api/http-client.ts` existe con instancia Axios base configurada
 - [ ] `web/src/app/router.tsx` existe con `RouterProvider` básico
 - [ ] `web/src/shared/observability/error-reporter.port.ts` existe y exporta la interfaz `ErrorReporter`
@@ -62,25 +62,27 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| `AuthProvider` + `useAuth()` | Todas las features del frontend (acceso al usuario, tenant, permisos) |
-| `ProtectedRoute` component | Todas las rutas que requieren autenticación |
-| HttpClient con interceptors de auth configurados | Todas las llamadas API del frontend |
-| Layout base (Shell + Navbar + Sidebar) | Todas las páginas internas de la aplicación |
-| Hook `usePermissions()` | Frontends de UC-017, UC-018, UC-011, UC-013 (control de acceso en UI) |
-| Schemas Zod de auth (`schemas/auth.schemas.ts`) + tipos inferidos | Todas las features que consumen datos de usuario/tenant |
+| Artefacto                                                         | Consumido por                                                         |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `AuthProvider` + `useAuth()`                                      | Todas las features del frontend (acceso al usuario, tenant, permisos) |
+| `ProtectedRoute` component                                        | Todas las rutas que requieren autenticación                           |
+| HttpClient con interceptors de auth configurados                  | Todas las llamadas API del frontend                                   |
+| Layout base (Shell + Navbar + Sidebar)                            | Todas las páginas internas de la aplicación                           |
+| Hook `usePermissions()`                                           | Frontends de UC-017, UC-018, UC-011, UC-013 (control de acceso en UI) |
+| Schemas Zod de auth (`schemas/auth.schemas.ts`) + tipos inferidos | Todas las features que consumen datos de usuario/tenant               |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-002.md` | Flujo de login, selector de tenant, switch sin re-login, flujos de excepción |
-| `us/us-002.md` | Criterios de aceptación (login multi-tenant, switch, roles independientes) |
-| `adr/adr-006.md` | Claims JWT, flujo Access + Refresh token |
-| `adr/adr-010.md` | Formato de respuesta API, headers `Authorization` y `X-Tenant-Id` |
-| `stack/frontend.md` | React 19, Mantine 8, React Router 7, React Query 5, Axios |
-| `rnf/rnf-001.md` | Política de complejidad de password (validación client-side informativa) |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `uc/uc-002.md`                                      | Flujo de login, selector de tenant, switch sin re-login, flujos de excepción                                                       |
+| `us/us-002.md`                                      | Criterios de aceptación (login multi-tenant, switch, roles independientes)                                                         |
+| `adr/adr-006.md`                                    | Claims JWT, flujo Access + Refresh token                                                                                           |
+| `adr/adr-010.md`                                    | Formato de respuesta API, headers `Authorization` y `X-Tenant-Id`                                                                  |
+| `stack/frontend.md`                                 | React 19, Mantine 8, React Router 7, React Query 5, Axios                                                                          |
+| `rnf/rnf-001.md`                                    | Política de complejidad de password (validación client-side informativa)                                                           |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
+| `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 
 ## Puntos críticos
 
@@ -96,12 +98,12 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Race condition en refresh concurrente (múltiples 401 simultáneos) | Alta | Medio | Implementar cola de refresh: primer 401 dispara refresh, los demás esperan la resolución |
-| Flash de contenido protegido antes de verificar auth | Media | Medio | Renderizar loading/splash mientras se verifica el estado de auth al montar `AuthProvider` |
-| Token expirado entre tabs del navegador | Media | Bajo | Escuchar `storage` events para sincronizar estado entre tabs |
-| Mantine theme conflict con componentes custom | Baja | Bajo | Usar sistema de themes de Mantine consistentemente, no CSS raw |
+| Riesgo                                                            | Probabilidad | Impacto | Mitigación                                                                                |
+| ----------------------------------------------------------------- | ------------ | ------- | ----------------------------------------------------------------------------------------- |
+| Race condition en refresh concurrente (múltiples 401 simultáneos) | Alta         | Medio   | Implementar cola de refresh: primer 401 dispara refresh, los demás esperan la resolución  |
+| Flash de contenido protegido antes de verificar auth              | Media        | Medio   | Renderizar loading/splash mientras se verifica el estado de auth al montar `AuthProvider` |
+| Token expirado entre tabs del navegador                           | Media        | Bajo    | Escuchar `storage` events para sincronizar estado entre tabs                              |
+| Mantine theme conflict con componentes custom                     | Baja         | Bajo    | Usar sistema de themes de Mantine consistentemente, no CSS raw                            |
 
 ## Plan de implementación
 
@@ -110,6 +112,7 @@ Antes de iniciar esta tarea, verificar que:
 Crear en `web/src/features/auth/schemas/`:
 
 - **`auth.schemas.ts`**: Definir schemas Zod que sirven como contrato de la API. Los tipos TypeScript se infieren automáticamente con `z.infer<>`, garantizando que la validación en runtime y el tipado en compilación estén siempre sincronizados:
+
   ```typescript
   import { z } from 'zod';
 
@@ -206,12 +209,14 @@ Crear en `web/src/features/auth/context/`:
 Actualizar `web/src/shared/api/http-client.ts`:
 
 **Request interceptor:**
+
 - Leer `accessToken` del AuthProvider (vía closure o store)
 - Si existe token: añadir header `Authorization: Bearer {token}`
 - Leer `tenantId` del AuthProvider
 - Si existe tenantId: añadir header `X-Tenant-Id: {tenantId}`
 
 **Response interceptor (manejo de 401 y errores):**
+
 - Si respuesta es 401 y hay refresh token disponible:
   1. Marcar flag `isRefreshing = true`
   2. Intentar `refreshTokens(refreshToken)`
@@ -226,14 +231,15 @@ Actualizar `web/src/shared/api/http-client.ts`:
 Crear en `web/src/features/auth/pages/`:
 
 - **`login.page.tsx`**: Página de login con Mantine components:
-  - Layout centrado en pantalla, logo de Associated (o placeholder), título "Iniciar sesión"
-  - Formulario con `@mantine/form`:
+  - Layout centrado en pantalla, título "Iniciar sesión"
+  - Para la pantalla de login, usar `logo-stacked.svg` (isotipo arriba + texto debajo) importado desde `@/shared/assets/logo-stacked.svg` con un ancho de 120-140px
+  - Formulario con `react-hook-form` + `zodResolver`:
     - Campo `email` (TextInput, type email, validación: formato email)
     - Campo `password` (PasswordInput, validación: no vacío)
-    - Botón "Acceder" (loading state durante submit)
+    - Botón "Acceder" (`color="brand"`, loading state durante submit). Nunca usar `variant="gradient"` — prohibido por directrices de marca
   - Manejo de errores:
     - Credenciales inválidas → notificación roja: "Credenciales incorrectas"
-    - Cuenta bloqueada → notificación naranja: "Cuenta bloqueada temporalmente. Reintente en X minutos"
+    - Cuenta bloqueada → notificación yellow (Mantine `color="yellow"`, shade 6 `#FAB005`): "Cuenta bloqueada temporalmente. Reintente en X minutos"
     - Error de red → notificación roja: "Error de conexión. Verifique su conexión a internet"
   - Si la respuesta es `requiresTenantSelection: true` → mostrar selector de tenant (paso 6)
   - Si login exitoso con 1 tenant → redirigir a `/dashboard`
@@ -261,6 +267,7 @@ Crear en `web/src/shared/components/`:
   4. Si todo OK → renderiza `<Outlet />` (children)
 
 Actualizar `web/src/app/router.tsx`:
+
 - `/login` → `LoginPage` (pública)
 - `/` → `ProtectedRoute` → layout principal
   - `/dashboard` → `DashboardPage` (placeholder)
@@ -271,7 +278,6 @@ Crear en `web/src/shared/components/layout/`:
 
 - **`app-shell.tsx`**: Layout principal usando `AppShell` de Mantine:
   - **Navbar** (header):
-    - Logo / nombre de la aplicación
     - Nombre de la colectividad actual (tenant)
     - Menú de usuario (dropdown):
       - Nombre del usuario
@@ -279,6 +285,14 @@ Crear en `web/src/shared/components/layout/`:
       - "Cambiar colectividad" (si múltiples tenants) → abre modal de switch
       - "Cerrar sesión" → logout + redirect a `/login`
   - **Sidebar** (navbar lateral):
+    - **Logo sidebar abierto**: usar `logo-horizontal-white.svg` importado desde `@/shared/assets/logo-horizontal-white.svg` con ancho de 140-160px. La variante blanca usa `#EAF7FE` (`brand.0`), no blanco puro
+    - **Logo sidebar colapsado**: usar `isotipo-white.svg` importado desde `@/shared/assets/isotipo-white.svg` con ancho de 28-32px
+    - Fondo del sidebar: `theme.other.brandDark` (`#27343E`) — nunca hardcodear el hex, usar el token del theme
+    - Texto de items activos: opacidad 100%
+    - Texto de items inactivos: opacidad 60%
+    - Labels de sección (ej: "Tesorería", "Socios"): opacidad 30%
+    - Item activo: fondo `rgba(255,255,255,0.1)` + borde izquierdo semitransparente
+    - Ancho del navbar: 240px (desktop), colapsado en mobile (<768px / breakpoint `sm`)
     - Links de navegación condicionados por permisos:
       - Dashboard (todos)
       - Socios (permission: `membership:members:read`)
@@ -304,6 +318,7 @@ Crear en `web/src/features/dashboard/pages/`:
 ### Paso 10: Tests
 
 **Tests unitarios (componentes):**
+
 - `LoginPage`:
   - Renderiza formulario con campos email y password
   - Muestra error de validación si email inválido
@@ -324,6 +339,7 @@ Crear en `web/src/features/dashboard/pages/`:
   - Muestra links condicionados por permisos
 
 **Tests unitarios (hooks):**
+
 - `useAuth()`:
   - Retorna estado inicial correcto (no autenticado)
   - Actualiza estado tras login exitoso
