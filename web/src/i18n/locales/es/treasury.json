@@ -129,6 +129,19 @@
       "cancel": "Cancelar",
       "import": "Importar"
     },
+    "validation": {
+      "frequencyRequired": "La periodicidad es obligatoria para planes periodicos",
+      "billingMonthsRequired": "Seleccione al menos un mes de facturacion para planes periodicos",
+      "codeRequired": "El código es obligatorio",
+      "codeMinLength": "Mínimo 2 caracteres",
+      "codeMaxLength": "Máximo 20 caracteres",
+      "codeFormat": "Solo caracteres alfanuméricos, guiones y guiones bajos",
+      "nameRequired": "El nombre es obligatorio",
+      "nameMaxLength": "Máximo 100 caracteres",
+      "descriptionMaxLength": "Máximo 500 caracteres",
+      "amountMin": "El importe mínimo es 0,01 €",
+      "billingMonthsFormRequired": "Seleccione al menos un mes de facturación"
+    },
     "notifications": {
       "createSuccess": {
         "title": "Plan creado",

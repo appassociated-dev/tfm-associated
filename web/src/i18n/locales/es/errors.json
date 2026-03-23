@@ -11,5 +11,8 @@
   "forbidden": "No tienes permisos para acceder a esta página.",
   "loadError": "No se pudieron cargar los datos.",
   "connectionError": "Verifique su conexión a internet.",
-  "retryLater": "Intente nuevamente más tarde."
+  "retryLater": "Intente nuevamente más tarde.",
+  "rootNotFound": "No se encontró el elemento root en el DOM.",
+  "networkError": "Error de conexion con el servidor.",
+  "unknownServerError": "Error desconocido del servidor."
 }

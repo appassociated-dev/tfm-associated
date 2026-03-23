@@ -1,4 +1,4 @@
-import '@/i18n/i18n'; // Inicializar i18next antes de cualquier componente React
+import i18n from '@/i18n/i18n'; // Inicializar i18next antes de cualquier componente React
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -19,7 +19,7 @@ import '@mantine/notifications/styles.css';
 const rootElement = document.getElementById('root');
 
 if (!rootElement) {
-  throw new Error('No se encontró el elemento root en el DOM.');
+  throw new Error(i18n.t('errors:rootNotFound'));
 }
 
 createRoot(rootElement).render(

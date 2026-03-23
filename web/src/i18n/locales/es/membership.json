@@ -97,6 +97,27 @@
       "willAssignNumber": "Se asignará número de socio automáticamente",
       "confirmRegistration": "Confirmar Alta"
     },
+    "validation": {
+      "dniRequired": "DNI/NIE es obligatorio",
+      "firstNameRequired": "Nombre es obligatorio",
+      "lastNameRequired": "Apellidos es obligatorio",
+      "birthDateInvalid": "Fecha de nacimiento inválida",
+      "birthDateRequired": "Fecha de nacimiento es obligatoria",
+      "emailInvalid": "Email inválido",
+      "emailInvalidForm": "Email invalido",
+      "emailRequired": "Email es obligatorio",
+      "postalCodeFormat": "Debe ser 5 digitos",
+      "dni": {
+        "dniEmpty": "El DNI no puede estar vacío",
+        "dniInvalidFormat": "Formato de DNI inválido. Debe ser 8 dígitos seguidos de una letra",
+        "dniInvalidLetter": "La letra del DNI no es correcta",
+        "nieEmpty": "El NIE no puede estar vacío",
+        "nieInvalidFormat": "Formato de NIE inválido. Debe ser X/Y/Z seguido de 7 dígitos y una letra",
+        "nieInvalidLetter": "La letra del NIE no es correcta",
+        "documentEmpty": "El documento no puede estar vacío",
+        "unrecognizedFormat": "Formato no reconocido"
+      }
+    },
     "notifications": {
       "successTitle": "Socio dado de alta",
       "successMessage": "Socio registrado correctamente. Número asignado: {{memberNumber}}",
@@ -118,6 +139,10 @@
     "unknown": "Desconocido"
   },
   "leave": {
+    "validation": {
+      "reasonRequired": "Motivo es obligatorio (mínimo 3 caracteres)",
+      "paymentConfirmRequired": "Debe confirmar el pago"
+    },
     "breadcrumbs": {
       "members": "Socios",
       "voluntaryLeave": "Baja Voluntaria",

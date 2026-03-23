@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import i18n from '@/i18n/i18n';
+
 // === Enums de baja de socio ===
 
 /** Tipos de baja disponibles. */
@@ -63,7 +65,7 @@ export const leaveSummarySchema = z.object({
 /** Datos requeridos para procesar baja voluntaria. */
 export const voluntaryLeaveRequestSchema = z.object({
   effectiveDateType: effectiveDateConfigSchema,
-  reason: z.string().min(3, 'Motivo es obligatorio (mínimo 3 caracteres)').max(500),
+  reason: z.string().min(3, i18n.t('membership:leave.validation.reasonRequired')).max(500),
 });
 
 // === Schema de respuesta de baja ===
@@ -100,7 +102,9 @@ export const reinstatementSummarySchema = z.object({
 
 /** Peticion de rehabilitacion: requiere confirmacion de pago. */
 export const reinstatementRequestSchema = z.object({
-  paymentConfirmed: z.boolean().refine((val) => val === true, 'Debe confirmar el pago'),
+  paymentConfirmed: z
+    .boolean()
+    .refine((val) => val === true, i18n.t('membership:leave.validation.paymentConfirmRequired')),
 });
 
 /** Respuesta tras rehabilitacion exitosa. */

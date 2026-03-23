@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import i18n from '@/i18n/i18n';
+
 // === Enums ===
 
 export const frequencySchema = z.enum(['MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANNUAL', 'CUSTOM']);
@@ -94,7 +96,7 @@ export const createFeePlanInputSchema = createFeePlanInputBaseSchema
       return true;
     },
     {
-      message: 'La periodicidad es obligatoria para planes periodicos',
+      message: i18n.t('treasury:feePlans.validation.frequencyRequired'),
       path: ['frequency'],
     },
   )
@@ -107,7 +109,7 @@ export const createFeePlanInputSchema = createFeePlanInputBaseSchema
       return true;
     },
     {
-      message: 'Seleccione al menos un mes de facturacion para planes periodicos',
+      message: i18n.t('treasury:feePlans.validation.billingMonthsRequired'),
       path: ['billingMonths'],
     },
   );
@@ -126,14 +128,17 @@ export const feePlanFormSchema = z
   .object({
     code: z
       .string()
-      .min(1, 'El código es obligatorio')
-      .min(2, 'Mínimo 2 caracteres')
-      .max(20, 'Máximo 20 caracteres')
-      .regex(/^[a-zA-Z0-9_-]+$/, 'Solo caracteres alfanuméricos, guiones y guiones bajos'),
-    name: z.string().min(1, 'El nombre es obligatorio').max(100, 'Máximo 100 caracteres'),
-    description: z.string().max(500, 'Máximo 500 caracteres'),
+      .min(1, i18n.t('treasury:feePlans.validation.codeRequired'))
+      .min(2, i18n.t('treasury:feePlans.validation.codeMinLength'))
+      .max(20, i18n.t('treasury:feePlans.validation.codeMaxLength'))
+      .regex(/^[a-zA-Z0-9_-]+$/, i18n.t('treasury:feePlans.validation.codeFormat')),
+    name: z
+      .string()
+      .min(1, i18n.t('treasury:feePlans.validation.nameRequired'))
+      .max(100, i18n.t('treasury:feePlans.validation.nameMaxLength')),
+    description: z.string().max(500, i18n.t('treasury:feePlans.validation.descriptionMaxLength')),
     type: planTypeSchema,
-    amountEuros: z.number().min(0.01, 'El importe mínimo es 0,01 €'),
+    amountEuros: z.number().min(0.01, i18n.t('treasury:feePlans.validation.amountMin')),
     frequency: z.union([frequencySchema, z.literal('')]),
     billingMonths: z.array(z.number().int().min(1).max(12)),
   })
@@ -145,7 +150,7 @@ export const feePlanFormSchema = z
       return true;
     },
     {
-      message: 'Seleccione al menos un mes de facturación',
+      message: i18n.t('treasury:feePlans.validation.billingMonthsFormRequired'),
       path: ['billingMonths'],
     },
   );
