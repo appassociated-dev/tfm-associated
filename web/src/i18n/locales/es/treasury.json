@@ -1,0 +1,328 @@
+{
+  "frequency": {
+    "monthly": "Mensual",
+    "quarterly": "Trimestral",
+    "biannual": "Semestral",
+    "annual": "Anual",
+    "custom": "Personalizada"
+  },
+  "months": {
+    "jan": "Ene",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Abr",
+    "may": "May",
+    "jun": "Jun",
+    "jul": "Jul",
+    "aug": "Ago",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dic"
+  },
+  "planType": {
+    "recurring": "Periódico",
+    "oneTime": "Única"
+  },
+  "collectivityType": {
+    "pena": "Peña",
+    "cofradia": "Cofradía",
+    "clubDeportivo": "Club Deportivo",
+    "asociacionCultural": "Asociación Cultural"
+  },
+  "feePlans": {
+    "title": "Planes de Cuota",
+    "importTemplate": "Importar Plantilla",
+    "newPlan": "Nuevo Plan",
+    "showInactive": "Mostrar inactivos",
+    "emptyState": "No hay planes de cuota configurados",
+    "createFirstPlan": "Crear primer plan",
+    "errorLoading": {
+      "title": "Error al cargar planes",
+      "message": "No se pudieron cargar los planes de cuota.",
+      "retry": "Reintentar"
+    },
+    "table": {
+      "code": "Código",
+      "name": "Nombre",
+      "type": "Tipo",
+      "amount": "Importe",
+      "frequency": "Periodicidad",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "menu": {
+      "actions": "Acciones",
+      "edit": "Editar",
+      "viewLinks": "Ver vinculaciones",
+      "activate": "Activar",
+      "deactivate": "Inactivar"
+    },
+    "form": {
+      "code": "Código",
+      "codePlaceholder": "Ej: CUOTA-ANUAL",
+      "codeReadonly": "El código no se puede modificar",
+      "name": "Nombre",
+      "namePlaceholder": "Ej: Cuota anual de socio",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Descripción opcional del plan",
+      "planType": "Tipo de plan",
+      "typeRecurring": "Periódico",
+      "typeOneTime": "Cuota Única",
+      "amount": "Importe",
+      "amountPlaceholder": "0,00",
+      "frequency": "Periodicidad",
+      "billingMonths": "Meses de facturación",
+      "chargesPerYear": "Se generarán {{count}} cargo/s al año",
+      "save": "Guardar"
+    },
+    "createModal": {
+      "title": "Nuevo Plan de Cuota"
+    },
+    "editModal": {
+      "title": "Editar Plan de Cuota"
+    },
+    "deactivateModal": {
+      "title": "Inactivar Plan",
+      "noPlanSelected": "No se ha seleccionado ningún plan.",
+      "activeSubscriptions": "Este plan tiene {{count}} suscripciones activas. No puede eliminarse, pero sí marcarse como inactivo.",
+      "confirmMessage": "¿Está seguro de que desea inactivar el plan '{{name}}'?",
+      "infoNote": "El plan dejará de aparecer en los selectores de alta pero las suscripciones existentes no se verán afectadas.",
+      "cancel": "Cancelar",
+      "confirm": "Marcar como Inactivo"
+    },
+    "linkModal": {
+      "title": "Vincular a Tipos de Socio",
+      "planLabel": "Plan:",
+      "defaultWarning": "El tipo '{{name}}' ya tiene otro plan como default. Se reemplazará.",
+      "table": {
+        "code": "Código",
+        "name": "Nombre",
+        "isDefault": "Es Default",
+        "order": "Orden"
+      },
+      "selectAriaLabel": "Seleccionar {{name}}",
+      "defaultAriaLabel": "Marcar {{name}} como default",
+      "orderAriaLabel": "Orden de {{name}}",
+      "noMemberTypes": "No hay tipos de socio activos disponibles.",
+      "cancel": "Cancelar",
+      "save": "Guardar vinculaciones"
+    },
+    "importModal": {
+      "title": "Importar Plantilla de Planes",
+      "collectivityType": "Tipo de colectividad",
+      "collectivityPlaceholder": "Seleccione un tipo",
+      "existingPlansWarning": "Ya hay planes configurados. Los nuevos se añadirán a los existentes.",
+      "table": {
+        "name": "Nombre del plan",
+        "type": "Tipo",
+        "amount": "Importe",
+        "frequency": "Periodicidad"
+      },
+      "templateCount": "Se crearán {{count}} planes de cuota con la configuración estándar para {{collectivity}}.",
+      "loadingTemplates": "Cargando plantillas…",
+      "noTemplates": "No hay plantillas disponibles para este tipo de colectividad.",
+      "cancel": "Cancelar",
+      "import": "Importar"
+    },
+    "notifications": {
+      "createSuccess": {
+        "title": "Plan creado",
+        "message": "El plan de cuota se ha creado correctamente"
+      },
+      "createErrorDuplicate": {
+        "title": "Código duplicado",
+        "message": "Ya existe un plan con ese código. Pruebe con otro."
+      },
+      "createError": {
+        "title": "Error al crear plan",
+        "messageFallback": "Ocurrió un error inesperado. Intente de nuevo."
+      },
+      "updateSuccess": {
+        "title": "Plan actualizado",
+        "message": "El plan de cuota se ha actualizado correctamente"
+      },
+      "activateSuccess": {
+        "title": "Plan activado",
+        "message": "El plan de cuota se ha activado correctamente"
+      },
+      "deactivateSuccess": {
+        "title": "Plan inactivado",
+        "message": "El plan de cuota se ha inactivado correctamente"
+      },
+      "deactivateError": {
+        "title": "No se puede inactivar",
+        "message": "No se puede inactivar: el plan tiene suscripciones activas"
+      },
+      "linkSuccess": {
+        "title": "Vinculaciones actualizadas",
+        "message": "Las vinculaciones de tipos de socio se han actualizado correctamente"
+      },
+      "linkError": {
+        "title": "Error al guardar vinculaciones",
+        "messageFallback": "Ocurrió un error al guardar las vinculaciones."
+      },
+      "importSuccess": {
+        "title": "Plantilla importada",
+        "message": "Plantilla importada: {{count}} planes creados"
+      }
+    }
+  },
+  "cancelReason": {
+    "planChange": "Cambio de plan",
+    "memberLeave": "Baja de socio",
+    "exemption": "Exención",
+    "oneTimeCompleted": "Cuota única completada"
+  },
+  "subscriptions": {
+    "title": "Suscripciones",
+    "breadcrumbs": {
+      "treasury": "Tesoreria",
+      "memberAccounts": "Cuentas de Socio"
+    },
+    "activeSubscription": "Suscripción Activa",
+    "history": "Histórico de Suscripciones",
+    "create": "Crear Suscripción",
+    "noActive": "Sin suscripción activa",
+    "baseAmount": "Importe base",
+    "effectiveAmount": "Importe efectivo",
+    "typeDiscountWithPercent": "Descuento tipo ({{percent}}%)",
+    "personalDiscountWithPercent": "Descuento personal ({{percent}}%)",
+    "subtotal": "Subtotal",
+    "discountReason": "Motivo descuento:",
+    "registrationDate": "Fecha de alta",
+    "chargesCollected": "Cargos generados / cobrados",
+    "chargesGenerated": "Cargos generados",
+    "totalCollected": "Total cobrado",
+    "active": "Activa",
+    "error": {
+      "loadTitle": "Error al cargar suscripciones",
+      "loadText": "No se pudieron cargar las suscripciones del socio.",
+      "retry": "Reintentar"
+    },
+    "changePlan": "Cambiar Plan",
+    "updateDiscount": "Modificar Descuento",
+    "temporaryExemption": "Exención Temporal",
+    "selector": {
+      "customDiscount": "Descuento personalizado",
+      "discountPercent": "Porcentaje de descuento",
+      "discountReason": "Motivo del descuento",
+      "discountReasonPlaceholder": "Indique el motivo del descuento personalizado (mínimo 3 caracteres)",
+      "minChars": "Mínimo 3 caracteres",
+      "discountExceeded": "Descuento excedido",
+      "discountExceededText": "El descuento combinado no puede alcanzar o superar el 100%.",
+      "confirmSelection": "Confirmar selección",
+      "noPlans": "Sin planes disponibles",
+      "noPlansText": "No hay planes de cuota activos configurados. Contacte al administrador.",
+      "loadError": "Error al cargar planes",
+      "loadErrorText": "No se pudieron cargar los planes de cuota.",
+      "retry": "Reintentar",
+      "selected": "Seleccionado",
+      "base": "Base:",
+      "withTypeDiscount": "Con dto. tipo ({{percent}}%):",
+      "discountTotal": "Descuento total"
+    },
+    "changePlanModal": {
+      "title": "Cambiar Plan",
+      "currentPlan": "Plan actual",
+      "newPlan": "Nuevo plan",
+      "selectPlan": "Selecciona un plan",
+      "baseAmountLabel": "Importe base:",
+      "effectiveAmountLabel": "Importe efectivo:",
+      "typeDiscountInfo": "Dto. tipo: {{percent}}%",
+      "personalDiscountInfo": "Dto. personal: {{percent}}%",
+      "typeDiscountWithPercent": "Dto. tipo ({{percent}}%)",
+      "personalDiscountWithPercent": "Dto. personal ({{percent}}%)",
+      "newEffectiveAmount": "Nuevo importe efectivo",
+      "effectiveAmount": "Importe efectivo",
+      "baseAmount": "Importe base",
+      "effectiveDateLabel": "Fecha efectiva del cambio",
+      "immediate": "Inmediato (proximo cargo)",
+      "nextMonth": "Inicio proximo mes",
+      "nextFiscalYear": "Inicio proximo ejercicio",
+      "infoTitle": "Informacion",
+      "infoText": "Los cargos futuros del plan actual se cancelaran",
+      "keepPendingCharges": "Mantener cargos pendientes (la deuda se arrastra al nuevo plan)",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar Cambio"
+    },
+    "exemptionModal": {
+      "title": "Exencion Temporal",
+      "typeLabel": "Tipo de exencion",
+      "totalOption": "Exencion total (sin suscripcion)",
+      "traceabilityOption": "Exencion con trazabilidad",
+      "totalDescription": "Se cerrara la suscripcion con motivo EXEMPTION. No se generaran cargos mientras la suscripcion permanezca cerrada.",
+      "traceabilityDescription": "La exencion con trazabilidad (descuento 100%) no esta disponible en esta version. El descuento maximo permitido es 99%.",
+      "reasonLabel": "Motivo de la exencion",
+      "reasonPlaceholder": "Indique el motivo de la exencion temporal",
+      "minChars": "Minimo 3 caracteres",
+      "approvedByLabel": "Aprobado por",
+      "approvedByPlaceholder": "Ej: \"Junta Directiva 15/03/2026\"",
+      "infoTitle": "Informacion",
+      "infoText": "No se generaran cargos durante el periodo de exencion",
+      "cancel": "Cancelar",
+      "apply": "Aplicar Exencion"
+    },
+    "updateDiscountModal": {
+      "title": "Modificar Descuento",
+      "currentDiscount": "Descuento actual",
+      "newDiscountLabel": "Nuevo descuento personalizado (%)",
+      "newDiscountDescription": "Valor entre 0 y 99%",
+      "discountExceededError": "El descuento combinado no puede alcanzar el 100%",
+      "typeDiscountWithPercent": "Dto. tipo ({{percent}}%)",
+      "personalDiscountWithPercent": "Dto. personal ({{percent}}%)",
+      "reasonLabel": "Motivo del cambio",
+      "reasonPlaceholder": "Indique el motivo del cambio de descuento",
+      "minChars": "Minimo 3 caracteres",
+      "approvedByLabel": "Aprobado por",
+      "approvedByPlaceholder": "Ej: \"Junta Directiva 15/03/2026\"",
+      "newEffectivePreview": "Nuevo importe efectivo (preview)",
+      "baseAmount": "Importe base",
+      "currentEffectiveAmount": "Importe efectivo actual",
+      "newEffectiveAmount": "Nuevo importe efectivo",
+      "discountTotal": "Descuento total:",
+      "infoTitle": "Informacion",
+      "infoText": "Los cargos ya generados mantienen su importe original. Solo los cargos futuros usaran el nuevo descuento.",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "notifications": {
+      "createSuccess": {
+        "title": "Suscripción creada",
+        "message": "La suscripción se ha creado correctamente"
+      },
+      "createDuplicate": {
+        "title": "Suscripción duplicada",
+        "message": "Ya existe una suscripción periódica activa. Ciérrela primero o cambie de plan."
+      },
+      "closeSuccess": {
+        "title": "Suscripción cerrada",
+        "message": "La suscripción se ha cerrado correctamente"
+      },
+      "closeError": {
+        "title": "Error",
+        "message": "No se pudo cerrar la suscripción"
+      },
+      "discountSuccess": {
+        "title": "Descuento actualizado",
+        "message": "El descuento se ha actualizado correctamente"
+      },
+      "discountError": {
+        "title": "Error",
+        "message": "No se pudo actualizar el descuento"
+      },
+      "changePlanSuccess": {
+        "title": "Plan cambiado",
+        "message": "Plan cambiado correctamente"
+      },
+      "changePlanError": {
+        "title": "Cambio no permitido",
+        "message": "No se puede cambiar: hay cargos pendientes sin confirmar"
+      }
+    }
+  }
+}

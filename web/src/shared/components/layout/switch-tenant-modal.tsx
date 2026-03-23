@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { Center, Loader, Modal, Stack, Text } from '@mantine/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/context/use-auth';
@@ -19,6 +20,7 @@ export interface SwitchTenantModalProps {
  * Carga la lista de tenants del usuario y reutiliza TenantSelector.
  */
 export function SwitchTenantModal({ opened, onClose }: SwitchTenantModalProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { switchTenant, tenant: currentTenant } = useAuth();
@@ -53,7 +55,7 @@ export function SwitchTenantModal({ opened, onClose }: SwitchTenantModalProps) {
   }
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Cambiar de colectividad" size="md">
+    <Modal opened={opened} onClose={onClose} title={t('tenant.switchTitle')} size="md">
       {isLoading && (
         <Center py="xl">
           <Loader color="brand" size="md" />
@@ -63,10 +65,10 @@ export function SwitchTenantModal({ opened, onClose }: SwitchTenantModalProps) {
       {error && (
         <Stack align="center" py="xl" gap="sm">
           <Text c="red" size="sm">
-            No se pudieron cargar las colectividades.
+            {t('tenant.loadError')}
           </Text>
           <Text c="dimmed" size="xs">
-            Intente nuevamente más tarde.
+            {t('tenant.loadErrorDetail')}
           </Text>
         </Stack>
       )}
@@ -77,7 +79,7 @@ export function SwitchTenantModal({ opened, onClose }: SwitchTenantModalProps) {
 
       {tenants && tenants.length === 0 && (
         <Text c="dimmed" size="sm" ta="center" py="xl">
-          No pertenece a ninguna otra colectividad.
+          {t('tenant.emptyState')}
         </Text>
       )}
     </Modal>

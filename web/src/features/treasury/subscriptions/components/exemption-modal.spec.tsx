@@ -283,7 +283,7 @@ describe('ExemptionModal', () => {
       await waitFor(() => {
         expect(mockNotificationsShow).toHaveBeenCalledWith(
           expect.objectContaining({
-            title: 'Suscripcion cerrada',
+            title: 'Suscripción cerrada',
             color: 'green',
           }),
         );

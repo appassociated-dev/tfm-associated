@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import {
   ActionIcon,
   AppShell,
@@ -30,8 +31,15 @@ import classes from './app-shell.module.css';
 
 // === Tipos ===
 
+/**
+ * Claves de traduccion validas para el namespace common (navegacion).
+ * Deben coincidir con las claves definidas en common.json.
+ */
+type NavLabelKey = 'nav.dashboard' | 'nav.newMember' | 'nav.feePlans';
+type NavSectionKey = 'nav.sections.membership' | 'nav.sections.treasury';
+
 interface NavItem {
-  label: string;
+  labelKey: NavLabelKey;
   path: string;
   /** Permiso requerido. null = siempre visible. */
   permission: string | null;
@@ -40,8 +48,8 @@ interface NavItem {
 }
 
 interface NavSection {
-  /** Titulo de la seccion (se muestra como encabezado). null = sin encabezado (ej. Dashboard). */
-  title: string | null;
+  /** Clave i18n de la seccion (se muestra como encabezado). null = sin encabezado (ej. Dashboard). */
+  titleKey: NavSectionKey | null;
   items: NavItem[];
 }
 
@@ -60,14 +68,16 @@ const NAVBAR_COLLAPSED_WIDTH = 70;
  */
 const NAV_SECTIONS: NavSection[] = [
   {
-    title: null,
-    items: [{ label: 'Dashboard', path: '/dashboard', permission: null, icon: IconDashboard }],
+    titleKey: null,
+    items: [
+      { labelKey: 'nav.dashboard', path: '/dashboard', permission: null, icon: IconDashboard },
+    ],
   },
   {
-    title: 'Membresia',
+    titleKey: 'nav.sections.membership',
     items: [
       {
-        label: 'Nuevo Socio',
+        labelKey: 'nav.newMember',
         path: '/members/new',
         permission: 'membership:members:create',
         icon: IconUserPlus,
@@ -75,10 +85,10 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: 'Tesoreria',
+    titleKey: 'nav.sections.treasury',
     items: [
       {
-        label: 'Planes de Cuota',
+        labelKey: 'nav.feePlans',
         path: '/treasury/fee-plans',
         permission: 'treasury:fee-plans:read',
         icon: IconReceipt,
@@ -94,6 +104,7 @@ const NAV_SECTIONS: NavSection[] = [
  * Usa Mantine AppShell con header, sidebar colapsable y contenido principal.
  */
 export function AppLayout() {
+  const { t } = useTranslation();
   const theme = useMantineTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -168,11 +179,11 @@ export function AppLayout() {
             >
               {desktopCollapsed ? (
                 /* Sidebar colapsado: isotipo con hover → toggle icon */
-                <Tooltip label="Abrir menu" position="right" withArrow>
+                <Tooltip label={t('menu.openMenu')} position="right" withArrow>
                   <UnstyledButton
                     onClick={toggleDesktop}
                     className={classes.isotipoToggle}
-                    aria-label="Expandir menu de navegacion"
+                    aria-label={t('menu.expandNavigation')}
                   >
                     <img
                       src={currentIsotipo}
@@ -196,12 +207,12 @@ export function AppLayout() {
                     height={28}
                     className={classes.headerLogo}
                   />
-                  <Tooltip label="Colapsar menu" position="bottom" withArrow>
+                  <Tooltip label={t('menu.collapseMenu')} position="bottom" withArrow>
                     <ActionIcon
                       variant="subtle"
                       onClick={toggleDesktop}
                       className={classes.headerToggle}
-                      aria-label="Colapsar menu de navegacion"
+                      aria-label={t('menu.collapseNavigation')}
                       size="sm"
                     >
                       <IconLayoutSidebar size={18} stroke={1.5} />
@@ -217,7 +228,7 @@ export function AppLayout() {
                 opened={mobileOpened}
                 onClick={toggleMobile}
                 size="sm"
-                aria-label="Abrir menu de navegacion"
+                aria-label={t('menu.openNavigation')}
               />
               <img src={currentLogo} alt="Associated" height={28} className={classes.headerLogo} />
             </Group>
@@ -245,7 +256,7 @@ export function AppLayout() {
                         {getUserInitials(user?.name)}
                       </Box>
                       <Text size="sm" visibleFrom="sm">
-                        {user?.name ?? 'Usuario'}
+                        {user?.name ?? t('menu.userFallback')}
                       </Text>
                     </Group>
                   </UnstyledButton>
@@ -283,11 +294,11 @@ export function AppLayout() {
                   <Divider />
 
                   <Menu.Item onClick={() => setSwitchTenantOpened(true)}>
-                    Cambiar colectividad
+                    {t('menu.switchTenant')}
                   </Menu.Item>
 
                   <Menu.Item color="red" onClick={handleLogout}>
-                    Cerrar sesion
+                    {t('menu.logout')}
                   </Menu.Item>
                 </Menu.Dropdown>
               </Menu>
@@ -300,18 +311,18 @@ export function AppLayout() {
           {/* Links de navegacion agrupados por seccion */}
           <Box style={{ flex: 1 }}>
             {visibleSections.map((section, sectionIndex) => (
-              <Box key={section.title ?? `section-${sectionIndex}`}>
-                {section.title && !desktopCollapsed && (
-                  <Text className={classes.sectionHeader}>{section.title}</Text>
+              <Box key={section.titleKey ?? `section-${sectionIndex}`}>
+                {section.titleKey && !desktopCollapsed && (
+                  <Text className={classes.sectionHeader}>{t(section.titleKey)}</Text>
                 )}
-                {section.title && desktopCollapsed && (
+                {section.titleKey && desktopCollapsed && (
                   <Divider className={classes.sectionDivider} />
                 )}
                 {section.items.map((item) => {
                   const isActive = location.pathname.startsWith(item.path);
                   const navLink = (
                     <NavLink
-                      label={desktopCollapsed ? undefined : item.label}
+                      label={desktopCollapsed ? undefined : t(item.labelKey)}
                       leftSection={item.icon ? <item.icon size={20} stroke={1.5} /> : undefined}
                       active={isActive}
                       onClick={() => handleNavigate(item.path)}
@@ -326,7 +337,7 @@ export function AppLayout() {
                     return (
                       <Tooltip
                         key={item.path}
-                        label={item.label}
+                        label={t(item.labelKey)}
                         position="right"
                         withArrow
                         transitionProps={{ duration: 0 }}

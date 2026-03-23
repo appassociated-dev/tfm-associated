@@ -78,7 +78,7 @@ describe('useCloseSubscription', () => {
     // Assert
     expect(mockNotificationsShow).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: 'Suscripcion cerrada',
+        title: 'Suscripción cerrada',
         color: 'green',
       }),
     );

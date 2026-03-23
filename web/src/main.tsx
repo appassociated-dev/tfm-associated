@@ -1,3 +1,5 @@
+import '@/i18n/i18n'; // Inicializar i18next antes de cualquier componente React
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import dayjs from 'dayjs';

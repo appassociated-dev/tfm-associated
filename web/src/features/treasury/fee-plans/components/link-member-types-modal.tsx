@@ -13,6 +13,8 @@ import {
   Table,
   Text,
 } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
+
 import { useMemberTypes } from '../hooks/use-member-types';
 import { useLinkMemberTypes } from '../hooks/use-link-member-types';
 import type {
@@ -54,6 +56,7 @@ export function LinkMemberTypesModal({
   planName,
   currentLinks = [],
 }: LinkMemberTypesModalProps) {
+  const { t } = useTranslation('treasury');
   const { data: memberTypes, isLoading: loadingTypes } = useMemberTypes();
   const linkMutation = useLinkMemberTypes();
 
@@ -156,12 +159,18 @@ export function LinkMemberTypesModal({
     onClose();
   }
 
+  /** Estilo reutilizable para cabeceras de tabla. */
+  const headerStyle = {
+    textTransform: 'uppercase' as const,
+    fontSize: 'var(--mantine-font-size-xs)',
+  };
+
   return (
-    <Modal opened={opened} onClose={onClose} title="Vincular a Tipos de Socio" size="lg">
+    <Modal opened={opened} onClose={onClose} title={t('feePlans.linkModal.title')} size="lg">
       <Stack gap="md">
         {/* Subtítulo con nombre del plan */}
         <Text size="sm" c="dimmed">
-          Plan:{' '}
+          {t('feePlans.linkModal.planLabel')}{' '}
           <Text span fw={600}>
             {planName}
           </Text>
@@ -177,8 +186,7 @@ export function LinkMemberTypesModal({
         {/* Advertencia de cambio de default */}
         {defaultWarningName && (
           <Alert color="yellow">
-            El tipo &lsquo;{defaultWarningName}&rsquo; ya tiene otro plan como default. Se
-            reemplazará.
+            {t('feePlans.linkModal.defaultWarning', { name: defaultWarningName })}
           </Alert>
         )}
 
@@ -188,33 +196,17 @@ export function LinkMemberTypesModal({
             <Table.Thead>
               <Table.Tr>
                 <Table.Th style={{ width: 40 }} />
-                <Table.Th
-                  style={{ textTransform: 'uppercase', fontSize: 'var(--mantine-font-size-xs)' }}
-                  fw={600}
-                  c="dimmed"
-                >
-                  Código
+                <Table.Th style={headerStyle} fw={600} c="dimmed">
+                  {t('feePlans.linkModal.table.code')}
                 </Table.Th>
-                <Table.Th
-                  style={{ textTransform: 'uppercase', fontSize: 'var(--mantine-font-size-xs)' }}
-                  fw={600}
-                  c="dimmed"
-                >
-                  Nombre
+                <Table.Th style={headerStyle} fw={600} c="dimmed">
+                  {t('feePlans.linkModal.table.name')}
                 </Table.Th>
-                <Table.Th
-                  style={{ textTransform: 'uppercase', fontSize: 'var(--mantine-font-size-xs)' }}
-                  fw={600}
-                  c="dimmed"
-                >
-                  Es Default
+                <Table.Th style={headerStyle} fw={600} c="dimmed">
+                  {t('feePlans.linkModal.table.isDefault')}
                 </Table.Th>
-                <Table.Th
-                  style={{ textTransform: 'uppercase', fontSize: 'var(--mantine-font-size-xs)' }}
-                  fw={600}
-                  c="dimmed"
-                >
-                  Orden
+                <Table.Th style={headerStyle} fw={600} c="dimmed">
+                  {t('feePlans.linkModal.table.order')}
                 </Table.Th>
               </Table.Tr>
             </Table.Thead>
@@ -229,7 +221,7 @@ export function LinkMemberTypesModal({
                       <Checkbox
                         checked={row.selected}
                         onChange={() => toggleSelected(mt.id)}
-                        aria-label={`Seleccionar ${mt.name}`}
+                        aria-label={t('feePlans.linkModal.selectAriaLabel', { name: mt.name })}
                       />
                     </Table.Td>
                     <Table.Td>{mt.code}</Table.Td>
@@ -239,7 +231,7 @@ export function LinkMemberTypesModal({
                         checked={row.isDefault}
                         onChange={() => setDefault(mt.id)}
                         disabled={!row.selected}
-                        aria-label={`Marcar ${mt.name} como default`}
+                        aria-label={t('feePlans.linkModal.defaultAriaLabel', { name: mt.name })}
                       />
                     </Table.Td>
                     <Table.Td>
@@ -250,7 +242,7 @@ export function LinkMemberTypesModal({
                         disabled={!row.selected}
                         size="xs"
                         w={80}
-                        aria-label={`Orden de ${mt.name}`}
+                        aria-label={t('feePlans.linkModal.orderAriaLabel', { name: mt.name })}
                       />
                     </Table.Td>
                   </Table.Tr>
@@ -263,14 +255,14 @@ export function LinkMemberTypesModal({
         {/* Sin tipos disponibles */}
         {memberTypes && memberTypes.length === 0 && (
           <Text c="dimmed" size="sm" ta="center" py="md">
-            No hay tipos de socio activos disponibles.
+            {t('feePlans.linkModal.noMemberTypes')}
           </Text>
         )}
 
         {/* Botones de acción */}
         <Group justify="flex-end" gap="sm">
           <Button variant="default" onClick={onClose}>
-            Cancelar
+            {t('feePlans.linkModal.cancel')}
           </Button>
           <Button
             color="brand"
@@ -278,7 +270,7 @@ export function LinkMemberTypesModal({
             disabled={selectedIds.length === 0}
             onClick={handleSave}
           >
-            Guardar vinculaciones
+            {t('feePlans.linkModal.save')}
           </Button>
         </Group>
       </Stack>

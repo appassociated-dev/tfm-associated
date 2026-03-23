@@ -79,7 +79,7 @@ describe('useCreateSubscription', () => {
     // Assert
     expect(mockNotificationsShow).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: 'Suscripcion creada',
+        title: 'Suscripción creada',
         color: 'green',
       }),
     );
@@ -134,7 +134,7 @@ describe('useCreateSubscription', () => {
     await waitFor(() => {
       expect(mockNotificationsShow).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Suscripcion duplicada',
+          title: 'Suscripción duplicada',
           color: 'red',
         }),
       );

@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Grid, Group, Loader, Stack, Text, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
@@ -33,6 +34,7 @@ function getToday(): Date {
  * (formato client-side + unicidad API debounced).
  */
 export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataStepProps) {
+  const { t } = useTranslation('membership');
   const { register, control, watch, trigger, formState } = useForm<PersonalDataFormValues>({
     resolver: zodResolver(personalDataFormSchema),
     mode: 'onBlur',
@@ -194,15 +196,19 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
     <Stack gap="md">
       {/* Alerta de DNI duplicado */}
       {dniCheck?.exists && (
-        <Alert color="red" title="DNI duplicado">
-          Ya existe socio con DNI {currentDni} ({dniCheck.memberName}, #{dniCheck.memberNumber})
+        <Alert color="red" title={t('registration.personalDataStep.dniDuplicateTitle')}>
+          {t('registration.personalDataStep.dniDuplicateText', {
+            dni: currentDni,
+            name: dniCheck.memberName,
+            number: dniCheck.memberNumber,
+          })}
         </Alert>
       )}
 
       {/* DNI/NIE */}
       <TextInput
-        label="DNI/NIE"
-        placeholder="12345678Z o X1234567L"
+        label={t('registration.personalDataStep.dniLabel')}
+        placeholder={t('registration.personalDataStep.dniPlaceholder')}
         required
         rightSection={dniRightSection}
         {...register('dni', {
@@ -215,8 +221,8 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       <Grid>
         <Grid.Col span={6}>
           <TextInput
-            label="Nombre"
-            placeholder="Nombre del aspirante"
+            label={t('registration.personalDataStep.firstNameLabel')}
+            placeholder={t('registration.personalDataStep.firstNamePlaceholder')}
             required
             {...register('firstName')}
             error={errors.firstName?.message}
@@ -224,8 +230,8 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
         </Grid.Col>
         <Grid.Col span={6}>
           <TextInput
-            label="Apellidos"
-            placeholder="Apellidos del aspirante"
+            label={t('registration.personalDataStep.lastNameLabel')}
+            placeholder={t('registration.personalDataStep.lastNamePlaceholder')}
             required
             {...register('lastName')}
             error={errors.lastName?.message}
@@ -240,8 +246,8 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
           control={control}
           render={({ field, fieldState }) => (
             <DateInput
-              label="Fecha de nacimiento"
-              placeholder="dd/mm/aaaa"
+              label={t('registration.personalDataStep.birthDateLabel')}
+              placeholder={t('registration.personalDataStep.birthDatePlaceholder')}
               required
               valueFormat="DD/MM/YYYY"
               locale="es"
@@ -257,7 +263,11 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
         />
         {computedAge !== null && (
           <Text size="sm" c="dimmed" pb={8}>
-            ({computedAge} {computedAge === 1 ? 'año' : 'años'})
+            ({computedAge}{' '}
+            {computedAge === 1
+              ? t('registration.personalDataStep.ageYearSingular')
+              : t('registration.personalDataStep.ageYearPlural')}
+            )
           </Text>
         )}
       </Group>
@@ -265,8 +275,8 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       {/* Email — Issue P2-8: consulta de unicidad */}
       <TextInput
         type="email"
-        label="Email"
-        placeholder="correo@ejemplo.com"
+        label={t('registration.personalDataStep.emailLabel')}
+        placeholder={t('registration.personalDataStep.emailPlaceholder')}
         required
         rightSection={emailRightSection}
         {...register('email')}
@@ -274,23 +284,22 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       />
       {emailCheck?.exists && (
         <Alert color="yellow" variant="light">
-          Este email ya esta registrado en otro socio. El alta continuara, pero se recomienda
-          verificar que no se trata de un duplicado.
+          {t('registration.personalDataStep.emailDuplicateWarning')}
         </Alert>
       )}
 
       {/* Telefono */}
       <TextInput
-        label="Telefono"
-        placeholder="Opcional"
+        label={t('registration.personalDataStep.phoneLabel')}
+        placeholder={t('registration.personalDataStep.optionalPlaceholder')}
         {...register('phone')}
         error={errors.phone?.message}
       />
 
       {/* Direccion */}
       <TextInput
-        label="Direccion"
-        placeholder="Opcional"
+        label={t('registration.personalDataStep.addressLabel')}
+        placeholder={t('registration.personalDataStep.optionalPlaceholder')}
         {...register('address')}
         error={errors.address?.message}
       />
@@ -299,16 +308,16 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       <Grid>
         <Grid.Col span={4}>
           <TextInput
-            label="Codigo postal"
-            placeholder="28001"
+            label={t('registration.personalDataStep.postalCodeLabel')}
+            placeholder={t('registration.personalDataStep.postalCodePlaceholder')}
             {...register('postalCode')}
             error={errors.postalCode?.message}
           />
         </Grid.Col>
         <Grid.Col span={8}>
           <TextInput
-            label="Ciudad"
-            placeholder="Opcional"
+            label={t('registration.personalDataStep.cityLabel')}
+            placeholder={t('registration.personalDataStep.optionalPlaceholder')}
             {...register('city')}
             error={errors.city?.message}
           />

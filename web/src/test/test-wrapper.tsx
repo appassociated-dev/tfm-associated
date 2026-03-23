@@ -10,7 +10,9 @@ import { type ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { I18nextProvider } from 'react-i18next';
 import { AuthContext, type AuthContextValue } from '@/features/auth/context/auth.provider';
+import i18n from '@/i18n/i18n';
 import { associatedTheme } from '@/shared/theme/associated-theme';
 import { vi } from 'vitest';
 
@@ -100,11 +102,13 @@ export function createTestWrapper(options: TestWrapperOptions = {}) {
 
     return (
       <MantineProvider theme={associatedTheme} defaultColorScheme="light">
-        <QueryClientProvider client={queryClient}>
-          <AuthContext.Provider value={authValue}>
-            <MemoryRouter initialEntries={[path]}>{routeContent}</MemoryRouter>
-          </AuthContext.Provider>
-        </QueryClientProvider>
+        <I18nextProvider i18n={i18n}>
+          <QueryClientProvider client={queryClient}>
+            <AuthContext.Provider value={authValue}>
+              <MemoryRouter initialEntries={[path]}>{routeContent}</MemoryRouter>
+            </AuthContext.Provider>
+          </QueryClientProvider>
+        </I18nextProvider>
       </MantineProvider>
     );
   }

@@ -1,0 +1,15 @@
+{
+  "boundary": {
+    "title": "Ha ocurrido un error inesperado",
+    "description": "Lo sentimos, algo ha salido mal. Por favor, intenta recargar la página.",
+    "reload": "Recargar página"
+  },
+  "routeError": {
+    "title": "Algo salió mal",
+    "backToDashboard": "Volver al dashboard"
+  },
+  "forbidden": "No tienes permisos para acceder a esta página.",
+  "loadError": "No se pudieron cargar los datos.",
+  "connectionError": "Verifique su conexión a internet.",
+  "retryLater": "Intente nuevamente más tarde."
+}

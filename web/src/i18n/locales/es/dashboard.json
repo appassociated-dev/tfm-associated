@@ -1,0 +1,11 @@
+{
+  "title": "Dashboard",
+  "collectivityFallback": "Colectividad",
+  "cards": {
+    "activeMembers": "Socios activos",
+    "pendingFees": "Cuotas pendientes",
+    "monthlyIncome": "Ingresos del mes",
+    "upcomingEvents": "Eventos próximos"
+  },
+  "comingSoon": "Próximamente"
+}

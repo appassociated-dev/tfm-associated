@@ -13,6 +13,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { ApiError } from '@/shared/api/api-error';
 import logoStacked from '@/shared/assets/logo-stacked.svg';
 import logoStackedWhite from '@/shared/assets/logo-stacked-white.svg';
@@ -30,6 +31,7 @@ import { TenantSelector } from '../components/tenant-selector';
  * 3. Si la respuesta requiere selección de tenant → muestra TenantSelector.
  */
 export function LoginPage() {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const auth = useAuth();
   const colorScheme = useComputedColorScheme('light');
@@ -81,8 +83,8 @@ export function LoginPage() {
     if (status === 401) {
       notifications.show({
         color: 'red',
-        title: 'Error',
-        message: 'Credenciales incorrectas',
+        title: t('login.notifications.errorTitle'),
+        message: t('login.errors.invalidCredentials'),
       });
       return;
     }
@@ -90,8 +92,8 @@ export function LoginPage() {
     if (status === 423) {
       notifications.show({
         color: 'yellow',
-        title: 'Cuenta bloqueada',
-        message: 'Cuenta bloqueada temporalmente. Reintente en unos minutos',
+        title: t('login.notifications.accountLockedTitle'),
+        message: t('login.errors.accountLocked'),
       });
       return;
     }
@@ -99,8 +101,8 @@ export function LoginPage() {
     // Error de red u otro error genérico
     notifications.show({
       color: 'red',
-      title: 'Error de conexión',
-      message: 'Verifique su conexión a internet',
+      title: t('login.notifications.connectionErrorTitle'),
+      message: t('login.errors.connectionError'),
     });
   }
 
@@ -134,28 +136,28 @@ export function LoginPage() {
           <Stack align="center" gap="lg">
             <img src={currentLogo} alt="Associated" width={140} />
 
-            <Title order={3}>Iniciar sesión</Title>
+            <Title order={3}>{t('login.title')}</Title>
 
             <Stack w="100%" gap="md">
               <TextInput
                 type="email"
-                label="Correo electrónico"
-                placeholder="tu@email.com"
+                label={t('login.email')}
+                placeholder={t('login.emailPlaceholder')}
                 autoComplete="email"
                 {...register('email')}
                 error={errors.email?.message}
               />
 
               <PasswordInput
-                label="Contraseña"
-                placeholder="Tu contraseña"
+                label={t('login.password')}
+                placeholder={t('login.passwordPlaceholder')}
                 autoComplete="current-password"
                 {...register('password')}
                 error={errors.password?.message}
               />
 
               <Button type="submit" color="brand" fullWidth loading={isSubmitting}>
-                Acceder
+                {t('login.submit')}
               </Button>
             </Stack>
           </Stack>

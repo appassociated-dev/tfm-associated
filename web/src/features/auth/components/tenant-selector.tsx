@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Badge, Card, Group, Loader, Stack, Text, Title } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 import type { TenantInfo } from '../schemas/auth.schemas';
 
 // === Constantes ===
@@ -23,6 +24,7 @@ export interface TenantSelectorProps {
  * a más de una colectividad. Permite elegir a cuál acceder.
  */
 export function TenantSelector({ tenants, onSelect }: TenantSelectorProps) {
+  const { t } = useTranslation('auth');
   const [selectingId, setSelectingId] = useState<string | null>(null);
   const lastTenantId = getLastTenantId();
 
@@ -46,8 +48,8 @@ export function TenantSelector({ tenants, onSelect }: TenantSelectorProps) {
   return (
     <Stack gap="md" w="100%">
       <Stack gap={4} align="center">
-        <Title order={3}>Selecciona una colectividad</Title>
-        <Text c="dimmed">Perteneces a varias colectividades. Elige a cuál quieres acceder.</Text>
+        <Title order={3}>{t('tenantSelector.title')}</Title>
+        <Text c="dimmed">{t('tenantSelector.description')}</Text>
       </Stack>
 
       <Stack gap="md">
@@ -71,7 +73,7 @@ export function TenantSelector({ tenants, onSelect }: TenantSelectorProps) {
                     <Text fw={600}>{tenant.name}</Text>
                     {isLastSession && (
                       <Badge size="xs" color="gray" variant="light">
-                        Última sesión
+                        {t('tenantSelector.lastSession')}
                       </Badge>
                     )}
                   </Group>

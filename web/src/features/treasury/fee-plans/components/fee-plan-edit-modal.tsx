@@ -1,4 +1,5 @@
 import { Modal } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 
 import type { CreateFeePlanInput, FeePlan } from '../schemas/fee-plan.schemas';
 import { useUpdateFeePlan } from '../hooks/use-update-fee-plan';
@@ -19,6 +20,7 @@ interface FeePlanEditModalProps {
  * Precarga el formulario con los datos del plan seleccionado.
  */
 export function FeePlanEditModal({ opened, onClose, plan }: FeePlanEditModalProps) {
+  const { t } = useTranslation('treasury');
   const updateMutation = useUpdateFeePlan();
 
   /** Envía los datos actualizados y cierra el modal en caso de éxito. */
@@ -34,7 +36,7 @@ export function FeePlanEditModal({ opened, onClose, plan }: FeePlanEditModalProp
   if (!plan) return null;
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Editar Plan de Cuota" size="lg">
+    <Modal opened={opened} onClose={onClose} title={t('feePlans.editModal.title')} size="lg">
       <FeePlanForm
         initialValues={{
           code: plan.code,

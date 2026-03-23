@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
+import i18n from '@/i18n/i18n';
 import { createFeePlan } from '../api/fee-plan.api';
 import { ApiError } from '@/shared/api/api-error';
 import type { CreateFeePlanInput } from '../schemas/fee-plan.schemas';
@@ -14,8 +15,8 @@ export function useCreateFeePlan() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fee-plans'] });
       notifications.show({
-        title: 'Plan creado',
-        message: 'El plan de cuota se ha creado correctamente',
+        title: i18n.t('treasury:feePlans.notifications.createSuccess.title'),
+        message: i18n.t('treasury:feePlans.notifications.createSuccess.message'),
         color: 'green',
         autoClose: 4000,
       });
@@ -25,15 +26,16 @@ export function useCreateFeePlan() {
       const backendMessage = error instanceof ApiError ? error.message : undefined;
       if (status === 409) {
         notifications.show({
-          title: 'Código duplicado',
-          message: 'Ya existe un plan con ese código. Pruebe con otro.',
+          title: i18n.t('treasury:feePlans.notifications.createErrorDuplicate.title'),
+          message: i18n.t('treasury:feePlans.notifications.createErrorDuplicate.message'),
           color: 'red',
           autoClose: 4000,
         });
       } else {
         notifications.show({
-          title: 'Error al crear plan',
-          message: backendMessage ?? 'Ocurrió un error inesperado. Intente de nuevo.',
+          title: i18n.t('treasury:feePlans.notifications.createError.title'),
+          message:
+            backendMessage ?? i18n.t('treasury:feePlans.notifications.createError.messageFallback'),
           color: 'red',
           autoClose: 4000,
         });

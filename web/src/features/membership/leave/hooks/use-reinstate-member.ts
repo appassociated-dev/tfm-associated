@@ -3,6 +3,7 @@ import { notifications } from '@mantine/notifications';
 
 import { reinstateMember } from '../api/member-leave.api';
 import type { ReinstatementRequest } from '../schemas/member-leave.schemas';
+import i18n from '@/i18n/i18n';
 
 /** Mutation para rehabilitar un ex-socio tras confirmacion de pago. */
 export function useReinstateMember() {
@@ -15,8 +16,8 @@ export function useReinstateMember() {
       queryClient.invalidateQueries({ queryKey: ['members'] });
       queryClient.invalidateQueries({ queryKey: ['status-history', variables.memberId] });
       notifications.show({
-        title: 'Rehabilitacion exitosa',
-        message: 'Socio rehabilitado correctamente',
+        title: i18n.t('membership:leave.notifications.reinstatement.successTitle'),
+        message: i18n.t('membership:leave.notifications.reinstatement.successText'),
         color: 'green',
       });
     },

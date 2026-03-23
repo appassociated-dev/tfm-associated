@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
+import i18n from '@/i18n/i18n';
 import { simpleRegistration } from '../api/registration.api';
 import { ApiError } from '@/shared/api/api-error';
 import type { SimpleRegistrationRequest } from '../schemas/member-registration.schemas';
@@ -14,8 +15,10 @@ export function useSimpleRegistration() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['members'] });
       notifications.show({
-        title: 'Socio dado de alta',
-        message: `Socio registrado correctamente. Número asignado: ${data.memberNumber}`,
+        title: i18n.t('membership:registration.notifications.successTitle'),
+        message: i18n.t('membership:registration.notifications.successMessage', {
+          memberNumber: data.memberNumber,
+        }),
         color: 'green',
       });
     },
@@ -25,14 +28,15 @@ export function useSimpleRegistration() {
 
       if (status === 409) {
         notifications.show({
-          title: 'DNI duplicado',
-          message: 'Ya existe un socio con ese DNI. Es una reactivacion?',
+          title: i18n.t('membership:registration.notifications.dniDuplicateTitle'),
+          message: i18n.t('membership:registration.notifications.dniDuplicateMessage'),
           color: 'red',
         });
       } else if (status === 422) {
         notifications.show({
-          title: 'Error de validacion',
-          message: detail || 'Datos invalidos. Revise el formulario.',
+          title: i18n.t('membership:registration.notifications.validationErrorTitle'),
+          message:
+            detail || i18n.t('membership:registration.notifications.validationErrorFallback'),
           color: 'red',
         });
       }

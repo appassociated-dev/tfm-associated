@@ -12,6 +12,8 @@ import { MemoryRouter, Route, Routes } from 'react-router';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '@/i18n/i18n';
 import { server } from '@/test/msw/server';
 import { apiResponse } from '@/test/msw/utils';
 import {
@@ -48,17 +50,19 @@ function createIntegrationWrapper() {
   return function IntegrationWrapper({ children }: { children: ReactNode }) {
     return (
       <MantineProvider theme={associatedTheme} defaultColorScheme="light">
-        <Notifications />
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <MemoryRouter initialEntries={['/login']}>
-              <Routes>
-                <Route path="/login" element={children} />
-                <Route path="/dashboard" element={<div>Dashboard Page</div>} />
-              </Routes>
-            </MemoryRouter>
-          </AuthProvider>
-        </QueryClientProvider>
+        <I18nextProvider i18n={i18n}>
+          <Notifications />
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <MemoryRouter initialEntries={['/login']}>
+                <Routes>
+                  <Route path="/login" element={children} />
+                  <Route path="/dashboard" element={<div>Dashboard Page</div>} />
+                </Routes>
+              </MemoryRouter>
+            </AuthProvider>
+          </QueryClientProvider>
+        </I18nextProvider>
       </MantineProvider>
     );
   };

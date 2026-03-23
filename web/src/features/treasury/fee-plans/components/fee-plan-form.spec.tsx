@@ -88,7 +88,7 @@ describe('FeePlanForm', () => {
       renderForm();
 
       // Assert
-      expect(screen.getByText(/Se generarán 12 cargos al año/)).toBeInTheDocument();
+      expect(screen.getByText(/Se generarán 12 cargo\/s al año/)).toBeInTheDocument();
     });
 
     it('deberia mostrar texto con 1 cargo para frecuencia ANNUAL (triangulacion)', () => {
@@ -105,7 +105,7 @@ describe('FeePlanForm', () => {
       });
 
       // Assert
-      expect(screen.getByText(/Se generarán 1 cargo al año/)).toBeInTheDocument();
+      expect(screen.getByText(/Se generarán 1 cargo\/s al año/)).toBeInTheDocument();
     });
 
     it('deberia mostrar chips de meses (Ene a Dic) en modo RECURRING', () => {

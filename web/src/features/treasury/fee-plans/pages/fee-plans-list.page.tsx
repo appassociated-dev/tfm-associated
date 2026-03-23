@@ -13,6 +13,7 @@ import {
   Title,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { useTranslation } from 'react-i18next';
 
 import { usePermissions } from '@/features/auth/context/use-permissions';
 import { formatMoney } from '@/shared/utils/format-money';
@@ -29,14 +30,6 @@ import { ImportTemplateModal } from '../components/import-template-modal';
 
 // === Constantes ===
 
-const FREQUENCY_LABELS: Record<string, string> = {
-  MONTHLY: 'Mensual',
-  QUARTERLY: 'Trimestral',
-  BIANNUAL: 'Semestral',
-  ANNUAL: 'Anual',
-  CUSTOM: 'Personalizada',
-};
-
 /** Estilo reutilizable para cabeceras de tabla. */
 const HEADER_STYLE = {
   textTransform: 'uppercase' as const,
@@ -52,6 +45,7 @@ const HEADER_STYLE = {
  * Muestra tabla con filtros, acciones CRUD y estados de carga/vacío/error.
  */
 export function FeePlansListPage() {
+  const { t } = useTranslation('treasury');
   const { hasPermission } = usePermissions();
 
   // Estado de filtros
@@ -106,7 +100,20 @@ export function FeePlansListPage() {
   /** Devuelve la etiqueta de periodicidad según el tipo y frecuencia del plan. */
   function getFrequencyLabel(plan: FeePlan): string {
     if (plan.type === 'ONE_TIME') return '\u2014';
-    return plan.frequency ? (FREQUENCY_LABELS[plan.frequency] ?? plan.frequency) : '\u2014';
+    switch (plan.frequency) {
+      case 'MONTHLY':
+        return t('frequency.monthly');
+      case 'QUARTERLY':
+        return t('frequency.quarterly');
+      case 'BIANNUAL':
+        return t('frequency.biannual');
+      case 'ANNUAL':
+        return t('frequency.annual');
+      case 'CUSTOM':
+        return t('frequency.custom');
+      default:
+        return plan.frequency ?? '\u2014';
+    }
   }
 
   return (
@@ -115,7 +122,7 @@ export function FeePlansListPage() {
         {/* Cabecera */}
         <Group justify="space-between" align="center">
           <Group gap="sm">
-            <Title order={2}>Planes de Cuota</Title>
+            <Title order={2}>{t('feePlans.title')}</Title>
             {plans && (
               <Badge variant="light" radius="sm">
                 {plans.length}
@@ -127,14 +134,14 @@ export function FeePlansListPage() {
             {/* Botón de importar plantilla: solo visible si no hay planes */}
             {canCreate && plans && plans.length === 0 && (
               <Button color="brand" variant="outline" onClick={openImport}>
-                Importar Plantilla
+                {t('feePlans.importTemplate')}
               </Button>
             )}
 
             {/* Botón de crear */}
             {canCreate && (
               <Button color="brand" onClick={openCreate}>
-                Nuevo Plan
+                {t('feePlans.newPlan')}
               </Button>
             )}
           </Group>
@@ -143,7 +150,7 @@ export function FeePlansListPage() {
         {/* Filtros */}
         <Group>
           <Switch
-            label="Mostrar inactivos"
+            label={t('feePlans.showInactive')}
             checked={showInactive}
             onChange={(event) => setShowInactive(event.currentTarget.checked)}
           />
@@ -154,10 +161,10 @@ export function FeePlansListPage() {
 
         {/* Estado de error */}
         {isError && (
-          <Alert color="red" title="Error al cargar planes">
-            No se pudieron cargar los planes de cuota.
+          <Alert color="red" title={t('feePlans.errorLoading.title')}>
+            {t('feePlans.errorLoading.message')}
             <Button variant="subtle" color="red" size="xs" mt="xs" onClick={() => refetch()}>
-              Reintentar
+              {t('feePlans.errorLoading.retry')}
             </Button>
           </Alert>
         )}
@@ -165,10 +172,10 @@ export function FeePlansListPage() {
         {/* Estado vacío */}
         {plans && plans.length === 0 && !isLoading && (
           <Stack align="center" gap="md" py="xl">
-            <Text c="dimmed">No hay planes de cuota configurados</Text>
+            <Text c="dimmed">{t('feePlans.emptyState')}</Text>
             {canCreate && (
               <Button color="brand" onClick={openCreate}>
-                Crear primer plan
+                {t('feePlans.createFirstPlan')}
               </Button>
             )}
           </Stack>
@@ -179,13 +186,15 @@ export function FeePlansListPage() {
           <Table highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th style={HEADER_STYLE}>Código</Table.Th>
-                <Table.Th style={HEADER_STYLE}>Nombre</Table.Th>
-                <Table.Th style={HEADER_STYLE}>Tipo</Table.Th>
-                <Table.Th style={{ ...HEADER_STYLE, textAlign: 'right' }}>Importe</Table.Th>
-                <Table.Th style={HEADER_STYLE}>Periodicidad</Table.Th>
-                <Table.Th style={HEADER_STYLE}>Estado</Table.Th>
-                <Table.Th style={HEADER_STYLE}>Acciones</Table.Th>
+                <Table.Th style={HEADER_STYLE}>{t('feePlans.table.code')}</Table.Th>
+                <Table.Th style={HEADER_STYLE}>{t('feePlans.table.name')}</Table.Th>
+                <Table.Th style={HEADER_STYLE}>{t('feePlans.table.type')}</Table.Th>
+                <Table.Th style={{ ...HEADER_STYLE, textAlign: 'right' }}>
+                  {t('feePlans.table.amount')}
+                </Table.Th>
+                <Table.Th style={HEADER_STYLE}>{t('feePlans.table.frequency')}</Table.Th>
+                <Table.Th style={HEADER_STYLE}>{t('feePlans.table.status')}</Table.Th>
+                <Table.Th style={HEADER_STYLE}>{t('feePlans.table.actions')}</Table.Th>
               </Table.Tr>
             </Table.Thead>
 
@@ -211,7 +220,7 @@ export function FeePlansListPage() {
                       radius="sm"
                       color={plan.type === 'RECURRING' ? 'green' : 'blue'}
                     >
-                      {plan.type === 'RECURRING' ? 'Periódico' : 'Única'}
+                      {plan.type === 'RECURRING' ? t('planType.recurring') : t('planType.oneTime')}
                     </Badge>
                   </Table.Td>
 
@@ -228,7 +237,7 @@ export function FeePlansListPage() {
                   {/* Estado */}
                   <Table.Td>
                     <Badge variant="light" radius="sm" color={plan.active ? 'green' : 'gray'}>
-                      {plan.active ? 'Activo' : 'Inactivo'}
+                      {plan.active ? t('feePlans.status.active') : t('feePlans.status.inactive')}
                     </Badge>
                   </Table.Td>
 
@@ -237,23 +246,29 @@ export function FeePlansListPage() {
                     <Menu shadow="sm" position="bottom-end">
                       <Menu.Target>
                         <Button variant="subtle" size="xs">
-                          Acciones
+                          {t('feePlans.menu.actions')}
                         </Button>
                       </Menu.Target>
                       <Menu.Dropdown>
-                        {canEdit && <Menu.Item onClick={() => handleEdit(plan)}>Editar</Menu.Item>}
-                        <Menu.Item onClick={() => handleLink(plan)}>Ver vinculaciones</Menu.Item>
+                        {canEdit && (
+                          <Menu.Item onClick={() => handleEdit(plan)}>
+                            {t('feePlans.menu.edit')}
+                          </Menu.Item>
+                        )}
+                        <Menu.Item onClick={() => handleLink(plan)}>
+                          {t('feePlans.menu.viewLinks')}
+                        </Menu.Item>
                         {canEdit && !plan.active && (
                           <Menu.Item
                             color="green"
                             onClick={() => activateFeePlanMutation.mutate(plan.id)}
                           >
-                            Activar
+                            {t('feePlans.menu.activate')}
                           </Menu.Item>
                         )}
                         {canDeactivate && plan.active && (
                           <Menu.Item color="red" onClick={() => handleDeactivate(plan)}>
-                            Inactivar
+                            {t('feePlans.menu.deactivate')}
                           </Menu.Item>
                         )}
                       </Menu.Dropdown>

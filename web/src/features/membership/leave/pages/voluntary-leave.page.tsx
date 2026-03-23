@@ -15,6 +15,7 @@ import {
   Title,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { useTranslation } from 'react-i18next';
 
 import { formatMoney } from '@/shared/utils/format-money';
 import { formatDateLong, formatDateCompact } from '@/shared/utils/format-date';
@@ -45,6 +46,7 @@ const REASON_MAX_LENGTH = 500;
  */
 export function VoluntaryLeavePage() {
   const { memberId } = useParams<{ memberId: string }>();
+  const { t } = useTranslation(['membership', 'common']);
 
   // Datos
   const { data: summary, isLoading, isError, refetch } = useLeaveSummary(memberId);
@@ -75,11 +77,11 @@ export function VoluntaryLeavePage() {
   function handleOpenConfirm() {
     // Validar motivo antes de abrir modal
     if (reason.trim().length < REASON_MIN_LENGTH) {
-      setReasonError(`Motivo es obligatorio (mínimo ${REASON_MIN_LENGTH} caracteres)`);
+      setReasonError(t('leave.voluntary.reasonRequired', { min: REASON_MIN_LENGTH }));
       return;
     }
     if (reason.length > REASON_MAX_LENGTH) {
-      setReasonError(`El motivo no puede superar ${REASON_MAX_LENGTH} caracteres`);
+      setReasonError(t('leave.voluntary.reasonTooLong', { max: REASON_MAX_LENGTH }));
       return;
     }
     setReasonError(null);
@@ -119,10 +121,10 @@ export function VoluntaryLeavePage() {
 
   if (isError) {
     return (
-      <Alert color="red" title="Error al cargar datos de baja">
-        No se pudo obtener el resumen de baja del socio.
+      <Alert color="red" title={t('leave.voluntary.errorLoadTitle')}>
+        {t('leave.voluntary.errorLoadText')}
         <Button variant="subtle" color="red" size="xs" mt="xs" onClick={() => refetch()}>
-          Reintentar
+          {t('common:actions.retry')}
         </Button>
       </Alert>
     );
@@ -134,51 +136,51 @@ export function VoluntaryLeavePage() {
     <>
       <Breadcrumbs mb="md">
         <Text c="dimmed" size="sm">
-          Socios
+          {t('leave.breadcrumbs.members')}
         </Text>
         <Text c="dimmed" size="sm">
           {summary.memberName}
         </Text>
-        <Text size="sm">Baja Voluntaria</Text>
+        <Text size="sm">{t('leave.voluntary.title')}</Text>
       </Breadcrumbs>
 
       <Stack gap="xl">
         {/* Titulo */}
-        <Title order={2}>Baja Voluntaria</Title>
+        <Title order={2}>{t('leave.voluntary.title')}</Title>
 
         {/* Seccion: Datos del socio */}
         <Stack gap="sm">
-          <Title order={4}>Datos del socio</Title>
+          <Title order={4}>{t('leave.memberData.title')}</Title>
           <Group gap="lg">
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Nombre
+                {t('leave.memberData.name')}
               </Text>
               <Text size="sm">{summary.memberName}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Número de socio
+                {t('leave.memberData.memberNumber')}
               </Text>
               <Text size="sm">#{summary.memberNumber}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                DNI
+                {t('leave.memberData.dni')}
               </Text>
-              <Text size="sm">{summary.memberDni ?? 'No disponible'}</Text>
+              <Text size="sm">{summary.memberDni ?? t('leave.memberData.dniNotAvailable')}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Estado
+                {t('leave.memberData.status')}
               </Text>
               <StatusBadge status={summary.currentStatus} />
             </div>
           </Group>
 
           {isStateLocked && (
-            <Alert color="red" title="Baja no disponible">
-              Este socio no puede darse de baja desde el estado actual.
+            <Alert color="red" title={t('leave.voluntary.notAvailableTitle')}>
+              {t('leave.voluntary.notAvailableText')}
             </Alert>
           )}
         </Stack>
@@ -186,7 +188,7 @@ export function VoluntaryLeavePage() {
         {/* Seccion: Fecha efectiva */}
         {!isStateLocked && (
           <Stack gap="sm">
-            <Title order={4}>Fecha efectiva</Title>
+            <Title order={4}>{t('leave.voluntary.effectiveDate')}</Title>
             <Radio.Group
               value={selectedDateType ?? ''}
               onChange={(value) => setSelectedDateType(value)}
@@ -206,17 +208,18 @@ export function VoluntaryLeavePage() {
 
         {/* Seccion: Impacto financiero */}
         <Stack gap="sm">
-          <Title order={4}>Impacto financiero</Title>
+          <Title order={4}>{t('leave.voluntary.financialImpact')}</Title>
 
           {/* Alerta de deuda */}
           {summary.totalPendingDebt > 0 ? (
-            <Alert color="yellow" title="Cargos pendientes">
-              El socio tiene cargos pendientes por {formatMoney(summary.totalPendingDebt)}. Los
-              cargos pendientes se mantienen como deuda. No se generaran nuevos cargos futuros.
+            <Alert color="yellow" title={t('leave.voluntary.pendingChargesTitle')}>
+              {t('leave.voluntary.pendingChargesAlert', {
+                amount: formatMoney(summary.totalPendingDebt),
+              })}
             </Alert>
           ) : (
-            <Alert color="green" title="Sin deuda pendiente">
-              El socio no tiene cargos pendientes.
+            <Alert color="green" title={t('leave.voluntary.noDebtTitle')}>
+              {t('leave.voluntary.noDebtText')}
             </Alert>
           )}
 
@@ -224,7 +227,7 @@ export function VoluntaryLeavePage() {
           {summary.activeSubscriptions.length > 0 && (
             <Stack gap="xs">
               <Text size="sm" fw={500}>
-                Suscripciones activas que se cerraran
+                {t('leave.voluntary.activeSubscriptions')}
               </Text>
               <Table>
                 <Table.Thead>
@@ -237,7 +240,7 @@ export function VoluntaryLeavePage() {
                       fw={600}
                       c="dimmed"
                     >
-                      Plan
+                      {t('leave.voluntary.table.plan')}
                     </Table.Th>
                     <Table.Th
                       style={{
@@ -248,7 +251,7 @@ export function VoluntaryLeavePage() {
                       fw={600}
                       c="dimmed"
                     >
-                      Importe
+                      {t('leave.voluntary.table.amount')}
                     </Table.Th>
                     <Table.Th
                       style={{
@@ -258,7 +261,7 @@ export function VoluntaryLeavePage() {
                       fw={600}
                       c="dimmed"
                     >
-                      Periodicidad
+                      {t('leave.voluntary.table.frequency')}
                     </Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -281,7 +284,7 @@ export function VoluntaryLeavePage() {
           {summary.pendingCharges.length > 0 && (
             <Stack gap="xs">
               <Text size="sm" fw={500}>
-                Cargos pendientes
+                {t('leave.voluntary.pendingChargesTitle')}
               </Text>
               <Table>
                 <Table.Thead>
@@ -294,7 +297,7 @@ export function VoluntaryLeavePage() {
                       fw={600}
                       c="dimmed"
                     >
-                      Descripcion
+                      {t('leave.voluntary.table.description')}
                     </Table.Th>
                     <Table.Th
                       style={{
@@ -305,7 +308,7 @@ export function VoluntaryLeavePage() {
                       fw={600}
                       c="dimmed"
                     >
-                      Importe
+                      {t('leave.voluntary.table.amount')}
                     </Table.Th>
                     <Table.Th
                       style={{
@@ -315,7 +318,7 @@ export function VoluntaryLeavePage() {
                       fw={600}
                       c="dimmed"
                     >
-                      Vencimiento
+                      {t('leave.voluntary.table.dueDate')}
                     </Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -337,7 +340,7 @@ export function VoluntaryLeavePage() {
           {/* Total deuda */}
           <Group justify="flex-end" gap="sm">
             <Text size="sm" fw={600}>
-              Deuda total:
+              {t('leave.voluntary.totalDebt')}
             </Text>
             <Text
               size="lg"
@@ -353,9 +356,9 @@ export function VoluntaryLeavePage() {
         {/* Seccion: Motivo */}
         {!isStateLocked && (
           <Stack gap="sm">
-            <Title order={4}>Motivo</Title>
+            <Title order={4}>{t('leave.voluntary.reason')}</Title>
             <Textarea
-              placeholder="Indique el motivo de la baja voluntaria"
+              placeholder={t('leave.voluntary.reasonPlaceholder')}
               minRows={3}
               maxRows={6}
               value={reason}
@@ -367,7 +370,11 @@ export function VoluntaryLeavePage() {
               required
             />
             <Text size="xs" c="dimmed">
-              {reason.length}/{REASON_MAX_LENGTH} caracteres (mínimo {REASON_MIN_LENGTH})
+              {t('leave.voluntary.reasonCounter', {
+                current: reason.length,
+                max: REASON_MAX_LENGTH,
+                min: REASON_MIN_LENGTH,
+              })}
             </Text>
           </Stack>
         )}
@@ -376,7 +383,7 @@ export function VoluntaryLeavePage() {
         {!isStateLocked && (
           <Group justify="flex-end">
             <Button color="red" onClick={handleOpenConfirm} disabled={!canSubmit}>
-              Confirmar Baja Voluntaria
+              {t('leave.voluntary.confirmButton')}
             </Button>
           </Group>
         )}
@@ -386,16 +393,18 @@ export function VoluntaryLeavePage() {
       <Modal
         opened={confirmOpened}
         onClose={closeConfirm}
-        title="Confirmar Baja Voluntaria"
+        title={t('leave.voluntary.confirmModal.title')}
         centered
       >
         <Stack gap="md">
           <Text size="sm">
-            Se dara de baja al socio{' '}
+            {t('leave.voluntary.confirmModal.memberLeaveText')}{' '}
             <Text span fw={600}>
               {summary.memberName}
             </Text>{' '}
-            (#{summary.memberNumber}) con fecha efectiva{' '}
+            {t('leave.voluntary.confirmModal.withEffectiveDate', {
+              memberNumber: summary.memberNumber,
+            })}{' '}
             <Text span fw={600}>
               {selectedOption ? formatDateLong(new Date(selectedOption.effectiveDate)) : ''}
             </Text>
@@ -403,19 +412,23 @@ export function VoluntaryLeavePage() {
           </Text>
 
           <Text size="sm">
-            Esta accion cerrara {summary.activeSubscriptions.length} suscripciones activas.
+            {t('leave.voluntary.confirmModal.subscriptionsClosed', {
+              count: summary.activeSubscriptions.length,
+            })}
           </Text>
 
           <Text size="sm">
-            Los cargos pendientes ({formatMoney(summary.totalPendingDebt)}) se mantienen.
+            {t('leave.voluntary.confirmModal.pendingChargesMaintained', {
+              amount: formatMoney(summary.totalPendingDebt),
+            })}
           </Text>
 
           <Group justify="flex-end" gap="sm" mt="md">
             <Button variant="default" onClick={closeConfirm}>
-              Cancelar
+              {t('common:actions.cancel')}
             </Button>
             <Button color="red" onClick={handleConfirm} loading={voluntaryLeave.isPending}>
-              Confirmar
+              {t('common:actions.confirm')}
             </Button>
           </Group>
         </Stack>

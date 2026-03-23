@@ -1,32 +1,12 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Badge, Button, Group, Modal, Select, Stack, Table, Text } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
+
 import { formatMoney } from '@/shared/utils/format-money';
 import { useFeePlanTemplates, useImportTemplate } from '../hooks/use-fee-plan-templates';
 import { useFeePlans } from '../hooks/use-fee-plans';
 
 // === Constantes ===
-
-const COLLECTIVITY_OPTIONS = [
-  { value: 'pena', label: 'Peña' },
-  { value: 'cofradia', label: 'Cofradía' },
-  { value: 'club_deportivo', label: 'Club Deportivo' },
-  { value: 'asociacion_cultural', label: 'Asociación Cultural' },
-] as const;
-
-/** Mapeo de frecuencia interna a etiqueta legible. */
-const FREQUENCY_LABELS: Record<string, string> = {
-  MONTHLY: 'Mensual',
-  QUARTERLY: 'Trimestral',
-  BIANNUAL: 'Semestral',
-  ANNUAL: 'Anual',
-  CUSTOM: 'Personalizado',
-};
-
-/** Mapeo de tipo de plan a etiqueta legible. */
-const TYPE_LABELS: Record<string, string> = {
-  ONE_TIME: 'Única',
-  RECURRING: 'Periódico',
-};
 
 /** Color del badge según tipo de plan. */
 const TYPE_COLORS: Record<string, string> = {
@@ -50,6 +30,7 @@ export interface ImportTemplateModalProps {
  * planes que se crearán e importarlos al sistema.
  */
 export function ImportTemplateModal({ opened, onClose }: ImportTemplateModalProps) {
+  const { t } = useTranslation('treasury');
   const [selectedType, setSelectedType] = useState<string>('');
 
   const { data: templateData, isLoading: loadingTemplates } = useFeePlanTemplates(selectedType);
@@ -58,6 +39,46 @@ export function ImportTemplateModal({ opened, onClose }: ImportTemplateModalProp
 
   const templates = templateData?.templates ?? [];
   const hasExistingPlans = !!existingPlans && existingPlans.length > 0;
+
+  const collectivityOptions = useMemo(
+    () => [
+      { value: 'pena', label: t('collectivityType.pena') },
+      { value: 'cofradia', label: t('collectivityType.cofradia') },
+      { value: 'club_deportivo', label: t('collectivityType.clubDeportivo') },
+      { value: 'asociacion_cultural', label: t('collectivityType.asociacionCultural') },
+    ],
+    [t],
+  );
+
+  /** Devuelve la etiqueta traducida del tipo de plan. */
+  function getTypeLabel(type: string): string {
+    switch (type) {
+      case 'ONE_TIME':
+        return t('planType.oneTime');
+      case 'RECURRING':
+        return t('planType.recurring');
+      default:
+        return type;
+    }
+  }
+
+  /** Devuelve la etiqueta traducida de la frecuencia. */
+  function getFrequencyLabel(frequency: string | null): string {
+    switch (frequency) {
+      case 'MONTHLY':
+        return t('frequency.monthly');
+      case 'QUARTERLY':
+        return t('frequency.quarterly');
+      case 'BIANNUAL':
+        return t('frequency.biannual');
+      case 'ANNUAL':
+        return t('frequency.annual');
+      case 'CUSTOM':
+        return t('frequency.custom');
+      default:
+        return '\u2014';
+    }
+  }
 
   /** Importa las plantillas del tipo seleccionado. */
   async function handleImport(): Promise<void> {
@@ -73,14 +94,20 @@ export function ImportTemplateModal({ opened, onClose }: ImportTemplateModalProp
     onClose();
   }
 
+  /** Estilo reutilizable para cabeceras de tabla. */
+  const headerStyle = {
+    textTransform: 'uppercase' as const,
+    fontSize: 'var(--mantine-font-size-xs)',
+  };
+
   return (
-    <Modal opened={opened} onClose={handleClose} title="Importar Plantilla de Planes" size="lg">
+    <Modal opened={opened} onClose={handleClose} title={t('feePlans.importModal.title')} size="lg">
       <Stack gap="md">
         {/* Selector de tipo de colectividad */}
         <Select
-          label="Tipo de colectividad"
-          placeholder="Seleccione un tipo"
-          data={[...COLLECTIVITY_OPTIONS]}
+          label={t('feePlans.importModal.collectivityType')}
+          placeholder={t('feePlans.importModal.collectivityPlaceholder')}
+          data={collectivityOptions}
           value={selectedType || null}
           onChange={(val) => setSelectedType(val ?? '')}
           clearable
@@ -88,9 +115,7 @@ export function ImportTemplateModal({ opened, onClose }: ImportTemplateModalProp
 
         {/* Advertencia si ya existen planes */}
         {hasExistingPlans && selectedType && (
-          <Alert color="yellow">
-            Ya hay planes configurados. Los nuevos se añadirán a los existentes.
-          </Alert>
+          <Alert color="yellow">{t('feePlans.importModal.existingPlansWarning')}</Alert>
         )}
 
         {/* Tabla de preview de plantillas */}
@@ -99,37 +124,17 @@ export function ImportTemplateModal({ opened, onClose }: ImportTemplateModalProp
             <Table highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th
-                    style={{ textTransform: 'uppercase', fontSize: 'var(--mantine-font-size-xs)' }}
-                    fw={600}
-                    c="dimmed"
-                  >
-                    Nombre del plan
+                  <Table.Th style={headerStyle} fw={600} c="dimmed">
+                    {t('feePlans.importModal.table.name')}
                   </Table.Th>
-                  <Table.Th
-                    style={{ textTransform: 'uppercase', fontSize: 'var(--mantine-font-size-xs)' }}
-                    fw={600}
-                    c="dimmed"
-                  >
-                    Tipo
+                  <Table.Th style={headerStyle} fw={600} c="dimmed">
+                    {t('feePlans.importModal.table.type')}
                   </Table.Th>
-                  <Table.Th
-                    style={{
-                      textTransform: 'uppercase',
-                      fontSize: 'var(--mantine-font-size-xs)',
-                      textAlign: 'right',
-                    }}
-                    fw={600}
-                    c="dimmed"
-                  >
-                    Importe
+                  <Table.Th style={{ ...headerStyle, textAlign: 'right' }} fw={600} c="dimmed">
+                    {t('feePlans.importModal.table.amount')}
                   </Table.Th>
-                  <Table.Th
-                    style={{ textTransform: 'uppercase', fontSize: 'var(--mantine-font-size-xs)' }}
-                    fw={600}
-                    c="dimmed"
-                  >
-                    Periodicidad
+                  <Table.Th style={headerStyle} fw={600} c="dimmed">
+                    {t('feePlans.importModal.table.frequency')}
                   </Table.Th>
                 </Table.Tr>
               </Table.Thead>
@@ -139,15 +144,13 @@ export function ImportTemplateModal({ opened, onClose }: ImportTemplateModalProp
                     <Table.Td>{tpl.name}</Table.Td>
                     <Table.Td>
                       <Badge variant="light" radius="sm" color={TYPE_COLORS[tpl.type] ?? 'gray'}>
-                        {TYPE_LABELS[tpl.type] ?? tpl.type}
+                        {getTypeLabel(tpl.type)}
                       </Badge>
                     </Table.Td>
                     <Table.Td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
                       {formatMoney(tpl.amount)}
                     </Table.Td>
-                    <Table.Td>
-                      {tpl.frequency ? (FREQUENCY_LABELS[tpl.frequency] ?? tpl.frequency) : '—'}
-                    </Table.Td>
+                    <Table.Td>{getFrequencyLabel(tpl.frequency)}</Table.Td>
                   </Table.Tr>
                 ))}
               </Table.Tbody>
@@ -155,8 +158,11 @@ export function ImportTemplateModal({ opened, onClose }: ImportTemplateModalProp
 
             {/* Texto informativo */}
             <Text size="sm" c="dimmed">
-              Se crearán {templates.length} planes de cuota con la configuración estándar para{' '}
-              {COLLECTIVITY_OPTIONS.find((o) => o.value === selectedType)?.label ?? selectedType}.
+              {t('feePlans.importModal.templateCount', {
+                count: templates.length,
+                collectivity:
+                  collectivityOptions.find((o) => o.value === selectedType)?.label ?? selectedType,
+              })}
             </Text>
           </>
         )}
@@ -164,21 +170,21 @@ export function ImportTemplateModal({ opened, onClose }: ImportTemplateModalProp
         {/* Estado de carga de plantillas */}
         {selectedType && loadingTemplates && (
           <Text size="sm" c="dimmed" ta="center" py="md">
-            Cargando plantillas…
+            {t('feePlans.importModal.loadingTemplates')}
           </Text>
         )}
 
         {/* Sin plantillas para el tipo seleccionado */}
         {selectedType && !loadingTemplates && templates.length === 0 && templateData && (
           <Text size="sm" c="dimmed" ta="center" py="md">
-            No hay plantillas disponibles para este tipo de colectividad.
+            {t('feePlans.importModal.noTemplates')}
           </Text>
         )}
 
         {/* Botones de acción */}
         <Group justify="flex-end" gap="sm">
           <Button variant="default" onClick={handleClose}>
-            Cancelar
+            {t('feePlans.importModal.cancel')}
           </Button>
           <Button
             color="brand"
@@ -186,7 +192,7 @@ export function ImportTemplateModal({ opened, onClose }: ImportTemplateModalProp
             disabled={!selectedType || templates.length === 0}
             onClick={handleImport}
           >
-            Importar
+            {t('feePlans.importModal.import')}
           </Button>
         </Group>
       </Stack>

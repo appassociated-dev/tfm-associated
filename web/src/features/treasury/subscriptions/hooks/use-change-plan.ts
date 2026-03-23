@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
+import i18n from '@/i18n/i18n';
 import { changePlan } from '../api/subscription.api';
 import { ApiError } from '@/shared/api/api-error';
 import type { ChangePlanInput } from '../schemas/subscription.schemas';
@@ -17,8 +18,8 @@ export function useChangePlan(memberAccountId: string) {
         queryKey: ['subscriptions', memberAccountId],
       });
       notifications.show({
-        title: 'Plan cambiado',
-        message: 'Plan cambiado correctamente',
+        title: i18n.t('treasury:subscriptions.notifications.changePlanSuccess.title'),
+        message: i18n.t('treasury:subscriptions.notifications.changePlanSuccess.message'),
         color: 'green',
       });
     },
@@ -26,8 +27,8 @@ export function useChangePlan(memberAccountId: string) {
       const status = error instanceof ApiError ? error.status : undefined;
       if (status === 422) {
         notifications.show({
-          title: 'Cambio no permitido',
-          message: 'No se puede cambiar: hay cargos pendientes sin confirmar',
+          title: i18n.t('treasury:subscriptions.notifications.changePlanError.title'),
+          message: i18n.t('treasury:subscriptions.notifications.changePlanError.message'),
           color: 'red',
         });
       }

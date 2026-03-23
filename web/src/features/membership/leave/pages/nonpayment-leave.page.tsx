@@ -17,6 +17,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
+import { useTranslation } from 'react-i18next';
 
 import { formatMoney } from '@/shared/utils/format-money';
 import { formatDateCompact } from '@/shared/utils/format-date';
@@ -32,25 +33,29 @@ import type { LeaveResponse } from '../schemas/member-leave.schemas';
 const DELINQUENCY_PHASES = [
   {
     days: 90,
-    label: 'Primera notificacion',
-    description: 'Primer aviso de impago enviado al socio',
+    labelKey: 'leave.nonpayment.phase1Label',
+    descriptionKey: 'leave.nonpayment.phase1Description',
   },
   {
     days: 180,
-    label: 'Segunda notificacion',
-    description: 'Segundo aviso de impago con advertencia formal',
+    labelKey: 'leave.nonpayment.phase2Label',
+    descriptionKey: 'leave.nonpayment.phase2Description',
   },
   {
     days: 365,
-    label: 'Aviso de expediente',
-    description: 'Notificacion de apertura de expediente por impago',
+    labelKey: 'leave.nonpayment.phase3Label',
+    descriptionKey: 'leave.nonpayment.phase3Description',
   },
   {
     days: 730,
-    label: 'Certificado de descubierto',
-    description: 'Generacion del certificado de descubierto oficial',
+    labelKey: 'leave.nonpayment.phase4Label',
+    descriptionKey: 'leave.nonpayment.phase4Description',
   },
-  { days: null, label: 'Baja efectiva', description: 'Ejecucion de la baja por impago' },
+  {
+    days: null,
+    labelKey: 'leave.nonpayment.phase5Label',
+    descriptionKey: 'leave.nonpayment.phase5Description',
+  },
 ] as const;
 
 // === Componente principal ===
@@ -63,6 +68,7 @@ const DELINQUENCY_PHASES = [
 export function NonpaymentLeavePage() {
   const { memberId } = useParams<{ memberId: string }>();
   const queryClient = useQueryClient();
+  const { t } = useTranslation(['membership', 'common']);
 
   // Datos
   const { data: summary, isLoading, isError, refetch } = useLeaveSummary(memberId);
@@ -74,8 +80,8 @@ export function NonpaymentLeavePage() {
       queryClient.invalidateQueries({ queryKey: ['members'] });
       queryClient.invalidateQueries({ queryKey: ['leave-summary'] });
       notifications.show({
-        title: 'Baja por impago procesada',
-        message: 'La baja por impago ha sido ejecutada correctamente',
+        title: t('leave.nonpayment.notifications.successTitle'),
+        message: t('leave.nonpayment.notifications.successText'),
         color: 'green',
       });
     },
@@ -83,8 +89,8 @@ export function NonpaymentLeavePage() {
       const status = (error as { response?: { status?: number } })?.response?.status;
       if (status === 422) {
         notifications.show({
-          title: 'Error de estado',
-          message: 'No se puede procesar la baja desde el estado actual.',
+          title: t('leave.nonpayment.notifications.stateErrorTitle'),
+          message: t('leave.nonpayment.notifications.stateErrorText'),
           color: 'red',
         });
       }
@@ -125,10 +131,10 @@ export function NonpaymentLeavePage() {
 
   if (isError) {
     return (
-      <Alert color="red" title="Error al cargar datos">
-        No se pudo obtener la informacion del socio para la baja por impago.
+      <Alert color="red" title={t('leave.nonpayment.errorLoadTitle')}>
+        {t('leave.nonpayment.errorLoadText')}
         <Button variant="subtle" color="red" size="xs" mt="xs" onClick={() => refetch()}>
-          Reintentar
+          {t('common:actions.retry')}
         </Button>
       </Alert>
     );
@@ -140,43 +146,43 @@ export function NonpaymentLeavePage() {
     <>
       <Breadcrumbs mb="md">
         <Text c="dimmed" size="sm">
-          Socios
+          {t('leave.breadcrumbs.members')}
         </Text>
         <Text c="dimmed" size="sm">
           {summary.memberName}
         </Text>
-        <Text size="sm">Baja por Impago</Text>
+        <Text size="sm">{t('leave.nonpayment.title')}</Text>
       </Breadcrumbs>
 
       <Stack gap="xl">
         {/* Titulo */}
-        <Title order={2}>Baja por Impago</Title>
+        <Title order={2}>{t('leave.nonpayment.title')}</Title>
 
         {/* Datos del socio */}
         <Stack gap="sm">
-          <Title order={4}>Datos del socio</Title>
+          <Title order={4}>{t('leave.memberData.title')}</Title>
           <Group gap="lg">
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Nombre
+                {t('leave.memberData.name')}
               </Text>
               <Text size="sm">{summary.memberName}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Número de socio
+                {t('leave.memberData.memberNumber')}
               </Text>
               <Text size="sm">#{summary.memberNumber}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                DNI
+                {t('leave.memberData.dni')}
               </Text>
-              <Text size="sm">{summary.memberDni ?? 'No disponible'}</Text>
+              <Text size="sm">{summary.memberDni ?? t('leave.memberData.dniNotAvailable')}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Estado
+                {t('leave.memberData.status')}
               </Text>
               <StatusBadge status={summary.currentStatus} />
             </div>
@@ -185,25 +191,23 @@ export function NonpaymentLeavePage() {
 
         {/* Seccion: Resumen workflow de morosidad */}
         <Stack gap="sm">
-          <Title order={4}>Resumen workflow de morosidad</Title>
-          <Alert color="yellow" title="Workflow de morosidad incompleto">
-            El workflow de baja por impago consta de 5 fases obligatorias. Todas las fases previas
-            deben completarse antes de ejecutar la baja efectiva. El seguimiento de fechas y
-            notificaciones se gestiona desde el backend.
+          <Title order={4}>{t('leave.nonpayment.workflowTitle')}</Title>
+          <Alert color="yellow" title={t('leave.nonpayment.workflowIncompleteTitle')}>
+            {t('leave.nonpayment.workflowIncompleteText')}
           </Alert>
           <DelinquencyTimeline />
         </Stack>
 
         {/* Seccion: Certificado de descubierto preview */}
         <Stack gap="sm">
-          <Title order={4}>Certificado de descubierto</Title>
+          <Title order={4}>{t('leave.nonpayment.certificateTitle')}</Title>
           <Card withBorder padding="lg" radius="md">
             <Stack gap="md">
               {/* Datos del socio en el certificado */}
               <Group gap="lg">
                 <div>
                   <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                    Socio
+                    {t('leave.nonpayment.certificateMember')}
                   </Text>
                   <Text size="sm">
                     {summary.memberName} (#{summary.memberNumber})
@@ -224,7 +228,7 @@ export function NonpaymentLeavePage() {
                         fw={600}
                         c="dimmed"
                       >
-                        Descripcion
+                        {t('leave.voluntary.table.description')}
                       </Table.Th>
                       <Table.Th
                         style={{
@@ -235,7 +239,7 @@ export function NonpaymentLeavePage() {
                         fw={600}
                         c="dimmed"
                       >
-                        Importe
+                        {t('leave.voluntary.table.amount')}
                       </Table.Th>
                       <Table.Th
                         style={{
@@ -245,7 +249,7 @@ export function NonpaymentLeavePage() {
                         fw={600}
                         c="dimmed"
                       >
-                        Vencimiento
+                        {t('leave.voluntary.table.dueDate')}
                       </Table.Th>
                     </Table.Tr>
                   </Table.Thead>
@@ -268,7 +272,7 @@ export function NonpaymentLeavePage() {
               {/* Total deuda */}
               <Group justify="flex-end" gap="sm">
                 <Text size="sm" fw={600}>
-                  Deuda total:
+                  {t('leave.voluntary.totalDebt')}
                 </Text>
                 <Text
                   size="lg"
@@ -282,21 +286,20 @@ export function NonpaymentLeavePage() {
 
               {/* Boton de generacion de certificado PDF */}
               <Group justify="flex-end">
-                <Tooltip label="Requiere endpoint de backend" withArrow>
+                <Tooltip label={t('leave.nonpayment.certificateTooltip')} withArrow>
                   <Button
                     variant="outline"
                     color="brand"
                     onClick={() =>
                       notifications.show({
-                        title: 'No disponible',
-                        message:
-                          'La generacion de certificado PDF requiere un endpoint de backend que aun no esta implementado.',
+                        title: t('leave.nonpayment.certificateNotAvailableTitle'),
+                        message: t('leave.nonpayment.certificateNotAvailableText'),
                         color: 'yellow',
                         autoClose: 4000,
                       })
                     }
                   >
-                    Generar Certificado PDF
+                    {t('leave.nonpayment.generateCertificate')}
                   </Button>
                 </Tooltip>
               </Group>
@@ -306,27 +309,25 @@ export function NonpaymentLeavePage() {
 
         {/* Seccion: Oportunidad de regularizacion */}
         <Stack gap="sm">
-          <Title order={4}>Oportunidad de regularizacion</Title>
-          <Alert color="blue" title="Regularizacion posible">
-            Si el socio regulariza la deuda pendiente, se puede cancelar el proceso de baja y el
-            socio volvera al estado activo.
+          <Title order={4}>{t('leave.nonpayment.regularizationTitle')}</Title>
+          <Alert color="blue" title={t('leave.nonpayment.regularizationAlertTitle')}>
+            {t('leave.nonpayment.regularizationAlertText')}
           </Alert>
           <Group>
-            <Tooltip label="Requiere endpoint de backend" withArrow>
+            <Tooltip label={t('leave.nonpayment.certificateTooltip')} withArrow>
               <Button
                 variant="outline"
                 color="brand"
                 onClick={() =>
                   notifications.show({
-                    title: 'No disponible',
-                    message:
-                      'La cancelacion de baja por regularizacion requiere un endpoint de backend que aun no esta implementado.',
+                    title: t('leave.nonpayment.cancelLeaveNotAvailableTitle'),
+                    message: t('leave.nonpayment.cancelLeaveNotAvailableText'),
                     color: 'yellow',
                     autoClose: 4000,
                   })
                 }
               >
-                Cancelar Baja - Regularizacion
+                {t('leave.nonpayment.cancelLeaveButton')}
               </Button>
             </Tooltip>
           </Group>
@@ -334,12 +335,9 @@ export function NonpaymentLeavePage() {
 
         {/* Boton de confirmacion */}
         <Group justify="flex-end">
-          <Tooltip
-            label="Complete todas las fases del workflow antes de ejecutar la baja"
-            withArrow
-          >
+          <Tooltip label={t('leave.nonpayment.executeTooltip')} withArrow>
             <Button color="red" disabled>
-              Ejecutar Baja por Impago
+              {t('leave.nonpayment.executeButton')}
             </Button>
           </Tooltip>
         </Group>
@@ -349,31 +347,36 @@ export function NonpaymentLeavePage() {
       <Modal
         opened={confirmOpened}
         onClose={closeConfirm}
-        title="Confirmar Baja por Impago"
+        title={t('leave.nonpayment.confirmModal.title')}
         centered
       >
         <Stack gap="md">
           <Text size="sm">
-            Esta a punto de ejecutar la baja por impago del socio{' '}
+            {t('leave.nonpayment.confirmModal.text')}{' '}
             <Text span fw={600}>
               {summary.memberName}
             </Text>{' '}
-            (#{summary.memberNumber}).
+            {t('leave.nonpayment.confirmModal.withMemberNumber', {
+              memberNumber: summary.memberNumber,
+            })}
           </Text>
 
-          <Text size="sm">Deuda acumulada: {formatMoney(summary.totalPendingDebt)}</Text>
+          <Text size="sm">
+            {t('leave.nonpayment.confirmModal.debtAccumulated', {
+              amount: formatMoney(summary.totalPendingDebt),
+            })}
+          </Text>
 
           <Text size="sm" c="red" fw={500}>
-            Esta accion cerrara todas las suscripciones activas y cambiara el estado del socio a
-            Baja por Impago.
+            {t('leave.nonpayment.confirmModal.warning')}
           </Text>
 
           <Group justify="flex-end" gap="sm" mt="md">
             <Button variant="default" onClick={closeConfirm}>
-              Cancelar
+              {t('common:actions.cancel')}
             </Button>
             <Button color="red" onClick={handleFirstConfirm}>
-              Continuar
+              {t('leave.nonpayment.confirmModal.continue')}
             </Button>
           </Group>
         </Stack>
@@ -383,21 +386,20 @@ export function NonpaymentLeavePage() {
       <Modal
         opened={doubleConfirmOpened}
         onClose={closeDoubleConfirm}
-        title="Confirmacion final"
+        title={t('leave.nonpayment.doubleConfirmModal.title')}
         centered
       >
         <Stack gap="md">
-          <Alert color="red" title="Accion irreversible">
-            La baja por impago requiere un proceso formal de rehabilitacion para ser revertida.
-            Confirme que desea proceder.
+          <Alert color="red" title={t('leave.nonpayment.doubleConfirmModal.irreversibleTitle')}>
+            {t('leave.nonpayment.doubleConfirmModal.irreversibleText')}
           </Alert>
 
           <Group justify="flex-end" gap="sm" mt="md">
             <Button variant="default" onClick={closeDoubleConfirm}>
-              Cancelar
+              {t('common:actions.cancel')}
             </Button>
             <Button color="red" onClick={handleExecuteLeave} loading={nonpaymentLeave.isPending}>
-              Confirmar Baja por Impago
+              {t('leave.nonpayment.doubleConfirmModal.confirmButton')}
             </Button>
           </Group>
         </Stack>
@@ -414,6 +416,8 @@ export function NonpaymentLeavePage() {
  * Sin datos reales de fechas (backend-driven), muestra estados placeholder.
  */
 function DelinquencyTimeline() {
+  const { t } = useTranslation('membership');
+
   return (
     <Timeline active={-1} bulletSize={24} lineWidth={2}>
       {DELINQUENCY_PHASES.map((phase, index) => (
@@ -423,20 +427,20 @@ function DelinquencyTimeline() {
             <Group gap="xs">
               <Text size="sm" fw={500}>
                 {phase.days !== null
-                  ? `Fase ${index + 1} (${phase.days} dias)`
-                  : `Fase ${index + 1}`}
+                  ? t('leave.nonpayment.phaseWithDays', { index: index + 1, days: phase.days })
+                  : t('leave.nonpayment.phaseNoDays', { index: index + 1 })}
               </Text>
               <Text size="sm" fw={500}>
-                — {phase.label}
+                — {t(phase.labelKey)}
               </Text>
             </Group>
           }
         >
           <Text size="xs" c="dimmed">
-            {phase.description}
+            {t(phase.descriptionKey)}
           </Text>
           <Text size="xs" c="dimmed" fs="italic" mt={4}>
-            Pendiente
+            {t('leave.nonpayment.phasePending')}
           </Text>
         </Timeline.Item>
       ))}

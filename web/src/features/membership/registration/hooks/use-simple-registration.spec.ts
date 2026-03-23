@@ -182,7 +182,7 @@ describe('useSimpleRegistration', () => {
     await waitFor(() => {
       expect(mockNotificationsShow).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Error de validacion',
+          title: 'Error de validación',
           color: 'red',
         }),
       );
@@ -212,7 +212,7 @@ describe('useSimpleRegistration', () => {
     await waitFor(() => {
       expect(mockNotificationsShow).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: 'Error de validacion',
+          title: 'Error de validación',
           color: 'red',
         }),
       );
