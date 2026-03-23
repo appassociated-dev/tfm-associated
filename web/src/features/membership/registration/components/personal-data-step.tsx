@@ -138,32 +138,34 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
   }, [currentEmail, isEmailChecking, emailCheck]);
 
   // Notificar al padre cada vez que cambia la validez del formulario
-  const watchedValues = watch();
+  const watchedDni = watch('dni');
+  const watchedFirstName = watch('firstName');
+  const watchedLastName = watch('lastName');
+  const watchedBirthDate = watch('birthDate');
+  const watchedEmail = watch('email');
+  const watchedPhone = watch('phone');
+  const watchedAddress = watch('address');
+  const watchedPostalCode = watch('postalCode');
+  const watchedCity = watch('city');
 
   useEffect(() => {
-    // Validar todos los campos requeridos
     const hasRequiredFields =
-      watchedValues.dni.trim() !== '' &&
-      watchedValues.firstName.trim() !== '' &&
-      watchedValues.lastName.trim() !== '' &&
-      watchedValues.birthDate !== null &&
-      watchedValues.birthDate !== '' &&
-      watchedValues.email.trim() !== '';
+      watchedDni.trim() !== '' &&
+      watchedFirstName.trim() !== '' &&
+      watchedLastName.trim() !== '' &&
+      watchedBirthDate !== null &&
+      watchedBirthDate !== '' &&
+      watchedEmail.trim() !== '';
 
-    // Validar que no hay errores activos del formulario
     const hasNoFormErrors = Object.keys(errors).length === 0;
 
-    // Validar DNI client-side
     const dniIsValid = dniClientValidation?.valid === true;
 
-    // Validar que el DNI no esta duplicado
     const dniNotDuplicate = dniCheck ? !dniCheck.exists : false;
 
-    // Validar email basico
-    const emailValid = /^\S+@\S+\.\S+$/.test(watchedValues.email);
+    const emailValid = /^\S+@\S+\.\S+$/.test(watchedEmail);
 
-    // Validar codigo postal si presente
-    const postalCodeValid = !watchedValues.postalCode || /^\d{5}$/.test(watchedValues.postalCode);
+    const postalCodeValid = !watchedPostalCode || /^\d{5}$/.test(watchedPostalCode);
 
     if (
       hasRequiredFields &&
@@ -173,24 +175,37 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       emailValid &&
       postalCodeValid
     ) {
-      // birthDate viene como string "YYYY-MM-DD" de Mantine 8 DateInput
-      const birthDateIso = watchedValues.birthDate ?? '';
+      const birthDateIso = watchedBirthDate ?? '';
       const personalData: PersonalData = {
-        dni: watchedValues.dni.trim(),
-        firstName: watchedValues.firstName.trim(),
-        lastName: watchedValues.lastName.trim(),
+        dni: watchedDni.trim(),
+        firstName: watchedFirstName.trim(),
+        lastName: watchedLastName.trim(),
         birthDate: birthDateIso,
-        email: watchedValues.email.trim(),
-        phone: watchedValues.phone.trim() || null,
-        address: watchedValues.address.trim() || null,
-        postalCode: watchedValues.postalCode.trim() || null,
-        city: watchedValues.city.trim() || null,
+        email: watchedEmail.trim(),
+        phone: watchedPhone.trim() || null,
+        address: watchedAddress.trim() || null,
+        postalCode: watchedPostalCode.trim() || null,
+        city: watchedCity.trim() || null,
       };
       onValidChange(personalData);
     } else {
       onValidChange(null);
     }
-  }, [watchedValues, errors, dniClientValidation?.valid, dniCheck, onValidChange]);
+  }, [
+    watchedDni,
+    watchedFirstName,
+    watchedLastName,
+    watchedBirthDate,
+    watchedEmail,
+    watchedPhone,
+    watchedAddress,
+    watchedPostalCode,
+    watchedCity,
+    errors,
+    dniClientValidation?.valid,
+    dniCheck,
+    onValidChange,
+  ]);
 
   return (
     <Stack gap="md">
