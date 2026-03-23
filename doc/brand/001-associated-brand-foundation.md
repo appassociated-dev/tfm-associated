@@ -80,13 +80,13 @@ Associated se dirige a dos niveles de audiencia que conviene distinguir: la cole
 
 Son los cuatro tipos de organización para los que Associated está diseñado. Comparten problemas de fondo (gestión con Excel, voluntarios desbordados, pérdida de información en relevos), pero difieren en vocabulario, flujos específicos y sensibilidades.
 
-**La asociación cultural.** Entidad con vocación formativa, social o artística. Gestiona actividades regulares (talleres, conferencias, excursiones), depende frecuentemente de subvenciones públicas que requieren justificación documental rigurosa, y tiene presupuestos generalmente modestos. Su estructura es la más cercana al modelo estándar de la Ley Orgánica 1/2002. La palabra clave es *impacto*: Associated debe ayudarle a demostrar que su labor tiene valor para la comunidad.
+**La asociación cultural.** Entidad con vocación formativa, social o artística. Gestiona actividades regulares (talleres, conferencias, excursiones), depende frecuentemente de subvenciones públicas que requieren justificación documental rigurosa, y tiene presupuestos generalmente modestos. Su estructura es la más cercana al modelo estándar de la Ley Orgánica 1/2002. La palabra clave es _impacto_: Associated debe ayudarle a demostrar que su labor tiene valor para la comunidad.
 
-**La peña festera.** Colectividad vibrante y social, vertebrada alrededor de fiestas patronales. Gestiona desde cuotas anuales hasta turnos de barra, comidas populares con control de alergias y menús, y picos de actividad intensísimos durante la semana de fiestas. Su tono es informal y su estructura relativamente plana. Los presupuestos son muy variables: desde peñas con cuota simbólica de 0€ y 1.400 socios hasta peñas con cuotas de 175€ y lista de espera. La palabra clave es *comunidad*: Associated debe transmitir que facilita la fiesta y la convivencia, no que burocratiza.
+**La peña festera.** Colectividad vibrante y social, vertebrada alrededor de fiestas patronales. Gestiona desde cuotas anuales hasta turnos de barra, comidas populares con control de alergias y menús, y picos de actividad intensísimos durante la semana de fiestas. Su tono es informal y su estructura relativamente plana. Los presupuestos son muy variables: desde peñas con cuota simbólica de 0€ y 1.400 socios hasta peñas con cuotas de 175€ y lista de espera. La palabra clave es _comunidad_: Associated debe transmitir que facilita la fiesta y la convivencia, no que burocratiza.
 
-**El club deportivo.** Organización orientada a resultados con obligaciones federativas concretas: licencias, seguros, certificados médicos, control de sanciones. Gestiona simultáneamente socios del club (que pagan cuota pero no practican deporte) y deportistas federados (que requieren documentación específica). Su calendario sigue la temporada deportiva, no el año natural. Tiene relación con instituciones externas (federaciones, ayuntamientos, diputaciones). La palabra clave es *organización*: Associated debe proyectar eficacia y fiabilidad operativa.
+**El club deportivo.** Organización orientada a resultados con obligaciones federativas concretas: licencias, seguros, certificados médicos, control de sanciones. Gestiona simultáneamente socios del club (que pagan cuota pero no practican deporte) y deportistas federados (que requieren documentación específica). Su calendario sigue la temporada deportiva, no el año natural. Tiene relación con instituciones externas (federaciones, ayuntamientos, diputaciones). La palabra clave es _organización_: Associated debe proyectar eficacia y fiabilidad operativa.
 
-**La cofradía tradicional.** Entidad con fuerte peso histórico y ceremonial, a menudo centenaria. Gestiona hermanos con derechos vinculados a antigüedad, cuotas de diversa naturaleza, patrimonio valioso (pasos, orfebrería, textiles) y una actividad anual que culmina en Semana Santa con una complejidad organizativa muy alta: cuadrillas de costaleros, papeletas de sitio por antigüedad, ensayos, cultos. Su junta directiva suele ser formal y jerárquica. Los procesos de alta pueden incluir avales, periodo de formación y jura de reglas. La palabra clave para esta colectividad es *tradición*: Associated debe demostrar que entiende y respeta su forma de funcionar sin pretender modernizarla forzosamente.
+**La cofradía tradicional.** Entidad con fuerte peso histórico y ceremonial, a menudo centenaria. Gestiona hermanos con derechos vinculados a antigüedad, cuotas de diversa naturaleza, patrimonio valioso (pasos, orfebrería, textiles) y una actividad anual que culmina en Semana Santa con una complejidad organizativa muy alta: cuadrillas de costaleros, papeletas de sitio por antigüedad, ensayos, cultos. Su junta directiva suele ser formal y jerárquica. Los procesos de alta pueden incluir avales, periodo de formación y jura de reglas. La palabra clave para esta colectividad es _tradición_: Associated debe demostrar que entiende y respeta su forma de funcionar sin pretender modernizarla forzosamente.
 
 ### 3.2 Arquetipos de usuario
 
@@ -194,17 +194,20 @@ Cinco rasgos definen su carácter:
 
 El tono de Associated se define mejor por lo que evita que por lo que hace.
 
-**Evita la condescendencia.** El usuario es un voluntario, no un incompetente. No explicamos lo obvio ni usamos diminutivos conceptuales. 
-* **SI:** "Genera la remesa SEPA".
-* **NO:** "¡Vamos a generar tu primera remesa! Es muy fácil, ya verás."
+**Evita la condescendencia.** El usuario es un voluntario, no un incompetente. No explicamos lo obvio ni usamos diminutivos conceptuales.
 
-**Evita el entusiasmo artificial.** No usamos exclamaciones gratuitas, emojis en contextos funcionales, ni celebraciones desproporcionadas. 
-* **SI:** "Remesa generada correctamente. 47 recibos incluidos."
-* **NO:** "¡Genial! ¡Tu remesa está lista! 🎉"
+- **SI:** "Genera la remesa SEPA".
+- **NO:** "¡Vamos a generar tu primera remesa! Es muy fácil, ya verás."
 
-**Evita la ambigüedad.** Cuando hay un error, decimos qué ha fallado y qué hacer. Cuando hay un estado, lo nombramos con precisión. 
-* **SI:** "3 socios no incluidos: IBAN no válido"
-* **NO:** "Algunos socios no pudieron ser procesados."
+**Evita el entusiasmo artificial.** No usamos exclamaciones gratuitas, emojis en contextos funcionales, ni celebraciones desproporcionadas.
+
+- **SI:** "Remesa generada correctamente. 47 recibos incluidos."
+- **NO:** "¡Genial! ¡Tu remesa está lista! 🎉"
+
+**Evita la ambigüedad.** Cuando hay un error, decimos qué ha fallado y qué hacer. Cuando hay un estado, lo nombramos con precisión.
+
+- **SI:** "3 socios no incluidos: IBAN no válido"
+- **NO:** "Algunos socios no pudieron ser procesados."
 
 **Evita el corporativismo.** No hablamos de "soluciones integrales", "ecosistemas", "experiencias" ni "propuestas de valor" en la comunicación con el usuario. Esas palabras son útiles en este documento de marca; en el producto serían ruido.
 
@@ -212,29 +215,35 @@ El tono de Associated se define mejor por lo que evita que por lo que hace.
 
 Aunque la personalidad es constante, la intensidad y el registro se adaptan al contexto. La siguiente tabla establece las variaciones.
 
-**Dentro del producto (interfaz, mensajes, estados, errores).** Es el contexto más neutro y funcional. Frases mínimas, vocabulario preciso del dominio, sin adjetivos innecesarios. El modelo mental es un panel de control bien diseñado: informa, no conversa. 
-* **SI:** "Cargo generado · 142 socios · Cuota ordinaria 2026".
-* **NO**: "Hemos creado un nuevo cargo para tus socios con la cuota de este año."
+**Dentro del producto (interfaz, mensajes, estados, errores).** Es el contexto más neutro y funcional. Frases mínimas, vocabulario preciso del dominio, sin adjetivos innecesarios. El modelo mental es un panel de control bien diseñado: informa, no conversa.
 
-**Onboarding y ayuda contextual.** Ligeramente más explicativo, pero sin perder la funcionalidad. Se permite alguna frase más larga para dar contexto, pero se evita el tono tutorial condescendiente. 
-* **SI:** "Las remesas SEPA agrupan los cobros de cuotas en un fichero que subes a tu banco. Necesitas el identificador de acreedor del Banco de España para generarlas." 
-* **NO:** "¿Sabes qué es una remesa SEPA? No te preocupes, te lo explicamos paso a paso. ¡Es más fácil de lo que parece!"
+- **SI:** "Cargo generado · 142 socios · Cuota ordinaria 2026".
+- **NO**: "Hemos creado un nuevo cargo para tus socios con la cuota de este año."
 
-**Web y landing page.** El contexto donde más espacio hay para desarrollar mensajes, pero mantiene el mismo carácter: directo, sin adornos, centrado en el problema que resuelve. Puede usar frases algo más largas y permitirse algún recurso narrativo (como reflejar la situación del tesorero), pero sin caer en el copywriting publicitario agresivo. 
-* **SI:** "Tu colectividad tiene socios, cuotas, eventos y documentación. Associated los pone en un solo lugar." 
-* **NO:** "¡Descubre la herramienta que va a transformar la gestión de tu asociación para siempre!"
+**Onboarding y ayuda contextual.** Ligeramente más explicativo, pero sin perder la funcionalidad. Se permite alguna frase más larga para dar contexto, pero se evita el tono tutorial condescendiente.
 
-**Emails transaccionales (confirmaciones, recordatorios, alertas).** Tono informativo y breve. Asunto claro que permita identificar el contenido sin abrir el email. Cuerpo con la información esencial y un enlace a la acción si la hay. 
-* **SI:** "Remesa SEPA generada - Asociacion de XYZ - Marzo 2026". 
-* **NO:** "¡Tu remesa está lista! Entra para verla."
+- **SI:** "Las remesas SEPA agrupan los cobros de cuotas en un fichero que subes a tu banco. Necesitas el identificador de acreedor del Banco de España para generarlas."
+- **NO:** "¿Sabes qué es una remesa SEPA? No te preocupes, te lo explicamos paso a paso. ¡Es más fácil de lo que parece!"
 
-**Comunicación de error o problema.** Sin suavizar pero sin alarmar. Qué ha pasado, qué impacto tiene, qué puede hacer el usuario. 
-* **SI:** "No se pudo incluir a 3 socios en la remesa. Motivo: IBAN no registrado. Puedes completar sus datos en la ficha de socio y reintentar." 
-* **NO:** "¡Ups! Algo ha salido mal con algunos socios. Revisa sus datos e inténtalo de nuevo."
+**Web y landing page.** El contexto donde más espacio hay para desarrollar mensajes, pero mantiene el mismo carácter: directo, sin adornos, centrado en el problema que resuelve. Puede usar frases algo más largas y permitirse algún recurso narrativo (como reflejar la situación del tesorero), pero sin caer en el copywriting publicitario agresivo.
 
-**Soporte y documentación de ayuda.** El contexto más cálido dentro del registro funcional. Se permite un tono algo más conversacional porque el usuario está pidiendo ayuda y necesita sentir que hay alguien al otro lado, pero sin perder la orientación a la resolución. 
-* **SI:** "Si el banco rechaza la remesa, comprueba que el identificador de acreedor es correcto. Lo encuentras en la sección Configuración > Datos bancarios." 
-* **NO:** "¡No te preocupes! A veces los bancos rechazan remesas y no es culpa tuya. Vamos a solucionarlo juntos."
+- **SI:** "Tu colectividad tiene socios, cuotas, eventos y documentación. Associated los pone en un solo lugar."
+- **NO:** "¡Descubre la herramienta que va a transformar la gestión de tu asociación para siempre!"
+
+**Emails transaccionales (confirmaciones, recordatorios, alertas).** Tono informativo y breve. Asunto claro que permita identificar el contenido sin abrir el email. Cuerpo con la información esencial y un enlace a la acción si la hay.
+
+- **SI:** "Remesa SEPA generada - Asociacion de XYZ - Marzo 2026".
+- **NO:** "¡Tu remesa está lista! Entra para verla."
+
+**Comunicación de error o problema.** Sin suavizar pero sin alarmar. Qué ha pasado, qué impacto tiene, qué puede hacer el usuario.
+
+- **SI:** "No se pudo incluir a 3 socios en la remesa. Motivo: IBAN no registrado. Puedes completar sus datos en la ficha de socio y reintentar."
+- **NO:** "¡Ups! Algo ha salido mal con algunos socios. Revisa sus datos e inténtalo de nuevo."
+
+**Soporte y documentación de ayuda.** El contexto más cálido dentro del registro funcional. Se permite un tono algo más conversacional porque el usuario está pidiendo ayuda y necesita sentir que hay alguien al otro lado, pero sin perder la orientación a la resolución.
+
+- **SI:** "Si el banco rechaza la remesa, comprueba que el identificador de acreedor es correcto. Lo encuentras en la sección Configuración > Datos bancarios."
+- **NO:** "¡No te preocupes! A veces los bancos rechazan remesas y no es culpa tuya. Vamos a solucionarlo juntos."
 
 ### 5.4 Lo que Associated nunca dice
 
@@ -308,15 +317,15 @@ Associated usa un vocabulario deliberado que refleja cercanía al dominio y resp
 
 **Términos generales de producto:**
 
-| Usamos | Evitamos | Motivo |
-|--------|----------|--------|
-| colectividad | organización, entidad, cliente | Es el término que engloba cofradías, peñas, clubes y asociaciones sin jerarquizar |
-| socio, miembro | usuario final, afiliado, suscriptor | Es como se llaman entre ellos |
-| junta directiva | administradores, equipo de gestión | Es el término legal y real |
-| ejercicio | periodo, ciclo, temporada | Es el concepto contable que usan |
-| cuota | suscripción, tarifa, fee | Es la palabra del dominio |
-| cargo (económico) | factura, invoice, línea de cobro | No son empresas, no facturan a sus socios |
-| plan gratuito | plan free, freemium, tier básico | En español, sin anglicismos innecesarios |
+| Usamos            | Evitamos                            | Motivo                                                                            |
+| ----------------- | ----------------------------------- | --------------------------------------------------------------------------------- |
+| colectividad      | organización, entidad, cliente      | Es el término que engloba cofradías, peñas, clubes y asociaciones sin jerarquizar |
+| socio, miembro    | usuario final, afiliado, suscriptor | Es como se llaman entre ellos                                                     |
+| junta directiva   | administradores, equipo de gestión  | Es el término legal y real                                                        |
+| ejercicio         | periodo, ciclo, temporada           | Es el concepto contable que usan                                                  |
+| cuota             | suscripción, tarifa, fee            | Es la palabra del dominio                                                         |
+| cargo (económico) | factura, invoice, línea de cobro    | No son empresas, no facturan a sus socios                                         |
+| plan gratuito     | plan free, freemium, tier básico    | En español, sin anglicismos innecesarios                                          |
 
 **Términos específicos por colectividad:**
 
@@ -356,36 +365,36 @@ El isotipo funciona como ancla visual de la marca. Su geometría lo hace reprodu
 
 **Variantes del logotipo:**
 
-*Versión principal (horizontal).* Isotipo a la izquierda, logotipo tipográfico a la derecha, alineados verticalmente por el centro. Es la versión preferente para la mayoría de contextos: cabecera de producto, landing page, documentación.
+_Versión principal (horizontal)._ Isotipo a la izquierda, logotipo tipográfico a la derecha, alineados verticalmente por el centro. Es la versión preferente para la mayoría de contextos: cabecera de producto, landing page, documentación.
 
-*Versión apilada (vertical).* Isotipo arriba, logotipo tipográfico debajo, centrados. Para contextos donde el espacio horizontal es limitado: pantallas de carga, firmas de app, iconos de aplicación con nombre.
+_Versión apilada (vertical)._ Isotipo arriba, logotipo tipográfico debajo, centrados. Para contextos donde el espacio horizontal es limitado: pantallas de carga, firmas de app, iconos de aplicación con nombre.
 
-*Solo isotipo.* Para contextos donde el nombre ya está establecido o el espacio es muy reducido: favicon, icono de app, avatar en redes sociales, marca de agua.
+_Solo isotipo._ Para contextos donde el nombre ya está establecido o el espacio es muy reducido: favicon, icono de app, avatar en redes sociales, marca de agua.
 
-*Solo logotipo tipográfico.* Para contextos donde el isotipo no es necesario o añade ruido: menciones en texto corrido dentro de la interfaz, footers, breadcrumbs.
+_Solo logotipo tipográfico._ Para contextos donde el isotipo no es necesario o añade ruido: menciones en texto corrido dentro de la interfaz, footers, breadcrumbs.
 
 **Versiones cromáticas del logotipo:**
 
 Cada una de las cuatro variantes de composición (horizontal, apilada, solo isotipo, solo logotipo) debe poder reproducirse en las siguientes versiones cromáticas.
 
-*Versión a color (principal).* Los dos tonos de marca: azul Associated (`#27343E`) y gris azulado (`#5B7682`) en el isotipo, con la zona de intersección generada por la superposición de ambos. Logotipo tipográfico en azul Associated. Es la versión preferente siempre que el fondo lo permita; fondos blancos, crema o grises muy claros.
+_Versión a color (principal)._ Los dos tonos de marca: azul Associated (`#27343E`) y gris azulado (`#5B7682`) en el isotipo, con la zona de intersección generada por la superposición de ambos. Logotipo tipográfico en azul Associated. Es la versión preferente siempre que el fondo lo permita; fondos blancos, crema o grises muy claros.
 
-*Versión monocroma oscura.* Isotipo y logotipo tipográfico en un único color: azul Associated (`#27343E`). Los dos planos del isotipo se diferencian únicamente por opacidad, el plano principal al 100% y el plano secundario al 60%, manteniendo el efecto de superposición. Se usa cuando la impresión o el contexto limita a un solo color oscuro, o cuando el logo a color compite visualmente con otros elementos.
+_Versión monocroma oscura._ Isotipo y logotipo tipográfico en un único color: azul Associated (`#27343E`). Los dos planos del isotipo se diferencian únicamente por opacidad, el plano principal al 100% y el plano secundario al 60%, manteniendo el efecto de superposición. Se usa cuando la impresión o el contexto limita a un solo color oscuro, o cuando el logo a color compite visualmente con otros elementos.
 
-*Versión monocroma clara (negativo).* Isotipo y logotipo tipográfico en blanco (`#FFFFFF`), con la misma diferenciación por opacidad entre planos (100% y 60%). Se usa exclusivamente sobre fondos oscuros, ya sea el azul Associated, fotografías oscuras o fondos negros. Nunca sobre fondos de color medio donde el contraste sea insuficiente.
+_Versión monocroma clara (negativo)._ Isotipo y logotipo tipográfico en blanco (`#FFFFFF`), con la misma diferenciación por opacidad entre planos (100% y 60%). Se usa exclusivamente sobre fondos oscuros, ya sea el azul Associated, fotografías oscuras o fondos negros. Nunca sobre fondos de color medio donde el contraste sea insuficiente.
 
-*Versión en negro puro.* Isotipo y logotipo en negro (`#000000`) con diferenciación de planos por opacidad. Para contextos de impresión en blanco y negro estricto: fotocopias, fax, sellos, documentos oficiales monocromo. Es la versión de último recurso, se usa solo cuando ninguna otra es posible.
+_Versión en negro puro._ Isotipo y logotipo en negro (`#000000`) con diferenciación de planos por opacidad. Para contextos de impresión en blanco y negro estricto: fotocopias, fax, sellos, documentos oficiales monocromo. Es la versión de último recurso, se usa solo cuando ninguna otra es posible.
 
 **Reglas de aplicación sobre fondos:**
 
-| Fondo | Versión a usar |
-|-------|---------------|
-| Blanco o gris claro (`#F8F9FA` a `#EFF1F3`) | Color (principal) |
-| Gris medio (`#D1D5DB` o similar) | Monocroma oscura |
-| Azul Associated (`#27343E`) | Negativo (blanco) |
-| Fotografía clara, poco contraste | Monocroma oscura |
-| Fotografía oscura o con mucho contraste | Negativo (blanco) |
-| Negro puro | Negativo (blanco) |
+| Fondo                                           | Versión a usar                                     |
+| ----------------------------------------------- | -------------------------------------------------- |
+| Blanco o gris claro (`#F8F9FA` a `#EFF1F3`)     | Color (principal)                                  |
+| Gris medio (`#D1D5DB` o similar)                | Monocroma oscura                                   |
+| Azul Associated (`#27343E`)                     | Negativo (blanco)                                  |
+| Fotografía clara, poco contraste                | Monocroma oscura                                   |
+| Fotografía oscura o con mucho contraste         | Negativo (blanco)                                  |
+| Negro puro                                      | Negativo (blanco)                                  |
 | Cualquier color saturado de la paleta semántica | Evitar, no colocar el logo sobre fondos semánticos |
 
 **Contraste mínimo:** en cualquier aplicación, la relación de contraste entre el logotipo y su fondo debe cumplir al menos un ratio de 4.5:1 (WCAG AA). Si una combinación no alcanza este ratio, se elige la siguiente versión cromática en orden de preferencia.
@@ -404,28 +413,28 @@ La paleta se estructura en cuatro niveles: colores primarios de marca, colores n
 
 Son los dos tonos que definen el isotipo y la identidad visual principal. Se usan en el logotipo, elementos de navegación principal, acciones primarias y acentos visuales.
 
-*Azul Associated (Primary Dark)*: El tono dominante del isotipo. Un azul muy oscuro con matiz ligeramente verdoso, cercano al petróleo. Transmite solidez y fiabilidad sin la frialdad de un azul puro ni la agresividad de un negro. Código Hexadecimal: `#27343E`.
+_Azul Associated (Primary Dark)_: El tono dominante del isotipo. Un azul muy oscuro con matiz ligeramente verdoso, cercano al petróleo. Transmite solidez y fiabilidad sin la frialdad de un azul puro ni la agresividad de un negro. Código Hexadecimal: `#27343E`.
 
-*Gris azulado (Primary Light)*: El segundo plano del isotipo. Un gris con carga azul, más claro y suave que el primario. Funciona como complemento para crear profundidad y jerarquía. Código Hexadecimal: `#5B7682`.
+_Gris azulado (Primary Light)_: El segundo plano del isotipo. Un gris con carga azul, más claro y suave que el primario. Funciona como complemento para crear profundidad y jerarquía. Código Hexadecimal: `#5B7682`.
 
 **Colores neutros.**
 
 Para textos, fondos, bordes y la mayor parte de la interfaz del producto. La interfaz de Associated es predominantemente neutra, los colores de marca son acentos, no protagonistas.
 
-* *Texto principal*: Casi negro, con una mínima carga azul para coherencia con la paleta. `#1A1A2E`.
-* *Texto secundario*: Gris medio para información complementaria, labels, placeholders. `#6C7080`.
-* *Bordes y separadores*: Gris claro. `#D1D5DB`.
-* *Fondo principal*: Blanco cálido, no blanco puro (que resulta agresivo en pantalla). `#F8F9FA`.
-* *Fondo secundario*: Gris muy claro para secciones alternadas, tarjetas, sidebars. `#EFF1F3`.
+- _Texto principal_: Casi negro, con una mínima carga azul para coherencia con la paleta. `#1A1A2E`.
+- _Texto secundario_: Gris medio para información complementaria, labels, placeholders. `#6C7080`.
+- _Bordes y separadores_: Gris claro. `#D1D5DB`.
+- _Fondo principal_: Blanco cálido, no blanco puro (que resulta agresivo en pantalla). `#F8F9FA`.
+- _Fondo secundario_: Gris muy claro para secciones alternadas, tarjetas, sidebars. `#EFF1F3`.
 
 **Colores semánticos funcionales.**
 
 Para comunicar estados del sistema. Estos colores no son de marca, son utilitarios y deben usarse exclusivamente para su función semántica, nunca como decoración.
 
-* *Éxito / Confirmación*: Verde contenido, no saturado. `#2D7A4F`.
-* *Error / Alerta crítica*: Rojo sobrio, sin estridencia. `#C0392B`.
-* *Advertencia*: Ámbar. `#D4850A`.
-* *Información*: Azul medio, diferenciado del primario de marca. `#2B7AB5`.
+- _Éxito / Confirmación_: Verde contenido, no saturado. `#2D7A4F`.
+- _Error / Alerta crítica_: Rojo sobrio, sin estridencia. `#C0392B`.
+- _Advertencia_: Ámbar. `#D4850A`.
+- _Información_: Azul medio, diferenciado del primario de marca. `#2B7AB5`.
 
 **Colores de superficie para tarjetas de estado.**
 
@@ -447,13 +456,13 @@ Inter es una tipografía sans-serif diseñada específicamente para pantallas, c
 
 La jerarquía se construye con tres variables: tamaño, peso y color. No se usa cursiva como recurso jerárquico (reservada exclusivamente para citas o títulos de obras si fuera necesario).
 
-* *Cabecera de página (H1)*: 24px, SemiBold (600), color texto principal.
-* *Título de sección (H2)*: 20px, SemiBold (600), color texto principal.
-* *Subtítulo (H3)*: 16px, Medium (500), color texto principal.
-* *Cuerpo de texto*: 14px, Regular (400), color texto principal.
-* *Texto secundario / labels*: 13px, Regular (400), color texto secundario.
-* *Texto pequeño / captions*: 12px, Regular (400), color texto secundario.
-* *Datos numéricos en tablas*: 14px, Regular (400), números tabulares activados.
+- _Cabecera de página (H1)_: 24px, SemiBold (600), color texto principal.
+- _Título de sección (H2)_: 20px, SemiBold (600), color texto principal.
+- _Subtítulo (H3)_: 16px, Medium (500), color texto principal.
+- _Cuerpo de texto_: 14px, Regular (400), color texto principal.
+- _Texto secundario / labels_: 13px, Regular (400), color texto secundario.
+- _Texto pequeño / captions_: 12px, Regular (400), color texto secundario.
+- _Datos numéricos en tablas_: 14px, Regular (400), números tabulares activados.
 
 **Regla de peso:** en la interfaz solo se usan Regular (400), Medium (500) y SemiBold (600). Nunca Bold (700) ni superior en textos de interfaz, la negrita excesiva contradice el tono discreto de la marca. Bold se reserva para la web y materiales de comunicación donde el contexto lo justifique.
 
@@ -515,7 +524,7 @@ El orden de mención de colectividades en toda la landing es: asociaciones cultu
 
 El dashboard demuestra la aplicación de la identidad visual dentro del producto, alineado con la estructura definida en UC-064 y con las convenciones visuales de Mantine 8.x.
 
-Elementos de marca presentes: sidebar con fondo azul Associated (`#27343E`), isotipo en negativo, paleta neutra dominante (90% neutros) con colores semánticos exclusivamente funcionales (verde para éxito, rojo para error, naranja para advertencia), tipografía Plus Jakarta Sans, iconografía de línea, grid de 8px.
+Elementos de marca presentes: header con zona de marca (isotipo + toggle de sidebar), sidebar colapsable en desktop con fondo por defecto del tema (blanco en modo claro, gris oscuro en modo oscuro) y estados activos en color primario de marca, soporte de modo oscuro mediante detección de preferencia del sistema, paleta neutra dominante (90% neutros) con colores semánticos exclusivamente funcionales (verde para éxito, rojo para error, naranja para advertencia), tipografía Plus Jakarta Sans, iconografía de línea, grid de 8px.
 
 Componentes visibles: KpiCards con trend indicator, donut chart de distribución por tipo de socio, badges de estado con colores semánticos, SegmentedControl para selección de período, gráficos de barras de evolución, widget de alertas con severidades y acciones directas, tabla de últimos movimientos con hover y badges de estado. Todos los importes en formato español (punto para miles, coma para decimales, símbolo € al final).
 

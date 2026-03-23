@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import i18n from '@/i18n/i18n';
+
 // === Schemas base reutilizables ===
 
 export const authTokensSchema = z.object({
@@ -23,8 +25,8 @@ export const tenantInfoSchema = z.object({
 // === Schemas de request ===
 
 export const loginRequestSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().email({ error: i18n.t('auth:validation.invalidEmail') }),
+  password: z.string().min(1, { error: i18n.t('auth:validation.passwordRequired') }),
 });
 
 // === Schemas de respuesta ===

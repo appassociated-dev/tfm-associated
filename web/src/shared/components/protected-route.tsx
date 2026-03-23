@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { Center, Loader, Stack, Text, Title } from '@mantine/core';
 import { useAuth } from '@/features/auth/context/use-auth';
 import { usePermissions } from '@/features/auth/context/use-permissions';
@@ -12,6 +13,7 @@ interface ProtectedRouteProps {
  * Orden de evaluación: loading -> no auth -> sin permisos -> renderizar contenido.
  */
 export function ProtectedRoute({ permissions }: ProtectedRouteProps) {
+  const { t } = useTranslation();
   const { isAuthenticated, isLoading } = useAuth();
   const { hasAllPermissions } = usePermissions();
 
@@ -35,7 +37,7 @@ export function ProtectedRoute({ permissions }: ProtectedRouteProps) {
       <Center mih="100vh">
         <Stack align="center" gap="md">
           <Title order={1}>403</Title>
-          <Text c="dimmed">No tienes permisos para acceder a esta página.</Text>
+          <Text c="dimmed">{t('errors.forbidden')}</Text>
         </Stack>
       </Center>
     );

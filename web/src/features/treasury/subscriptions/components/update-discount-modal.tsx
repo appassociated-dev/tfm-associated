@@ -10,6 +10,7 @@ import {
   Alert,
   Button,
 } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 import { useUpdateDiscount } from '../hooks/use-update-discount';
 import type { FeeSubscription } from '../schemas/subscription.schemas';
 import { calculateEffectiveAmount } from '../utils/discount-calculator';
@@ -29,6 +30,7 @@ export function UpdateDiscountModal({
   memberAccountId,
   subscription,
 }: UpdateDiscountModalProps) {
+  const { t } = useTranslation('treasury');
   const currentPersonalPercent =
     subscription.personalDiscount != null ? Math.round(subscription.personalDiscount * 100) : 0;
 
@@ -107,17 +109,22 @@ export function UpdateDiscountModal({
   };
 
   return (
-    <Modal opened={opened} onClose={handleClose} title="Modificar Descuento" size="lg">
+    <Modal
+      opened={opened}
+      onClose={handleClose}
+      title={t('subscriptions.updateDiscountModal.title')}
+      size="lg"
+    >
       <Stack gap="md">
         {/* Desglose actual del descuento */}
         <div>
           <Text fw={600} size="sm" c="dimmed" mb={4}>
-            Descuento actual
+            {t('subscriptions.updateDiscountModal.currentDiscount')}
           </Text>
           {currentBreakdown && (
             <Stack gap={2}>
               <Group justify="space-between">
-                <Text size="sm">Importe base</Text>
+                <Text size="sm">{t('subscriptions.updateDiscountModal.baseAmount')}</Text>
                 <Text
                   size="sm"
                   fw={500}
@@ -129,7 +136,9 @@ export function UpdateDiscountModal({
               {currentBreakdown.typeDiscount != null && (
                 <Group justify="space-between">
                   <Text size="sm" c="dimmed">
-                    Dto. tipo ({Math.round(currentBreakdown.typeDiscount * 100)}%)
+                    {t('subscriptions.updateDiscountModal.typeDiscountWithPercent', {
+                      percent: Math.round(currentBreakdown.typeDiscount * 100),
+                    })}
                   </Text>
                   <Text
                     size="sm"
@@ -143,7 +152,9 @@ export function UpdateDiscountModal({
               {currentBreakdown.personalDiscount != null && (
                 <Group justify="space-between">
                   <Text size="sm" c="dimmed">
-                    Dto. personal ({Math.round(currentBreakdown.personalDiscount * 100)}%)
+                    {t('subscriptions.updateDiscountModal.personalDiscountWithPercent', {
+                      percent: Math.round(currentBreakdown.personalDiscount * 100),
+                    })}
                   </Text>
                   <Text
                     size="sm"
@@ -163,7 +174,7 @@ export function UpdateDiscountModal({
                 style={{ borderTop: '1px solid var(--mantine-color-gray-3)', paddingTop: 4 }}
               >
                 <Text size="sm" fw={700}>
-                  Importe efectivo actual
+                  {t('subscriptions.updateDiscountModal.currentEffectiveAmount')}
                 </Text>
                 <Text
                   size="sm"
@@ -179,8 +190,8 @@ export function UpdateDiscountModal({
 
         {/* Input de nuevo descuento personal */}
         <NumberInput
-          label="Nuevo descuento personalizado (%)"
-          description="Valor entre 0 y 99%"
+          label={t('subscriptions.updateDiscountModal.newDiscountLabel')}
+          description={t('subscriptions.updateDiscountModal.newDiscountDescription')}
           value={personalPercent}
           onChange={(v) => setPersonalPercent(typeof v === 'number' ? v : 0)}
           min={0}
@@ -188,28 +199,38 @@ export function UpdateDiscountModal({
           suffix="%"
           clampBehavior="strict"
           error={
-            combinedExceedsLimit ? 'El descuento combinado no puede alcanzar el 100%' : undefined
+            combinedExceedsLimit
+              ? t('subscriptions.updateDiscountModal.discountExceededError')
+              : undefined
           }
         />
 
         {/* Motivo (obligatorio) */}
         <Textarea
-          label="Motivo del cambio"
-          placeholder="Indique el motivo del cambio de descuento"
+          label={t('subscriptions.updateDiscountModal.reasonLabel')}
+          placeholder={t('subscriptions.updateDiscountModal.reasonPlaceholder')}
           value={reason}
           onChange={(e) => setReason(e.currentTarget.value)}
           minRows={2}
-          error={reason.length > 0 && !isReasonValid ? 'Minimo 3 caracteres' : undefined}
+          error={
+            reason.length > 0 && !isReasonValid
+              ? t('subscriptions.updateDiscountModal.minChars')
+              : undefined
+          }
           required
         />
 
         {/* Aprobado por (obligatorio) */}
         <TextInput
-          label="Aprobado por"
-          placeholder='Ej: "Junta Directiva 15/03/2026"'
+          label={t('subscriptions.updateDiscountModal.approvedByLabel')}
+          placeholder={t('subscriptions.updateDiscountModal.approvedByPlaceholder')}
           value={approvedBy}
           onChange={(e) => setApprovedBy(e.currentTarget.value)}
-          error={approvedBy.length > 0 && !isApprovedByValid ? 'Minimo 3 caracteres' : undefined}
+          error={
+            approvedBy.length > 0 && !isApprovedByValid
+              ? t('subscriptions.updateDiscountModal.minChars')
+              : undefined
+          }
           required
         />
 
@@ -217,11 +238,11 @@ export function UpdateDiscountModal({
         {newBreakdown && !combinedExceedsLimit && (
           <div>
             <Text fw={600} size="sm" c="dimmed" mb={4}>
-              Nuevo importe efectivo (preview)
+              {t('subscriptions.updateDiscountModal.newEffectivePreview')}
             </Text>
             <Stack gap={2}>
               <Group justify="space-between">
-                <Text size="sm">Importe base</Text>
+                <Text size="sm">{t('subscriptions.updateDiscountModal.baseAmount')}</Text>
                 <Text
                   size="sm"
                   fw={500}
@@ -233,7 +254,9 @@ export function UpdateDiscountModal({
               {newBreakdown.typeDiscount != null && (
                 <Group justify="space-between">
                   <Text size="sm" c="dimmed">
-                    Dto. tipo ({Math.round(newBreakdown.typeDiscount * 100)}%)
+                    {t('subscriptions.updateDiscountModal.typeDiscountWithPercent', {
+                      percent: Math.round(newBreakdown.typeDiscount * 100),
+                    })}
                   </Text>
                   <Text
                     size="sm"
@@ -247,7 +270,9 @@ export function UpdateDiscountModal({
               {newBreakdown.personalDiscount != null && (
                 <Group justify="space-between">
                   <Text size="sm" c="dimmed">
-                    Dto. personal ({Math.round(personalPercent)}%)
+                    {t('subscriptions.updateDiscountModal.personalDiscountWithPercent', {
+                      percent: Math.round(personalPercent),
+                    })}
                   </Text>
                   <Text
                     size="sm"
@@ -264,7 +289,7 @@ export function UpdateDiscountModal({
                 style={{ borderTop: '1px solid var(--mantine-color-gray-3)', paddingTop: 4 }}
               >
                 <Text size="sm" fw={700}>
-                  Nuevo importe efectivo
+                  {t('subscriptions.updateDiscountModal.newEffectiveAmount')}
                 </Text>
                 <Text
                   size="sm"
@@ -276,22 +301,26 @@ export function UpdateDiscountModal({
                 </Text>
               </Group>
               <Text size="xs" c="dimmed" ta="right">
-                Descuento total: {newBreakdown.totalDiscountPercent}%
+                {t('subscriptions.updateDiscountModal.discountTotal')}{' '}
+                {newBreakdown.totalDiscountPercent}%
               </Text>
             </Stack>
           </div>
         )}
 
         {/* Alerta informativa */}
-        <Alert color="blue" variant="light" title="Informacion">
-          Los cargos ya generados mantienen su importe original. Solo los cargos futuros usaran el
-          nuevo descuento.
+        <Alert
+          color="blue"
+          variant="light"
+          title={t('subscriptions.updateDiscountModal.infoTitle')}
+        >
+          {t('subscriptions.updateDiscountModal.infoText')}
         </Alert>
 
         {/* Botones de accion */}
         <Group justify="flex-end" mt="md">
           <Button variant="default" onClick={handleClose}>
-            Cancelar
+            {t('subscriptions.updateDiscountModal.cancel')}
           </Button>
           <Button
             color="brand"
@@ -299,7 +328,7 @@ export function UpdateDiscountModal({
             loading={updateDiscountMutation.isPending}
             disabled={!canSubmit}
           >
-            Guardar
+            {t('subscriptions.updateDiscountModal.save')}
           </Button>
         </Group>
       </Stack>

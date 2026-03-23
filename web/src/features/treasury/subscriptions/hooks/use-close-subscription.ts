@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
+import i18n from '@/i18n/i18n';
 import { closeSubscription } from '../api/subscription.api';
+import { ApiError } from '@/shared/api/api-error';
 import type { CancelReason } from '../schemas/subscription.schemas';
 
 /** Hook para cerrar una suscripcion con motivo. */
@@ -16,17 +18,17 @@ export function useCloseSubscription(memberAccountId: string) {
         queryKey: ['subscriptions', memberAccountId],
       });
       notifications.show({
-        title: 'Suscripcion cerrada',
-        message: 'La suscripcion se ha cerrado correctamente',
+        title: i18n.t('treasury:subscriptions.notifications.closeSuccess.title'),
+        message: i18n.t('treasury:subscriptions.notifications.closeSuccess.message'),
         color: 'green',
       });
     },
     onError: (error: unknown) => {
-      const status = (error as { response?: { status?: number } })?.response?.status;
+      const status = error instanceof ApiError ? error.status : undefined;
       if (status === 409) {
         notifications.show({
-          title: 'Error',
-          message: 'No se pudo cerrar la suscripcion',
+          title: i18n.t('treasury:subscriptions.notifications.closeError.title'),
+          message: i18n.t('treasury:subscriptions.notifications.closeError.message'),
           color: 'red',
         });
       }

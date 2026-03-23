@@ -12,6 +12,7 @@ import {
   Text,
   Title,
 } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 
 import { formatMoney } from '@/shared/utils/format-money';
 import { formatDateLong } from '@/shared/utils/format-date';
@@ -36,6 +37,7 @@ const REINSTATABLE_STATES = ['VOLUNTARY_LEAVE', 'NONPAYMENT_LEAVE'];
 export function ReinstatementPage() {
   const { memberId } = useParams<{ memberId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation(['membership', 'common']);
 
   // Datos
   const { data: summary, isLoading, isError, error, refetch } = useReinstatementSummary(memberId);
@@ -84,14 +86,13 @@ export function ReinstatementPage() {
     if (isCannotReinstate) {
       return (
         <Stack gap="md">
-          <Title order={2}>Rehabilitacion de Socio</Title>
-          <Alert color="yellow" title="Rehabilitacion no disponible">
-            Este socio se encuentra en estado activo. La rehabilitacion solo aplica a socios que
-            hayan sido dados de baja (baja voluntaria o baja por impago).
+          <Title order={2}>{t('leave.reinstatement.title')}</Title>
+          <Alert color="yellow" title={t('leave.reinstatement.notAvailableTitle')}>
+            {t('leave.reinstatement.notAvailableText')}
           </Alert>
           <Group>
             <Button variant="default" onClick={() => navigate(`/members/${memberId}`)}>
-              Volver al perfil del socio
+              {t('leave.reinstatement.backToProfile')}
             </Button>
           </Group>
         </Stack>
@@ -99,10 +100,10 @@ export function ReinstatementPage() {
     }
 
     return (
-      <Alert color="red" title="Error al cargar datos de rehabilitacion">
-        No se pudo obtener el resumen de rehabilitacion del socio.
+      <Alert color="red" title={t('leave.reinstatement.errorLoadTitle')}>
+        {t('leave.reinstatement.errorLoadText')}
         <Button variant="subtle" color="red" size="xs" mt="xs" onClick={() => refetch()}>
-          Reintentar
+          {t('common:actions.retry')}
         </Button>
       </Alert>
     );
@@ -114,49 +115,49 @@ export function ReinstatementPage() {
     <>
       <Breadcrumbs mb="md">
         <Text c="dimmed" size="sm">
-          Socios
+          {t('leave.breadcrumbs.members')}
         </Text>
         <Text c="dimmed" size="sm">
           {summary.memberName}
         </Text>
-        <Text size="sm">Rehabilitacion</Text>
+        <Text size="sm">{t('leave.breadcrumbs.reinstatement')}</Text>
       </Breadcrumbs>
 
       <Stack gap="xl">
         {/* Titulo */}
-        <Title order={2}>Rehabilitacion de Socio</Title>
+        <Title order={2}>{t('leave.reinstatement.title')}</Title>
 
         {/* Seccion: Datos del ex-socio */}
         <Stack gap="sm">
-          <Title order={4}>Datos del ex-socio</Title>
+          <Title order={4}>{t('leave.memberData.exMemberTitle')}</Title>
           <Group gap="lg">
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Nombre
+                {t('leave.memberData.name')}
               </Text>
               <Text size="sm">{summary.memberName}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Número de socio
+                {t('leave.memberData.memberNumber')}
               </Text>
               <Text size="sm">#{summary.memberNumber ?? 'N/A'}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                DNI
+                {t('leave.memberData.dni')}
               </Text>
-              <Text size="sm">{summary.memberDni ?? 'No disponible'}</Text>
+              <Text size="sm">{summary.memberDni ?? t('leave.memberData.dniNotAvailable')}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Fecha de baja
+                {t('leave.memberData.leaveDate')}
               </Text>
               <Text size="sm">{formatDateLong(new Date(summary.leaveDate))}</Text>
             </div>
             <div>
               <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-                Tipo de baja
+                {t('leave.memberData.leaveType')}
               </Text>
               <StatusBadge status={summary.leaveType} />
             </div>
@@ -164,8 +165,8 @@ export function ReinstatementPage() {
 
           {/* Alerta si no es rehabilitable */}
           {!canReinstate && (
-            <Alert color="red" title="Rehabilitacion no disponible">
-              Este socio no puede rehabilitarse desde el estado actual.
+            <Alert color="red" title={t('leave.reinstatement.notAvailableTitle')}>
+              {t('leave.reinstatement.notAvailableFromStatus')}
             </Alert>
           )}
         </Stack>
@@ -174,7 +175,7 @@ export function ReinstatementPage() {
         {canReinstate && (
           <>
             <Stack gap="sm">
-              <Title order={4}>Desglose de importe a pagar</Title>
+              <Title order={4}>{t('leave.reinstatement.costBreakdown')}</Title>
               <Table>
                 <Table.Thead>
                   <Table.Tr>
@@ -186,7 +187,7 @@ export function ReinstatementPage() {
                       fw={600}
                       c="dimmed"
                     >
-                      Concepto
+                      {t('leave.reinstatement.table.concept')}
                     </Table.Th>
                     <Table.Th
                       style={{
@@ -197,20 +198,20 @@ export function ReinstatementPage() {
                       fw={600}
                       c="dimmed"
                     >
-                      Importe
+                      {t('leave.reinstatement.table.amount')}
                     </Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
                   <Table.Tr>
-                    <Table.Td>Deuda pendiente</Table.Td>
+                    <Table.Td>{t('leave.reinstatement.table.pendingDebt')}</Table.Td>
                     <Table.Td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
                       {formatMoney(summary.pendingDebt)}
                     </Table.Td>
                   </Table.Tr>
                   {summary.penalty > 0 && (
                     <Table.Tr>
-                      <Table.Td>Penalizacion</Table.Td>
+                      <Table.Td>{t('leave.reinstatement.table.penalty')}</Table.Td>
                       <Table.Td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
                         {formatMoney(summary.penalty)}
                       </Table.Td>
@@ -218,7 +219,7 @@ export function ReinstatementPage() {
                   )}
                   {summary.newRegistrationFee > 0 && (
                     <Table.Tr>
-                      <Table.Td>Nueva inscripcion</Table.Td>
+                      <Table.Td>{t('leave.reinstatement.table.newRegistration')}</Table.Td>
                       <Table.Td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
                         {formatMoney(summary.newRegistrationFee)}
                       </Table.Td>
@@ -227,7 +228,7 @@ export function ReinstatementPage() {
                   <Table.Tr>
                     <Table.Td>
                       <Text fw={700} size="md">
-                        Total a pagar
+                        {t('leave.reinstatement.table.totalToPay')}
                       </Text>
                     </Table.Td>
                     <Table.Td style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
@@ -239,25 +240,25 @@ export function ReinstatementPage() {
                 </Table.Tbody>
               </Table>
 
-              <Alert color="yellow" title="Pago completo requerido">
-                El pago debe ser completo. No se permiten pagos parciales.
+              <Alert color="yellow" title={t('leave.reinstatement.fullPaymentTitle')}>
+                {t('leave.reinstatement.fullPaymentText')}
               </Alert>
             </Stack>
 
             {/* Seccion: Antiguedad */}
             <Stack gap="sm">
-              <Title order={4}>Antiguedad</Title>
+              <Title order={4}>{t('leave.reinstatement.seniorityTitle')}</Title>
               {summary.keepSeniority ? (
-                <Alert color="blue" title="Recuperacion de antiguedad">
-                  Se recuperara la antiguedad anterior
+                <Alert color="blue" title={t('leave.reinstatement.keepSeniorityTitle')}>
                   {summary.previousSeniorityMonths != null
-                    ? ` (${summary.previousSeniorityMonths} meses)`
-                    : ''}
-                  .
+                    ? t('leave.reinstatement.keepSeniorityText', {
+                        months: summary.previousSeniorityMonths,
+                      })
+                    : t('leave.reinstatement.keepSeniorityTextNoMonths')}
                 </Alert>
               ) : (
-                <Alert color="gray" title="Antiguedad desde rehabilitacion">
-                  La antiguedad comenzara desde la fecha de rehabilitacion.
+                <Alert color="gray" title={t('leave.reinstatement.resetSeniorityTitle')}>
+                  {t('leave.reinstatement.resetSeniorityText')}
                 </Alert>
               )}
             </Stack>
@@ -265,7 +266,9 @@ export function ReinstatementPage() {
             {/* Seccion: Confirmacion */}
             <Stack gap="md">
               <Checkbox
-                label={`Confirmo que el pago de ${formatMoney(summary.totalToPay)} ha sido recibido`}
+                label={t('leave.reinstatement.paymentConfirmCheckbox', {
+                  amount: formatMoney(summary.totalToPay),
+                })}
                 checked={paymentConfirmed}
                 onChange={(event) => setPaymentConfirmed(event.currentTarget.checked)}
               />
@@ -277,7 +280,7 @@ export function ReinstatementPage() {
                   loading={reinstateMember.isPending}
                   onClick={handleReinstate}
                 >
-                  Rehabilitar Socio
+                  {t('leave.reinstatement.reinstateButton')}
                 </Button>
               </Group>
             </Stack>

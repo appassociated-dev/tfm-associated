@@ -1,267 +1,644 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { createElement } from 'react';
-import { MantineProvider } from '@mantine/core';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router';
+import { http, HttpResponse } from 'msw';
+import { render, screen, waitFor } from '@/test/helpers/render';
+import { server } from '@/test/msw/server';
+import {
+  buildSubscription,
+  buildMemberSubscriptionsResponse,
+  resetSubscriptionCounters,
+} from '@/test/factories';
+import { apiResponse } from '@/test/msw/utils';
 
 import { MemberSubscriptionsPage } from './member-subscriptions.page';
 
 // === Mocks ===
 
-const mockUseSubscriptions = vi.fn();
-const mockUseCreateSubscription = vi.fn();
-const mockUsePermissions = vi.fn();
-const mockUseParams = vi.fn();
-
-vi.mock('../hooks/use-subscriptions', () => ({
-  useSubscriptions: (...args: unknown[]) => mockUseSubscriptions(...args),
-}));
-
-vi.mock('../hooks/use-create-subscription', () => ({
-  useCreateSubscription: (...args: unknown[]) => mockUseCreateSubscription(...args),
-}));
-
-vi.mock('@/features/auth/context/use-permissions', () => ({
-  usePermissions: () => mockUsePermissions(),
-}));
-
-vi.mock('react-router', async () => {
-  const actual = await vi.importActual<typeof import('react-router')>('react-router');
-  return {
-    ...actual,
-    useParams: () => mockUseParams(),
-  };
-});
-
-// Mock de los modales para evitar dependencias profundas
+// Mock de modales para evitar dependencias profundas
 vi.mock('../components/change-plan-modal', () => ({
   ChangePlanModal: () => null,
 }));
-
 vi.mock('../components/update-discount-modal', () => ({
   UpdateDiscountModal: () => null,
 }));
-
 vi.mock('../components/exemption-modal', () => ({
   ExemptionModal: () => null,
 }));
-
 vi.mock('../components/subscription-selector', () => ({
-  SubscriptionSelector: () =>
-    createElement('div', { 'data-testid': 'subscription-selector' }, 'Selector Mock'),
+  SubscriptionSelector: () => <div data-testid="subscription-selector">Selector Mock</div>,
+}));
+
+vi.mock('@mantine/notifications', () => ({
+  notifications: { show: vi.fn() },
 }));
 
 // === Datos de prueba ===
 
 const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
-const VALID_UUID_2 = '660e8400-e29b-41d4-a716-446655440001';
-
-const activeSubscription = {
-  id: VALID_UUID,
-  feePlanId: VALID_UUID_2,
-  feePlanName: 'Cuota Anual',
-  feePlanCode: 'CUOTA-ANUAL',
-  feePlanType: 'RECURRING',
-  baseAmount: 12000,
-  typeDiscount: null,
-  personalDiscount: null,
-  personalDiscountReason: null,
-  effectiveAmount: 12000,
-  registrationDate: '2026-01-01T00:00:00.000Z',
-  leaveDate: null,
-  cancelReason: null,
-  chargesGenerated: 3,
-  totalCollected: 36000,
-};
-
-const closedSubscription = {
-  ...activeSubscription,
-  id: '770e8400-e29b-41d4-a716-446655440002',
-  feePlanName: 'Plan Anterior',
-  leaveDate: '2025-12-31T23:59:59.000Z',
-  cancelReason: 'PLAN_CHANGE' as const,
-};
-
-const subscriptionsDataWithActive = {
-  memberId: VALID_UUID,
-  memberName: 'Juan Garcia',
-  memberTypeId: VALID_UUID_2,
-  memberTypeName: 'Socio Numerario',
-  activeSubscription,
-  closedSubscriptions: [closedSubscription],
-};
-
-const subscriptionsDataWithoutActive = {
-  memberId: VALID_UUID,
-  memberName: 'Maria Lopez',
-  memberTypeId: VALID_UUID_2,
-  memberTypeName: 'Socio Numerario',
-  activeSubscription: null,
-  closedSubscriptions: [],
-};
-
-// === Helpers ===
-
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false, gcTime: 0 },
-    },
-  });
-
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return createElement(
-      MemoryRouter,
-      null,
-      createElement(
-        QueryClientProvider,
-        { client: queryClient },
-        createElement(MantineProvider, null, children),
-      ),
-    );
-  };
-}
-
-function renderPage() {
-  return render(createElement(MemberSubscriptionsPage), {
-    wrapper: createWrapper(),
-  });
-}
-
-// === Setup comun ===
-
-function setupDefaultMocks(
-  overrides: {
-    data?: typeof subscriptionsDataWithActive | typeof subscriptionsDataWithoutActive | undefined;
-    isLoading?: boolean;
-    isError?: boolean;
-    permissions?: string[];
-  } = {},
-) {
-  const {
-    data = subscriptionsDataWithActive,
-    isLoading = false,
-    isError = false,
-    permissions = ['treasury:subscriptions:create', 'treasury:subscriptions:update'],
-  } = overrides;
-
-  mockUseParams.mockReturnValue({ memberId: VALID_UUID });
-
-  mockUseSubscriptions.mockReturnValue({
-    data,
-    isLoading,
-    isError,
-    refetch: vi.fn(),
-  });
-
-  mockUseCreateSubscription.mockReturnValue({
-    mutate: vi.fn(),
-    isPending: false,
-  });
-
-  mockUsePermissions.mockReturnValue({
-    permissions,
-    hasPermission: (perm: string) => permissions.includes(perm),
-    hasAnyPermission: (perms: string[]) => perms.some((p) => permissions.includes(p)),
-    hasAllPermissions: (perms: string[]) => perms.every((p) => permissions.includes(p)),
-  });
-}
 
 // === Tests ===
 
 describe('MemberSubscriptionsPage', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    resetSubscriptionCounters();
   });
 
-  it('deberia mostrar la tarjeta de suscripcion activa cuando hay datos', () => {
-    setupDefaultMocks();
-    renderPage();
+  // --- Carga y esqueleto ---
 
-    // Titulo de seccion
-    expect(screen.getByText('Suscripción Activa')).toBeInTheDocument();
-    // Nombre del plan activo
-    expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
-    // Codigo del plan
-    expect(screen.getByText('CUOTA-ANUAL')).toBeInTheDocument();
-  });
+  describe('estado de carga', () => {
+    it('deberia mostrar skeletons mientras los datos estan cargando', () => {
+      // Arrange: handler que nunca resuelve
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return new Promise(() => {});
+        }),
+      );
 
-  it('deberia mostrar mensaje "Sin suscripcion activa" cuando no hay suscripcion activa', () => {
-    setupDefaultMocks({ data: subscriptionsDataWithoutActive });
-    renderPage();
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
 
-    expect(screen.getByText('Sin suscripción activa')).toBeInTheDocument();
-  });
-
-  it('deberia mostrar boton "Crear Suscripcion" cuando no hay activa y tiene permiso', () => {
-    setupDefaultMocks({
-      data: subscriptionsDataWithoutActive,
-      permissions: ['treasury:subscriptions:create'],
+      // Assert: no se muestra contenido real
+      expect(screen.queryByText('Suscripción Activa')).not.toBeInTheDocument();
+      expect(screen.queryByText('Sin suscripción activa')).not.toBeInTheDocument();
     });
-    renderPage();
-
-    expect(screen.getByText('Crear Suscripción')).toBeInTheDocument();
   });
 
-  it('deberia ocultar botones de accion sin permiso de actualizacion', () => {
-    setupDefaultMocks({
-      permissions: ['treasury:subscriptions:create'],
+  // --- Suscripcion activa ---
+
+  describe('suscripcion activa', () => {
+    it('deberia mostrar la tarjeta de suscripcion activa cuando hay datos', async () => {
+      // Arrange
+      const activeSubscription = buildSubscription({
+        feePlanName: 'Cuota Anual',
+        feePlanCode: 'CUOTA-ANUAL',
+      });
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        memberName: 'Juan Garcia',
+        activeSubscription,
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Suscripción Activa')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      expect(screen.getByText('CUOTA-ANUAL')).toBeInTheDocument();
     });
-    renderPage();
 
-    // Los botones de accion requieren permiso update
-    expect(screen.queryByText('Cambiar Plan')).not.toBeInTheDocument();
-    expect(screen.queryByText('Modificar Descuento')).not.toBeInTheDocument();
-    expect(screen.queryByText('Exención Temporal')).not.toBeInTheDocument();
-  });
+    it('deberia mostrar suscripcion activa con triangulacion (plan distinto)', async () => {
+      // Arrange
+      const activeSubscription = buildSubscription({
+        feePlanName: 'Cuota Trimestral',
+        feePlanCode: 'CUOTA-TRIM',
+        feePlanType: 'RECURRING',
+      });
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        memberName: 'Maria Lopez',
+        activeSubscription,
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
 
-  it('deberia mostrar botones de accion con permiso de actualizacion', () => {
-    setupDefaultMocks({
-      permissions: ['treasury:subscriptions:update'],
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Trimestral')).toBeInTheDocument();
+      });
+      expect(screen.getByText('CUOTA-TRIM')).toBeInTheDocument();
+      expect(screen.getByText('Periódico')).toBeInTheDocument();
     });
-    renderPage();
 
-    expect(screen.getByText('Cambiar Plan')).toBeInTheDocument();
-    expect(screen.getByText('Modificar Descuento')).toBeInTheDocument();
-    expect(screen.getByText('Exención Temporal')).toBeInTheDocument();
+    it('deberia mostrar badge de tipo "Unica" para plan ONE_TIME', async () => {
+      // Arrange
+      const activeSubscription = buildSubscription({
+        feePlanName: 'Inscripcion',
+        feePlanCode: 'INSCRIP',
+        feePlanType: 'ONE_TIME',
+      });
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription,
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Inscripcion')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Única')).toBeInTheDocument();
+    });
   });
 
-  it('deberia mostrar el historico de suscripciones como timeline', () => {
-    setupDefaultMocks();
-    renderPage();
+  // --- Sin suscripcion activa ---
 
-    // Titulo de seccion historico
-    expect(screen.getByText('Histórico de Suscripciones')).toBeInTheDocument();
-    // Nombre del plan cerrado en el timeline
-    expect(screen.getByText('Plan Anterior')).toBeInTheDocument();
-    // Badge de motivo de cancelacion
-    expect(screen.getByText('Cambio de plan')).toBeInTheDocument();
+  describe('sin suscripcion activa', () => {
+    it('deberia mostrar mensaje "Sin suscripción activa" cuando no hay suscripcion activa', async () => {
+      // Arrange
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        memberName: 'Maria Lopez',
+        activeSubscription: null,
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Sin suscripción activa')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia mostrar boton "Crear Suscripción" cuando no hay activa y tiene permiso', async () => {
+      // Arrange
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription: null,
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+        auth: { permissions: ['treasury:subscriptions:create'] },
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Crear Suscripción')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia NO mostrar boton "Crear Suscripción" sin permiso', async () => {
+      // Arrange
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription: null,
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+        auth: { permissions: [] },
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Sin suscripción activa')).toBeInTheDocument();
+      });
+      expect(screen.queryByText('Crear Suscripción')).not.toBeInTheDocument();
+    });
   });
 
-  it('deberia no mostrar seccion de historico cuando no hay suscripciones cerradas', () => {
-    setupDefaultMocks({ data: subscriptionsDataWithoutActive });
-    renderPage();
+  // --- Permisos de accion ---
 
-    expect(screen.queryByText('Histórico de Suscripciones')).not.toBeInTheDocument();
+  describe('permisos de accion', () => {
+    it('deberia ocultar botones de accion sin permiso de actualizacion', async () => {
+      // Arrange
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription: buildSubscription(),
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+        auth: { permissions: ['treasury:subscriptions:create'] },
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Suscripción Activa')).toBeInTheDocument();
+      });
+      expect(screen.queryByText('Cambiar Plan')).not.toBeInTheDocument();
+      expect(screen.queryByText('Modificar Descuento')).not.toBeInTheDocument();
+      expect(screen.queryByText('Exención Temporal')).not.toBeInTheDocument();
+    });
+
+    it('deberia mostrar botones de accion con permiso de actualizacion', async () => {
+      // Arrange
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription: buildSubscription(),
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+        auth: { permissions: ['treasury:subscriptions:update'] },
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Cambiar Plan')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Modificar Descuento')).toBeInTheDocument();
+      expect(screen.getByText('Exención Temporal')).toBeInTheDocument();
+    });
   });
 
-  it('deberia mostrar el nombre del socio en la cabecera', () => {
-    setupDefaultMocks();
-    renderPage();
+  // --- Interacciones de botones ---
 
-    // El nombre aparece tanto en el breadcrumb como en la cabecera
-    const nameElements = screen.getAllByText('Juan Garcia');
-    expect(nameElements.length).toBeGreaterThanOrEqual(1);
+  describe('interacciones', () => {
+    it('deberia abrir modal de creacion al hacer click en "Crear Suscripción"', async () => {
+      // Arrange
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription: null,
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      const { user } = render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+        auth: { permissions: ['treasury:subscriptions:create'] },
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Crear Suscripción')).toBeInTheDocument();
+      });
+      await user.click(screen.getByText('Crear Suscripción'));
+
+      // Assert: el selector mockeado aparece dentro del modal
+      await waitFor(() => {
+        expect(screen.getByTestId('subscription-selector')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia mostrar el motivo de descuento personal cuando existe', async () => {
+      // Arrange
+      const activeSubscription = buildSubscription({
+        personalDiscount: 0.15,
+        personalDiscountReason: 'Familiar del presidente',
+      });
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription,
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText(/Familiar del presidente/)).toBeInTheDocument();
+      });
+    });
   });
 
-  it('deberia renderizar breadcrumbs con la jerarquia correcta', () => {
-    setupDefaultMocks();
-    renderPage();
+  // --- Historico ---
 
-    expect(screen.getByText('Tesoreria')).toBeInTheDocument();
-    expect(screen.getByText('Cuentas de Socio')).toBeInTheDocument();
-    const breadcrumbsContainer = document.querySelector('.mantine-Breadcrumbs-root');
-    expect(breadcrumbsContainer).toBeInTheDocument();
+  describe('historico de suscripciones', () => {
+    it('deberia mostrar el historico de suscripciones como timeline', async () => {
+      // Arrange
+      const closedSub = buildSubscription({
+        feePlanName: 'Plan Anterior',
+        leaveDate: '2025-12-31T23:59:59.000Z',
+        cancelReason: 'PLAN_CHANGE',
+      });
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription: buildSubscription(),
+        closedSubscriptions: [closedSub],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Histórico de Suscripciones')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Plan Anterior')).toBeInTheDocument();
+      expect(screen.getByText('Cambio de plan')).toBeInTheDocument();
+    });
+
+    it('deberia mostrar motivo "Baja de socio" con triangulacion (MEMBER_LEAVE)', async () => {
+      // Arrange
+      const closedSub = buildSubscription({
+        feePlanName: 'Cuota Mensual',
+        leaveDate: '2025-06-15T10:00:00.000Z',
+        cancelReason: 'MEMBER_LEAVE',
+      });
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription: null,
+        closedSubscriptions: [closedSub],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Mensual')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Baja de socio')).toBeInTheDocument();
+    });
+
+    it('deberia no mostrar seccion de historico cuando no hay suscripciones cerradas', async () => {
+      // Arrange
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription: null,
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Sin suscripción activa')).toBeInTheDocument();
+      });
+      expect(screen.queryByText('Histórico de Suscripciones')).not.toBeInTheDocument();
+    });
+
+    it('deberia expandir detalle al hacer click en un elemento del timeline', async () => {
+      // Arrange
+      const closedSub = buildSubscription({
+        feePlanName: 'Plan Antiguo',
+        baseAmount: 8000,
+        leaveDate: '2025-10-01T00:00:00.000Z',
+        cancelReason: 'EXEMPTION',
+        chargesGenerated: 5,
+      });
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription: buildSubscription(),
+        closedSubscriptions: [closedSub],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      const { user } = render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Plan Antiguo')).toBeInTheDocument();
+      });
+      // Click en la fila del timeline para expandir
+      await user.click(screen.getByText('Plan Antiguo'));
+
+      // Assert: desglose expandido muestra cargos generados
+      await waitFor(() => {
+        expect(screen.getByText('Cargos generados')).toBeInTheDocument();
+      });
+    });
+  });
+
+  // --- Cabecera ---
+
+  describe('cabecera', () => {
+    it('deberia mostrar el nombre del socio en la cabecera', async () => {
+      // Arrange
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        memberName: 'Juan Garcia',
+        activeSubscription: buildSubscription(),
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        const nameElements = screen.getAllByText('Juan Garcia');
+        expect(nameElements.length).toBeGreaterThanOrEqual(1);
+      });
+    });
+
+    it('deberia renderizar breadcrumbs con la jerarquia correcta', async () => {
+      // Arrange
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        activeSubscription: buildSubscription(),
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Tesoreria')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Cuentas de Socio')).toBeInTheDocument();
+    });
+  });
+
+  // --- Estado de error ---
+
+  describe('estado de error', () => {
+    it('deberia mostrar alerta de error cuando la consulta falla', async () => {
+      // Arrange
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json({ message: 'Error' }, { status: 500 });
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Error al cargar suscripciones')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Reintentar')).toBeInTheDocument();
+    });
+
+    it('deberia reintentar la carga al hacer click en "Reintentar"', async () => {
+      // Arrange
+      let callCount = 0;
+      const data = buildMemberSubscriptionsResponse({
+        memberId: VALID_UUID,
+        memberName: 'Ana Martinez',
+        activeSubscription: buildSubscription({ feePlanName: 'Cuota Anual' }),
+        closedSubscriptions: [],
+      });
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          callCount++;
+          if (callCount === 1) {
+            return HttpResponse.json({ message: 'Error' }, { status: 500 });
+          }
+          return HttpResponse.json(apiResponse(data));
+        }),
+      );
+
+      // Act
+      const { user } = render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Reintentar')).toBeInTheDocument();
+      });
+      await user.click(screen.getByText('Reintentar'));
+
+      // Assert: ahora se muestran los datos correctos
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia mostrar alerta de error con 404 (triangulacion)', async () => {
+      // Arrange
+      server.use(
+        http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
+          return HttpResponse.json({ message: 'Not found' }, { status: 404 });
+        }),
+      );
+
+      // Act
+      render(<MemberSubscriptionsPage />, {
+        route: '/members/:memberId/subscriptions',
+        path: `/members/${VALID_UUID}/subscriptions`,
+      });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Error al cargar suscripciones')).toBeInTheDocument();
+      });
+    });
   });
 });

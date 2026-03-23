@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   Button,
   Chip,
@@ -11,34 +11,16 @@ import {
   TextInput,
   Textarea,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 
-import type { CreateFeePlanInput, Frequency, PlanType } from '../schemas/fee-plan.schemas';
-
-// === Constantes ===
-
-const MONTH_LABELS = [
-  'Ene',
-  'Feb',
-  'Mar',
-  'Abr',
-  'May',
-  'Jun',
-  'Jul',
-  'Ago',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dic',
-];
-
-const FREQUENCY_OPTIONS = [
-  { label: 'Mensual', value: 'MONTHLY' },
-  { label: 'Trimestral', value: 'QUARTERLY' },
-  { label: 'Semestral', value: 'BIANNUAL' },
-  { label: 'Anual', value: 'ANNUAL' },
-  { label: 'Personalizada', value: 'CUSTOM' },
-];
+import {
+  feePlanFormSchema,
+  type CreateFeePlanInput,
+  type FeePlanFormValues,
+  type Frequency,
+} from '../schemas/fee-plan.schemas';
 
 /** Meses preseleccionados según frecuencia. */
 const FREQUENCY_MONTHS: Record<string, number[]> = {
@@ -58,18 +40,6 @@ interface FeePlanFormProps {
   isEditing?: boolean;
 }
 
-/** Valores internos del formulario (importe en euros, no centavos). */
-interface FormValues {
-  code: string;
-  name: string;
-  description: string;
-  type: PlanType;
-  /** Importe en euros (con decimales). */
-  amountEuros: number;
-  frequency: Frequency | '';
-  billingMonths: number[];
-}
-
 // === Componente ===
 
 /**
@@ -83,8 +53,18 @@ export function FeePlanForm({
   isSubmitting,
   isEditing = false,
 }: FeePlanFormProps) {
-  const form = useForm<FormValues>({
-    initialValues: {
+  const { t } = useTranslation('treasury');
+
+  const {
+    register,
+    handleSubmit: rhfHandleSubmit,
+    control,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<FeePlanFormValues>({
+    resolver: zodResolver(feePlanFormSchema),
+    defaultValues: {
       code: initialValues?.code ?? '',
       name: initialValues?.name ?? '',
       description: initialValues?.description ?? '',
@@ -94,40 +74,11 @@ export function FeePlanForm({
       frequency: initialValues?.frequency ?? 'MONTHLY',
       billingMonths: initialValues?.billingMonths ?? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     },
-    validate: {
-      code: (value) => {
-        if (!value.trim()) return 'El código es obligatorio';
-        if (value.length < 2) return 'Mínimo 2 caracteres';
-        if (value.length > 20) return 'Máximo 20 caracteres';
-        if (!/^[a-zA-Z0-9_-]+$/.test(value))
-          return 'Solo caracteres alfanuméricos, guiones y guiones bajos';
-        return null;
-      },
-      name: (value) => {
-        if (!value.trim()) return 'El nombre es obligatorio';
-        if (value.length > 100) return 'Máximo 100 caracteres';
-        return null;
-      },
-      description: (value) => {
-        if (value && value.length > 500) return 'Máximo 500 caracteres';
-        return null;
-      },
-      amountEuros: (value) => {
-        if (value < 0.01) return 'El importe mínimo es 0,01 €';
-        return null;
-      },
-      billingMonths: (value, values) => {
-        if (values.type === 'RECURRING' && value.length === 0) {
-          return 'Seleccione al menos un mes de facturación';
-        }
-        return null;
-      },
-    },
   });
 
   // Preseleccionar meses cuando cambia la frecuencia o el tipo vuelve a RECURRING
-  const currentFrequency = form.getValues().frequency;
-  const currentType = form.getValues().type;
+  const currentFrequency = watch('frequency');
+  const currentType = watch('type');
 
   const prevFrequencyRef = useRef(currentFrequency);
   const prevTypeRef = useRef(currentType);
@@ -145,12 +96,12 @@ export function FeePlanForm({
 
     const preselected = FREQUENCY_MONTHS[currentFrequency];
     if (preselected) {
-      form.setFieldValue('billingMonths', preselected);
+      setValue('billingMonths', preselected);
     }
-  }, [currentFrequency, currentType, form]);
+  }, [currentFrequency, currentType, setValue]);
 
   /** Envía el formulario convirtiendo euros a centavos. */
-  async function handleSubmit(values: FormValues) {
+  async function handleSubmit(values: FeePlanFormValues) {
     const input: CreateFeePlanInput = {
       code: values.code.toUpperCase(),
       name: values.name,
@@ -165,111 +116,173 @@ export function FeePlanForm({
     await onSubmit(input);
   }
 
-  const isRecurring = form.getValues().type === 'RECURRING';
-  const selectedMonthsCount = form.getValues().billingMonths.length;
+  const isRecurring = currentType === 'RECURRING';
+  const selectedMonthsCount = watch('billingMonths').length;
+
+  const monthLabels = useMemo(
+    () => [
+      t('months.jan'),
+      t('months.feb'),
+      t('months.mar'),
+      t('months.apr'),
+      t('months.may'),
+      t('months.jun'),
+      t('months.jul'),
+      t('months.aug'),
+      t('months.sep'),
+      t('months.oct'),
+      t('months.nov'),
+      t('months.dec'),
+    ],
+    [t],
+  );
+
+  const frequencyOptions = useMemo(
+    () => [
+      { label: t('frequency.monthly'), value: 'MONTHLY' },
+      { label: t('frequency.quarterly'), value: 'QUARTERLY' },
+      { label: t('frequency.biannual'), value: 'BIANNUAL' },
+      { label: t('frequency.annual'), value: 'ANNUAL' },
+      { label: t('frequency.custom'), value: 'CUSTOM' },
+    ],
+    [t],
+  );
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
+    <form onSubmit={rhfHandleSubmit(handleSubmit)}>
       <Stack gap="md">
         {/* Código */}
-        <TextInput
-          label="Código"
-          placeholder="Ej: CUOTA-ANUAL"
-          readOnly={isEditing}
-          description={isEditing ? 'El código no se puede modificar' : undefined}
-          key={form.key('code')}
-          {...form.getInputProps('code')}
-          onChange={(e) => form.setFieldValue('code', e.currentTarget.value.toUpperCase())}
+        <Controller
+          name="code"
+          control={control}
+          render={({ field, fieldState }) => (
+            <TextInput
+              label={t('feePlans.form.code')}
+              placeholder={t('feePlans.form.codePlaceholder')}
+              readOnly={isEditing}
+              description={isEditing ? t('feePlans.form.codeReadonly') : undefined}
+              value={field.value}
+              onChange={(e) => field.onChange(e.currentTarget.value.toUpperCase())}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+            />
+          )}
         />
 
         {/* Nombre */}
         <TextInput
-          label="Nombre"
-          placeholder="Ej: Cuota anual de socio"
-          key={form.key('name')}
-          {...form.getInputProps('name')}
+          label={t('feePlans.form.name')}
+          placeholder={t('feePlans.form.namePlaceholder')}
+          {...register('name')}
+          error={errors.name?.message}
         />
 
         {/* Descripción */}
         <Textarea
-          label="Descripción"
-          placeholder="Descripción opcional del plan"
+          label={t('feePlans.form.description')}
+          placeholder={t('feePlans.form.descriptionPlaceholder')}
           autosize
           minRows={2}
           maxRows={4}
-          key={form.key('description')}
-          {...form.getInputProps('description')}
+          {...register('description')}
+          error={errors.description?.message}
         />
 
         {/* Tipo */}
         <div>
           <Text size="sm" fw={500} mb={4}>
-            Tipo de plan
+            {t('feePlans.form.planType')}
           </Text>
-          <SegmentedControl
-            data={[
-              { label: 'Periódico', value: 'RECURRING' },
-              { label: 'Cuota Única', value: 'ONE_TIME' },
-            ]}
-            key={form.key('type')}
-            {...form.getInputProps('type')}
+          <Controller
+            name="type"
+            control={control}
+            render={({ field }) => (
+              <SegmentedControl
+                data={[
+                  { label: t('feePlans.form.typeRecurring'), value: 'RECURRING' },
+                  { label: t('feePlans.form.typeOneTime'), value: 'ONE_TIME' },
+                ]}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
           />
         </div>
 
         {/* Importe */}
-        <NumberInput
-          label="Importe"
-          placeholder="0,00"
-          min={0.01}
-          decimalScale={2}
-          suffix=" €"
-          step={0.01}
-          key={form.key('amountEuros')}
-          {...form.getInputProps('amountEuros')}
+        <Controller
+          name="amountEuros"
+          control={control}
+          render={({ field, fieldState }) => (
+            <NumberInput
+              label={t('feePlans.form.amount')}
+              placeholder={t('feePlans.form.amountPlaceholder')}
+              min={0.01}
+              decimalScale={2}
+              suffix=" €"
+              step={0.01}
+              value={field.value}
+              onChange={(val) => field.onChange(typeof val === 'number' ? val : 0)}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+            />
+          )}
         />
 
         {/* Sección condicional: campos de periodicidad */}
         {isRecurring && (
           <>
             {/* Frecuencia */}
-            <Select
-              label="Periodicidad"
-              data={FREQUENCY_OPTIONS}
-              key={form.key('frequency')}
-              {...form.getInputProps('frequency')}
+            <Controller
+              name="frequency"
+              control={control}
+              render={({ field, fieldState }) => (
+                <Select
+                  label={t('feePlans.form.frequency')}
+                  data={frequencyOptions}
+                  value={field.value}
+                  onChange={(val) => field.onChange(val ?? '')}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                />
+              )}
             />
 
             {/* Meses de facturación */}
             <div>
               <Text size="sm" fw={500} mb={4}>
-                Meses de facturación
+                {t('feePlans.form.billingMonths')}
               </Text>
-              <Chip.Group
-                multiple
-                value={form.getValues().billingMonths.map(String)}
-                onChange={(selected: string[]) =>
-                  form.setFieldValue(
-                    'billingMonths',
-                    selected.map(Number).sort((a, b) => a - b),
-                  )
-                }
-              >
-                <Group gap="xs">
-                  {MONTH_LABELS.map((label, index) => (
-                    <Chip key={index + 1} value={String(index + 1)} variant="light">
-                      {label}
-                    </Chip>
-                  ))}
-                </Group>
-              </Chip.Group>
-              {form.errors.billingMonths && (
-                <Text c="red" size="xs" mt={4}>
-                  {form.errors.billingMonths}
-                </Text>
-              )}
+              <Controller
+                name="billingMonths"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <Chip.Group
+                      multiple
+                      value={field.value.map(String)}
+                      onChange={(selected: string[]) =>
+                        field.onChange(selected.map(Number).sort((a, b) => a - b))
+                      }
+                    >
+                      <Group gap="xs">
+                        {monthLabels.map((label, index) => (
+                          <Chip key={index + 1} value={String(index + 1)} variant="light">
+                            {label}
+                          </Chip>
+                        ))}
+                      </Group>
+                    </Chip.Group>
+                    {fieldState.error && (
+                      <Text c="red" size="xs" mt={4}>
+                        {fieldState.error.message}
+                      </Text>
+                    )}
+                  </>
+                )}
+              />
               <Text c="dimmed" size="xs" mt={4}>
-                Se generarán {selectedMonthsCount} cargo{selectedMonthsCount !== 1 ? 's' : ''} al
-                año
+                {t('feePlans.form.chargesPerYear', { count: selectedMonthsCount })}
               </Text>
             </div>
           </>
@@ -278,7 +291,7 @@ export function FeePlanForm({
         {/* Botón de envío */}
         <Group justify="flex-end" mt="md">
           <Button type="submit" color="brand" loading={isSubmitting} miw={120}>
-            Guardar
+            {t('feePlans.form.save')}
           </Button>
         </Group>
       </Stack>

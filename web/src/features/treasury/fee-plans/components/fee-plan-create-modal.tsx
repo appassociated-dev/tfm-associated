@@ -1,4 +1,5 @@
 import { Modal } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 
 import type { CreateFeePlanInput } from '../schemas/fee-plan.schemas';
 import { useCreateFeePlan } from '../hooks/use-create-fee-plan';
@@ -18,6 +19,7 @@ interface FeePlanCreateModalProps {
  * Encapsula el formulario y la mutación de creación.
  */
 export function FeePlanCreateModal({ opened, onClose }: FeePlanCreateModalProps) {
+  const { t } = useTranslation('treasury');
   const createMutation = useCreateFeePlan();
 
   /** Envía los datos al backend y cierra el modal en caso de éxito. */
@@ -27,7 +29,7 @@ export function FeePlanCreateModal({ opened, onClose }: FeePlanCreateModalProps)
   }
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Nuevo Plan de Cuota" size="lg">
+    <Modal opened={opened} onClose={onClose} title={t('feePlans.createModal.title')} size="lg">
       <FeePlanForm onSubmit={handleSubmit} isSubmitting={createMutation.isPending} />
     </Modal>
   );

@@ -1,85 +1,37 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { createElement } from 'react';
-import { MantineProvider } from '@mantine/core';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
+import { http, HttpResponse } from 'msw';
+import { render, screen, waitFor } from '@/test/helpers/render';
+import { server } from '@/test/msw/server';
+import {
+  buildFeePlan,
+  buildSubscription,
+  resetFeePlanCounters,
+  resetSubscriptionCounters,
+} from '@/test/factories';
+import { apiResponse } from '@/test/msw/utils';
 import type { FeeSubscription } from '../schemas/subscription.schemas';
-import type { FeePlan } from '../../fee-plans/schemas/fee-plan.schemas';
+
 import { ChangePlanModal } from './change-plan-modal';
 
 // === Mocks ===
 
-const mockFeePlans: FeePlan[] = [
-  {
-    id: 'plan-001',
-    code: 'ANUAL',
-    name: 'Cuota Anual',
-    description: null,
-    type: 'RECURRING',
-    amount: 12000,
-    frequency: 'ANNUAL',
-    billingMonths: [1],
-    active: true,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 'plan-002',
-    code: 'TRIMESTRAL',
-    name: 'Cuota Trimestral',
-    description: null,
-    type: 'RECURRING',
-    amount: 4000,
-    frequency: 'QUARTERLY',
-    billingMonths: [1, 4, 7, 10],
-    active: true,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 'plan-003',
-    code: 'MENSUAL',
-    name: 'Cuota Mensual',
-    description: null,
-    type: 'RECURRING',
-    amount: 1500,
-    frequency: 'MONTHLY',
-    billingMonths: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    active: true,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  },
-];
-
-vi.mock('../../fee-plans/hooks/use-fee-plans', () => ({
-  useFeePlans: () => ({
-    data: mockFeePlans,
-    isLoading: false,
-  }),
-}));
-
-vi.mock('../hooks/use-change-plan', () => ({
-  useChangePlan: () => ({
-    mutate: vi.fn(),
-    mutateAsync: vi.fn().mockResolvedValue(undefined),
-    isPending: false,
-  }),
-}));
-
-// Mock de @mantine/notifications para evitar errores de portal
+const mockNotificationsShow = vi.fn();
 vi.mock('@mantine/notifications', () => ({
-  notifications: {
-    show: vi.fn(),
-  },
+  notifications: { show: (...args: unknown[]) => mockNotificationsShow(...args) },
 }));
 
 // === Datos de prueba ===
 
+// UUIDs validos para tests
+const PLAN_UUID_1 = '11111111-1111-4111-8111-111111111111';
+const PLAN_UUID_2 = '22222222-2222-4222-8222-222222222222';
+const PLAN_UUID_3 = '33333333-3333-4333-8333-333333333333';
+const SUB_UUID = '44444444-4444-4444-8444-444444444444';
+
 function createMockSubscription(overrides: Partial<FeeSubscription> = {}): FeeSubscription {
   return {
-    id: 'sub-001',
-    feePlanId: 'plan-001',
+    id: SUB_UUID,
+    feePlanId: PLAN_UUID_1,
     feePlanName: 'Cuota Anual',
     feePlanCode: 'ANUAL',
     feePlanType: 'RECURRING',
@@ -97,18 +49,11 @@ function createMockSubscription(overrides: Partial<FeeSubscription> = {}): FeeSu
   };
 }
 
-// === Helpers ===
-
-function TestWrapper({ children }: { children: React.ReactNode }) {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return createElement(
-    QueryClientProvider,
-    { client: queryClient },
-    createElement(MantineProvider, null, children),
-  );
-}
+const mockFeePlans = [
+  buildFeePlan({ id: PLAN_UUID_1, code: 'ANUAL', name: 'Cuota Anual', amount: 12000 }),
+  buildFeePlan({ id: PLAN_UUID_2, code: 'TRIMESTRAL', name: 'Cuota Trimestral', amount: 4000 }),
+  buildFeePlan({ id: PLAN_UUID_3, code: 'MENSUAL', name: 'Cuota Mensual', amount: 1500 }),
+];
 
 function renderModal(props: Partial<Parameters<typeof ChangePlanModal>[0]> = {}) {
   const defaultProps = {
@@ -119,88 +64,477 @@ function renderModal(props: Partial<Parameters<typeof ChangePlanModal>[0]> = {})
     ...props,
   };
 
-  return render(createElement(ChangePlanModal, defaultProps), { wrapper: TestWrapper });
+  return render(<ChangePlanModal {...defaultProps} />);
+}
+
+/**
+ * Helper: selecciona un plan del dropdown Mantine Select.
+ * Mantine 8 Select renderiza items como divs con el texto del label,
+ * NO como role="option". El Select esta disabled={plansLoading},
+ * asi que primero esperamos a que se habilite (planes cargados).
+ */
+async function selectPlanFromDropdown(user: ReturnType<typeof render>['user'], planText: string) {
+  const selectInput = screen.getByPlaceholderText('Selecciona un plan');
+
+  // Esperar a que el Select se habilite (planes cargados via MSW)
+  await waitFor(() => {
+    expect(selectInput).not.toBeDisabled();
+  });
+
+  // Abrir dropdown
+  await user.click(selectInput);
+
+  // Esperar a que aparezcan las opciones y seleccionar
+  await waitFor(() => {
+    expect(screen.getByText(new RegExp(planText))).toBeInTheDocument();
+  });
+  await user.click(screen.getByText(new RegExp(planText)));
 }
 
 // === Tests ===
 
 describe('ChangePlanModal', () => {
   beforeEach(() => {
+    mockNotificationsShow.mockClear();
+  });
+
+  beforeEach(() => {
+    resetFeePlanCounters();
+    resetSubscriptionCounters();
     vi.clearAllMocks();
+    // Handler por defecto: devolver planes activos
+    server.use(
+      http.get('*/v1/treasury/fee-plans', () => {
+        return HttpResponse.json(apiResponse(mockFeePlans));
+      }),
+    );
   });
 
-  it('deberia renderizar la informacion del plan actual (nombre y codigo)', () => {
-    renderModal();
+  // --- Renderizado base ---
 
-    expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
-    expect(screen.getByText('ANUAL')).toBeInTheDocument();
+  describe('renderizado del plan actual', () => {
+    beforeEach(() => {
+      mockNotificationsShow.mockClear();
+    });
+
+    it('deberia renderizar la informacion del plan actual (nombre y codigo)', () => {
+      // Act
+      renderModal();
+
+      // Assert
+      expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      expect(screen.getByText('ANUAL')).toBeInTheDocument();
+    });
+
+    it('deberia mostrar el importe base del plan actual formateado', () => {
+      // Act
+      renderModal();
+
+      // Assert: 12000 centavos = 120,00 EUR
+      expect(screen.getByText(/120,00/)).toBeInTheDocument();
+    });
+
+    it('deberia mostrar el titulo del modal "Cambiar Plan"', () => {
+      // Act
+      renderModal();
+
+      // Assert
+      expect(screen.getByText('Cambiar Plan')).toBeInTheDocument();
+    });
+
+    it('deberia mostrar porcentajes de descuento del plan actual', () => {
+      // Act
+      renderModal();
+
+      // Assert
+      expect(screen.getByText(/Dto\. tipo: 30%/)).toBeInTheDocument();
+      expect(screen.getByText(/Dto\. personal: 10%/)).toBeInTheDocument();
+    });
+
+    it('deberia mostrar porcentajes de descuento con triangulacion (50% tipo, 20% personal)', () => {
+      // Act
+      renderModal({
+        subscription: createMockSubscription({
+          typeDiscount: 0.5,
+          personalDiscount: 0.2,
+        }),
+      });
+
+      // Assert
+      expect(screen.getByText(/Dto\. tipo: 50%/)).toBeInTheDocument();
+      expect(screen.getByText(/Dto\. personal: 20%/)).toBeInTheDocument();
+    });
   });
 
-  it('deberia mostrar el importe base del plan actual formateado', () => {
-    renderModal();
+  // --- Selector de nuevo plan ---
 
-    // 12000 centavos = 120,00 EUR
-    expect(screen.getByText(/120,00/)).toBeInTheDocument();
+  describe('selector de nuevo plan', () => {
+    beforeEach(() => {
+      mockNotificationsShow.mockClear();
+    });
+
+    it('deberia mostrar el selector de nuevo plan (Select)', () => {
+      // Act
+      renderModal();
+
+      // Assert
+      expect(screen.getByPlaceholderText('Selecciona un plan')).toBeInTheDocument();
+    });
+
+    it('deberia mostrar opciones del dropdown al hacer click', async () => {
+      // Act
+      const { user } = renderModal();
+      const selectInput = screen.getByPlaceholderText('Selecciona un plan');
+
+      // Esperar a que se habilite (planes cargados)
+      await waitFor(() => {
+        expect(selectInput).not.toBeDisabled();
+      });
+
+      await user.click(selectInput);
+
+      // Assert: las opciones del dropdown aparecen (Trimestral y Mensual, no Anual que es el actual)
+      await waitFor(() => {
+        expect(screen.getByText(/Cuota Trimestral/)).toBeInTheDocument();
+      });
+      expect(screen.getByText(/Cuota Mensual/)).toBeInTheDocument();
+    });
   });
 
-  it('deberia mostrar el selector de nuevo plan (Select)', () => {
-    renderModal();
+  // --- Opciones de fecha efectiva ---
 
-    // El Select de Mantine renderiza un input con placeholder
-    expect(screen.getByPlaceholderText('Selecciona un plan')).toBeInTheDocument();
+  describe('opciones de fecha efectiva', () => {
+    beforeEach(() => {
+      mockNotificationsShow.mockClear();
+    });
+
+    it('deberia mostrar las opciones de fecha efectiva (SegmentedControl)', () => {
+      // Act
+      renderModal();
+
+      // Assert
+      expect(screen.getByText('Inmediato (proximo cargo)')).toBeInTheDocument();
+      expect(screen.getByText('Inicio proximo mes')).toBeInTheDocument();
+      expect(screen.getByText('Inicio proximo ejercicio')).toBeInTheDocument();
+    });
   });
 
-  it('deberia mostrar las opciones de fecha efectiva (SegmentedControl con 3 opciones)', () => {
-    renderModal();
+  // --- Elementos informativos ---
 
-    expect(screen.getByText('Inmediato (proximo cargo)')).toBeInTheDocument();
-    expect(screen.getByText('Inicio proximo mes')).toBeInTheDocument();
-    expect(screen.getByText('Inicio proximo ejercicio')).toBeInTheDocument();
+  describe('elementos informativos', () => {
+    beforeEach(() => {
+      mockNotificationsShow.mockClear();
+    });
+
+    it('deberia mostrar alerta informativa sobre cancelacion de cargos futuros', () => {
+      // Act
+      renderModal();
+
+      // Assert
+      expect(
+        screen.getByText('Los cargos futuros del plan actual se cancelaran'),
+      ).toBeInTheDocument();
+    });
+
+    it('deberia mostrar checkbox de mantener cargos pendientes', () => {
+      // Act
+      renderModal();
+
+      // Assert
+      expect(
+        screen.getByText('Mantener cargos pendientes (la deuda se arrastra al nuevo plan)'),
+      ).toBeInTheDocument();
+    });
   });
 
-  it('deberia mostrar alerta informativa sobre cancelacion de cargos futuros', () => {
-    renderModal();
+  // --- Botones de accion ---
 
-    expect(
-      screen.getByText('Los cargos futuros del plan actual se cancelaran'),
-    ).toBeInTheDocument();
+  describe('botones de accion', () => {
+    beforeEach(() => {
+      mockNotificationsShow.mockClear();
+    });
+
+    it('deberia mostrar botones Cancelar y Confirmar Cambio', () => {
+      // Act
+      renderModal();
+
+      // Assert
+      expect(screen.getByText('Cancelar')).toBeInTheDocument();
+      const confirmButton = screen.getByText('Confirmar Cambio').closest('button')!;
+      expect(confirmButton).toBeInTheDocument();
+    });
+
+    it('deberia tener el boton Confirmar Cambio deshabilitado cuando no hay plan seleccionado', () => {
+      // Act
+      renderModal();
+
+      // Assert
+      const confirmButton = screen.getByText('Confirmar Cambio').closest('button')!;
+      expect(confirmButton).toBeDisabled();
+    });
+
+    it('deberia llamar a onClose al hacer click en Cancelar', async () => {
+      // Arrange
+      const mockOnClose = vi.fn();
+      const { user } = renderModal({ onClose: mockOnClose });
+
+      // Act
+      await user.click(screen.getByText('Cancelar'));
+
+      // Assert
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('deberia mostrar checkbox de mantener cargos pendientes', () => {
-    renderModal();
+  // --- Interacciones completas ---
 
-    expect(
-      screen.getByText('Mantener cargos pendientes (la deuda se arrastra al nuevo plan)'),
-    ).toBeInTheDocument();
+  describe('interacciones', () => {
+    beforeEach(() => {
+      mockNotificationsShow.mockClear();
+    });
+
+    it('deberia seleccionar un nuevo plan y enviar la solicitud de cambio', async () => {
+      // Arrange
+      let capturedBody: Record<string, unknown> | null = null;
+      server.use(
+        http.post(
+          '*/v1/treasury/member-accounts/:memberId/subscriptions/:subId/change-plan',
+          async ({ request }) => {
+            capturedBody = (await request.json()) as Record<string, unknown>;
+            return HttpResponse.json(
+              apiResponse(buildSubscription({ feePlanName: 'Cuota Trimestral' })),
+            );
+          },
+        ),
+      );
+
+      const mockOnClose = vi.fn();
+      const { user } = renderModal({ onClose: mockOnClose });
+
+      // Act: seleccionar Cuota Trimestral del dropdown
+      await selectPlanFromDropdown(user, 'Cuota Trimestral');
+
+      // Assert: boton habilitado
+      const confirmButton = screen.getByText('Confirmar Cambio').closest('button')!;
+      expect(confirmButton).not.toBeDisabled();
+
+      // Act: confirmar
+      await user.click(confirmButton);
+
+      // Assert: API llamada con payload correcto
+      await waitFor(() => {
+        expect(capturedBody).not.toBeNull();
+      });
+      expect(capturedBody).toEqual(
+        expect.objectContaining({
+          newFeePlanId: PLAN_UUID_2,
+          effectiveDateType: 'IMMEDIATE',
+          keepPendingCharges: true,
+        }),
+      );
+    });
+
+    it('deberia mostrar estado de carga en boton durante la mutacion', async () => {
+      // Arrange: handler que tarda en resolver
+      let resolveChangePlan: (() => void) | undefined;
+      server.use(
+        http.post(
+          '*/v1/treasury/member-accounts/:memberId/subscriptions/:subId/change-plan',
+          () => {
+            return new Promise<Response>((resolve) => {
+              resolveChangePlan = () =>
+                resolve(HttpResponse.json(apiResponse(buildSubscription())));
+            });
+          },
+        ),
+      );
+
+      const { user } = renderModal();
+
+      // Act: seleccionar plan
+      await selectPlanFromDropdown(user, 'Cuota Trimestral');
+      await user.click(screen.getByText('Confirmar Cambio'));
+
+      // Assert: boton en loading
+      await waitFor(() => {
+        const button = screen.getByText('Confirmar Cambio').closest('button')!;
+        expect(button).toHaveAttribute('data-loading');
+      });
+
+      // Cleanup
+      resolveChangePlan?.();
+    });
+
+    it('deberia desmarcar checkbox de mantener cargos pendientes', async () => {
+      // Act
+      const { user } = renderModal();
+      const checkbox = screen.getByRole('checkbox', {
+        name: /mantener cargos pendientes/i,
+      });
+
+      // Assert: marcado por defecto
+      expect(checkbox).toBeChecked();
+
+      // Act: desmarcar
+      await user.click(checkbox);
+
+      // Assert
+      expect(checkbox).not.toBeChecked();
+    });
+
+    it('deberia cerrar el modal y resetear estado tras cambio exitoso', async () => {
+      // Arrange
+      server.use(
+        http.post(
+          '*/v1/treasury/member-accounts/:memberId/subscriptions/:subId/change-plan',
+          () => {
+            return HttpResponse.json(apiResponse(buildSubscription()));
+          },
+        ),
+      );
+
+      const mockOnClose = vi.fn();
+      const { user } = renderModal({ onClose: mockOnClose });
+
+      // Seleccionar plan y confirmar
+      await selectPlanFromDropdown(user, 'Cuota Mensual');
+      await user.click(screen.getByText('Confirmar Cambio'));
+
+      // Assert: onClose se llama tras success
+      await waitFor(() => {
+        expect(mockOnClose).toHaveBeenCalled();
+      });
+    });
+
+    it('deberia mostrar notificacion de exito tras cambio de plan', async () => {
+      // Arrange
+      server.use(
+        http.post(
+          '*/v1/treasury/member-accounts/:memberId/subscriptions/:subId/change-plan',
+          () => {
+            return HttpResponse.json(apiResponse(buildSubscription()));
+          },
+        ),
+      );
+
+      const { user } = renderModal();
+
+      // Seleccionar plan y confirmar
+      await selectPlanFromDropdown(user, 'Cuota Trimestral');
+      await user.click(screen.getByText('Confirmar Cambio'));
+
+      // Assert
+      await waitFor(() => {
+        expect(mockNotificationsShow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Plan cambiado',
+            color: 'green',
+          }),
+        );
+      });
+    });
   });
 
-  it('deberia mostrar botones Cancelar y Confirmar Cambio', () => {
-    renderModal();
+  // --- Error de API ---
 
-    expect(screen.getByText('Cancelar')).toBeInTheDocument();
-    const confirmButton = screen.getByText('Confirmar Cambio').closest('button')!;
-    expect(confirmButton).toBeInTheDocument();
+  describe('error de API', () => {
+    beforeEach(() => {
+      mockNotificationsShow.mockClear();
+    });
+
+    it('deberia mantener modal abierto cuando la API devuelve 422', async () => {
+      // Arrange
+      // BUG DE PRODUCCION: useChangePlan.onError comprueba error.response?.status
+      // pero httpClient transforma errores a ApiError (error.status).
+      // La notificacion de error NO se mostrara porque el status check falla.
+      const windowHandler = (e: PromiseRejectionEvent) => e.preventDefault();
+      const processHandler = () => {};
+      window.addEventListener('unhandledrejection', windowHandler);
+      process.on('unhandledRejection', processHandler);
+
+      const mockOnClose = vi.fn();
+      server.use(
+        http.post(
+          '*/v1/treasury/member-accounts/:memberId/subscriptions/:subId/change-plan',
+          () => {
+            return HttpResponse.json(
+              { message: 'No se puede cambiar: hay cargos pendientes sin confirmar' },
+              { status: 422 },
+            );
+          },
+        ),
+      );
+
+      const { user } = renderModal({ onClose: mockOnClose });
+
+      // Act: seleccionar plan y confirmar
+      await selectPlanFromDropdown(user, 'Cuota Trimestral');
+      await user.click(screen.getByText('Confirmar Cambio'));
+
+      // Assert: la mutacion falla — modal NO se cierra
+      await waitFor(() => {
+        const button = screen.getByText('Confirmar Cambio').closest('button')!;
+        expect(button).not.toHaveAttribute('data-loading');
+      });
+      expect(mockOnClose).not.toHaveBeenCalled();
+
+      // Cleanup
+      window.removeEventListener('unhandledrejection', windowHandler);
+      process.removeListener('unhandledRejection', processHandler);
+    });
+
+    it('deberia mostrar notificacion de error con 422 (cargos pendientes)', async () => {
+      // El hook useChangePlan.onError ahora usa ApiError.status correctamente
+      // para detectar error 422 y mostrar notificacion roja.
+      const windowHandler = (e: PromiseRejectionEvent) => e.preventDefault();
+      const processHandler = () => {};
+      window.addEventListener('unhandledrejection', windowHandler);
+      process.on('unhandledRejection', processHandler);
+
+      server.use(
+        http.post(
+          '*/v1/treasury/member-accounts/:memberId/subscriptions/:subId/change-plan',
+          () => {
+            return HttpResponse.json({ message: 'No se puede cambiar' }, { status: 422 });
+          },
+        ),
+      );
+
+      const { user } = renderModal();
+
+      // Act
+      await selectPlanFromDropdown(user, 'Cuota Trimestral');
+      await user.click(screen.getByText('Confirmar Cambio'));
+
+      // Assert: error notification IS shown now that the bug is fixed
+      await waitFor(() => {
+        expect(mockNotificationsShow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Cambio no permitido',
+            color: 'red',
+          }),
+        );
+      });
+
+      // Cleanup
+      window.removeEventListener('unhandledrejection', windowHandler);
+      process.removeListener('unhandledRejection', processHandler);
+    });
   });
 
-  it('deberia tener el boton Confirmar Cambio deshabilitado cuando no hay plan seleccionado', () => {
-    renderModal();
+  // --- No renderizar si esta cerrado ---
 
-    const confirmButton = screen.getByText('Confirmar Cambio').closest('button')!;
-    expect(confirmButton).toBeDisabled();
-  });
+  describe('modal cerrado', () => {
+    beforeEach(() => {
+      mockNotificationsShow.mockClear();
+    });
 
-  it('deberia mostrar el titulo del modal "Cambiar Plan"', () => {
-    renderModal();
+    it('deberia no renderizar contenido cuando esta cerrado', () => {
+      // Act
+      renderModal({ opened: false });
 
-    expect(screen.getByText('Cambiar Plan')).toBeInTheDocument();
-  });
-
-  it('deberia mostrar porcentajes de descuento del plan actual', () => {
-    renderModal();
-
-    // typeDiscount 0.30 => "Dto. tipo: 30%"
-    expect(screen.getByText(/Dto\. tipo: 30%/)).toBeInTheDocument();
-    // personalDiscount 0.10 => "Dto. personal: 10%"
-    expect(screen.getByText(/Dto\. personal: 10%/)).toBeInTheDocument();
+      // Assert
+      expect(screen.queryByText('Cambiar Plan')).not.toBeInTheDocument();
+    });
   });
 });

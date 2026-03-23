@@ -1,3 +1,5 @@
+import i18n from '@/i18n/i18n';
+
 // Tabla oficial de letras para validación de DNI/NIE español
 const DNI_LETTER_TABLE = 'TRWAGMYFPDXBNJZSQVHLCKE';
 
@@ -27,7 +29,7 @@ export function validateDni(dni: string): ValidationResult {
   const trimmed = dni.trim();
 
   if (!trimmed) {
-    return { valid: false, error: 'El DNI no puede estar vacío' };
+    return { valid: false, error: i18n.t('membership:registration.validation.dni.dniEmpty') };
   }
 
   const match = trimmed.match(DNI_PATTERN);
@@ -35,7 +37,7 @@ export function validateDni(dni: string): ValidationResult {
   if (!match) {
     return {
       valid: false,
-      error: 'Formato de DNI inválido. Debe ser 8 dígitos seguidos de una letra',
+      error: i18n.t('membership:registration.validation.dni.dniInvalidFormat'),
     };
   }
 
@@ -44,7 +46,10 @@ export function validateDni(dni: string): ValidationResult {
   const expectedLetter = DNI_LETTER_TABLE[Number(digits) % 23];
 
   if (letter.toUpperCase() !== expectedLetter) {
-    return { valid: false, error: 'La letra del DNI no es correcta' };
+    return {
+      valid: false,
+      error: i18n.t('membership:registration.validation.dni.dniInvalidLetter'),
+    };
   }
 
   return { valid: true };
@@ -58,7 +63,7 @@ export function validateNie(nie: string): ValidationResult {
   const trimmed = nie.trim();
 
   if (!trimmed) {
-    return { valid: false, error: 'El NIE no puede estar vacío' };
+    return { valid: false, error: i18n.t('membership:registration.validation.dni.nieEmpty') };
   }
 
   const match = trimmed.match(NIE_PATTERN);
@@ -66,7 +71,7 @@ export function validateNie(nie: string): ValidationResult {
   if (!match) {
     return {
       valid: false,
-      error: 'Formato de NIE inválido. Debe ser X/Y/Z seguido de 7 dígitos y una letra',
+      error: i18n.t('membership:registration.validation.dni.nieInvalidFormat'),
     };
   }
 
@@ -77,7 +82,10 @@ export function validateNie(nie: string): ValidationResult {
   const expectedLetter = DNI_LETTER_TABLE[Number(numericValue) % 23];
 
   if (letter.toUpperCase() !== expectedLetter) {
-    return { valid: false, error: 'La letra del NIE no es correcta' };
+    return {
+      valid: false,
+      error: i18n.t('membership:registration.validation.dni.nieInvalidLetter'),
+    };
   }
 
   return { valid: true };
@@ -92,7 +100,7 @@ export function validateIdentityDocument(document: string): ValidationResult {
   const trimmed = document.trim();
 
   if (!trimmed) {
-    return { valid: false, error: 'El documento no puede estar vacío' };
+    return { valid: false, error: i18n.t('membership:registration.validation.dni.documentEmpty') };
   }
 
   const firstChar = trimmed[0].toUpperCase();
@@ -108,7 +116,10 @@ export function validateIdentityDocument(document: string): ValidationResult {
   }
 
   // Cualquier otro caso no es reconocido
-  return { valid: false, error: 'Formato no reconocido' };
+  return {
+    valid: false,
+    error: i18n.t('membership:registration.validation.dni.unrecognizedFormat'),
+  };
 }
 
 /**

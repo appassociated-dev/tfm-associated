@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import i18n from '@/i18n/i18n';
+
 // === Enums ===
 
 export const frequencySchema = z.enum(['MONTHLY', 'QUARTERLY', 'BIANNUAL', 'ANNUAL', 'CUSTOM']);
@@ -89,12 +91,12 @@ export const createFeePlanInputSchema = createFeePlanInputBaseSchema
     (data) => {
       // Si es RECURRING, frequency es obligatorio
       if (data.type === 'RECURRING') {
-        return data.frequency != null && data.frequency !== '';
+        return data.frequency != null;
       }
       return true;
     },
     {
-      message: 'La periodicidad es obligatoria para planes periodicos',
+      message: i18n.t('treasury:feePlans.validation.frequencyRequired'),
       path: ['frequency'],
     },
   )
@@ -107,7 +109,7 @@ export const createFeePlanInputSchema = createFeePlanInputBaseSchema
       return true;
     },
     {
-      message: 'Seleccione al menos un mes de facturacion para planes periodicos',
+      message: i18n.t('treasury:feePlans.validation.billingMonthsRequired'),
       path: ['billingMonths'],
     },
   );
@@ -119,6 +121,39 @@ export const linkMemberTypeInputSchema = z.object({
   isDefault: z.boolean(),
   order: z.number().int().min(0),
 });
+
+// === Schema interno del formulario fee-plan (amountEuros en euros, no centavos) ===
+
+export const feePlanFormSchema = z
+  .object({
+    code: z
+      .string()
+      .min(1, i18n.t('treasury:feePlans.validation.codeRequired'))
+      .min(2, i18n.t('treasury:feePlans.validation.codeMinLength'))
+      .max(20, i18n.t('treasury:feePlans.validation.codeMaxLength'))
+      .regex(/^[a-zA-Z0-9_-]+$/, i18n.t('treasury:feePlans.validation.codeFormat')),
+    name: z
+      .string()
+      .min(1, i18n.t('treasury:feePlans.validation.nameRequired'))
+      .max(100, i18n.t('treasury:feePlans.validation.nameMaxLength')),
+    description: z.string().max(500, i18n.t('treasury:feePlans.validation.descriptionMaxLength')),
+    type: planTypeSchema,
+    amountEuros: z.number().min(0.01, i18n.t('treasury:feePlans.validation.amountMin')),
+    frequency: z.union([frequencySchema, z.literal('')]),
+    billingMonths: z.array(z.number().int().min(1).max(12)),
+  })
+  .refine(
+    (data) => {
+      if (data.type === 'RECURRING' && data.billingMonths.length === 0) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: i18n.t('treasury:feePlans.validation.billingMonthsFormRequired'),
+      path: ['billingMonths'],
+    },
+  );
 
 // === Tipos inferidos (TODOS exportados) ===
 
@@ -132,3 +167,4 @@ export type FeePlanTemplate = z.infer<typeof feePlanTemplateSchema>;
 export type CreateFeePlanInput = z.infer<typeof createFeePlanInputSchema>;
 export type UpdateFeePlanInput = z.infer<typeof updateFeePlanInputSchema>;
 export type LinkMemberTypeInput = z.infer<typeof linkMemberTypeInputSchema>;
+export type FeePlanFormValues = z.infer<typeof feePlanFormSchema>;

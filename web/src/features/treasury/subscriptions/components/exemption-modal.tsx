@@ -10,6 +10,7 @@ import {
   Alert,
   Button,
 } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 import { useCloseSubscription } from '../hooks/use-close-subscription';
 
 interface ExemptionModalProps {
@@ -34,6 +35,7 @@ export function ExemptionModal({
   memberAccountId,
   subscriptionId,
 }: ExemptionModalProps) {
+  const { t } = useTranslation('treasury');
   const [exemptionType, setExemptionType] = useState<ExemptionType>('total');
   const [reason, setReason] = useState('');
   const [approvedBy, setApprovedBy] = useState('');
@@ -69,68 +71,75 @@ export function ExemptionModal({
   };
 
   return (
-    <Modal opened={opened} onClose={handleClose} title="Exencion Temporal" size="md">
+    <Modal
+      opened={opened}
+      onClose={handleClose}
+      title={t('subscriptions.exemptionModal.title')}
+      size="md"
+    >
       <Stack gap="md">
         {/* Selector de tipo de exencion */}
         <div>
           <Text fw={600} size="sm" c="dimmed" mb={4}>
-            Tipo de exencion
+            {t('subscriptions.exemptionModal.typeLabel')}
           </Text>
           <SegmentedControl
             fullWidth
             value={exemptionType}
             onChange={(v) => setExemptionType(v as ExemptionType)}
             data={[
-              { value: 'total', label: 'Exencion total (sin suscripcion)' },
+              { value: 'total', label: t('subscriptions.exemptionModal.totalOption') },
               {
                 value: 'traceability',
-                label: 'Exencion con trazabilidad',
+                label: t('subscriptions.exemptionModal.traceabilityOption'),
                 disabled: true,
               },
             ]}
           />
           {exemptionType === 'total' && (
             <Text size="xs" c="dimmed" mt={4}>
-              Se cerrara la suscripcion con motivo EXEMPTION. No se generaran cargos mientras la
-              suscripcion permanezca cerrada.
+              {t('subscriptions.exemptionModal.totalDescription')}
             </Text>
           )}
           {exemptionType === 'traceability' && (
             <Text size="xs" c="yellow" mt={4}>
-              La exencion con trazabilidad (descuento 100%) no esta disponible en esta version. El
-              descuento maximo permitido es 99%.
+              {t('subscriptions.exemptionModal.traceabilityDescription')}
             </Text>
           )}
         </div>
 
         {/* Motivo (obligatorio) */}
         <Textarea
-          label="Motivo de la exencion"
-          placeholder="Indique el motivo de la exencion temporal"
+          label={t('subscriptions.exemptionModal.reasonLabel')}
+          placeholder={t('subscriptions.exemptionModal.reasonPlaceholder')}
           value={reason}
           onChange={(e) => setReason(e.currentTarget.value)}
           minRows={3}
-          error={reason.length > 0 && !isReasonValid ? 'Minimo 3 caracteres' : undefined}
+          error={
+            reason.length > 0 && !isReasonValid
+              ? t('subscriptions.exemptionModal.minChars')
+              : undefined
+          }
           required
         />
 
         {/* Aprobado por */}
         <TextInput
-          label="Aprobado por"
-          placeholder='Ej: "Junta Directiva 15/03/2026"'
+          label={t('subscriptions.exemptionModal.approvedByLabel')}
+          placeholder={t('subscriptions.exemptionModal.approvedByPlaceholder')}
           value={approvedBy}
           onChange={(e) => setApprovedBy(e.currentTarget.value)}
         />
 
         {/* Alerta informativa */}
-        <Alert color="blue" variant="light" title="Informacion">
-          No se generaran cargos durante el periodo de exencion
+        <Alert color="blue" variant="light" title={t('subscriptions.exemptionModal.infoTitle')}>
+          {t('subscriptions.exemptionModal.infoText')}
         </Alert>
 
         {/* Botones de accion */}
         <Group justify="flex-end" mt="md">
           <Button variant="default" onClick={handleClose}>
-            Cancelar
+            {t('subscriptions.exemptionModal.cancel')}
           </Button>
           <Button
             color="brand"
@@ -138,7 +147,7 @@ export function ExemptionModal({
             loading={closeSubscriptionMutation.isPending}
             disabled={!canSubmit}
           >
-            Aplicar Exencion
+            {t('subscriptions.exemptionModal.apply')}
           </Button>
         </Group>
       </Stack>

@@ -1,13 +1,26 @@
 import { z } from 'zod';
 
+import i18n from '@/i18n/i18n';
+
 // === Schema de datos personales (paso 1 del wizard) ===
 
 export const personalDataSchema = z.object({
-  dni: z.string().min(1, 'DNI/NIE es obligatorio').max(20),
-  firstName: z.string().min(1, 'Nombre es obligatorio').max(100),
-  lastName: z.string().min(1, 'Apellidos es obligatorio').max(200),
-  birthDate: z.string().refine((val) => !isNaN(Date.parse(val)), 'Fecha de nacimiento inválida'),
-  email: z.string().email('Email inválido'),
+  dni: z.string().min(1, i18n.t('membership:registration.validation.dniRequired')).max(20),
+  firstName: z
+    .string()
+    .min(1, i18n.t('membership:registration.validation.firstNameRequired'))
+    .max(100),
+  lastName: z
+    .string()
+    .min(1, i18n.t('membership:registration.validation.lastNameRequired'))
+    .max(200),
+  birthDate: z
+    .string()
+    .refine(
+      (val) => !isNaN(Date.parse(val)),
+      i18n.t('membership:registration.validation.birthDateInvalid'),
+    ),
+  email: z.string().email(i18n.t('membership:registration.validation.emailInvalid')),
   phone: z.string().max(20).nullable(),
   address: z.string().max(300).nullable(),
   postalCode: z.string().max(10).nullable(),
@@ -98,6 +111,44 @@ export const preconditionsResponseSchema = z.object({
   registrationPlan: registrationPlanInfoSchema.nullish(),
   errors: z.array(z.string()),
 });
+
+// === Schema del formulario de datos personales (paso 1 — interno del form) ===
+// Nota: birthDate es string | null porque Mantine 8 DateInput devuelve string ("YYYY-MM-DD") en onChange.
+// El schema de API (personalDataSchema) espera string ISO — la conversion se hace en el useEffect de onValidChange.
+
+export const personalDataFormSchema = z.object({
+  dni: z.string().min(1, i18n.t('membership:registration.validation.dniRequired')).max(20),
+  firstName: z
+    .string()
+    .min(1, i18n.t('membership:registration.validation.firstNameRequired'))
+    .max(100),
+  lastName: z
+    .string()
+    .min(1, i18n.t('membership:registration.validation.lastNameRequired'))
+    .max(200),
+  birthDate: z
+    .string({ error: i18n.t('membership:registration.validation.birthDateRequired') })
+    .nullable()
+    .refine(
+      (val) => val !== null && val.trim() !== '',
+      i18n.t('membership:registration.validation.birthDateRequired'),
+    ),
+  email: z
+    .string()
+    .min(1, i18n.t('membership:registration.validation.emailRequired'))
+    .email(i18n.t('membership:registration.validation.emailInvalidForm')),
+  phone: z.string().max(20),
+  address: z.string().max(300),
+  postalCode: z
+    .string()
+    .refine(
+      (val) => !val || /^\d{5}$/.test(val),
+      i18n.t('membership:registration.validation.postalCodeFormat'),
+    ),
+  city: z.string().max(100),
+});
+
+export type PersonalDataFormValues = z.infer<typeof personalDataFormSchema>;
 
 // === Tipos inferidos ===
 

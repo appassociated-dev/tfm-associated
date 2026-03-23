@@ -1,4 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+
+import i18n from '@/i18n/i18n';
+
 import type { ErrorReporter } from './error-reporter.port';
 import { ConsoleErrorReporter } from './console-error-reporter';
 
@@ -23,10 +26,7 @@ const defaultReporter = new ConsoleErrorReporter();
  * Componente ErrorBoundary para capturar errores no manejados en el árbol React.
  * Reporta errores al ErrorReporter y muestra una UI de fallback con opción de recarga.
  */
-export class ErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -70,11 +70,10 @@ export class ErrorBoundary extends Component<
           }}
         >
           <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>
-            Ha ocurrido un error inesperado
+            {i18n.t('errors:boundary.title')}
           </h1>
           <p style={{ color: '#666', marginBottom: '1.5rem' }}>
-            Lo sentimos, algo ha salido mal. Por favor, intenta recargar la
-            página.
+            {i18n.t('errors:boundary.description')}
           </p>
           {this.state.error && (
             <pre
@@ -103,7 +102,7 @@ export class ErrorBoundary extends Component<
               cursor: 'pointer',
             }}
           >
-            Recargar página
+            {i18n.t('errors:boundary.reload')}
           </button>
         </div>
       );

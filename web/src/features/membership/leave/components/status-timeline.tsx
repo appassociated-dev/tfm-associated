@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Badge, Group, Stack, Text, Timeline } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 
 import { formatDateLong } from '@/shared/utils/format-date';
 
@@ -21,6 +22,8 @@ interface StatusTimelineProps {
  * Las entradas se ordenan cronologicamente con la mas reciente primero.
  */
 export function StatusTimeline({ entries }: StatusTimelineProps) {
+  const { t } = useTranslation('membership');
+
   // Ordenar entradas por fecha descendente (mas reciente primero)
   const sortedEntries = useMemo(
     () =>
@@ -33,7 +36,7 @@ export function StatusTimeline({ entries }: StatusTimelineProps) {
   if (sortedEntries.length === 0) {
     return (
       <Text c="dimmed" size="sm">
-        No hay historial de estados disponible.
+        {t('leave.timeline.emptyState')}
       </Text>
     );
   }
@@ -67,15 +70,15 @@ export function StatusTimeline({ entries }: StatusTimelineProps) {
               {/* Ejecutor del cambio */}
               <Group gap="xs" align="center">
                 <Text size="xs" c="dimmed">
-                  Ejecutado por:
+                  {t('leave.timeline.executedBy')}
                 </Text>
                 {entry.changedBy === 'Sistema' ? (
                   <Badge color="gray" variant="light" radius="sm" size="sm">
-                    Sistema
+                    {t('leave.timeline.system')}
                   </Badge>
                 ) : (
                   <Badge color="brand" variant="light" radius="sm" size="sm">
-                    Manual
+                    {t('leave.timeline.manual')}
                   </Badge>
                 )}
                 <Text size="xs" c="dimmed">

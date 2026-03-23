@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { createElement } from 'react';
-import { MantineProvider } from '@mantine/core';
+import { screen } from '@testing-library/react';
 
+import { render } from '@/test/helpers/render';
 import type { StatusHistoryEntry } from '../schemas/member-leave.schemas';
 import { StatusTimeline } from './status-timeline';
 
@@ -10,6 +9,7 @@ import { StatusTimeline } from './status-timeline';
 
 const VALID_UUID_1 = '550e8400-e29b-41d4-a716-446655440000';
 const VALID_UUID_2 = '660e8400-e29b-41d4-a716-446655440001';
+const VALID_UUID_3 = '770e8400-e29b-41d4-a716-446655440002';
 
 const sampleEntries: StatusHistoryEntry[] = [
   {
@@ -33,62 +33,114 @@ const sampleEntries: StatusHistoryEntry[] = [
 // === Helpers ===
 
 function renderTimeline(entries: StatusHistoryEntry[]) {
-  return render(createElement(StatusTimeline, { entries }), {
-    wrapper: ({ children }: { children: React.ReactNode }) =>
-      createElement(MantineProvider, null, children),
-  });
+  return render(<StatusTimeline entries={entries} />);
 }
 
 // === Tests ===
 
 describe('StatusTimeline', () => {
-  it('deberia renderizar las entradas del historial', () => {
-    renderTimeline(sampleEntries);
+  describe('renderizado de entradas', () => {
+    it('deberia renderizar los motivos de cada entrada', () => {
+      renderTimeline(sampleEntries);
 
-    // Verificar que se muestran los motivos de cada entrada
-    expect(screen.getByText('Solicitud del socio')).toBeInTheDocument();
-    expect(screen.getByText('Registro automático')).toBeInTheDocument();
+      expect(screen.getByText('Solicitud del socio')).toBeInTheDocument();
+      expect(screen.getByText('Registro automático')).toBeInTheDocument();
+    });
+
+    it('deberia mostrar fechas formateadas', () => {
+      renderTimeline(sampleEntries);
+
+      expect(screen.getByText(/10 de marzo de 2026/)).toBeInTheDocument();
+      expect(screen.getByText(/15 de enero de 2026/)).toBeInTheDocument();
+    });
+
+    it('deberia mostrar badges de estado anterior y nuevo', () => {
+      renderTimeline(sampleEntries);
+
+      // "Activo" aparece como newStatus de la segunda entrada Y previousStatus de la primera
+      const activoBadges = screen.getAllByText('Activo');
+      expect(activoBadges.length).toBeGreaterThanOrEqual(1);
+
+      expect(screen.getByText('Baja Voluntaria')).toBeInTheDocument();
+      expect(screen.getByText('Aspirante')).toBeInTheDocument();
+    });
   });
 
-  it('deberia mostrar fechas formateadas', () => {
-    renderTimeline(sampleEntries);
+  describe('badges de ejecutor', () => {
+    it('deberia mostrar badge "Sistema" para cambios automaticos', () => {
+      renderTimeline(sampleEntries);
 
-    // formatDateLong produce formato "10 de marzo de 2026"
-    expect(screen.getByText(/10 de marzo de 2026/)).toBeInTheDocument();
-    expect(screen.getByText(/15 de enero de 2026/)).toBeInTheDocument();
+      // La entrada con changedBy === "Sistema" muestra badge "Sistema"
+      const sistemaBadges = screen.getAllByText('Sistema');
+      expect(sistemaBadges.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('deberia mostrar badge "Manual" para cambios manuales', () => {
+      renderTimeline(sampleEntries);
+
+      expect(screen.getByText('Manual')).toBeInTheDocument();
+    });
+
+    it('deberia mostrar el email del ejecutor manual', () => {
+      renderTimeline(sampleEntries);
+
+      expect(screen.getByText('admin@example.com')).toBeInTheDocument();
+    });
   });
 
-  it('deberia mostrar badge "Sistema" para cambios del sistema', () => {
-    renderTimeline(sampleEntries);
+  describe('estado vacio', () => {
+    it('deberia mostrar mensaje de estado vacio sin entradas', () => {
+      renderTimeline([]);
 
-    // La entrada con changedBy === "Sistema" muestra badge "Sistema"
-    const sistemaBadges = screen.getAllByText('Sistema');
-    // Se renderiza el badge y ademas el texto del changedBy
-    expect(sistemaBadges.length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText('No hay historial de estados disponible.')).toBeInTheDocument();
+    });
   });
 
-  it('deberia mostrar badge "Manual" para cambios manuales', () => {
-    renderTimeline(sampleEntries);
+  describe('ordenamiento', () => {
+    it('deberia ordenar entradas por fecha descendente (mas reciente primero)', () => {
+      // Agregar una tercera entrada con fecha posterior
+      const entriesWithThird: StatusHistoryEntry[] = [
+        ...sampleEntries,
+        {
+          id: VALID_UUID_3,
+          previousStatus: 'VOLUNTARY_LEAVE',
+          newStatus: 'ACTIVE',
+          reason: 'Rehabilitacion aprobada',
+          changedBy: 'secretaria@example.com',
+          changedAt: '2026-06-01T12:00:00.000Z',
+        },
+      ];
 
-    // La entrada con changedBy !== "Sistema" muestra badge "Manual"
-    expect(screen.getByText('Manual')).toBeInTheDocument();
+      renderTimeline(entriesWithThird);
+
+      // Verificar que las tres entradas se renderizan
+      expect(screen.getByText('Rehabilitacion aprobada')).toBeInTheDocument();
+      expect(screen.getByText('Solicitud del socio')).toBeInTheDocument();
+      expect(screen.getByText('Registro automático')).toBeInTheDocument();
+
+      // Verificar que la mas reciente (junio 2026) aparece
+      expect(screen.getByText(/1 de junio de 2026/)).toBeInTheDocument();
+    });
   });
 
-  it('deberia mostrar mensaje de estado vacio sin entradas', () => {
-    renderTimeline([]);
+  describe('datos diferentes (triangulacion)', () => {
+    it('deberia renderizar con un unico evento de historial', () => {
+      const singleEntry: StatusHistoryEntry[] = [
+        {
+          id: VALID_UUID_1,
+          previousStatus: 'APPLICANT',
+          newStatus: 'PENDING_PAYMENT',
+          reason: 'Pendiente de pago de inscripcion',
+          changedBy: 'Sistema',
+          changedAt: '2026-04-20T09:00:00.000Z',
+        },
+      ];
 
-    expect(screen.getByText('No hay historial de estados disponible.')).toBeInTheDocument();
-  });
+      renderTimeline(singleEntry);
 
-  it('deberia mostrar badges de estado anterior y nuevo', () => {
-    renderTimeline(sampleEntries);
-
-    // "Activo" aparece como newStatus de la segunda entrada Y previousStatus de la primera
-    // por lo que hay multiples coincidencias → usamos getAllByText
-    const activoBadges = screen.getAllByText('Activo');
-    expect(activoBadges.length).toBeGreaterThanOrEqual(1);
-
-    expect(screen.getByText('Baja Voluntaria')).toBeInTheDocument();
-    expect(screen.getByText('Aspirante')).toBeInTheDocument();
+      expect(screen.getByText('Pendiente de pago de inscripcion')).toBeInTheDocument();
+      expect(screen.getByText('Aspirante')).toBeInTheDocument();
+      expect(screen.getByText('Pendiente de Pago')).toBeInTheDocument();
+    });
   });
 });

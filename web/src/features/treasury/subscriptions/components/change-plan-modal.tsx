@@ -11,6 +11,7 @@ import {
   Checkbox,
   Button,
 } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 import { useFeePlans } from '../../fee-plans/hooks/use-fee-plans';
 import type { FeePlan } from '../../fee-plans/schemas/fee-plan.schemas';
 import { useChangePlan } from '../hooks/use-change-plan';
@@ -32,6 +33,7 @@ export function ChangePlanModal({
   memberAccountId,
   subscription,
 }: ChangePlanModalProps) {
+  const { t } = useTranslation('treasury');
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [effectiveDateType, setEffectiveDateType] = useState<EffectiveDateType>('IMMEDIATE');
   const [keepPendingCharges, setKeepPendingCharges] = useState(true);
@@ -132,12 +134,17 @@ export function ChangePlanModal({
   };
 
   return (
-    <Modal opened={opened} onClose={handleClose} title="Cambiar Plan" size="lg">
+    <Modal
+      opened={opened}
+      onClose={handleClose}
+      title={t('subscriptions.changePlanModal.title')}
+      size="lg"
+    >
       <Stack gap="md">
         {/* Seccion: Plan actual */}
         <div>
           <Text fw={600} size="sm" c="dimmed" mb={4}>
-            Plan actual
+            {t('subscriptions.changePlanModal.currentPlan')}
           </Text>
           <Group gap="sm">
             <Text fw={500}>{subscription.feePlanName}</Text>
@@ -147,14 +154,14 @@ export function ChangePlanModal({
           </Group>
           <Group gap="lg" mt={4}>
             <Text size="sm">
-              Importe base:{' '}
+              {t('subscriptions.changePlanModal.baseAmountLabel')}{' '}
               <Text component="span" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
                 {formatMoney(subscription.baseAmount)}
               </Text>
             </Text>
             {currentBreakdown && (
               <Text size="sm">
-                Importe efectivo:{' '}
+                {t('subscriptions.changePlanModal.effectiveAmountLabel')}{' '}
                 <Text component="span" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
                   {formatMoney(currentBreakdown.effectiveAmount)}
                 </Text>
@@ -163,17 +170,19 @@ export function ChangePlanModal({
           </Group>
           {subscription.typeDiscount != null && (
             <Text size="xs" c="dimmed" mt={2}>
-              Dto. tipo: {Math.round(subscription.typeDiscount * 100)}%
+              {t('subscriptions.changePlanModal.typeDiscountInfo', {
+                percent: Math.round(subscription.typeDiscount * 100),
+              })}
               {subscription.personalDiscount != null &&
-                ` | Dto. personal: ${Math.round(subscription.personalDiscount * 100)}%`}
+                ` | ${t('subscriptions.changePlanModal.personalDiscountInfo', { percent: Math.round(subscription.personalDiscount * 100) })}`}
             </Text>
           )}
         </div>
 
         {/* Selector de nuevo plan */}
         <Select
-          label="Nuevo plan"
-          placeholder="Selecciona un plan"
+          label={t('subscriptions.changePlanModal.newPlan')}
+          placeholder={t('subscriptions.changePlanModal.selectPlan')}
           data={planOptions}
           value={selectedPlanId}
           onChange={setSelectedPlanId}
@@ -185,11 +194,11 @@ export function ChangePlanModal({
         {newBreakdown && selectedPlan && (
           <div>
             <Text fw={600} size="sm" c="dimmed" mb={4}>
-              Nuevo importe efectivo
+              {t('subscriptions.changePlanModal.newEffectiveAmount')}
             </Text>
             <Stack gap={2}>
               <Group justify="space-between">
-                <Text size="sm">Importe base</Text>
+                <Text size="sm">{t('subscriptions.changePlanModal.baseAmount')}</Text>
                 <Text
                   size="sm"
                   fw={500}
@@ -201,7 +210,9 @@ export function ChangePlanModal({
               {newBreakdown.typeDiscount != null && (
                 <Group justify="space-between">
                   <Text size="sm" c="dimmed">
-                    Dto. tipo ({Math.round(newBreakdown.typeDiscount * 100)}%)
+                    {t('subscriptions.changePlanModal.typeDiscountWithPercent', {
+                      percent: Math.round(newBreakdown.typeDiscount * 100),
+                    })}
                   </Text>
                   <Text
                     size="sm"
@@ -215,7 +226,9 @@ export function ChangePlanModal({
               {newBreakdown.personalDiscount != null && (
                 <Group justify="space-between">
                   <Text size="sm" c="dimmed">
-                    Dto. personal ({Math.round(newBreakdown.personalDiscount * 100)}%)
+                    {t('subscriptions.changePlanModal.personalDiscountWithPercent', {
+                      percent: Math.round(newBreakdown.personalDiscount * 100),
+                    })}
                   </Text>
                   <Text
                     size="sm"
@@ -232,7 +245,7 @@ export function ChangePlanModal({
                 style={{ borderTop: '1px solid var(--mantine-color-gray-3)', paddingTop: 4 }}
               >
                 <Text size="sm" fw={700}>
-                  Importe efectivo
+                  {t('subscriptions.changePlanModal.effectiveAmount')}
                 </Text>
                 <Text
                   size="sm"
@@ -249,28 +262,31 @@ export function ChangePlanModal({
         {/* Selector de fecha efectiva */}
         <div>
           <Text fw={600} size="sm" c="dimmed" mb={4}>
-            Fecha efectiva del cambio
+            {t('subscriptions.changePlanModal.effectiveDateLabel')}
           </Text>
           <SegmentedControl
             fullWidth
             value={effectiveDateType}
             onChange={(v) => setEffectiveDateType(v as EffectiveDateType)}
             data={[
-              { value: 'IMMEDIATE', label: 'Inmediato (proximo cargo)' },
-              { value: 'NEXT_MONTH', label: 'Inicio proximo mes' },
-              { value: 'NEXT_FISCAL_YEAR', label: 'Inicio proximo ejercicio' },
+              { value: 'IMMEDIATE', label: t('subscriptions.changePlanModal.immediate') },
+              { value: 'NEXT_MONTH', label: t('subscriptions.changePlanModal.nextMonth') },
+              {
+                value: 'NEXT_FISCAL_YEAR',
+                label: t('subscriptions.changePlanModal.nextFiscalYear'),
+              },
             ]}
           />
         </div>
 
         {/* Alerta informativa */}
-        <Alert color="blue" variant="light" title="Informacion">
-          Los cargos futuros del plan actual se cancelaran
+        <Alert color="blue" variant="light" title={t('subscriptions.changePlanModal.infoTitle')}>
+          {t('subscriptions.changePlanModal.infoText')}
         </Alert>
 
         {/* Checkbox de cargos pendientes */}
         <Checkbox
-          label="Mantener cargos pendientes (la deuda se arrastra al nuevo plan)"
+          label={t('subscriptions.changePlanModal.keepPendingCharges')}
           checked={keepPendingCharges}
           onChange={(e) => setKeepPendingCharges(e.currentTarget.checked)}
         />
@@ -278,7 +294,7 @@ export function ChangePlanModal({
         {/* Botones de accion */}
         <Group justify="flex-end" mt="md">
           <Button variant="default" onClick={handleClose}>
-            Cancelar
+            {t('subscriptions.changePlanModal.cancel')}
           </Button>
           <Button
             color="brand"
@@ -286,7 +302,7 @@ export function ChangePlanModal({
             loading={changePlanMutation.isPending}
             disabled={!selectedPlanId}
           >
-            Confirmar Cambio
+            {t('subscriptions.changePlanModal.confirm')}
           </Button>
         </Group>
       </Stack>

@@ -1,4 +1,5 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios';
+import i18n from '@/i18n/i18n';
 import { ApiError, apiErrorResponseSchema } from './api-error';
 import { getAccessToken, setTokens } from '@/features/auth/context/auth.provider';
 
@@ -153,7 +154,7 @@ httpClient.interceptors.response.use(
       return Promise.reject(
         new ApiError(0, {
           code: 'NETWORK_ERROR',
-          message: 'Error de conexion con el servidor.',
+          message: i18n.t('errors:networkError'),
           details: null,
         }),
       );
@@ -173,7 +174,7 @@ httpClient.interceptors.response.use(
       new ApiError(status, {
         code: 'UNKNOWN_ERROR',
         message:
-          typeof data?.message === 'string' ? data.message : 'Error desconocido del servidor.',
+          typeof data?.message === 'string' ? data.message : i18n.t('errors:unknownServerError'),
         details: null,
       }),
     );

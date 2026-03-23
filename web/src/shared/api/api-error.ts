@@ -7,7 +7,7 @@ import { z } from 'zod';
 export const apiErrorDetailSchema = z.object({
   code: z.string(),
   message: z.string(),
-  details: z.record(z.unknown()).nullable(),
+  details: z.record(z.string(), z.unknown()).nullable(),
 });
 
 /** Schema del envelope de error completo del backend. */

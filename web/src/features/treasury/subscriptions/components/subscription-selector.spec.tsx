@@ -1,70 +1,32 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { createElement } from 'react';
-import { MantineProvider } from '@mantine/core';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { render, screen, waitFor } from '@/test/helpers/render';
+import { server } from '@/test/msw/server';
+import { buildFeePlan, resetFeePlanCounters } from '@/test/factories';
+import { apiResponse } from '@/test/msw/utils';
 
 import { SubscriptionSelector } from './subscription-selector';
 
-// === Mocks ===
-
-const mockUseFeePlans = vi.fn();
-
-vi.mock('@/features/treasury/fee-plans/hooks/use-fee-plans', () => ({
-  useFeePlans: (...args: unknown[]) => mockUseFeePlans(...args),
-}));
-
-// === Datos de prueba ===
+// === Helpers ===
 
 const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
-const VALID_UUID_2 = '660e8400-e29b-41d4-a716-446655440001';
 
 const samplePlans = [
-  {
+  buildFeePlan({
     id: VALID_UUID,
     code: 'CUOTA-ANUAL',
     name: 'Cuota Anual',
-    description: null,
     type: 'RECURRING',
     amount: 12000,
-    frequency: 'ANNUAL',
-    billingMonths: [1],
-    active: true,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: VALID_UUID_2,
+  }),
+  buildFeePlan({
+    id: '660e8400-e29b-41d4-a716-446655440001',
     code: 'INSCRIPCION',
     name: 'Inscripcion',
-    description: 'Cuota unica de inscripcion',
     type: 'ONE_TIME',
     amount: 5000,
-    frequency: null,
-    billingMonths: [],
-    active: true,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  },
+  }),
 ];
-
-// === Helpers ===
-
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false, gcTime: 0 },
-    },
-  });
-
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      createElement(MantineProvider, null, children),
-    );
-  };
-}
 
 function renderSelector(props: Partial<Parameters<typeof SubscriptionSelector>[0]> = {}) {
   const defaultProps = {
@@ -74,107 +36,329 @@ function renderSelector(props: Partial<Parameters<typeof SubscriptionSelector>[0
     ...props,
   };
 
-  return render(createElement(SubscriptionSelector, defaultProps), {
-    wrapper: createWrapper(),
-  });
+  return render(<SubscriptionSelector {...defaultProps} />);
 }
 
 // === Tests ===
 
 describe('SubscriptionSelector', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    resetFeePlanCounters();
+    // Handler por defecto: devolver planes activos
+    server.use(
+      http.get('*/v1/treasury/fee-plans', () => {
+        return HttpResponse.json(apiResponse(samplePlans));
+      }),
+    );
   });
 
-  it('deberia mostrar skeletons de carga cuando los planes estan cargando', () => {
-    mockUseFeePlans.mockReturnValue({
-      data: undefined,
-      isLoading: true,
-      isError: false,
-      refetch: vi.fn(),
+  // --- Estado de carga ---
+
+  describe('estado de carga', () => {
+    it('deberia mostrar skeletons de carga cuando los planes estan cargando', () => {
+      // Arrange: handler que nunca resuelve
+      server.use(
+        http.get('*/v1/treasury/fee-plans', () => {
+          return new Promise(() => {});
+        }),
+      );
+
+      // Act
+      renderSelector();
+
+      // Assert
+      expect(screen.queryByText('Cuota Anual')).not.toBeInTheDocument();
+      expect(screen.queryByText('Confirmar selección')).not.toBeInTheDocument();
     });
-
-    renderSelector();
-
-    // Mantine Skeleton renderiza elementos con role structure o data-mantine-skeleton
-    // En estado de carga, no deberia mostrar tarjetas de planes
-    expect(screen.queryByText('Cuota Anual')).not.toBeInTheDocument();
-    expect(screen.queryByText('Confirmar selección')).not.toBeInTheDocument();
   });
 
-  it('deberia mostrar tarjetas de planes cuando los datos estan disponibles', () => {
-    mockUseFeePlans.mockReturnValue({
-      data: samplePlans,
-      isLoading: false,
-      isError: false,
-      refetch: vi.fn(),
+  // --- Renderizado de tarjetas ---
+
+  describe('renderizado de tarjetas de planes', () => {
+    it('deberia mostrar tarjetas de planes cuando los datos estan disponibles', async () => {
+      // Act
+      renderSelector();
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Inscripcion')).toBeInTheDocument();
+      expect(screen.getByText('Periódico')).toBeInTheDocument();
+      expect(screen.getByText('Única')).toBeInTheDocument();
     });
 
-    renderSelector();
+    it('deberia mostrar importe con descuento por tipo en las tarjetas', async () => {
+      // Act: renderizar con descuento por tipo del 30%
+      renderSelector({ typeDiscount: 0.3 });
 
-    expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
-    expect(screen.getByText('Inscripcion')).toBeInTheDocument();
-    // Los badges de tipo
-    expect(screen.getByText('Periódico')).toBeInTheDocument();
-    expect(screen.getByText('Única')).toBeInTheDocument();
+      // Assert
+      await waitFor(() => {
+        const discountLabels = screen.getAllByText(/Con dto\. tipo \(30%\)/);
+        expect(discountLabels.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('deberia mostrar importe con descuento por tipo del 50% (triangulacion)', async () => {
+      // Act
+      renderSelector({ typeDiscount: 0.5 });
+
+      // Assert
+      await waitFor(() => {
+        const discountLabels = screen.getAllByText(/Con dto\. tipo \(50%\)/);
+        expect(discountLabels.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('deberia NO mostrar descuento cuando typeDiscount es null', async () => {
+      // Act
+      renderSelector({ typeDiscount: null });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      });
+      expect(screen.queryByText(/Con dto\. tipo/)).not.toBeInTheDocument();
+    });
   });
 
-  it('deberia mostrar el boton de confirmar con color brand', () => {
-    mockUseFeePlans.mockReturnValue({
-      data: samplePlans,
-      isLoading: false,
-      isError: false,
-      refetch: vi.fn(),
+  // --- Seleccion de plan ---
+
+  describe('seleccion de plan', () => {
+    it('deberia mostrar el boton de confirmar deshabilitado cuando no hay plan seleccionado', async () => {
+      // Act
+      renderSelector();
+
+      // Assert
+      await waitFor(() => {
+        const confirmButton = screen.getByText('Confirmar selección').closest('button')!;
+        expect(confirmButton).toBeDisabled();
+      });
     });
 
-    renderSelector();
+    it('deberia habilitar boton de confirmar al seleccionar un plan', async () => {
+      // Act
+      const { user } = renderSelector();
 
-    const confirmButton = screen.getByText('Confirmar selección');
-    expect(confirmButton).toBeInTheDocument();
-    // El boton debe estar deshabilitado si no hay plan seleccionado
-    expect(confirmButton.closest('button')).toBeDisabled();
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      });
+
+      // Act: click en la tarjeta del plan
+      await user.click(screen.getByText('Cuota Anual'));
+
+      // Assert
+      const confirmButton = screen.getByText('Confirmar selección').closest('button')!;
+      expect(confirmButton).not.toBeDisabled();
+    });
+
+    it('deberia mostrar badge "Seleccionado" tras hacer click en plan', async () => {
+      // Act
+      const { user } = renderSelector();
+
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('Cuota Anual'));
+
+      // Assert
+      expect(screen.getByText('Seleccionado')).toBeInTheDocument();
+    });
+
+    it('deberia mostrar seccion de descuento personalizado al seleccionar plan', async () => {
+      // Act
+      const { user } = renderSelector();
+
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('Cuota Anual'));
+
+      // Assert
+      expect(screen.getByText('Descuento personalizado')).toBeInTheDocument();
+      expect(screen.getByText('Porcentaje de descuento')).toBeInTheDocument();
+    });
+
+    it('deberia llamar onSelect con datos correctos al confirmar', async () => {
+      // Arrange
+      const mockOnSelect = vi.fn();
+      const { user } = renderSelector({ onSelect: mockOnSelect });
+
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      });
+
+      // Act: seleccionar plan y confirmar
+      await user.click(screen.getByText('Cuota Anual'));
+      await user.click(screen.getByText('Confirmar selección'));
+
+      // Assert
+      expect(mockOnSelect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          feePlanId: VALID_UUID,
+          personalDiscount: null,
+          personalDiscountReason: null,
+        }),
+      );
+    });
+
+    it('deberia llamar onSelect con descuento personalizado cuando se ingresa un porcentaje', async () => {
+      // Arrange
+      const mockOnSelect = vi.fn();
+      const { user } = renderSelector({ onSelect: mockOnSelect });
+
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      });
+
+      // Act: seleccionar plan
+      await user.click(screen.getByText('Cuota Anual'));
+
+      // Ingresar descuento personalizado
+      const discountInput = screen.getByRole('textbox', { name: /porcentaje de descuento/i });
+      await user.clear(discountInput);
+      await user.type(discountInput, '15');
+
+      // Ingresar motivo (requerido cuando hay descuento)
+      await waitFor(() => {
+        expect(screen.getByText('Motivo del descuento')).toBeInTheDocument();
+      });
+      const reasonInput = screen.getByPlaceholderText(/indique el motivo del descuento/i);
+      await user.type(reasonInput, 'Descuento familiar');
+
+      await user.click(screen.getByText('Confirmar selección'));
+
+      // Assert
+      expect(mockOnSelect).toHaveBeenCalledWith(
+        expect.objectContaining({
+          feePlanId: VALID_UUID,
+          personalDiscount: 0.15,
+          personalDiscountReason: 'Descuento familiar',
+        }),
+      );
+    });
   });
 
-  it('deberia mostrar alerta de error cuando falla la carga', () => {
-    mockUseFeePlans.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      isError: true,
-      refetch: vi.fn(),
+  // --- Estado de error ---
+
+  describe('estado de error', () => {
+    it('deberia mostrar alerta de error cuando falla la carga', async () => {
+      // Arrange
+      server.use(
+        http.get('*/v1/treasury/fee-plans', () => {
+          return HttpResponse.json({ message: 'Error' }, { status: 500 });
+        }),
+      );
+
+      // Act
+      renderSelector();
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Error al cargar planes')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Reintentar')).toBeInTheDocument();
     });
 
-    renderSelector();
+    it('deberia reintentar la carga al hacer click en Reintentar', async () => {
+      // Arrange
+      let callCount = 0;
+      server.use(
+        http.get('*/v1/treasury/fee-plans', () => {
+          callCount++;
+          if (callCount === 1) {
+            return HttpResponse.json({ message: 'Error' }, { status: 500 });
+          }
+          return HttpResponse.json(apiResponse(samplePlans));
+        }),
+      );
 
-    expect(screen.getByText('Error al cargar planes')).toBeInTheDocument();
-    expect(screen.getByText('Reintentar')).toBeInTheDocument();
+      // Act
+      const { user } = renderSelector();
+
+      await waitFor(() => {
+        expect(screen.getByText('Error al cargar planes')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('Reintentar'));
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia mostrar alerta de error con 503 (triangulacion)', async () => {
+      // Arrange
+      server.use(
+        http.get('*/v1/treasury/fee-plans', () => {
+          return HttpResponse.json({ message: 'Service Unavailable' }, { status: 503 });
+        }),
+      );
+
+      // Act
+      renderSelector();
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Error al cargar planes')).toBeInTheDocument();
+      });
+    });
   });
 
-  it('deberia mostrar alerta cuando no hay planes disponibles', () => {
-    mockUseFeePlans.mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: false,
-      refetch: vi.fn(),
+  // --- Sin planes ---
+
+  describe('sin planes disponibles', () => {
+    it('deberia mostrar alerta cuando no hay planes disponibles', async () => {
+      // Arrange
+      server.use(
+        http.get('*/v1/treasury/fee-plans', () => {
+          return HttpResponse.json(apiResponse([]));
+        }),
+      );
+
+      // Act
+      renderSelector();
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Sin planes disponibles')).toBeInTheDocument();
+      });
     });
-
-    renderSelector();
-
-    expect(screen.getByText('Sin planes disponibles')).toBeInTheDocument();
   });
 
-  it('deberia mostrar importe con descuento por tipo en las tarjetas', () => {
-    mockUseFeePlans.mockReturnValue({
-      data: samplePlans,
-      isLoading: false,
-      isError: false,
-      refetch: vi.fn(),
+  // --- Validacion de descuento ---
+
+  describe('validacion de descuento', () => {
+    it('deberia mostrar error de motivo minimo cuando el motivo tiene menos de 3 caracteres', async () => {
+      // Arrange
+      const { user } = renderSelector();
+
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      });
+
+      // Act: seleccionar plan e ingresar descuento
+      await user.click(screen.getByText('Cuota Anual'));
+      const discountInput = screen.getByRole('textbox', { name: /porcentaje de descuento/i });
+      await user.clear(discountInput);
+      await user.type(discountInput, '10');
+
+      // Motivo demasiado corto
+      await waitFor(() => {
+        expect(screen.getByText('Motivo del descuento')).toBeInTheDocument();
+      });
+      const reasonInput = screen.getByPlaceholderText(/indique el motivo del descuento/i);
+      await user.type(reasonInput, 'ab');
+
+      // Assert
+      expect(screen.getByText('Mínimo 3 caracteres')).toBeInTheDocument();
+
+      // Confirmar sigue deshabilitado
+      const confirmButton = screen.getByText('Confirmar selección').closest('button')!;
+      expect(confirmButton).toBeDisabled();
     });
-
-    // Renderizar con descuento por tipo del 30%
-    renderSelector({ typeDiscount: 0.3 });
-
-    // Deberia mostrar "Con dto. tipo (30%)" en las tarjetas
-    const discountLabels = screen.getAllByText(/Con dto\. tipo \(30%\)/);
-    expect(discountLabels.length).toBeGreaterThan(0);
   });
 });

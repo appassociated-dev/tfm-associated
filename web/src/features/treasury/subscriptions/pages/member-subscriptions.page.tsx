@@ -16,6 +16,7 @@ import {
   Title,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { useTranslation } from 'react-i18next';
 
 import { usePermissions } from '@/features/auth/context/use-permissions';
 import { formatMoney } from '@/shared/utils/format-money';
@@ -32,11 +33,11 @@ import { ExemptionModal } from '../components/exemption-modal';
 
 // === Constantes ===
 
-const CANCEL_REASON_LABELS: Record<CancelReason, string> = {
-  PLAN_CHANGE: 'Cambio de plan',
-  MEMBER_LEAVE: 'Baja de socio',
-  EXEMPTION: 'Exención',
-  ONE_TIME_COMPLETED: 'Cuota única completada',
+const CANCEL_REASON_LABEL_KEYS: Record<CancelReason, string> = {
+  PLAN_CHANGE: 'cancelReason.planChange',
+  MEMBER_LEAVE: 'cancelReason.memberLeave',
+  EXEMPTION: 'cancelReason.exemption',
+  ONE_TIME_COMPLETED: 'cancelReason.oneTimeCompleted',
 };
 
 const CANCEL_REASON_COLORS: Record<CancelReason, string> = {
@@ -46,9 +47,9 @@ const CANCEL_REASON_COLORS: Record<CancelReason, string> = {
   ONE_TIME_COMPLETED: 'green',
 };
 
-const PLAN_TYPE_LABELS: Record<string, string> = {
-  RECURRING: 'Periódico',
-  ONE_TIME: 'Única',
+const PLAN_TYPE_LABEL_KEYS: Record<string, string> = {
+  RECURRING: 'planType.recurring',
+  ONE_TIME: 'planType.oneTime',
 };
 
 const PLAN_TYPE_COLORS: Record<string, string> = {
@@ -65,6 +66,7 @@ const PLAN_TYPE_COLORS: Record<string, string> = {
 export function MemberSubscriptionsPage() {
   const { memberId } = useParams<{ memberId: string }>();
   const { hasPermission } = usePermissions();
+  const { t } = useTranslation('treasury');
 
   // Datos
   const { data: subscriptionsData, isLoading, isError, refetch } = useSubscriptions(memberId ?? '');
@@ -121,10 +123,10 @@ export function MemberSubscriptionsPage() {
 
   if (isError) {
     return (
-      <Alert color="red" title="Error al cargar suscripciones">
-        No se pudieron cargar las suscripciones del socio.
+      <Alert color="red" title={t('subscriptions.error.loadTitle')}>
+        {t('subscriptions.error.loadText')}
         <Button variant="subtle" color="red" size="xs" mt="xs" onClick={() => refetch()}>
-          Reintentar
+          {t('subscriptions.error.retry')}
         </Button>
       </Alert>
     );
@@ -134,22 +136,22 @@ export function MemberSubscriptionsPage() {
     <>
       <Breadcrumbs mb="md">
         <Text c="dimmed" size="sm">
-          Tesoreria
+          {t('subscriptions.breadcrumbs.treasury')}
         </Text>
         <Text c="dimmed" size="sm">
-          Cuentas de Socio
+          {t('subscriptions.breadcrumbs.memberAccounts')}
         </Text>
         <Text c="dimmed" size="sm">
           {memberName}
         </Text>
-        <Text size="sm">Suscripciones</Text>
+        <Text size="sm">{t('subscriptions.title')}</Text>
       </Breadcrumbs>
 
       <Stack gap="xl">
         {/* Cabecera */}
         <Group justify="space-between" align="center">
           <div>
-            <Title order={2}>Suscripciones</Title>
+            <Title order={2}>{t('subscriptions.title')}</Title>
             {memberName && (
               <Text c="dimmed" size="sm">
                 {memberName}
@@ -160,7 +162,7 @@ export function MemberSubscriptionsPage() {
 
         {/* Sección: Suscripción Activa */}
         <Stack gap="md">
-          <Title order={4}>Suscripción Activa</Title>
+          <Title order={4}>{t('subscriptions.activeSubscription')}</Title>
 
           {activeSubscription ? (
             <ActiveSubscriptionCard
@@ -178,13 +180,18 @@ export function MemberSubscriptionsPage() {
         {/* Sección: Histórico de Suscripciones */}
         {closedSubscriptions.length > 0 && (
           <Stack gap="md">
-            <Title order={4}>Histórico de Suscripciones</Title>
+            <Title order={4}>{t('subscriptions.history')}</Title>
             <SubscriptionTimeline subscriptions={closedSubscriptions} />
           </Stack>
         )}
 
         {/* Modal de creación */}
-        <Modal opened={createOpened} onClose={closeCreate} title="Crear Suscripción" size="lg">
+        <Modal
+          opened={createOpened}
+          onClose={closeCreate}
+          title={t('subscriptions.create')}
+          size="lg"
+        >
           <SubscriptionSelector
             memberTypeId={memberTypeId}
             typeDiscount={typeDiscount}
@@ -238,6 +245,7 @@ function ActiveSubscriptionCard({
   onUpdateDiscount,
   onExemption,
 }: ActiveSubscriptionCardProps) {
+  const { t } = useTranslation('treasury');
   // Desglose de descuento
   const breakdown = useMemo(() => {
     try {
@@ -268,7 +276,10 @@ function ActiveSubscriptionCard({
               radius="sm"
               color={PLAN_TYPE_COLORS[subscription.feePlanType] ?? 'gray'}
             >
-              {PLAN_TYPE_LABELS[subscription.feePlanType] ?? subscription.feePlanType}
+              {t(
+                (PLAN_TYPE_LABEL_KEYS[subscription.feePlanType] ??
+                  subscription.feePlanType) as never,
+              )}
             </Badge>
           </Group>
         </Group>
@@ -276,19 +287,26 @@ function ActiveSubscriptionCard({
         {/* Desglose de importes */}
         {breakdown && (
           <Stack gap={4}>
-            <AmountRow label="Importe base" amount={breakdown.baseAmount} />
+            <AmountRow label={t('subscriptions.baseAmount')} amount={breakdown.baseAmount} />
             {breakdown.typeDiscount !== null && breakdown.typeDiscount > 0 && (
               <AmountRow
-                label={`Descuento tipo (${Math.round(breakdown.typeDiscount * 100)}%)`}
+                label={t('subscriptions.typeDiscountWithPercent', {
+                  percent: Math.round(breakdown.typeDiscount * 100),
+                })}
                 amount={-(breakdown.baseAmount - breakdown.afterTypeDiscount)}
                 isDeduction
               />
             )}
             {breakdown.personalDiscount !== null && breakdown.personalDiscount > 0 && (
               <>
-                <AmountRow label="Subtotal" amount={breakdown.afterTypeDiscount} />
                 <AmountRow
-                  label={`Descuento personal (${Math.round(breakdown.personalDiscount * 100)}%)`}
+                  label={t('subscriptions.subtotal')}
+                  amount={breakdown.afterTypeDiscount}
+                />
+                <AmountRow
+                  label={t('subscriptions.personalDiscountWithPercent', {
+                    percent: Math.round(breakdown.personalDiscount * 100),
+                  })}
                   amount={-(breakdown.afterTypeDiscount - breakdown.effectiveAmount)}
                   isDeduction
                 />
@@ -300,7 +318,7 @@ function ActiveSubscriptionCard({
         {/* Importe efectivo destacado */}
         <Group justify="space-between" align="baseline">
           <Text size="sm" c="dimmed">
-            Importe efectivo
+            {t('subscriptions.effectiveAmount')}
           </Text>
           <Text size="xl" fw={700} c="brand" style={{ fontVariantNumeric: 'tabular-nums' }}>
             {formatMoney(subscription.effectiveAmount)}
@@ -310,7 +328,7 @@ function ActiveSubscriptionCard({
         {/* Descuento personal: motivo */}
         {subscription.personalDiscountReason && (
           <Text size="xs" c="dimmed" fs="italic">
-            Motivo descuento: {subscription.personalDiscountReason}
+            {t('subscriptions.discountReason')} {subscription.personalDiscountReason}
           </Text>
         )}
 
@@ -318,7 +336,7 @@ function ActiveSubscriptionCard({
         <Group gap="lg">
           <div>
             <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-              Fecha de alta
+              {t('subscriptions.registrationDate')}
             </Text>
             <Text size="sm">{formatDateLong(new Date(subscription.registrationDate))}</Text>
           </div>
@@ -326,7 +344,7 @@ function ActiveSubscriptionCard({
           {/* Cargos */}
           <div>
             <Text size="xs" c="dimmed" tt="uppercase" fw={600}>
-              Cargos generados / cobrados
+              {t('subscriptions.chargesCollected')}
             </Text>
             <Text size="sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
               {subscription.chargesGenerated} / {formatMoney(subscription.totalCollected)}
@@ -338,13 +356,13 @@ function ActiveSubscriptionCard({
         {canUpdate && (
           <Group gap="sm" mt="xs">
             <Button color="brand" variant="outline" onClick={onChangePlan}>
-              Cambiar Plan
+              {t('subscriptions.changePlan')}
             </Button>
             <Button color="brand" variant="outline" onClick={onUpdateDiscount}>
-              Modificar Descuento
+              {t('subscriptions.updateDiscount')}
             </Button>
             <Button color="brand" variant="outline" onClick={onExemption}>
-              Exención Temporal
+              {t('subscriptions.temporaryExemption')}
             </Button>
           </Group>
         )}
@@ -360,13 +378,14 @@ interface NoActiveSubscriptionProps {
 
 /** Mensaje y acción cuando no hay suscripción activa. */
 function NoActiveSubscription({ canCreate, onCreateClick }: NoActiveSubscriptionProps) {
+  const { t } = useTranslation('treasury');
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder>
       <Stack align="center" gap="md" py="md">
-        <Text c="dimmed">Sin suscripción activa</Text>
+        <Text c="dimmed">{t('subscriptions.noActive')}</Text>
         {canCreate && (
           <Button color="brand" onClick={onCreateClick}>
-            Crear Suscripción
+            {t('subscriptions.create')}
           </Button>
         )}
       </Stack>
@@ -397,6 +416,7 @@ interface TimelineEntryProps {
 
 /** Entrada individual del timeline con desglose expandible. */
 function TimelineEntry({ subscription }: TimelineEntryProps) {
+  const { t } = useTranslation('treasury');
   const [expanded, setExpanded] = useState(false);
 
   // Periodo
@@ -404,7 +424,7 @@ function TimelineEntry({ subscription }: TimelineEntryProps) {
     const start = formatDateCompact(new Date(subscription.registrationDate));
     const end = subscription.leaveDate
       ? formatDateCompact(new Date(subscription.leaveDate))
-      : 'Activa';
+      : t('subscriptions.active');
     return `${start} — ${end}`;
   }, [subscription.registrationDate, subscription.leaveDate]);
 
@@ -441,7 +461,10 @@ function TimelineEntry({ subscription }: TimelineEntryProps) {
             color={CANCEL_REASON_COLORS[subscription.cancelReason] ?? 'gray'}
             size="xs"
           >
-            {CANCEL_REASON_LABELS[subscription.cancelReason] ?? subscription.cancelReason}
+            {t(
+              (CANCEL_REASON_LABEL_KEYS[subscription.cancelReason] ??
+                subscription.cancelReason) as never,
+            )}
           </Badge>
         )}
       </Group>
@@ -452,28 +475,36 @@ function TimelineEntry({ subscription }: TimelineEntryProps) {
           <Stack gap={4}>
             {breakdown && (
               <>
-                <AmountRow label="Importe base" amount={breakdown.baseAmount} />
+                <AmountRow label={t('subscriptions.baseAmount')} amount={breakdown.baseAmount} />
                 {breakdown.typeDiscount !== null && breakdown.typeDiscount > 0 && (
                   <AmountRow
-                    label={`Descuento tipo (${Math.round(breakdown.typeDiscount * 100)}%)`}
+                    label={t('subscriptions.typeDiscountWithPercent', {
+                      percent: Math.round(breakdown.typeDiscount * 100),
+                    })}
                     amount={-(breakdown.baseAmount - breakdown.afterTypeDiscount)}
                     isDeduction
                   />
                 )}
                 {breakdown.personalDiscount !== null && breakdown.personalDiscount > 0 && (
                   <AmountRow
-                    label={`Descuento personal (${Math.round(breakdown.personalDiscount * 100)}%)`}
+                    label={t('subscriptions.personalDiscountWithPercent', {
+                      percent: Math.round(breakdown.personalDiscount * 100),
+                    })}
                     amount={-(breakdown.afterTypeDiscount - breakdown.effectiveAmount)}
                     isDeduction
                   />
                 )}
-                <AmountRow label="Importe efectivo" amount={breakdown.effectiveAmount} isBold />
+                <AmountRow
+                  label={t('subscriptions.effectiveAmount')}
+                  amount={breakdown.effectiveAmount}
+                  isBold
+                />
               </>
             )}
 
             <Group justify="space-between" mt="xs">
               <Text size="xs" c="dimmed">
-                Cargos generados
+                {t('subscriptions.chargesGenerated')}
               </Text>
               <Text
                 size="xs"
@@ -488,7 +519,7 @@ function TimelineEntry({ subscription }: TimelineEntryProps) {
 
             <Group justify="space-between">
               <Text size="xs" c="dimmed">
-                Total cobrado
+                {t('subscriptions.totalCollected')}
               </Text>
               <Text
                 size="xs"

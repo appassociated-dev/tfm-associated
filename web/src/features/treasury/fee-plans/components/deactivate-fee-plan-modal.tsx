@@ -1,4 +1,6 @@
 import { Alert, Button, Group, Modal, Stack, Text } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
+
 import { useDeactivateFeePlan } from '../hooks/use-deactivate-fee-plan';
 import type { FeePlan } from '../schemas/fee-plan.schemas';
 
@@ -26,6 +28,7 @@ export function DeactivateFeePlanModal({
   plan,
   activeSubscriptionsCount = 0,
 }: DeactivateFeePlanModalProps) {
+  const { t } = useTranslation('treasury');
   const deactivateMutation = useDeactivateFeePlan();
 
   /** Ejecuta la inactivación del plan. */
@@ -38,9 +41,14 @@ export function DeactivateFeePlanModal({
   // No renderizar contenido si no hay plan
   if (!plan) {
     return (
-      <Modal opened={opened} onClose={onClose} title="Inactivar Plan" size="sm">
+      <Modal
+        opened={opened}
+        onClose={onClose}
+        title={t('feePlans.deactivateModal.title')}
+        size="sm"
+      >
         <Text c="dimmed" size="sm" ta="center" py="md">
-          No se ha seleccionado ningún plan.
+          {t('feePlans.deactivateModal.noPlanSelected')}
         </Text>
       </Modal>
     );
@@ -49,33 +57,29 @@ export function DeactivateFeePlanModal({
   const hasActiveSubscriptions = activeSubscriptionsCount > 0;
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Inactivar Plan" size="sm">
+    <Modal opened={opened} onClose={onClose} title={t('feePlans.deactivateModal.title')} size="sm">
       <Stack gap="md">
         {/* Advertencia si tiene suscripciones activas */}
         {hasActiveSubscriptions ? (
           <Alert color="yellow">
-            Este plan tiene {activeSubscriptionsCount} suscripciones activas. No puede eliminarse,
-            pero sí marcarse como inactivo.
+            {t('feePlans.deactivateModal.activeSubscriptions', { count: activeSubscriptionsCount })}
           </Alert>
         ) : (
-          <Text size="sm">
-            ¿Está seguro de que desea inactivar el plan &lsquo;{plan.name}&rsquo;?
-          </Text>
+          <Text size="sm">{t('feePlans.deactivateModal.confirmMessage', { name: plan.name })}</Text>
         )}
 
         {/* Nota informativa (siempre visible) */}
         <Text size="sm" c="dimmed">
-          El plan dejará de aparecer en los selectores de alta pero las suscripciones existentes no
-          se verán afectadas.
+          {t('feePlans.deactivateModal.infoNote')}
         </Text>
 
         {/* Botones de acción */}
         <Group justify="flex-end" gap="sm">
           <Button variant="default" onClick={onClose}>
-            Cancelar
+            {t('feePlans.deactivateModal.cancel')}
           </Button>
           <Button color="yellow" loading={deactivateMutation.isPending} onClick={handleDeactivate}>
-            Marcar como Inactivo
+            {t('feePlans.deactivateModal.confirm')}
           </Button>
         </Group>
       </Stack>

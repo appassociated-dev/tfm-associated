@@ -1,70 +1,77 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { createElement } from 'react';
-import { MantineProvider } from '@mantine/core';
+import { screen } from '@testing-library/react';
 
+import { render } from '@/test/helpers/render';
 import { StatusBadge, STATUS_CONFIG } from './status-badge';
 
 // === Helpers ===
 
 function renderBadge(status: string) {
-  return render(createElement(StatusBadge, { status }), {
-    wrapper: ({ children }: { children: React.ReactNode }) =>
-      createElement(MantineProvider, null, children),
-  });
+  return render(<StatusBadge status={status} />);
 }
 
 // === Tests ===
 
 describe('StatusBadge', () => {
-  it('deberia renderizar etiqueta "Activo" para estado ACTIVE', () => {
-    renderBadge('ACTIVE');
-    expect(screen.getByText('Activo')).toBeInTheDocument();
-  });
-
-  it('deberia renderizar "Desconocido" para estado desconocido', () => {
-    renderBadge('UNKNOWN_STATUS');
-    expect(screen.getByText('Desconocido')).toBeInTheDocument();
-  });
-
-  it.each([
-    ['ACTIVE', 'Activo', 'green', 'light'],
-    ['APPLICANT', 'Aspirante', 'blue', 'light'],
-    ['PENDING_PAYMENT', 'Pendiente de Pago', 'yellow', 'light'],
-    ['SUSPENDED', 'Suspendido', 'red', 'light'],
-    ['VOLUNTARY_LEAVE', 'Baja Voluntaria', 'gray', 'light'],
-    ['NONPAYMENT_LEAVE', 'Baja por Impago', 'red', 'filled'],
-    ['DISCIPLINARY_LEAVE', 'Baja Disciplinaria', 'dark', 'light'],
-    ['DECEASED', 'Fallecido', 'dark', 'filled'],
-  ])(
-    'deberia renderizar estado %s con label "%s", color "%s" y variant "%s"',
-    (status, expectedLabel, expectedColor, expectedVariant) => {
+  describe('renderizado de etiquetas por estado', () => {
+    it.each([
+      ['ACTIVE', 'Activo'],
+      ['APPLICANT', 'Aspirante'],
+      ['PENDING_PAYMENT', 'Pendiente de Pago'],
+      ['SUSPENDED', 'Suspendido'],
+      ['VOLUNTARY_LEAVE', 'Baja Voluntaria'],
+      ['NONPAYMENT_LEAVE', 'Baja por Impago'],
+      ['DISCIPLINARY_LEAVE', 'Baja Disciplinaria'],
+      ['DECEASED', 'Fallecido'],
+    ])('deberia renderizar etiqueta "%s" como "%s"', (status, expectedLabel) => {
       renderBadge(status);
+      expect(screen.getByText(expectedLabel)).toBeInTheDocument();
+    });
 
-      // Verificar que la etiqueta se renderiza
-      const badge = screen.getByText(expectedLabel);
+    it('deberia renderizar "Desconocido" para estado desconocido', () => {
+      renderBadge('UNKNOWN_STATUS');
+      expect(screen.getByText('Desconocido')).toBeInTheDocument();
+    });
+
+    it('deberia renderizar "Desconocido" para un segundo estado desconocido (triangulacion)', () => {
+      renderBadge('INVENTED_STATE');
+      expect(screen.getByText('Desconocido')).toBeInTheDocument();
+    });
+  });
+
+  describe('configuracion visual (STATUS_CONFIG)', () => {
+    it.each([
+      ['ACTIVE', 'green', 'light'],
+      ['APPLICANT', 'blue', 'light'],
+      ['PENDING_PAYMENT', 'yellow', 'light'],
+      ['SUSPENDED', 'red', 'light'],
+      ['VOLUNTARY_LEAVE', 'gray', 'light'],
+      ['NONPAYMENT_LEAVE', 'red', 'filled'],
+      ['DISCIPLINARY_LEAVE', 'dark', 'light'],
+      ['DECEASED', 'dark', 'filled'],
+    ])(
+      'deberia tener color "%s" y variant "%s" para estado %s',
+      (status, expectedColor, expectedVariant) => {
+        const config = STATUS_CONFIG[status];
+        expect(config.color).toBe(expectedColor);
+        expect(config.variant).toBe(expectedVariant);
+      },
+    );
+  });
+
+  describe('renderizado del badge de Mantine', () => {
+    it('deberia renderizar un badge de Mantine con clase correcta', () => {
+      const { container } = renderBadge('ACTIVE');
+      const badge = container.querySelector('.mantine-Badge-root');
       expect(badge).toBeInTheDocument();
+    });
 
-      // Verificar configuracion en STATUS_CONFIG
-      const config = STATUS_CONFIG[status];
-      expect(config.color).toBe(expectedColor);
-      expect(config.label).toBe(expectedLabel);
-      expect(config.variant).toBe(expectedVariant);
-    },
-  );
+    it('deberia renderizar el contenido de texto dentro del badge', () => {
+      renderBadge('VOLUNTARY_LEAVE');
 
-  it('deberia usar variant="filled" para NONPAYMENT_LEAVE', () => {
-    expect(STATUS_CONFIG['NONPAYMENT_LEAVE'].variant).toBe('filled');
-  });
-
-  it('deberia usar variant="filled" para DECEASED', () => {
-    expect(STATUS_CONFIG['DECEASED'].variant).toBe('filled');
-  });
-
-  it('deberia tener radius="sm" en todos los badges', () => {
-    // Verificar que el badge se renderiza con el atributo correcto
-    const { container } = renderBadge('ACTIVE');
-    const badge = container.querySelector('.mantine-Badge-root');
-    expect(badge).toBeInTheDocument();
+      // Verificar que el texto esta dentro de un badge
+      const badgeText = screen.getByText('Baja Voluntaria');
+      expect(badgeText.closest('.mantine-Badge-root')).toBeTruthy();
+    });
   });
 });

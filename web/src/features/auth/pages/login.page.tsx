@@ -10,14 +10,16 @@ import {
   Title,
   useComputedColorScheme,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { ApiError } from '@/shared/api/api-error';
 import logoStacked from '@/shared/assets/logo-stacked.svg';
 import logoStackedWhite from '@/shared/assets/logo-stacked-white.svg';
 import { useAuth } from '../context/use-auth';
 import type { LoginRequest, TenantSelectorResponse } from '../schemas/auth.schemas';
-import { isTenantSelectorResponse } from '../schemas/auth.schemas';
+import { isTenantSelectorResponse, loginRequestSchema } from '../schemas/auth.schemas';
 import { TenantSelector } from '../components/tenant-selector';
 
 /**
@@ -29,6 +31,7 @@ import { TenantSelector } from '../components/tenant-selector';
  * 3. Si la respuesta requiere selección de tenant → muestra TenantSelector.
  */
 export function LoginPage() {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const auth = useAuth();
   const colorScheme = useComputedColorScheme('light');
@@ -39,15 +42,15 @@ export function LoginPage() {
     null,
   );
 
-  const form = useForm<LoginRequest>({
-    initialValues: {
+  const {
+    register,
+    handleSubmit: rhfHandleSubmit,
+    formState: { errors },
+  } = useForm<LoginRequest>({
+    resolver: zodResolver(loginRequestSchema),
+    defaultValues: {
       email: '',
       password: '',
-    },
-    validate: {
-      email: (value) =>
-        /^\S+@\S+\.\S+$/.test(value) ? null : 'Ingrese un correo electrónico válido',
-      password: (value) => (value.length >= 1 ? null : 'La contraseña es obligatoria'),
     },
   });
 
@@ -80,8 +83,8 @@ export function LoginPage() {
     if (status === 401) {
       notifications.show({
         color: 'red',
-        title: 'Error',
-        message: 'Credenciales incorrectas',
+        title: t('login.notifications.errorTitle'),
+        message: t('login.errors.invalidCredentials'),
       });
       return;
     }
@@ -89,8 +92,8 @@ export function LoginPage() {
     if (status === 423) {
       notifications.show({
         color: 'yellow',
-        title: 'Cuenta bloqueada',
-        message: 'Cuenta bloqueada temporalmente. Reintente en unos minutos',
+        title: t('login.notifications.accountLockedTitle'),
+        message: t('login.errors.accountLocked'),
       });
       return;
     }
@@ -98,8 +101,8 @@ export function LoginPage() {
     // Error de red u otro error genérico
     notifications.show({
       color: 'red',
-      title: 'Error de conexión',
-      message: 'Verifique su conexión a internet',
+      title: t('login.notifications.connectionErrorTitle'),
+      message: t('login.errors.connectionError'),
     });
   }
 
@@ -129,32 +132,32 @@ export function LoginPage() {
   return (
     <Center mih="100vh">
       <Box w="100%" maw={400}>
-        <form onSubmit={form.onSubmit(handleSubmit)}>
+        <form noValidate onSubmit={rhfHandleSubmit(handleSubmit)}>
           <Stack align="center" gap="lg">
             <img src={currentLogo} alt="Associated" width={140} />
 
-            <Title order={3}>Iniciar sesión</Title>
+            <Title order={3}>{t('login.title')}</Title>
 
             <Stack w="100%" gap="md">
               <TextInput
                 type="email"
-                label="Correo electrónico"
-                placeholder="tu@email.com"
+                label={t('login.email')}
+                placeholder={t('login.emailPlaceholder')}
                 autoComplete="email"
-                key={form.key('email')}
-                {...form.getInputProps('email')}
+                {...register('email')}
+                error={errors.email?.message}
               />
 
               <PasswordInput
-                label="Contraseña"
-                placeholder="Tu contraseña"
+                label={t('login.password')}
+                placeholder={t('login.passwordPlaceholder')}
                 autoComplete="current-password"
-                key={form.key('password')}
-                {...form.getInputProps('password')}
+                {...register('password')}
+                error={errors.password?.message}
               />
 
               <Button type="submit" color="brand" fullWidth loading={isSubmitting}>
-                Acceder
+                {t('login.submit')}
               </Button>
             </Stack>
           </Stack>

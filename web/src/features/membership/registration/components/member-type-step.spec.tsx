@@ -1,27 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { createElement } from 'react';
-import { MantineProvider } from '@mantine/core';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { screen, waitFor } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
 
+import { render } from '@/test/helpers/render';
+import { server } from '@/test/msw/server';
+import { apiResponse } from '@/test/msw/utils';
+import { buildMemberType } from '@/test/factories';
 import { MemberTypeStep } from './member-type-step';
-
-// === Mocks ===
-
-const mockUseMemberTypes = vi.fn();
-
-vi.mock('../hooks/use-member-types', () => ({
-  useMemberTypes: () => mockUseMemberTypes(),
-}));
 
 // === Datos de prueba ===
 
-const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
-const VALID_UUID_2 = '660e8400-e29b-41d4-a716-446655440001';
-const VALID_UUID_3 = '770e8400-e29b-41d4-a716-446655440002';
-
-const memberTypeNumerario = {
-  id: VALID_UUID,
+const memberTypeNumerario = buildMemberType({
   code: 'NUMERARIO',
   name: 'Socio Numerario',
   description: 'Socio con plenos derechos',
@@ -29,11 +18,9 @@ const memberTypeNumerario = {
   ageRangeMax: 65,
   votingRight: true,
   eligibleForOffice: true,
-  active: true,
-};
+});
 
-const memberTypeJuvenil = {
-  id: VALID_UUID_2,
+const memberTypeJuvenil = buildMemberType({
   code: 'JUVENIL',
   name: 'Socio Juvenil',
   description: null,
@@ -41,11 +28,9 @@ const memberTypeJuvenil = {
   ageRangeMax: 17,
   votingRight: false,
   eligibleForOffice: false,
-  active: true,
-};
+});
 
-const memberTypeSenior = {
-  id: VALID_UUID_3,
+const memberTypeSenior = buildMemberType({
   code: 'SENIOR',
   name: 'Socio Senior',
   description: null,
@@ -53,26 +38,9 @@ const memberTypeSenior = {
   ageRangeMax: null,
   votingRight: true,
   eligibleForOffice: false,
-  active: true,
-};
+});
 
 // === Helpers ===
-
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false, gcTime: 0 },
-    },
-  });
-
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      createElement(MantineProvider, null, children),
-    );
-  };
-}
 
 function renderStep(props: Partial<Parameters<typeof MemberTypeStep>[0]> = {}) {
   const defaultProps = {
@@ -81,9 +49,15 @@ function renderStep(props: Partial<Parameters<typeof MemberTypeStep>[0]> = {}) {
     ...props,
   };
 
-  return render(createElement(MemberTypeStep, defaultProps), {
-    wrapper: createWrapper(),
-  });
+  return {
+    ...render(<MemberTypeStep {...defaultProps} />),
+    props: defaultProps,
+  };
+}
+
+/** Configura MSW para devolver tipos de socio. */
+function setupMemberTypes(types: ReturnType<typeof buildMemberType>[]) {
+  server.use(http.get('*/v1/member-types', () => HttpResponse.json(apiResponse(types))));
 }
 
 // === Tests ===
@@ -91,7 +65,7 @@ function renderStep(props: Partial<Parameters<typeof MemberTypeStep>[0]> = {}) {
 describe('MemberTypeStep', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.setSystemTime(new Date('2026-06-15'));
   });
 
@@ -99,125 +73,213 @@ describe('MemberTypeStep', () => {
     vi.useRealTimers();
   });
 
-  it('deberia renderizar tarjetas de tipo de socio cuando hay datos', () => {
-    mockUseMemberTypes.mockReturnValue({
-      data: [memberTypeNumerario, memberTypeJuvenil],
-      isLoading: false,
-      isError: false,
-      refetch: vi.fn(),
+  describe('renderizado de tipos de socio', () => {
+    it('deberia renderizar tarjetas de tipo de socio cuando hay datos', async () => {
+      setupMemberTypes([memberTypeNumerario, memberTypeJuvenil]);
+
+      renderStep();
+
+      await waitFor(() => {
+        expect(screen.getByText('Socio Numerario')).toBeInTheDocument();
+        expect(screen.getByText('Socio Juvenil')).toBeInTheDocument();
+      });
     });
 
-    renderStep();
+    it('deberia mostrar badges de derechos (Voto, Elegible)', async () => {
+      setupMemberTypes([memberTypeNumerario]);
 
-    expect(screen.getByText('Socio Numerario')).toBeInTheDocument();
-    expect(screen.getByText('Socio Juvenil')).toBeInTheDocument();
+      renderStep();
+
+      await waitFor(() => {
+        expect(screen.getByText('Voto')).toBeInTheDocument();
+        expect(screen.getByText('Elegible para cargos')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia no mostrar badges de derechos cuando no tiene permisos', async () => {
+      setupMemberTypes([memberTypeJuvenil]);
+
+      renderStep();
+
+      await waitFor(() => {
+        expect(screen.getByText('Socio Juvenil')).toBeInTheDocument();
+      });
+
+      expect(screen.queryByText('Voto')).not.toBeInTheDocument();
+      expect(screen.queryByText('Elegible para cargos')).not.toBeInTheDocument();
+    });
+
+    it('deberia mostrar informacion de rango de edad', async () => {
+      setupMemberTypes([memberTypeNumerario, memberTypeJuvenil, memberTypeSenior]);
+
+      renderStep();
+
+      await waitFor(() => {
+        // Rango completo
+        expect(screen.getByText('Edad: 18-65 años')).toBeInTheDocument();
+        // Solo maximo
+        expect(screen.getByText('Edad: hasta 17 años')).toBeInTheDocument();
+        // Solo minimo
+        expect(screen.getByText('Edad: 66+ años')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia mostrar descripcion del tipo cuando la tiene', async () => {
+      setupMemberTypes([memberTypeNumerario]);
+
+      renderStep();
+
+      await waitFor(() => {
+        expect(screen.getByText('Socio con plenos derechos')).toBeInTheDocument();
+      });
+    });
   });
 
-  it('deberia mostrar skeleton de carga cuando isLoading es true', () => {
-    mockUseMemberTypes.mockReturnValue({
-      data: undefined,
-      isLoading: true,
-      isError: false,
-      refetch: vi.fn(),
+  describe('seleccion de tipo', () => {
+    it('deberia llamar a onValidChange con el typeId al hacer click en un tipo compatible', async () => {
+      setupMemberTypes([memberTypeNumerario]);
+      const { user, props } = renderStep({ birthDate: '1990-05-15' }); // 36 años, compatible con 18-65
+
+      await waitFor(() => {
+        expect(screen.getByText('Socio Numerario')).toBeInTheDocument();
+      });
+
+      // Act
+      await user.click(screen.getByText('Socio Numerario'));
+
+      // Assert: onValidChange con el typeId
+      expect(props.onValidChange).toHaveBeenCalledWith(memberTypeNumerario.id);
     });
 
-    renderStep();
+    it('deberia mostrar badge "Seleccionado" al seleccionar un tipo', async () => {
+      setupMemberTypes([memberTypeNumerario]);
+      const { user } = renderStep({ birthDate: '1990-05-15' });
 
-    // Cuando esta cargando, NO muestra las tarjetas de tipo de socio
-    expect(screen.queryByText('Socio Numerario')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Socio Numerario')).toBeInTheDocument();
+      });
 
-    // Mantine Skeleton renderiza divs con role generico — verificar que
-    // no hay contenido de tipos de socio y que el DOM no esta vacio
-    // El componente crea 3 skeletons con height=120
-    expect(screen.queryByText('Voto')).not.toBeInTheDocument();
-    expect(screen.queryByText('Error al cargar tipos de socio')).not.toBeInTheDocument();
+      await user.click(screen.getByText('Socio Numerario'));
+
+      expect(screen.getByText('Seleccionado')).toBeInTheDocument();
+    });
+
+    it('deberia llamar a onValidChange con null al seleccionar un tipo incompatible', async () => {
+      setupMemberTypes([memberTypeJuvenil]);
+      const { user, props } = renderStep({ birthDate: '1990-05-15' }); // 36 años, incompatible con max 17
+
+      await waitFor(() => {
+        expect(screen.getByText('Socio Juvenil')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('Socio Juvenil'));
+
+      // El aspirante tiene 36 años, JUVENIL tiene max 17 → onValidChange(null)
+      expect(props.onValidChange).toHaveBeenCalledWith(null);
+    });
   });
 
-  it('deberia mostrar badges de derechos (Voto, Elegible)', () => {
-    mockUseMemberTypes.mockReturnValue({
-      data: [memberTypeNumerario],
-      isLoading: false,
-      isError: false,
-      refetch: vi.fn(),
+  describe('compatibilidad de edad', () => {
+    it('deberia marcar tipos incompatibles segun la edad del aspirante', async () => {
+      // Aspirante de 36 años (nacido en 1990, estamos en 2026-06-15)
+      setupMemberTypes([memberTypeNumerario, memberTypeJuvenil]);
+
+      renderStep({ birthDate: '1990-05-15' });
+
+      await waitFor(() => {
+        // Juvenil no es compatible (max 17 años)
+        expect(screen.getByText(/No compatible con la edad del aspirante/)).toBeInTheDocument();
+      });
     });
 
-    renderStep();
+    it('deberia mostrar "Edad compatible" al seleccionar un tipo compatible', async () => {
+      setupMemberTypes([memberTypeNumerario]);
+      const { user } = renderStep({ birthDate: '1990-05-15' }); // 36 años, dentro de 18-65
 
-    expect(screen.getByText('Voto')).toBeInTheDocument();
-    expect(screen.getByText('Elegible para cargos')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('Socio Numerario')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('Socio Numerario'));
+
+      expect(screen.getByText('Edad compatible')).toBeInTheDocument();
+    });
+
+    it('deberia mostrar incompatibilidad para Senior con aspirante joven (triangulacion)', async () => {
+      setupMemberTypes([memberTypeSenior]);
+
+      renderStep({ birthDate: '2000-01-01' }); // 26 años, Senior requiere 66+
+
+      await waitFor(() => {
+        expect(screen.getByText('Socio Senior')).toBeInTheDocument();
+      });
+
+      // El tipo ya muestra incompatibilidad inline sin necesidad de click
+      expect(screen.getByText(/No compatible con la edad del aspirante/)).toBeInTheDocument();
+    });
   });
 
-  it('deberia no mostrar badges de derechos cuando no tiene permisos', () => {
-    mockUseMemberTypes.mockReturnValue({
-      data: [memberTypeJuvenil],
-      isLoading: false,
-      isError: false,
-      refetch: vi.fn(),
+  describe('estado de carga', () => {
+    it('deberia mostrar skeletons cuando esta cargando', () => {
+      server.use(http.get('*/v1/member-types', () => new Promise(() => {})));
+
+      renderStep();
+
+      // Cuando esta cargando, no muestra las tarjetas
+      expect(screen.queryByText('Socio Numerario')).not.toBeInTheDocument();
+      expect(screen.queryByText('Voto')).not.toBeInTheDocument();
     });
-
-    renderStep();
-
-    expect(screen.queryByText('Voto')).not.toBeInTheDocument();
-    expect(screen.queryByText('Elegible para cargos')).not.toBeInTheDocument();
   });
 
-  it('deberia mostrar informacion de rango de edad', () => {
-    mockUseMemberTypes.mockReturnValue({
-      data: [memberTypeNumerario, memberTypeJuvenil, memberTypeSenior],
-      isLoading: false,
-      isError: false,
-      refetch: vi.fn(),
+  describe('estados de error y vacios', () => {
+    it('deberia mostrar alerta de error cuando falla la carga', async () => {
+      server.use(
+        http.get('*/v1/member-types', () =>
+          HttpResponse.json({ message: 'Server error' }, { status: 500 }),
+        ),
+      );
+
+      renderStep();
+
+      await waitFor(() => {
+        expect(screen.getByText('Error al cargar tipos de socio')).toBeInTheDocument();
+        expect(screen.getByText('Reintentar')).toBeInTheDocument();
+      });
     });
 
-    renderStep();
+    it('deberia recargar al hacer click en Reintentar', async () => {
+      let callCount = 0;
+      server.use(
+        http.get('*/v1/member-types', () => {
+          callCount++;
+          if (callCount === 1) {
+            return HttpResponse.json({ message: 'Server error' }, { status: 500 });
+          }
+          return HttpResponse.json(apiResponse([memberTypeNumerario]));
+        }),
+      );
 
-    // Rango completo
-    expect(screen.getByText('Edad: 18-65 años')).toBeInTheDocument();
-    // Solo maximo
-    expect(screen.getByText('Edad: hasta 17 años')).toBeInTheDocument();
-    // Solo minimo
-    expect(screen.getByText('Edad: 66+ años')).toBeInTheDocument();
-  });
+      const { user } = renderStep();
 
-  it('deberia marcar tipos incompatibles segun la edad del aspirante', () => {
-    // Aspirante de 36 años (nacido en 1990, estamos en 2026-06-15)
-    mockUseMemberTypes.mockReturnValue({
-      data: [memberTypeNumerario, memberTypeJuvenil],
-      isLoading: false,
-      isError: false,
-      refetch: vi.fn(),
+      await waitFor(() => {
+        expect(screen.getByText('Reintentar')).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByText('Reintentar'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Socio Numerario')).toBeInTheDocument();
+      });
     });
 
-    renderStep({ birthDate: '1990-05-15' });
+    it('deberia mostrar alerta cuando no hay tipos de socio configurados', async () => {
+      setupMemberTypes([]);
 
-    // Juvenil no es compatible (max 17 años)
-    expect(screen.getByText(/No compatible con la edad del aspirante/)).toBeInTheDocument();
-  });
+      renderStep();
 
-  it('deberia mostrar alerta de error cuando falla la carga', () => {
-    mockUseMemberTypes.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      isError: true,
-      refetch: vi.fn(),
+      await waitFor(() => {
+        expect(screen.getByText('Sin tipos de socio')).toBeInTheDocument();
+      });
     });
-
-    renderStep();
-
-    expect(screen.getByText('Error al cargar tipos de socio')).toBeInTheDocument();
-    expect(screen.getByText('Reintentar')).toBeInTheDocument();
-  });
-
-  it('deberia mostrar alerta cuando no hay tipos de socio configurados', () => {
-    mockUseMemberTypes.mockReturnValue({
-      data: [],
-      isLoading: false,
-      isError: false,
-      refetch: vi.fn(),
-    });
-
-    renderStep();
-
-    expect(screen.getByText('Sin tipos de socio')).toBeInTheDocument();
   });
 });

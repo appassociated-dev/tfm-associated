@@ -1,12 +1,16 @@
 import { useEffect, useMemo } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Grid, Group, Loader, Stack, Text, TextInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { useForm } from '@mantine/form';
 
 import { useCheckDni } from '../hooks/use-check-dni';
 import { useCheckEmail } from '../hooks/use-check-email';
 import { validateIdentityDocument, calculateAge } from '../utils/dni-validator';
 import type { PersonalData } from '../schemas/member-registration.schemas';
+import { personalDataFormSchema } from '../schemas/member-registration.schemas';
+import type { PersonalDataFormValues } from '../schemas/member-registration.schemas';
 
 // === Tipos ===
 
@@ -30,60 +34,32 @@ function getToday(): Date {
  * (formato client-side + unicidad API debounced).
  */
 export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataStepProps) {
-  const form = useForm({
-    initialValues: {
+  const { t } = useTranslation('membership');
+  const { register, control, watch, trigger, formState } = useForm<PersonalDataFormValues>({
+    resolver: zodResolver(personalDataFormSchema),
+    mode: 'onBlur',
+    defaultValues: {
       dni: initialValues?.dni ?? '',
       firstName: initialValues?.firstName ?? '',
       lastName: initialValues?.lastName ?? '',
-      birthDate: initialValues?.birthDate
-        ? new Date(initialValues.birthDate)
-        : (null as Date | null),
+      birthDate: initialValues?.birthDate ?? null,
       email: initialValues?.email ?? '',
       phone: initialValues?.phone ?? '',
       address: initialValues?.address ?? '',
       postalCode: initialValues?.postalCode ?? '',
       city: initialValues?.city ?? '',
     },
-    validate: {
-      dni: (value) => {
-        if (!value.trim()) return 'DNI/NIE es obligatorio';
-        const result = validateIdentityDocument(value);
-        if (!result.valid) return result.error ?? 'Documento invalido';
-        return null;
-      },
-      firstName: (value) => {
-        if (!value.trim()) return 'Nombre es obligatorio';
-        if (value.length > 100) return 'Maximo 100 caracteres';
-        return null;
-      },
-      lastName: (value) => {
-        if (!value.trim()) return 'Apellidos es obligatorio';
-        if (value.length > 200) return 'Maximo 200 caracteres';
-        return null;
-      },
-      birthDate: (value) => {
-        if (!value) return 'Fecha de nacimiento es obligatoria';
-        if (isNaN(value.getTime())) return 'Fecha invalida';
-        return null;
-      },
-      email: (value) => {
-        if (!value.trim()) return 'Email es obligatorio';
-        if (!/^\S+@\S+\.\S+$/.test(value)) return 'Email invalido';
-        return null;
-      },
-      postalCode: (value) => {
-        if (value && !/^\d{5}$/.test(value)) return 'Debe ser 5 digitos';
-        return null;
-      },
-    },
   });
 
+  // CRITICO: destructurar formState ANTES del useEffect para que el Proxy de RHF registre la subscription
+  const { errors } = formState;
+
   // Consulta debounced de unicidad de DNI
-  const currentDni = form.getValues().dni;
+  const currentDni = watch('dni');
   const { data: dniCheck, isFetching: isDniChecking } = useCheckDni(currentDni);
 
   // Consulta debounced de unicidad de email (Issue P2-8)
-  const currentEmail = form.getValues().email;
+  const currentEmail = watch('email');
   const { data: emailCheck, isFetching: isEmailChecking } = useCheckEmail(currentEmail);
 
   // Validacion client-side del DNI (para el icono inline)
@@ -94,10 +70,13 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
   }, [currentDni]);
 
   // Edad calculada a partir de la fecha de nacimiento
-  const currentBirthDate = form.getValues().birthDate;
+  const currentBirthDate = watch('birthDate');
   const computedAge = useMemo(() => {
     if (!currentBirthDate) return null;
-    const date = currentBirthDate instanceof Date ? currentBirthDate : new Date(currentBirthDate);
+    // Mantine 8 DateInput devuelve string "YYYY-MM-DD" en onChange
+    const dateStr = typeof currentBirthDate === 'string' ? currentBirthDate : '';
+    if (!dateStr) return null;
+    const date = new Date(dateStr);
     if (isNaN(date.getTime())) return null;
     const isoStr = date.toISOString().split('T')[0];
     const age = calculateAge(isoStr);
@@ -159,17 +138,17 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
   }, [currentEmail, isEmailChecking, emailCheck]);
 
   // Notificar al padre cada vez que cambia la validez del formulario
-  const values = form.getValues();
-  const errors = form.errors;
+  const watchedValues = watch();
 
   useEffect(() => {
     // Validar todos los campos requeridos
     const hasRequiredFields =
-      values.dni.trim() !== '' &&
-      values.firstName.trim() !== '' &&
-      values.lastName.trim() !== '' &&
-      values.birthDate !== null &&
-      values.email.trim() !== '';
+      watchedValues.dni.trim() !== '' &&
+      watchedValues.firstName.trim() !== '' &&
+      watchedValues.lastName.trim() !== '' &&
+      watchedValues.birthDate !== null &&
+      watchedValues.birthDate !== '' &&
+      watchedValues.email.trim() !== '';
 
     // Validar que no hay errores activos del formulario
     const hasNoFormErrors = Object.keys(errors).length === 0;
@@ -181,10 +160,10 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
     const dniNotDuplicate = dniCheck ? !dniCheck.exists : false;
 
     // Validar email basico
-    const emailValid = /^\S+@\S+\.\S+$/.test(values.email);
+    const emailValid = /^\S+@\S+\.\S+$/.test(watchedValues.email);
 
     // Validar codigo postal si presente
-    const postalCodeValid = !values.postalCode || /^\d{5}$/.test(values.postalCode);
+    const postalCodeValid = !watchedValues.postalCode || /^\d{5}$/.test(watchedValues.postalCode);
 
     if (
       hasRequiredFields &&
@@ -194,100 +173,101 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       emailValid &&
       postalCodeValid
     ) {
-      const bd = values.birthDate instanceof Date ? values.birthDate : new Date(values.birthDate);
-      const birthDateIso = !isNaN(bd.getTime()) ? bd.toISOString().split('T')[0] : '';
+      // birthDate viene como string "YYYY-MM-DD" de Mantine 8 DateInput
+      const birthDateIso = watchedValues.birthDate ?? '';
       const personalData: PersonalData = {
-        dni: values.dni.trim(),
-        firstName: values.firstName.trim(),
-        lastName: values.lastName.trim(),
+        dni: watchedValues.dni.trim(),
+        firstName: watchedValues.firstName.trim(),
+        lastName: watchedValues.lastName.trim(),
         birthDate: birthDateIso,
-        email: values.email.trim(),
-        phone: values.phone.trim() || null,
-        address: values.address.trim() || null,
-        postalCode: values.postalCode.trim() || null,
-        city: values.city.trim() || null,
+        email: watchedValues.email.trim(),
+        phone: watchedValues.phone.trim() || null,
+        address: watchedValues.address.trim() || null,
+        postalCode: watchedValues.postalCode.trim() || null,
+        city: watchedValues.city.trim() || null,
       };
       onValidChange(personalData);
     } else {
       onValidChange(null);
     }
-  }, [
-    values.dni,
-    values.firstName,
-    values.lastName,
-    values.birthDate,
-    values.email,
-    values.phone,
-    values.address,
-    values.postalCode,
-    values.city,
-    errors,
-    dniClientValidation?.valid,
-    dniCheck,
-    onValidChange,
-  ]);
+  }, [watchedValues, errors, dniClientValidation?.valid, dniCheck, onValidChange]);
 
   return (
     <Stack gap="md">
       {/* Alerta de DNI duplicado */}
       {dniCheck?.exists && (
-        <Alert color="red" title="DNI duplicado">
-          Ya existe socio con DNI {currentDni} ({dniCheck.memberName}, #{dniCheck.memberNumber})
+        <Alert color="red" title={t('registration.personalDataStep.dniDuplicateTitle')}>
+          {t('registration.personalDataStep.dniDuplicateText', {
+            dni: currentDni,
+            name: dniCheck.memberName,
+            number: dniCheck.memberNumber,
+          })}
         </Alert>
       )}
 
       {/* DNI/NIE */}
       <TextInput
-        label="DNI/NIE"
-        placeholder="12345678Z o X1234567L"
+        label={t('registration.personalDataStep.dniLabel')}
+        placeholder={t('registration.personalDataStep.dniPlaceholder')}
         required
         rightSection={dniRightSection}
-        key={form.key('dni')}
-        {...form.getInputProps('dni')}
-        onBlur={() => {
-          form.validateField('dni');
-        }}
+        {...register('dni', {
+          onBlur: () => trigger('dni'),
+        })}
+        error={errors.dni?.message}
       />
 
       {/* Nombre y apellidos */}
       <Grid>
         <Grid.Col span={6}>
           <TextInput
-            label="Nombre"
-            placeholder="Nombre del aspirante"
+            label={t('registration.personalDataStep.firstNameLabel')}
+            placeholder={t('registration.personalDataStep.firstNamePlaceholder')}
             required
-            key={form.key('firstName')}
-            {...form.getInputProps('firstName')}
+            {...register('firstName')}
+            error={errors.firstName?.message}
           />
         </Grid.Col>
         <Grid.Col span={6}>
           <TextInput
-            label="Apellidos"
-            placeholder="Apellidos del aspirante"
+            label={t('registration.personalDataStep.lastNameLabel')}
+            placeholder={t('registration.personalDataStep.lastNamePlaceholder')}
             required
-            key={form.key('lastName')}
-            {...form.getInputProps('lastName')}
+            {...register('lastName')}
+            error={errors.lastName?.message}
           />
         </Grid.Col>
       </Grid>
 
       {/* Fecha de nacimiento con edad calculada — Issue P1-1: DateInput nativo de Mantine */}
       <Group align="flex-end" gap="sm">
-        <DateInput
-          label="Fecha de nacimiento"
-          placeholder="dd/mm/aaaa"
-          required
-          valueFormat="DD/MM/YYYY"
-          locale="es"
-          maxDate={getToday()}
-          clearable
-          style={{ flex: 1 }}
-          key={form.key('birthDate')}
-          {...form.getInputProps('birthDate')}
+        <Controller
+          name="birthDate"
+          control={control}
+          render={({ field, fieldState }) => (
+            <DateInput
+              label={t('registration.personalDataStep.birthDateLabel')}
+              placeholder={t('registration.personalDataStep.birthDatePlaceholder')}
+              required
+              valueFormat="DD/MM/YYYY"
+              locale="es"
+              maxDate={getToday()}
+              clearable
+              style={{ flex: 1 }}
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+            />
+          )}
         />
         {computedAge !== null && (
           <Text size="sm" c="dimmed" pb={8}>
-            ({computedAge} {computedAge === 1 ? 'año' : 'años'})
+            ({computedAge}{' '}
+            {computedAge === 1
+              ? t('registration.personalDataStep.ageYearSingular')
+              : t('registration.personalDataStep.ageYearPlural')}
+            )
           </Text>
         )}
       </Group>
@@ -295,52 +275,51 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       {/* Email — Issue P2-8: consulta de unicidad */}
       <TextInput
         type="email"
-        label="Email"
-        placeholder="correo@ejemplo.com"
+        label={t('registration.personalDataStep.emailLabel')}
+        placeholder={t('registration.personalDataStep.emailPlaceholder')}
         required
         rightSection={emailRightSection}
-        key={form.key('email')}
-        {...form.getInputProps('email')}
+        {...register('email')}
+        error={errors.email?.message}
       />
       {emailCheck?.exists && (
         <Alert color="yellow" variant="light">
-          Este email ya esta registrado en otro socio. El alta continuara, pero se recomienda
-          verificar que no se trata de un duplicado.
+          {t('registration.personalDataStep.emailDuplicateWarning')}
         </Alert>
       )}
 
       {/* Telefono */}
       <TextInput
-        label="Telefono"
-        placeholder="Opcional"
-        key={form.key('phone')}
-        {...form.getInputProps('phone')}
+        label={t('registration.personalDataStep.phoneLabel')}
+        placeholder={t('registration.personalDataStep.optionalPlaceholder')}
+        {...register('phone')}
+        error={errors.phone?.message}
       />
 
       {/* Direccion */}
       <TextInput
-        label="Direccion"
-        placeholder="Opcional"
-        key={form.key('address')}
-        {...form.getInputProps('address')}
+        label={t('registration.personalDataStep.addressLabel')}
+        placeholder={t('registration.personalDataStep.optionalPlaceholder')}
+        {...register('address')}
+        error={errors.address?.message}
       />
 
       {/* Codigo postal y ciudad */}
       <Grid>
         <Grid.Col span={4}>
           <TextInput
-            label="Codigo postal"
-            placeholder="28001"
-            key={form.key('postalCode')}
-            {...form.getInputProps('postalCode')}
+            label={t('registration.personalDataStep.postalCodeLabel')}
+            placeholder={t('registration.personalDataStep.postalCodePlaceholder')}
+            {...register('postalCode')}
+            error={errors.postalCode?.message}
           />
         </Grid.Col>
         <Grid.Col span={8}>
           <TextInput
-            label="Ciudad"
-            placeholder="Opcional"
-            key={form.key('city')}
-            {...form.getInputProps('city')}
+            label={t('registration.personalDataStep.cityLabel')}
+            placeholder={t('registration.personalDataStep.optionalPlaceholder')}
+            {...register('city')}
+            error={errors.city?.message}
           />
         </Grid.Col>
       </Grid>

@@ -36,11 +36,11 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
+| Tarea                        | Artefacto necesario                                                                                                                                                                                                                                                                                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **F1-Back Task 10 — UC-018** | Endpoints REST operativos: `POST /api/v1/member-accounts/:id/subscriptions`, `GET /api/v1/member-accounts/:id/subscriptions`, `PUT /api/v1/member-accounts/:id/subscriptions/:subId`, `POST /api/v1/member-accounts/:id/subscriptions/:subId/change-plan`, `PATCH /api/v1/member-accounts/:id/subscriptions/:subId/close`. Contratos de DTOs definidos |
-| **F1-Front Task 2 — UC-017** | Schemas Zod de planes de cuota, hook `useFeePlans()`, servicio API `fee-plan.api.ts` para consultar planes vinculados al tipo de socio |
-| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado |
+| **F1-Front Task 2 — UC-017** | Schemas Zod de planes de cuota, hook `useFeePlans()`, servicio API `fee-plan.api.ts` para consultar planes vinculados al tipo de socio                                                                                                                                                                                                                 |
+| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                                                                                                                                                            |
 
 ### Checklist de verificación de dependencias
 
@@ -51,7 +51,7 @@ Antes de iniciar esta tarea, verificar que:
 - [ ] `web/src/shared/api/http-client.ts` existe con interceptors de auth configurados
 - [ ] `web/src/shared/components/layout/app-shell.tsx` existe con sidebar funcional
 - [ ] `web/src/features/auth/context/use-permissions.ts` existe y exporta `usePermissions()`
-- [ ] `zod` y `@mantine/form` están instalados
+- [ ] `zod`, `react-hook-form` y `@hookform/resolvers` están instalados
 - [ ] Endpoint `GET /api/v1/member-accounts/:id/subscriptions` responde correctamente
 - [ ] Endpoint `POST /api/v1/member-accounts/:id/subscriptions` crea suscripciones
 - [ ] Endpoint `POST /api/v1/member-accounts/:id/subscriptions/:subId/change-plan` funciona
@@ -60,25 +60,25 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Schemas Zod de suscripciones (`schemas/subscription.schemas.ts`) | F1-Front Task 4 (UC-011 — alta de socio selecciona plan y crea suscripción) |
-| Hook `useSubscriptions(memberId)` y `useCreateSubscription()` | F1-Front Task 4 (UC-011 — paso 3 del wizard de alta) |
-| Componente `SubscriptionSelector` | F1-Front Task 4 (UC-011 — selector de plan en wizard) |
-| Función `calculateEffectiveAmount()` (utilidad de cálculo de descuento) | F1-Front Task 4 (UC-011 — preview de importe en alta) |
+| Artefacto                                                               | Consumido por                                                               |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Schemas Zod de suscripciones (`schemas/subscription.schemas.ts`)        | F1-Front Task 4 (UC-011 — alta de socio selecciona plan y crea suscripción) |
+| Hook `useSubscriptions(memberId)` y `useCreateSubscription()`           | F1-Front Task 4 (UC-011 — paso 3 del wizard de alta)                        |
+| Componente `SubscriptionSelector`                                       | F1-Front Task 4 (UC-011 — selector de plan en wizard)                       |
+| Función `calculateEffectiveAmount()` (utilidad de cálculo de descuento) | F1-Front Task 4 (UC-011 — preview de importe en alta)                       |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-018.md` | Flujo completo de suscripciones: creación en alta, cambio de plan, descuentos, exenciones, histórico |
-| `us/us-045.md` | Criterios de aceptación: selección de modalidad de pago en alta, descuento por tipo, descuento personalizado |
-| `us/us-046.md` | Criterios de aceptación: cambio de plan con cierre y apertura de suscripción, histórico |
-| `us/us-049.md` | Criterios de aceptación: descuentos por tipo, personalizados, modificación en suscripción activa |
-| `us/us-050.md` | Criterios de aceptación: exención total, temporal, parcial (descuento 100%) |
-| `us/us-052.md` | Criterios de aceptación: histórico de suscripciones, detalle con cargos generados |
-| `bc/bc-treasury.md` | Entity FeeSubscription (effectiveAmount, discount, cancelReason), Aggregate MemberAccount, SubscriptionCancelReason enum |
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `uc/uc-018.md`                                      | Flujo completo de suscripciones: creación en alta, cambio de plan, descuentos, exenciones, histórico                               |
+| `us/us-045.md`                                      | Criterios de aceptación: selección de modalidad de pago en alta, descuento por tipo, descuento personalizado                       |
+| `us/us-046.md`                                      | Criterios de aceptación: cambio de plan con cierre y apertura de suscripción, histórico                                            |
+| `us/us-049.md`                                      | Criterios de aceptación: descuentos por tipo, personalizados, modificación en suscripción activa                                   |
+| `us/us-050.md`                                      | Criterios de aceptación: exención total, temporal, parcial (descuento 100%)                                                        |
+| `us/us-052.md`                                      | Criterios de aceptación: histórico de suscripciones, detalle con cargos generados                                                  |
+| `bc/bc-treasury.md`                                 | Entity FeeSubscription (effectiveAmount, discount, cancelReason), Aggregate MemberAccount, SubscriptionCancelReason enum           |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
 
 ## Formateo de datos
@@ -138,12 +138,12 @@ Los botones de acción principal deben usar `color="brand"` en lugar del azul po
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Error en implementación de fórmula multiplicativa (se usa aditiva por error) | Media | Alto | Tests unitarios específicos que validan fórmula multiplicativa vs aditiva; test que verifica que 30%+10% da 37% efectivo, no 40% |
-| Confusión del usuario con descuentos acumulados (no entiende por qué 30%+10% no es 40%) | Media | Medio | Mostrar desglose paso a paso en la UI: "Base: 120EUR -> Con dto tipo 30%: 84EUR -> Con dto personal 10%: 75.60EUR" |
-| Cambio de plan con cargos pendientes genera inconsistencias | Baja | Alto | Mostrar advertencia clara con listado de cargos pendientes antes de confirmar; respetar la decisión del usuario (mantener o condonar) |
-| Latencia al consultar cuenta de socio con muchas suscripciones históricas | Baja | Bajo | Paginar histórico de suscripciones; cargar solo suscripción activa por defecto |
+| Riesgo                                                                                  | Probabilidad | Impacto | Mitigación                                                                                                                            |
+| --------------------------------------------------------------------------------------- | ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Error en implementación de fórmula multiplicativa (se usa aditiva por error)            | Media        | Alto    | Tests unitarios específicos que validan fórmula multiplicativa vs aditiva; test que verifica que 30%+10% da 37% efectivo, no 40%      |
+| Confusión del usuario con descuentos acumulados (no entiende por qué 30%+10% no es 40%) | Media        | Medio   | Mostrar desglose paso a paso en la UI: "Base: 120EUR -> Con dto tipo 30%: 84EUR -> Con dto personal 10%: 75.60EUR"                    |
+| Cambio de plan con cargos pendientes genera inconsistencias                             | Baja         | Alto    | Mostrar advertencia clara con listado de cargos pendientes antes de confirmar; respetar la decisión del usuario (mantener o condonar) |
+| Latencia al consultar cuenta de socio con muchas suscripciones históricas               | Baja         | Bajo    | Paginar histórico de suscripciones; cargar solo suscripción activa por defecto                                                        |
 
 ## Plan de implementación
 
@@ -152,12 +152,16 @@ Los botones de acción principal deben usar `color="brand"` en lugar del azul po
 Crear en `web/src/features/treasury/subscriptions/schemas/`:
 
 - **`subscription.schemas.ts`**: Definir schemas Zod para suscripciones:
+
   ```typescript
   import { z } from 'zod';
 
   // Enum de motivos de cierre
   const cancelReasonSchema = z.enum([
-    'PLAN_CHANGE', 'MEMBER_LEAVE', 'EXEMPTION', 'ONE_TIME_COMPLETED'
+    'PLAN_CHANGE',
+    'MEMBER_LEAVE',
+    'EXEMPTION',
+    'ONE_TIME_COMPLETED',
   ]);
 
   // Schema de suscripción
@@ -240,6 +244,7 @@ Crear en `web/src/features/treasury/subscriptions/utils/`:
     personalDiscount: number | null
   ): { effectiveAmount: number; totalDiscountPercent: number; breakdown: DiscountBreakdown }
   ```
+
   - Retorna el importe efectivo, el porcentaje total de descuento y un desglose paso a paso
   - Redondeo a 2 decimales con `Math.round(value * 100) / 100`
   - Validación: si la suma efectiva de descuentos alcanza 100%, lanza error
@@ -261,6 +266,7 @@ Crear en `web/src/features/treasury/subscriptions/api/`:
 Crear en `web/src/features/treasury/subscriptions/hooks/`:
 
 - **`use-subscriptions.ts`**: Hook para suscripciones de un socio:
+
   ```typescript
   const useSubscriptions = (memberAccountId: string) => {
     return useQuery({
@@ -272,12 +278,12 @@ Crear en `web/src/features/treasury/subscriptions/hooks/`:
   ```
 
 - **`use-create-subscription.ts`**: Hook de mutación:
+
   ```typescript
   const useCreateSubscription = (memberAccountId: string) => {
     const queryClient = useQueryClient();
     return useMutation({
-      mutationFn: (data: CreateSubscriptionInput) =>
-        createSubscription(memberAccountId, data),
+      mutationFn: (data: CreateSubscriptionInput) => createSubscription(memberAccountId, data),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['subscriptions', memberAccountId] });
         notifications.show({
@@ -290,7 +296,8 @@ Crear en `web/src/features/treasury/subscriptions/hooks/`:
         if (error.response?.status === 409) {
           notifications.show({
             title: 'Suscripción duplicada',
-            message: 'Ya existe una suscripción periódica activa. Ciérrela primero o cambie de plan.',
+            message:
+              'Ya existe una suscripción periódica activa. Ciérrela primero o cambie de plan.',
             color: 'red',
           });
         }
@@ -410,6 +417,7 @@ Crear en `web/src/features/treasury/subscriptions/components/`:
 Actualizar `web/src/app/router.tsx`:
 
 - Añadir ruta protegida:
+
   ```typescript
   {
     path: 'treasury/members/:memberId/subscriptions',
@@ -425,6 +433,7 @@ Actualizar `web/src/app/router.tsx`:
 ### Paso 11: Tests
 
 **Tests unitarios (componentes):**
+
 - `MemberSubscriptionsPage`:
   - Renderiza suscripción activa cuando existe (mock useSubscriptions)
   - Muestra "Sin suscripción activa" cuando no hay
@@ -448,6 +457,7 @@ Actualizar `web/src/app/router.tsx`:
   - Rechaza descuento >= 100% combinado
 
 **Tests unitarios (utils):**
+
 - `calculateEffectiveAmount()`:
   - `(120, 0.30, null)` → `84.00` (solo descuento tipo)
   - `(120, 0.30, 0.10)` → `75.60` (multiplicativo correcto)
@@ -458,6 +468,7 @@ Actualizar `web/src/app/router.tsx`:
   - `(120, 1.0, null)` → error (descuento tipo = 100%)
 
 **Tests unitarios (hooks):**
+
 - `useSubscriptions()`:
   - Retorna datos correctos con suscripción activa y cerradas
   - Retorna error cuando la API falla
@@ -469,6 +480,7 @@ Actualizar `web/src/app/router.tsx`:
   - Maneja error 422 (cargos pendientes sin confirmar)
 
 **Tests E2E (Playwright):**
+
 - Flujo completo: ver suscripción activa de socio → cambiar plan a anual → verificar nueva suscripción → modificar descuento → verificar importe actualizado
 - Flujo de exención: aplicar exención temporal → verificar que suscripción se cierra → verificar motivo en histórico
 - Validaciones: intentar crear segunda suscripción periódica → verificar rechazo

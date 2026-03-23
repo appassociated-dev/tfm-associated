@@ -12,6 +12,7 @@ import {
   Alert,
   Skeleton,
 } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 
 import { formatMoney } from '@/shared/utils/format-money';
 import { useFeePlans } from '@/features/treasury/fee-plans/hooks/use-fee-plans';
@@ -36,9 +37,9 @@ export interface SubscriptionSelectorProps {
 
 // === Constantes ===
 
-const PLAN_TYPE_LABELS: Record<string, string> = {
-  RECURRING: 'Periódico',
-  ONE_TIME: 'Única',
+const PLAN_TYPE_LABEL_KEYS: Record<string, string> = {
+  RECURRING: 'planType.recurring',
+  ONE_TIME: 'planType.oneTime',
 };
 
 const PLAN_TYPE_COLORS: Record<string, string> = {
@@ -57,6 +58,7 @@ export function SubscriptionSelector({
   typeDiscount,
   onSelect,
 }: SubscriptionSelectorProps) {
+  const { t } = useTranslation('treasury');
   // Estado local
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [personalDiscountPercent, setPersonalDiscountPercent] = useState<number | string>('');
@@ -134,10 +136,10 @@ export function SubscriptionSelector({
 
   if (isError) {
     return (
-      <Alert color="red" title="Error al cargar planes">
-        No se pudieron cargar los planes de cuota.
+      <Alert color="red" title={t('subscriptions.selector.loadError')}>
+        {t('subscriptions.selector.loadErrorText')}
         <Button variant="subtle" color="red" size="xs" mt="xs" onClick={() => refetch()}>
-          Reintentar
+          {t('subscriptions.selector.retry')}
         </Button>
       </Alert>
     );
@@ -145,8 +147,8 @@ export function SubscriptionSelector({
 
   if (!plans || plans.length === 0) {
     return (
-      <Alert color="yellow" title="Sin planes disponibles">
-        No hay planes de cuota activos configurados. Contacte al administrador.
+      <Alert color="yellow" title={t('subscriptions.selector.noPlans')}>
+        {t('subscriptions.selector.noPlansText')}
       </Alert>
     );
   }
@@ -170,11 +172,11 @@ export function SubscriptionSelector({
       {selectedPlan && (
         <Stack gap="sm">
           <Text fw={500} size="sm">
-            Descuento personalizado
+            {t('subscriptions.selector.customDiscount')}
           </Text>
 
           <NumberInput
-            label="Porcentaje de descuento"
+            label={t('subscriptions.selector.discountPercent')}
             placeholder="0"
             min={0}
             max={99}
@@ -186,15 +188,15 @@ export function SubscriptionSelector({
 
           {isReasonRequired && (
             <Textarea
-              label="Motivo del descuento"
-              placeholder="Indique el motivo del descuento personalizado (mínimo 3 caracteres)"
+              label={t('subscriptions.selector.discountReason')}
+              placeholder={t('subscriptions.selector.discountReasonPlaceholder')}
               minRows={2}
               maxRows={4}
               value={personalDiscountReason}
               onChange={(e) => setPersonalDiscountReason(e.currentTarget.value)}
               error={
                 personalDiscountReason.length > 0 && personalDiscountReason.length < 3
-                  ? 'Mínimo 3 caracteres'
+                  ? t('subscriptions.selector.minChars')
                   : undefined
               }
             />
@@ -202,8 +204,8 @@ export function SubscriptionSelector({
 
           {/* Error de descuento excedido */}
           {isDiscountExceeded && (
-            <Alert color="red" title="Descuento excedido">
-              El descuento combinado no puede alcanzar o superar el 100%.
+            <Alert color="red" title={t('subscriptions.selector.discountExceeded')}>
+              {t('subscriptions.selector.discountExceededText')}
             </Alert>
           )}
 
@@ -215,7 +217,7 @@ export function SubscriptionSelector({
       {/* Botón de confirmación */}
       <Group justify="flex-end">
         <Button color="brand" disabled={!canConfirm} onClick={handleConfirm}>
-          Confirmar selección
+          {t('subscriptions.selector.confirmSelection')}
         </Button>
       </Group>
     </Stack>
@@ -233,6 +235,7 @@ interface PlanCardProps {
 
 /** Tarjeta individual de plan de cuota. */
 function PlanCard({ plan, typeDiscount, isSelected, onSelect }: PlanCardProps) {
+  const { t } = useTranslation('treasury');
   // Calcular importe con descuento por tipo
   const amountWithTypeDiscount = useMemo(() => {
     if (typeDiscount === null || typeDiscount === 0) return null;
@@ -259,14 +262,14 @@ function PlanCard({ plan, typeDiscount, isSelected, onSelect }: PlanCardProps) {
             {plan.name}
           </Text>
           <Badge variant="light" radius="sm" color={PLAN_TYPE_COLORS[plan.type] ?? 'gray'}>
-            {PLAN_TYPE_LABELS[plan.type] ?? plan.type}
+            {t((PLAN_TYPE_LABEL_KEYS[plan.type] ?? plan.type) as never)}
           </Badge>
         </Group>
 
         {/* Importe base */}
         <Group gap="xs" align="baseline">
           <Text size="sm" c="dimmed" style={{ fontVariantNumeric: 'tabular-nums' }}>
-            Base: {formatMoney(plan.amount)}
+            {t('subscriptions.selector.base')} {formatMoney(plan.amount)}
           </Text>
         </Group>
 
@@ -274,7 +277,9 @@ function PlanCard({ plan, typeDiscount, isSelected, onSelect }: PlanCardProps) {
         {amountWithTypeDiscount !== null && (
           <Group gap="xs" align="baseline">
             <Text size="sm" fw={500} style={{ fontVariantNumeric: 'tabular-nums' }}>
-              Con dto. tipo ({Math.round((typeDiscount ?? 0) * 100)}%):{' '}
+              {t('subscriptions.selector.withTypeDiscount', {
+                percent: Math.round((typeDiscount ?? 0) * 100),
+              })}{' '}
               {formatMoney(amountWithTypeDiscount)}
             </Text>
           </Group>
@@ -283,7 +288,7 @@ function PlanCard({ plan, typeDiscount, isSelected, onSelect }: PlanCardProps) {
         {/* Badge de seleccionado */}
         {isSelected && (
           <Badge variant="light" radius="sm" color="brand" size="xs">
-            Seleccionado
+            {t('subscriptions.selector.selected')}
           </Badge>
         )}
       </Stack>
@@ -297,6 +302,7 @@ interface DiscountBreakdownPreviewProps {
 
 /** Vista previa del desglose de descuento paso a paso. */
 function DiscountBreakdownPreview({ breakdown }: DiscountBreakdownPreviewProps) {
+  const { t } = useTranslation('treasury');
   const typeDiscountAmount =
     breakdown.typeDiscount !== null && breakdown.typeDiscount > 0
       ? breakdown.baseAmount - breakdown.afterTypeDiscount
@@ -311,12 +317,14 @@ function DiscountBreakdownPreview({ breakdown }: DiscountBreakdownPreviewProps) 
     <Card withBorder padding="sm" radius="md" bg="gray.0">
       <Stack gap={4}>
         {/* Importe base */}
-        <BreakdownRow label="Importe base" amount={breakdown.baseAmount} />
+        <BreakdownRow label={t('subscriptions.baseAmount')} amount={breakdown.baseAmount} />
 
         {/* Descuento por tipo */}
         {typeDiscountAmount !== null && breakdown.typeDiscount !== null && (
           <BreakdownRow
-            label={`Descuento tipo (${Math.round(breakdown.typeDiscount * 100)}%)`}
+            label={t('subscriptions.typeDiscountWithPercent', {
+              percent: Math.round(breakdown.typeDiscount * 100),
+            })}
             amount={-typeDiscountAmount}
             isDeduction
           />
@@ -324,13 +332,19 @@ function DiscountBreakdownPreview({ breakdown }: DiscountBreakdownPreviewProps) 
 
         {/* Subtotal (solo si hay ambos descuentos) */}
         {typeDiscountAmount !== null && personalDiscountAmount !== null && (
-          <BreakdownRow label="Subtotal" amount={breakdown.afterTypeDiscount} isBold />
+          <BreakdownRow
+            label={t('subscriptions.subtotal')}
+            amount={breakdown.afterTypeDiscount}
+            isBold
+          />
         )}
 
         {/* Descuento personal */}
         {personalDiscountAmount !== null && breakdown.personalDiscount !== null && (
           <BreakdownRow
-            label={`Descuento personal (${Math.round(breakdown.personalDiscount * 100)}%)`}
+            label={t('subscriptions.personalDiscountWithPercent', {
+              percent: Math.round(breakdown.personalDiscount * 100),
+            })}
             amount={-personalDiscountAmount}
             isDeduction
           />
@@ -346,7 +360,7 @@ function DiscountBreakdownPreview({ breakdown }: DiscountBreakdownPreviewProps) 
 
         {/* Importe efectivo */}
         <BreakdownRow
-          label="Importe efectivo"
+          label={t('subscriptions.effectiveAmount')}
           amount={breakdown.effectiveAmount}
           isBold
           isHighlighted
@@ -355,7 +369,7 @@ function DiscountBreakdownPreview({ breakdown }: DiscountBreakdownPreviewProps) 
         {/* Descuento total */}
         <Group justify="space-between">
           <Text size="sm" c="dimmed">
-            Descuento total
+            {t('subscriptions.selector.discountTotal')}
           </Text>
           <Text
             size="sm"

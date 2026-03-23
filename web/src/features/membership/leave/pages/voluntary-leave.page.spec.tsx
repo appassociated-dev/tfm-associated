@@ -1,39 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { createElement } from 'react';
-import { MantineProvider } from '@mantine/core';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
 
-import type { LeaveSummary } from '../schemas/member-leave.schemas';
+import { render } from '@/test/helpers/render';
+import { server } from '@/test/msw/server';
+import { apiResponse } from '@/test/msw/utils';
+import { buildLeaveSummary } from '@/test/factories';
 import { VoluntaryLeavePage } from './voluntary-leave.page';
 
 // === Mocks ===
 
-vi.mock('react-router', async () => {
-  const actual = await vi.importActual<typeof import('react-router')>('react-router');
-  return {
-    ...actual,
-    useParams: () => ({ memberId: '550e8400-e29b-41d4-a716-446655440000' }),
-    useNavigate: () => vi.fn(),
-    useBlocker: () => ({ state: 'unblocked', reset: vi.fn(), proceed: vi.fn() }),
-  };
-});
-
-const mockUseLeaveSummary = vi.fn();
-
-vi.mock('../hooks/use-leave-summary', () => ({
-  useLeaveSummary: (...args: unknown[]) => mockUseLeaveSummary(...args),
-}));
-
-vi.mock('../hooks/use-voluntary-leave', () => ({
-  useVoluntaryLeave: () => ({
-    mutate: vi.fn(),
-    isPending: false,
-  }),
-}));
-
-// Mock de @mantine/notifications para evitar errores de portal
+// Mock de @mantine/notifications — portal no disponible en jsdom
 vi.mock('@mantine/notifications', () => ({
   notifications: {
     show: vi.fn(),
@@ -42,11 +19,10 @@ vi.mock('@mantine/notifications', () => ({
 
 // === Datos de prueba ===
 
-const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
-const VALID_UUID_2 = '660e8400-e29b-41d4-a716-446655440001';
+const MEMBER_ID = '550e8400-e29b-41d4-a716-446655440000';
 
-const sampleSummary: LeaveSummary = {
-  memberId: VALID_UUID,
+const summaryWithDebt = buildLeaveSummary({
+  memberId: MEMBER_ID,
   memberName: 'María Fernández Ruiz',
   memberNumber: 'SOC-042',
   currentStatus: 'ACTIVE',
@@ -64,7 +40,7 @@ const sampleSummary: LeaveSummary = {
   ],
   activeSubscriptions: [
     {
-      subscriptionId: VALID_UUID_2,
+      subscriptionId: '660e8400-e29b-41d4-a716-446655440001',
       feePlanCode: 'ANNUAL',
       feePlanName: 'Cuota Anual Ordinaria',
       amount: 12000,
@@ -73,7 +49,7 @@ const sampleSummary: LeaveSummary = {
   ],
   pendingCharges: [
     {
-      chargeId: VALID_UUID_2,
+      chargeId: '660e8400-e29b-41d4-a716-446655440001',
       concept: 'Cuota Marzo 2026',
       amount: 3000,
       issueDate: '2026-03-01T00:00:00.000Z',
@@ -81,27 +57,15 @@ const sampleSummary: LeaveSummary = {
     },
   ],
   totalPendingDebt: 3000,
-};
+});
 
 // === Helpers ===
 
-function TestWrapper({ children }: { children: React.ReactNode }) {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return createElement(
-    MemoryRouter,
-    null,
-    createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      createElement(MantineProvider, null, children),
-    ),
-  );
-}
-
 function renderPage() {
-  return render(createElement(VoluntaryLeavePage), { wrapper: TestWrapper });
+  return render(<VoluntaryLeavePage />, {
+    route: '/members/:memberId/leave',
+    path: `/members/${MEMBER_ID}/leave`,
+  });
 }
 
 // === Tests ===
@@ -109,98 +73,193 @@ function renderPage() {
 describe('VoluntaryLeavePage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseLeaveSummary.mockReturnValue({
-      data: sampleSummary,
-      isLoading: false,
-      isError: false,
-      refetch: vi.fn(),
+    // MSW: resumen de baja con deuda
+    server.use(
+      http.get('*/v1/members/:memberId/leave-summary', () =>
+        HttpResponse.json(apiResponse(summaryWithDebt)),
+      ),
+    );
+  });
+
+  describe('renderizado con datos', () => {
+    it('deberia renderizar datos del socio desde el resumen de baja', async () => {
+      renderPage();
+
+      await waitFor(() => {
+        const nameElements = screen.getAllByText('María Fernández Ruiz');
+        expect(nameElements.length).toBeGreaterThanOrEqual(1);
+      });
+      expect(screen.getByText('#SOC-042')).toBeInTheDocument();
+    });
+
+    it('deberia renderizar breadcrumbs con la jerarquia correcta', async () => {
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByText('Socios')).toBeInTheDocument();
+      });
+      const breadcrumbsContainer = document.querySelector('.mantine-Breadcrumbs-root');
+      expect(breadcrumbsContainer).toBeInTheDocument();
+    });
+
+    it('deberia mostrar opciones de fecha efectiva como radio buttons', async () => {
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByText(/Inmediata/)).toBeInTheDocument();
+        expect(screen.getByText(/Fin de ejercicio/)).toBeInTheDocument();
+      });
+    });
+
+    it('deberia mostrar tabla de suscripciones activas', async () => {
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual Ordinaria')).toBeInTheDocument();
+        expect(screen.getByText('ANNUAL')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia mostrar cargos pendientes', async () => {
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Marzo 2026')).toBeInTheDocument();
+        expect(screen.getByText('Deuda total:')).toBeInTheDocument();
+      });
     });
   });
 
-  it('deberia renderizar datos del socio desde el resumen de baja', () => {
-    renderPage();
+  describe('interacciones del formulario', () => {
+    it('deberia tener boton "Confirmar Baja Voluntaria" deshabilitado sin seleccionar fecha ni motivo', async () => {
+      renderPage();
 
-    // El nombre aparece tanto en el breadcrumb como en los datos del socio
-    const nameElements = screen.getAllByText('María Fernández Ruiz');
-    expect(nameElements.length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('#SOC-042')).toBeInTheDocument();
-  });
-
-  it('deberia renderizar breadcrumbs con la jerarquia correcta', () => {
-    renderPage();
-
-    expect(screen.getByText('Socios')).toBeInTheDocument();
-    // "Baja Voluntaria" aparece tanto en breadcrumb como en titulo y boton
-    const breadcrumbsContainer = document.querySelector('.mantine-Breadcrumbs-root');
-    expect(breadcrumbsContainer).toBeInTheDocument();
-  });
-
-  it('deberia mostrar opciones de fecha efectiva', () => {
-    renderPage();
-
-    // Las opciones de fecha se muestran como radio buttons con label y fecha formateada
-    expect(screen.getByText(/Inmediata/)).toBeInTheDocument();
-    expect(screen.getByText(/Fin de ejercicio/)).toBeInTheDocument();
-  });
-
-  it('deberia mostrar tabla de suscripciones activas', () => {
-    renderPage();
-
-    expect(screen.getByText('Cuota Anual Ordinaria')).toBeInTheDocument();
-    expect(screen.getByText('ANNUAL')).toBeInTheDocument();
-  });
-
-  it('deberia mostrar cargos pendientes con deuda total', () => {
-    renderPage();
-
-    expect(screen.getByText('Cuota Marzo 2026')).toBeInTheDocument();
-    // totalPendingDebt = 3000 centavos → formatMoney(3000) = "30,00 €" (con nbsp)
-    expect(screen.getByText('Deuda total:')).toBeInTheDocument();
-  });
-
-  it('deberia mostrar textarea de motivo', () => {
-    renderPage();
-
-    expect(
-      screen.getByPlaceholderText('Indique el motivo de la baja voluntaria'),
-    ).toBeInTheDocument();
-  });
-
-  it('deberia tener boton "Confirmar Baja Voluntaria" con color rojo', () => {
-    renderPage();
-
-    const button = screen.getByText('Confirmar Baja Voluntaria').closest('button');
-    expect(button).toBeInTheDocument();
-    // El boton existe y esta deshabilitado inicialmente (sin seleccionar fecha ni motivo)
-    expect(button).toBeDisabled();
-  });
-
-  it('deberia mostrar skeleton durante estado de carga', () => {
-    mockUseLeaveSummary.mockReturnValue({
-      data: undefined,
-      isLoading: true,
-      isError: false,
-      refetch: vi.fn(),
+      const button = await screen.findByText('Confirmar Baja Voluntaria');
+      expect(button.closest('button')).toBeDisabled();
     });
 
-    const { container } = renderPage();
+    it('deberia habilitar el boton al seleccionar fecha y escribir motivo valido', async () => {
+      const { user } = renderPage();
 
-    // LoadingSkeleton renderiza varios Skeleton de Mantine
-    const skeletons = container.querySelectorAll('.mantine-Skeleton-root');
-    expect(skeletons.length).toBeGreaterThan(0);
-  });
+      // Esperar a que cargue
+      await screen.findByText('Confirmar Baja Voluntaria');
 
-  it('deberia mostrar alerta de error cuando falla la carga', () => {
-    mockUseLeaveSummary.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      isError: true,
-      refetch: vi.fn(),
+      // Act: seleccionar opcion de fecha via Radio de Mantine
+      // Mantine Radio renderiza un input[type="radio"] dentro del label
+      const radios = document.querySelectorAll('input[type="radio"]');
+      expect(radios.length).toBeGreaterThan(0);
+      await user.click(radios[0]); // Primera opcion: Inmediata
+
+      // Act: escribir motivo valido (min 3 caracteres)
+      // Mantine Textarea renderiza un textarea nativo
+      const textarea = screen.getByPlaceholderText('Indique el motivo de la baja voluntaria');
+      fireEvent.change(textarea, {
+        target: { value: 'Motivo de prueba para la baja voluntaria del socio' },
+      });
+
+      // Assert: boton habilitado
+      const button = screen.getByText('Confirmar Baja Voluntaria').closest('button');
+      expect(button).not.toBeDisabled();
     });
 
-    renderPage();
+    it('deberia mostrar textarea de motivo con placeholder', async () => {
+      renderPage();
 
-    expect(screen.getByText('Error al cargar datos de baja')).toBeInTheDocument();
-    expect(screen.getByText('Reintentar')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.getByPlaceholderText('Indique el motivo de la baja voluntaria'),
+        ).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('estado de carga', () => {
+    it('deberia mostrar skeleton durante estado de carga', () => {
+      // Arrange: MSW no responde (tarda)
+      server.use(
+        http.get(
+          '*/v1/members/:memberId/leave-summary',
+          () => new Promise(() => {}), // nunca resuelve
+        ),
+      );
+
+      const { container } = renderPage();
+
+      const skeletons = container.querySelectorAll('.mantine-Skeleton-root');
+      expect(skeletons.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('estado de error', () => {
+    it('deberia mostrar alerta de error cuando falla la carga', async () => {
+      // Arrange: MSW devuelve error 500
+      server.use(
+        http.get('*/v1/members/:memberId/leave-summary', () =>
+          HttpResponse.json({ message: 'Server error' }, { status: 500 }),
+        ),
+      );
+
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByText('Error al cargar datos de baja')).toBeInTheDocument();
+        expect(screen.getByText('Reintentar')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia recargar datos al hacer click en Reintentar', async () => {
+      // Arrange: primero error, luego exito
+      let callCount = 0;
+      server.use(
+        http.get('*/v1/members/:memberId/leave-summary', () => {
+          callCount++;
+          if (callCount === 1) {
+            return HttpResponse.json({ message: 'Server error' }, { status: 500 });
+          }
+          return HttpResponse.json(apiResponse(summaryWithDebt));
+        }),
+      );
+
+      const { user } = renderPage();
+
+      // Esperar error
+      await waitFor(() => {
+        expect(screen.getByText('Reintentar')).toBeInTheDocument();
+      });
+
+      // Act: click en reintentar
+      await user.click(screen.getByText('Reintentar'));
+
+      // Assert: datos cargados correctamente
+      await waitFor(() => {
+        const nameElements = screen.getAllByText('María Fernández Ruiz');
+        expect(nameElements.length).toBeGreaterThanOrEqual(1);
+      });
+    });
+  });
+
+  describe('socio sin deuda', () => {
+    it('deberia mostrar alerta de sin deuda cuando totalPendingDebt es 0', async () => {
+      // Arrange: resumen sin deuda
+      const summaryNoDebt = buildLeaveSummary({
+        memberId: MEMBER_ID,
+        memberName: 'Pedro Garcia',
+        memberNumber: 'SOC-100',
+        currentStatus: 'ACTIVE',
+        pendingCharges: [],
+        totalPendingDebt: 0,
+      });
+      server.use(
+        http.get('*/v1/members/:memberId/leave-summary', () =>
+          HttpResponse.json(apiResponse(summaryNoDebt)),
+        ),
+      );
+
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByText('Sin deuda pendiente')).toBeInTheDocument();
+      });
+    });
   });
 });

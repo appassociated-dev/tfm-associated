@@ -1,101 +1,190 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { createElement } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+// Tests para useFeePlans — hook de query que obtiene listado de
+// planes de cuota, opcionalmente filtrado por estado.
+// REESCRITO: usa MSW en lugar de vi.mock de la API.
 
+import { describe, it, expect } from 'vitest';
+import { http, HttpResponse } from 'msw';
+
+import { renderHook, waitFor } from '@/test/helpers/render';
+import { server } from '@/test/msw/server';
+import { buildFeePlan } from '@/test/factories';
+import { apiResponse } from '@/test/msw/utils';
 import { useFeePlans } from './use-fee-plans';
-
-// === Mocks ===
-
-const mockGetFeePlans = vi.fn();
-
-vi.mock('../api/fee-plan.api', () => ({
-  getFeePlans: (...args: unknown[]) => mockGetFeePlans(...args),
-}));
 
 // === Datos de prueba ===
 
-const samplePlans = [
-  {
-    id: '550e8400-e29b-41d4-a716-446655440000',
-    code: 'CUOTA-ANUAL',
-    name: 'Cuota Anual',
-    description: null,
-    type: 'RECURRING',
-    amount: 12000,
-    frequency: 'ANNUAL',
-    billingMonths: [1],
-    active: true,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  },
-];
+const planAnual = buildFeePlan({
+  code: 'CUOTA-ANUAL',
+  name: 'Cuota Anual',
+  amount: 12000,
+  active: true,
+});
 
-// === Helpers ===
+const planMensual = buildFeePlan({
+  code: 'CUOTA-MENSUAL',
+  name: 'Cuota Mensual',
+  amount: 3000,
+  frequency: 'MONTHLY',
+  active: true,
+});
 
-function createWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false, gcTime: 0 },
-    },
-  });
-
-  return function Wrapper({ children }: { children: React.ReactNode }) {
-    return createElement(QueryClientProvider, { client: queryClient }, children);
-  };
-}
-
-// === Tests ===
+const planInactivo = buildFeePlan({
+  code: 'CUOTA-VIEJA',
+  name: 'Cuota Antigua',
+  amount: 8000,
+  active: false,
+});
 
 describe('useFeePlans', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  it('deberia retornar listado de planes cuando la consulta es exitosa', async () => {
+    // Arrange
+    server.use(
+      http.get('*/v1/treasury/fee-plans', () => {
+        return HttpResponse.json(apiResponse([planAnual, planMensual]));
+      }),
+    );
 
-  it('deberia retornar datos cuando la consulta es exitosa', async () => {
-    mockGetFeePlans.mockResolvedValue(samplePlans);
+    // Act
+    const { result } = renderHook(() => useFeePlans());
 
-    const { result } = renderHook(() => useFeePlans(), { wrapper: createWrapper() });
-
+    // Assert
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-
-    expect(result.current.data).toEqual(samplePlans);
-    expect(mockGetFeePlans).toHaveBeenCalledTimes(1);
+    expect(result.current.data).toHaveLength(2);
+    expect(result.current.data?.[0].code).toBe('CUOTA-ANUAL');
+    expect(result.current.data?.[1].code).toBe('CUOTA-MENSUAL');
   });
 
-  it('deberia retornar error cuando la consulta falla', async () => {
-    mockGetFeePlans.mockRejectedValue(new Error('Network error'));
+  it('deberia pasar parametro active a la API', async () => {
+    // Arrange
+    let capturedUrl = '';
+    server.use(
+      http.get('*/v1/treasury/fee-plans', ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(apiResponse([planAnual, planMensual]));
+      }),
+    );
 
-    const { result } = renderHook(() => useFeePlans(), { wrapper: createWrapper() });
+    // Act
+    const { result } = renderHook(() => useFeePlans({ active: true }));
 
+    // Assert
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(capturedUrl).toContain('active=true');
+  });
+
+  it('deberia funcionar sin parametros (retorna todos los planes)', async () => {
+    // Arrange
+    server.use(
+      http.get('*/v1/treasury/fee-plans', () => {
+        return HttpResponse.json(apiResponse([planAnual, planMensual, planInactivo]));
+      }),
+    );
+
+    // Act
+    const { result } = renderHook(() => useFeePlans());
+
+    // Assert
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toHaveLength(3);
+  });
+
+  it('deberia retornar error cuando la API falla', async () => {
+    // Arrange
+    server.use(
+      http.get('*/v1/treasury/fee-plans', () => {
+        return HttpResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+      }),
+    );
+
+    // Act
+    const { result } = renderHook(() => useFeePlans());
+
+    // Assert
     await waitFor(() => expect(result.current.isError).toBe(true));
-
-    expect(result.current.error).toBeInstanceOf(Error);
     expect(result.current.data).toBeUndefined();
   });
 
-  it('deberia pasar los parametros correctamente a la funcion API', async () => {
-    mockGetFeePlans.mockResolvedValue(samplePlans);
+  it('deberia usar queryKey distinto segun parametros (triangulacion)', async () => {
+    // Arrange
+    let callCount = 0;
+    server.use(
+      http.get('*/v1/treasury/fee-plans', () => {
+        callCount++;
+        return HttpResponse.json(apiResponse([planAnual]));
+      }),
+    );
 
-    const params = { active: true };
-    const { result } = renderHook(() => useFeePlans(params), { wrapper: createWrapper() });
+    // Act — sin params
+    const { result: r1 } = renderHook(() => useFeePlans());
+    await waitFor(() => expect(r1.current.isSuccess).toBe(true));
 
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    // Act — con params activos
+    const { result: r2 } = renderHook(() => useFeePlans({ active: true }));
+    await waitFor(() => expect(r2.current.isSuccess).toBe(true));
 
-    expect(mockGetFeePlans).toHaveBeenCalledWith(params);
+    // Assert — ambas queries se ejecutaron
+    expect(callCount).toBe(2);
   });
 
-  it('deberia usar queryKey que incluya los parametros', async () => {
-    mockGetFeePlans.mockResolvedValue(samplePlans);
+  it('deberia retornar lista vacia cuando no hay planes', async () => {
+    // Arrange
+    server.use(
+      http.get('*/v1/treasury/fee-plans', () => {
+        return HttpResponse.json(apiResponse([]));
+      }),
+    );
 
-    // Renderizar sin params y con params para verificar que son queries independientes
-    const wrapper = createWrapper();
+    // Act
+    const { result } = renderHook(() => useFeePlans());
 
-    const { result: result1 } = renderHook(() => useFeePlans(), { wrapper });
+    // Assert
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toHaveLength(0);
+  });
 
-    await waitFor(() => expect(result1.current.isSuccess).toBe(true));
+  it('deberia estar en estado loading mientras la consulta se resuelve', async () => {
+    // Arrange
+    server.use(
+      http.get('*/v1/treasury/fee-plans', () => {
+        return HttpResponse.json(apiResponse([planAnual]));
+      }),
+    );
 
-    // Verificar que la funcion API fue llamada sin parametros
-    expect(mockGetFeePlans).toHaveBeenCalledWith(undefined);
+    // Act
+    const { result } = renderHook(() => useFeePlans());
+
+    // Assert — estado inicial es loading
+    expect(result.current.isLoading).toBe(true);
+    expect(result.current.data).toBeUndefined();
+
+    // Assert — luego resuelve
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+  });
+
+  it('deberia retornar objetos FeePlan con la estructura completa', async () => {
+    // Arrange
+    server.use(
+      http.get('*/v1/treasury/fee-plans', () => {
+        return HttpResponse.json(apiResponse([planAnual]));
+      }),
+    );
+
+    // Act
+    const { result } = renderHook(() => useFeePlans());
+
+    // Assert — verifica la estructura completa del objeto
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    const plan = result.current.data?.[0];
+    expect(plan).toBeDefined();
+    expect(plan).toMatchObject({
+      code: 'CUOTA-ANUAL',
+      name: 'Cuota Anual',
+      amount: 12000,
+      active: true,
+      type: 'RECURRING',
+    });
+    expect(plan).toHaveProperty('id');
+    expect(plan).toHaveProperty('createdAt');
+    expect(plan).toHaveProperty('updatedAt');
   });
 });

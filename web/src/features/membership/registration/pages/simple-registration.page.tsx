@@ -1,5 +1,6 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useBlocker, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Button,
@@ -38,6 +39,7 @@ interface WizardData {
  * via callbacks de los componentes hijo.
  */
 export function SimpleRegistrationPage() {
+  const { t } = useTranslation('membership');
   const navigate = useNavigate();
 
   // Estado del wizard
@@ -154,16 +156,13 @@ export function SimpleRegistrationPage() {
   if (isPreconditionsError) {
     return (
       <Stack gap="lg">
-        <Title order={2}>Alta de Socio</Title>
-        <Alert color="red" title="Error al verificar precondiciones" variant="light">
-          <Text size="sm">
-            No se pudieron verificar las precondiciones necesarias para el alta de socios. Por
-            favor, inténtelo de nuevo más tarde.
-          </Text>
+        <Title order={2}>{t('registration.title')}</Title>
+        <Alert color="red" title={t('registration.preconditions.errorTitle')} variant="light">
+          <Text size="sm">{t('registration.preconditions.errorText')}</Text>
         </Alert>
         <Group>
           <Button variant="default" onClick={() => navigate('/members')}>
-            Volver al listado
+            {t('registration.preconditions.backToList')}
           </Button>
         </Group>
       </Stack>
@@ -176,10 +175,10 @@ export function SimpleRegistrationPage() {
   if (preconditionsFailed) {
     return (
       <Stack gap="lg">
-        <Title order={2}>Alta de Socio</Title>
-        <Alert color="red" title="Precondiciones no cumplidas" variant="light">
+        <Title order={2}>{t('registration.title')}</Title>
+        <Alert color="red" title={t('registration.preconditions.failedTitle')} variant="light">
           <Text size="sm" mb="sm">
-            No es posible dar de alta socios en este momento:
+            {t('registration.preconditions.failedText')}
           </Text>
           <List size="sm" spacing="xs">
             {preconditions.errors.map((error, index) => (
@@ -189,7 +188,7 @@ export function SimpleRegistrationPage() {
         </Alert>
         <Group>
           <Button variant="default" onClick={() => navigate('/members')}>
-            Volver al listado
+            {t('registration.preconditions.backToList')}
           </Button>
         </Group>
       </Stack>
@@ -200,13 +199,13 @@ export function SimpleRegistrationPage() {
     <>
       <Stack gap="lg">
         {/* Titulo */}
-        <Title order={2}>Alta de Socio</Title>
+        <Title order={2}>{t('registration.title')}</Title>
 
         {/* Stepper */}
         <Stepper active={activeStep}>
           <Stepper.Step
-            label="Datos Personales"
-            description="Información del aspirante"
+            label={t('registration.stepper.personalData')}
+            description={t('registration.stepper.personalDataDesc')}
             icon={<IconUser size={18} />}
           >
             <PersonalDataStep
@@ -216,8 +215,8 @@ export function SimpleRegistrationPage() {
           </Stepper.Step>
 
           <Stepper.Step
-            label="Tipo de Socio"
-            description="Selección de categoría"
+            label={t('registration.stepper.memberType')}
+            description={t('registration.stepper.memberTypeDesc')}
             icon={<IconCategory size={18} />}
           >
             {wizardData.personalData && (
@@ -229,8 +228,8 @@ export function SimpleRegistrationPage() {
           </Stepper.Step>
 
           <Stepper.Step
-            label="Confirmación"
-            description="Revisión y alta"
+            label={t('registration.stepper.confirmation')}
+            description={t('registration.stepper.confirmationDesc')}
             icon={<IconCheck size={18} />}
           >
             {wizardData.personalData && wizardData.memberTypeId && memberTypes && (
@@ -249,12 +248,12 @@ export function SimpleRegistrationPage() {
         {/* Botones de navegacion */}
         <Group justify="space-between">
           <Button variant="default" onClick={handlePrevious} disabled={activeStep === 0}>
-            Anterior
+            {t('registration.navigation.previous')}
           </Button>
 
           {activeStep < 2 && (
             <Button color="brand" onClick={handleNext} disabled={isNextDisabled()}>
-              Siguiente
+              {t('registration.navigation.next')}
             </Button>
           )}
         </Group>
@@ -264,19 +263,17 @@ export function SimpleRegistrationPage() {
       <Modal
         opened={blocker.state === 'blocked'}
         onClose={() => blocker.reset?.()}
-        title="Datos sin guardar"
+        title={t('registration.unsavedChanges.title')}
         centered
       >
         <Stack gap="md">
-          <Text size="sm">
-            Tiene datos sin guardar en el formulario de alta. ¿Desea salir y perder los cambios?
-          </Text>
+          <Text size="sm">{t('registration.unsavedChanges.message')}</Text>
           <Group justify="flex-end" gap="sm">
             <Button variant="default" onClick={() => blocker.reset?.()}>
-              Quedarse
+              {t('registration.unsavedChanges.stay')}
             </Button>
             <Button color="red" onClick={() => blocker.proceed?.()}>
-              Salir sin guardar
+              {t('registration.unsavedChanges.leave')}
             </Button>
           </Group>
         </Stack>
@@ -291,7 +288,7 @@ export function SimpleRegistrationPage() {
         closeOnClickOutside={false}
         closeOnEscape={false}
         withCloseButton={false}
-        title="Socio dado de alta"
+        title={t('registration.success.title')}
         centered
       >
         {registrationResult && (
@@ -300,7 +297,7 @@ export function SimpleRegistrationPage() {
               #{registrationResult.memberNumber}
             </Text>
             <Text size="sm" ta="center" c="dimmed">
-              El socio ha sido registrado correctamente como{' '}
+              {t('registration.success.message')}{' '}
               <Text span fw={500}>
                 {registrationResult.memberTypeName}
               </Text>
@@ -309,19 +306,21 @@ export function SimpleRegistrationPage() {
 
             {registrationResult.registrationCharge && (
               <Text size="sm" ta="center" c="dimmed">
-                Cargo de inscripcion generado ({registrationResult.registrationCharge.status}).
+                {t('registration.success.chargeGenerated', {
+                  status: registrationResult.registrationCharge.status,
+                })}
               </Text>
             )}
 
             <Group justify="center" gap="md" mt="md">
               <Button color="brand" variant="outline" onClick={handleResetWizard}>
-                Dar de alta otro
+                {t('registration.success.registerAnother')}
               </Button>
               <Button
                 color="brand"
                 onClick={() => navigate(`/members/${registrationResult.memberId}`)}
               >
-                Ver ficha
+                {t('registration.success.viewProfile')}
               </Button>
             </Group>
           </Stack>

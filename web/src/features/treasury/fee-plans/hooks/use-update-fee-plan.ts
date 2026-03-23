@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 
+import i18n from '@/i18n/i18n';
 import { updateFeePlan } from '../api/fee-plan.api';
 import type { UpdateFeePlanInput } from '../schemas/fee-plan.schemas';
 
@@ -15,8 +16,8 @@ export function useUpdateFeePlan() {
       queryClient.invalidateQueries({ queryKey: ['fee-plans'] });
       queryClient.invalidateQueries({ queryKey: ['fee-plans', variables.id] });
       notifications.show({
-        title: 'Plan actualizado',
-        message: 'El plan de cuota se ha actualizado correctamente',
+        title: i18n.t('treasury:feePlans.notifications.updateSuccess.title'),
+        message: i18n.t('treasury:feePlans.notifications.updateSuccess.message'),
         color: 'green',
         autoClose: 4000,
       });
