@@ -15,6 +15,10 @@ import { InvalidRefreshTokenError } from '../../domain/exceptions/invalid-refres
 import { TenantAccessDeniedError } from '../../domain/exceptions/tenant-access-denied.error';
 import type { CommandBus, QueryBus } from '@nestjs/cqrs';
 import type { Request } from 'express';
+import type { LoginRequestDto } from '../../application/dtos/login-request.dto';
+import type { RefreshRequestDto } from '../../application/dtos/refresh-request.dto';
+import type { SwitchTenantRequestDto } from '../../application/dtos/switch-tenant-request.dto';
+import type { RequestWithUser } from '../../../shared/infrastructure/types/request-with-user';
 
 // --- Constantes de test ---
 
@@ -75,14 +79,14 @@ function createMockRequest(
     userAgent: string;
     user: { userId: string; tenantId: string };
   }> = {},
-): Request {
+): Request & RequestWithUser {
   return {
     ip: overrides.ip ?? '127.0.0.1',
     headers: {
       'user-agent': overrides.userAgent ?? 'TestAgent/1.0',
     },
     user: overrides.user ?? { userId: USER_ID, tenantId: TENANT_ID },
-  } as unknown as Request;
+  } as unknown as Request & RequestWithUser;
 }
 
 describe('AuthController', () => {
@@ -114,7 +118,7 @@ describe('AuthController', () => {
       commandBus.execute.mockResolvedValue(expectedResponse);
 
       const req = createMockRequest();
-      const result = await controller.login(loginDto as any, req);
+      const result = await controller.login(loginDto as unknown as LoginRequestDto, req);
 
       // Verificar que se creó el comando correcto
       expect(commandBus.execute).toHaveBeenCalledOnce();
@@ -141,7 +145,7 @@ describe('AuthController', () => {
       commandBus.execute.mockResolvedValue(selectorResponse);
 
       const req = createMockRequest();
-      const result = await controller.login(loginDto as any, req);
+      const result = await controller.login(loginDto as unknown as LoginRequestDto, req);
 
       // Verificar que se retorna el selector de tenants
       expect(result).toBe(selectorResponse);
@@ -158,7 +162,9 @@ describe('AuthController', () => {
       commandBus.execute.mockRejectedValue(new InvalidCredentialsError());
 
       const req = createMockRequest();
-      await expect(controller.login(loginDto as any, req)).rejects.toThrow(InvalidCredentialsError);
+      await expect(controller.login(loginDto as unknown as LoginRequestDto, req)).rejects.toThrow(
+        InvalidCredentialsError,
+      );
 
       expect(commandBus.execute).toHaveBeenCalledOnce();
     });
@@ -168,9 +174,9 @@ describe('AuthController', () => {
       commandBus.execute.mockRejectedValue(new InvalidCredentialsError());
 
       const req = createMockRequest();
-      await expect(controller.login(wrongPasswordDto as any, req)).rejects.toThrow(
-        InvalidCredentialsError,
-      );
+      await expect(
+        controller.login(wrongPasswordDto as unknown as LoginRequestDto, req),
+      ).rejects.toThrow(InvalidCredentialsError);
 
       // Verificar que el comando se creó con la contraseña incorrecta
       const executedCommand = commandBus.execute.mock.calls[0][0];
@@ -181,9 +187,13 @@ describe('AuthController', () => {
       commandBus.execute.mockRejectedValue(new AccountBlockedError(10));
 
       const req = createMockRequest();
-      await expect(controller.login(loginDto as any, req)).rejects.toThrow(AccountBlockedError);
+      await expect(controller.login(loginDto as unknown as LoginRequestDto, req)).rejects.toThrow(
+        AccountBlockedError,
+      );
 
-      const error = await controller.login(loginDto as any, req).catch((e) => e);
+      const error = await controller
+        .login(loginDto as unknown as LoginRequestDto, req)
+        .catch((e) => e);
       expect(error).toBeInstanceOf(AccountBlockedError);
       expect(error.minutesRemaining).toBe(10);
     });
@@ -192,7 +202,7 @@ describe('AuthController', () => {
       commandBus.execute.mockResolvedValue(createLoginResponse());
 
       const req = createMockRequest({ ip: '192.168.1.100', userAgent: 'Mozilla/5.0' });
-      await controller.login(loginDto as any, req);
+      await controller.login(loginDto as unknown as LoginRequestDto, req);
 
       const executedCommand = commandBus.execute.mock.calls[0][0];
       expect(executedCommand.ipAddress).toBe('192.168.1.100');
@@ -207,7 +217,7 @@ describe('AuthController', () => {
         headers: {},
       } as unknown as Request;
 
-      await controller.login(loginDto as any, req);
+      await controller.login(loginDto as unknown as LoginRequestDto, req);
 
       const executedCommand = commandBus.execute.mock.calls[0][0];
       expect(executedCommand.ipAddress).toBe('unknown');
@@ -226,7 +236,7 @@ describe('AuthController', () => {
       const expectedResponse = createRefreshResponse();
       commandBus.execute.mockResolvedValue(expectedResponse);
 
-      const result = await controller.refresh(refreshDto as any);
+      const result = await controller.refresh(refreshDto as unknown as RefreshRequestDto);
 
       // Verificar que se creó el comando correcto
       expect(commandBus.execute).toHaveBeenCalledOnce();
@@ -244,14 +254,18 @@ describe('AuthController', () => {
     it('debería propagar InvalidRefreshTokenError cuando el token es inválido', async () => {
       commandBus.execute.mockRejectedValue(new InvalidRefreshTokenError());
 
-      await expect(controller.refresh(refreshDto as any)).rejects.toThrow(InvalidRefreshTokenError);
+      await expect(controller.refresh(refreshDto as unknown as RefreshRequestDto)).rejects.toThrow(
+        InvalidRefreshTokenError,
+      );
     });
 
     it('debería propagar InvalidRefreshTokenError cuando el token ha expirado', async () => {
       const expiredDto = { refreshToken: 'expired-refresh-token' };
       commandBus.execute.mockRejectedValue(new InvalidRefreshTokenError());
 
-      await expect(controller.refresh(expiredDto as any)).rejects.toThrow(InvalidRefreshTokenError);
+      await expect(controller.refresh(expiredDto as unknown as RefreshRequestDto)).rejects.toThrow(
+        InvalidRefreshTokenError,
+      );
 
       const executedCommand = commandBus.execute.mock.calls[0][0];
       expect(executedCommand.refreshToken).toBe('expired-refresh-token');
@@ -306,7 +320,10 @@ describe('AuthController', () => {
       commandBus.execute.mockResolvedValue(expectedResponse);
 
       const req = createMockRequest({ user: { userId: USER_ID, tenantId: TENANT_ID } });
-      const result = await controller.switchTenant(req, switchDto as any);
+      const result = await controller.switchTenant(
+        req,
+        switchDto as unknown as SwitchTenantRequestDto,
+      );
 
       // Verificar que se creó el comando correcto
       expect(commandBus.execute).toHaveBeenCalledOnce();
@@ -327,9 +344,9 @@ describe('AuthController', () => {
       commandBus.execute.mockRejectedValue(new TenantAccessDeniedError(unauthorizedTenantId));
 
       const req = createMockRequest({ user: { userId: USER_ID, tenantId: TENANT_ID } });
-      await expect(controller.switchTenant(req, dto as any)).rejects.toThrow(
-        TenantAccessDeniedError,
-      );
+      await expect(
+        controller.switchTenant(req, dto as unknown as SwitchTenantRequestDto),
+      ).rejects.toThrow(TenantAccessDeniedError);
 
       const executedCommand = commandBus.execute.mock.calls[0][0];
       expect(executedCommand.newTenantId).toBe(unauthorizedTenantId);

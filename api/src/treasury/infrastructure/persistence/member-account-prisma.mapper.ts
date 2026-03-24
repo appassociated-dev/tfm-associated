@@ -1,6 +1,5 @@
 import { MemberAccount } from '../../domain/aggregates/member-account';
 import { Charge } from '../../domain/entities/charge';
-import { Payment } from '../../domain/entities/payment';
 import {
   FeeSubscriptionPrismaMapper,
   PrismaRawFeeSubscription,

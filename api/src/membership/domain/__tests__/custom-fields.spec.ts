@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { CustomFields, CustomFieldsInvalidError } from '../value-objects/custom-fields';
+import { CustomFields } from '../value-objects/custom-fields';
 
 describe('CustomFields', () => {
   describe('create()', () => {

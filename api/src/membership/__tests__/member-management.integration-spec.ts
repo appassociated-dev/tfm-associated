@@ -165,7 +165,7 @@ describe('UC-006: Member Management Integration', () => {
   function createMockedTenantService(): PrismaTenantService {
     const service = new PrismaTenantService();
     // Sobrescribir getClient para retornar siempre nuestro PrismaClient de test
-    service.getClient = () => tenantPrisma;
+    service.getClient = async () => tenantPrisma;
     return service;
   }
 
@@ -455,7 +455,7 @@ describe('UC-006: Member Management Integration', () => {
       expect(exists).toBe(true);
 
       // El email debe ser case insensitive
-      const existsUpperCase = await memberRepository.existsByEmail('DUPLICADO@TEST.COM');
+      const _existsUpperCase = await memberRepository.existsByEmail('DUPLICADO@TEST.COM');
       // Nota: depende de la implementación de case sensitivity en PostgreSQL/Prisma
       // Al menos la versión normalizada debe encontrarse
       expect(exists).toBe(true);

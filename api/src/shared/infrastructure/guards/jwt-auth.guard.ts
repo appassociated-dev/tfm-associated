@@ -41,7 +41,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
    * Si hay error o no hay usuario, lanza UnauthorizedException.
    * Inyecta tenantId en el request para uso posterior en la cadena.
    */
-  handleRequest<TUser = any>(err: any, user: any, _info: any, context: ExecutionContext): TUser {
+  handleRequest<TUser = unknown>(
+    err: Error | null,
+    user: TUser,
+    _info: unknown,
+    context: ExecutionContext,
+  ): TUser {
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
@@ -51,8 +56,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       tenantId?: string;
     }>();
 
-    if (user['tenantId']) {
-      request.tenantId = user['tenantId'] as string;
+    const payload = user as Record<string, unknown>;
+    if (payload['tenantId']) {
+      request.tenantId = payload['tenantId'] as string;
     }
 
     return user;

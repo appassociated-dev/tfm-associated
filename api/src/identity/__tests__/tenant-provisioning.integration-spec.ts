@@ -144,11 +144,7 @@ async function cleanupKnownProvisioningFixtures(prisma: PrismaMainService): Prom
  * - Rollback ante fallos
  * - Rechazo de CIF duplicado
  */
-// Verificar disponibilidad de PostgreSQL ANTES de definir el describe.
-// Si PG no está disponible, vitest marca los tests como SKIPPED (no como passed).
-const pgAvailable = await isPostgresAvailable();
-
-describe.skipIf(!pgAvailable)('TenantProvisioning Integration', () => {
+describe('TenantProvisioning Integration', () => {
   let prisma: PrismaMainService;
   let handler: ProvisionTenantHandler;
   let dbProvisioningService: DatabaseProvisioningService;
@@ -162,6 +158,13 @@ describe.skipIf(!pgAvailable)('TenantProvisioning Integration', () => {
   }[] = [];
 
   beforeAll(async () => {
+    // Verificar disponibilidad de PostgreSQL
+    const pgAvailable = await isPostgresAvailable();
+    if (!pgAvailable) {
+      console.warn('PostgreSQL not available — skipping integration tests');
+      return;
+    }
+
     // Configurar la variable de entorno para PrismaMainService
     process.env.DATABASE_MAIN_URL = DATABASE_MAIN_URL;
 

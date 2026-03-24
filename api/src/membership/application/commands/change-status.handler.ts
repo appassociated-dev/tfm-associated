@@ -10,11 +10,7 @@ import { MemberId } from '../../domain/value-objects/member-id';
 import { MemberStatus } from '../../domain/value-objects/member-status';
 import { StatusChangeReason } from '../../domain/value-objects/status-change-reason';
 import { StatusTransitionValidator } from '../../domain/services/status-transition-validator';
-import {
-  MemberNotFoundError,
-  TransitionNotAllowedError,
-  OptimisticLockingError,
-} from '../../domain/exceptions';
+import { MemberNotFoundError, OptimisticLockingError } from '../../domain/exceptions';
 
 /** Resultado del cambio de estado exitoso. */
 export interface ChangeStatusResult {
