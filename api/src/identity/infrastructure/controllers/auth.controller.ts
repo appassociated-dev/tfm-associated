@@ -3,6 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Public } from '../auth/public.decorator';
+import { RequestWithUser } from '../../../shared/infrastructure/types/request-with-user';
 import { LoginCommand } from '../../application/commands/login.command';
 import { RefreshTokenCommand } from '../../application/commands/refresh-token.command';
 import { LogoutCommand } from '../../application/commands/logout.command';
@@ -84,7 +85,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Cerrar sesión' })
   @ApiResponse({ status: 204, description: 'Sesión cerrada' })
-  async logout(@Req() req: any, @Body() body: { refreshToken: string }): Promise<void> {
+  async logout(@Req() req: RequestWithUser, @Body() body: { refreshToken: string }): Promise<void> {
     const command = new LogoutCommand(req.user.userId, body.refreshToken);
     await this.commandBus.execute(command);
   }
@@ -103,7 +104,7 @@ export class AuthController {
   })
   @ApiResponse({ status: 403, description: 'Sin acceso al tenant' })
   async switchTenant(
-    @Req() req: any,
+    @Req() req: RequestWithUser,
     @Body() dto: SwitchTenantRequestDto,
   ): Promise<LoginResponseDto> {
     const command = new SwitchTenantCommand(req.user.userId, dto.tenantId);
@@ -120,7 +121,7 @@ export class AuthController {
     description: 'Perfil del usuario',
     type: UserProfileDto,
   })
-  async me(@Req() req: any): Promise<UserProfileDto> {
+  async me(@Req() req: RequestWithUser): Promise<UserProfileDto> {
     const query = new GetCurrentUserQuery(req.user.userId, req.user.tenantId);
     return this.queryBus.execute(query);
   }

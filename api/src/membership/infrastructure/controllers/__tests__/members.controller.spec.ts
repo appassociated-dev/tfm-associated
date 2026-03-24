@@ -4,6 +4,10 @@ import { CreateMemberCommand } from '../../../application/commands/create-member
 import { UpdateMemberCommand } from '../../../application/commands/update-member.command';
 import { GetMemberQuery } from '../../../application/queries/get-member.query';
 import { ListMembersQuery } from '../../../application/queries/list-members.query';
+import type { CommandBus, QueryBus } from '@nestjs/cqrs';
+import type { Request } from 'express';
+import type { CreateMemberDto } from '../../../application/dtos/create-member.dto';
+import type { UpdateMemberDto } from '../../../application/dtos/update-member.dto';
 
 describe('MembersController', () => {
   let controller: MembersController;
@@ -13,7 +17,7 @@ describe('MembersController', () => {
   const mockReq = {
     tenantId: 'tenant-uuid-1234',
     user: { userId: 'user-uuid-1234' },
-  } as any;
+  } as unknown as Request & { tenantId: string; user: { userId: string } };
 
   const mockMemberResponse = {
     id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
@@ -54,7 +58,10 @@ describe('MembersController', () => {
   beforeEach(() => {
     commandBus = { execute: vi.fn() };
     queryBus = { execute: vi.fn() };
-    controller = new MembersController(commandBus as any, queryBus as any);
+    controller = new MembersController(
+      commandBus as unknown as CommandBus,
+      queryBus as unknown as QueryBus,
+    );
   });
 
   describe('POST /members (create)', () => {
@@ -78,7 +85,7 @@ describe('MembersController', () => {
         initialStatus: 'ACTIVE',
       };
 
-      const result = await controller.create(dto as any, mockReq);
+      const result = await controller.create(dto as unknown as CreateMemberDto, mockReq);
 
       expect(result).toBe(mockMemberResponse);
       expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateMemberCommand));
@@ -97,7 +104,7 @@ describe('MembersController', () => {
         memberTypeId: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
       };
 
-      await controller.create(dto as any, mockReq);
+      await controller.create(dto as unknown as CreateMemberDto, mockReq);
 
       const command = commandBus.execute.mock.calls[0][0] as CreateMemberCommand;
       expect(command.phone).toBeNull();
@@ -174,7 +181,7 @@ describe('MembersController', () => {
 
       const result = await controller.update(
         'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-        dto as any,
+        dto as unknown as UpdateMemberDto,
         mockReq,
       );
 
@@ -186,7 +193,11 @@ describe('MembersController', () => {
       commandBus.execute.mockResolvedValue(mockMemberResponse);
 
       const dto = { name: 'Nuevo nombre' };
-      await controller.update('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', dto as any, mockReq);
+      await controller.update(
+        'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        dto as unknown as UpdateMemberDto,
+        mockReq,
+      );
 
       const command = commandBus.execute.mock.calls[0][0] as UpdateMemberCommand;
       expect(command.tenantId).toBe('tenant-uuid-1234');

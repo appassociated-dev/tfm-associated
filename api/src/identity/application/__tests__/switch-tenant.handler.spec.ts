@@ -10,6 +10,7 @@ import { UserStatus } from '../../domain/value-objects/user-status';
 import type { UserRepository } from '../../domain/repositories/user.repository';
 import type { TokenService } from '../../domain/ports/token-service.port';
 import type { RefreshTokenRepository } from '../../domain/repositories/refresh-token.repository';
+import type { PrismaMainService } from '../../../shared/infrastructure/persistence/prisma-main.service';
 
 const USER_ID = '550e8400-e29b-41d4-a716-446655440000';
 const NEW_TENANT_ID = '660e8400-e29b-41d4-a716-446655440002';
@@ -72,7 +73,7 @@ describe('SwitchTenantHandler', () => {
       userRepository as unknown as UserRepository,
       tokenService as unknown as TokenService,
       refreshTokenRepository as unknown as RefreshTokenRepository,
-      prismaMain as any,
+      prismaMain as unknown as PrismaMainService,
     );
   });
 
@@ -94,7 +95,9 @@ describe('SwitchTenantHandler', () => {
         permissions: ['read:members', 'read:events'],
       },
     };
-    (prismaMain.tenantMembership as any).findFirst.mockResolvedValue(membership);
+    (
+      prismaMain.tenantMembership as unknown as { findFirst: ReturnType<typeof vi.fn> }
+    ).findFirst.mockResolvedValue(membership);
 
     const result = await handler.execute(command);
 
@@ -126,7 +129,9 @@ describe('SwitchTenantHandler', () => {
   it('debería lanzar TenantAccessDeniedError si el usuario no tiene membresía en el tenant', async () => {
     const user = createTestUser();
     userRepository.findById.mockResolvedValue(user);
-    (prismaMain.tenantMembership as any).findFirst.mockResolvedValue(null);
+    (
+      prismaMain.tenantMembership as unknown as { findFirst: ReturnType<typeof vi.fn> }
+    ).findFirst.mockResolvedValue(null);
 
     await expect(handler.execute(command)).rejects.toThrow(TenantAccessDeniedError);
 

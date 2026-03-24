@@ -46,12 +46,12 @@ describe('TenantPrismaMapper', () => {
     it('deberia manejar databaseUser null (tenant sin credenciales)', () => {
       const rawWithoutUser: PrismaRawTenant = {
         ...rawTenant,
-        databaseUser: undefined,
+        databaseUser: null,
       };
 
       const tenant = TenantPrismaMapper.toDomain(rawWithoutUser);
 
-      expect(tenant.databaseUser).toBeUndefined();
+      expect(tenant.databaseUser).toBeNull();
     });
 
     it('no debería emitir eventos de dominio al reconstituir', () => {
@@ -140,6 +140,7 @@ describe('TenantPrismaMapper', () => {
         type: persisted.type as string,
         status: persisted.status as string,
         databaseName: persisted.databaseName as string,
+        databaseUser: (persisted.databaseUser as string) ?? null,
         contactEmail: persisted.contactEmail as string,
         createdAt: persisted.createdAt as Date,
       };

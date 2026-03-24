@@ -1,0 +1,57 @@
+# ============================================
+# Associated — Docker build context exclusions
+# ============================================
+
+# Dependencias (se instalan dentro del contenedor)
+node_modules
+**/node_modules
+
+# Artefactos de build (se generan dentro del contenedor)
+dist
+**/dist
+
+# Control de versiones
+.git
+.gitignore
+
+# Tests y E2E
+e2e
+**/*.spec.ts
+**/*.integration-spec.ts
+**/test
+**/coverage
+**/__tests__
+
+# Documentacion y especificaciones
+doc
+spec
+*.md
+
+# Entorno local
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# IDE y editores
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.yml
+docker-compose.prod.yml
+Dockerfile*
+
+# Herramientas de desarrollo
+.husky
+.lint-staged*
+.prettier*
+.eslintrc*
+eslint.config.*

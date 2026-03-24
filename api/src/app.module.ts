@@ -8,6 +8,7 @@ import { CommunicationModule } from './communication/communication.module';
 import { DocumentsModule } from './documents/documents.module';
 import { ObservabilityModule } from './shared/infrastructure/observability/observability.module';
 import { TenantCredentialsModule } from './shared/infrastructure/modules/tenant-credentials.module';
+import { HealthModule } from './shared/infrastructure/health/health.module';
 
 /**
  * Módulo raíz de la aplicación.
@@ -15,6 +16,7 @@ import { TenantCredentialsModule } from './shared/infrastructure/modules/tenant-
  * TenantCredentialsModule es @Global() y provee PrismaMainService, ENCRYPTION_SERVICE,
  * TENANT_CREDENTIAL_PROVIDER y TENANT_CREDENTIAL_PORT a todos los BCs (RNF-004, ADR-002).
  * ObservabilityModule se registra como global (provee ERROR_REPORTER y EVENT_TRACKER).
+ * HealthModule expone GET /api/v1/health para Docker healthchecks y monitoreo.
  * ScheduleModule habilita @Cron y demás decoradores de @nestjs/schedule.
  */
 @Module({
@@ -22,6 +24,7 @@ import { TenantCredentialsModule } from './shared/infrastructure/modules/tenant-
     ScheduleModule.forRoot(),
     TenantCredentialsModule,
     ObservabilityModule.register(),
+    HealthModule,
     IdentityModule,
     MembershipModule,
     TreasuryModule,

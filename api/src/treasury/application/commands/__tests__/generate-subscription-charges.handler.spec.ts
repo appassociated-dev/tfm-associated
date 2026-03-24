@@ -77,7 +77,7 @@ function validCommand(
 describe('GenerateSubscriptionChargesHandler', () => {
   // Silenciar logs de NestJS durante tests
   beforeEach(() => Logger.overrideLogger([]));
-  afterAll(() => Logger.overrideLogger(undefined as any));
+  afterAll(() => Logger.overrideLogger(false));
   let handler: GenerateSubscriptionChargesHandler;
   let memberAccountRepository: MemberAccountRepository;
   let feePlanRepository: FeePlanRepository;

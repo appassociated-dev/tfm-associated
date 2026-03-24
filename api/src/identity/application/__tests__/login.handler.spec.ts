@@ -14,6 +14,7 @@ import type { UserRepository } from '../../domain/repositories/user.repository';
 import type { PasswordHasher } from '../../domain/ports/password-hasher.port';
 import type { TokenService } from '../../domain/ports/token-service.port';
 import type { RefreshTokenRepository } from '../../domain/repositories/refresh-token.repository';
+import type { PrismaMainService } from '../../../shared/infrastructure/persistence/prisma-main.service';
 
 // --- Helpers para crear usuarios de prueba ---
 
@@ -131,7 +132,7 @@ describe('LoginHandler', () => {
       passwordHasher as unknown as PasswordHasher,
       tokenService as unknown as TokenService,
       refreshTokenRepository as unknown as RefreshTokenRepository,
-      prismaMain as any,
+      prismaMain as unknown as PrismaMainService,
     );
   });
 
@@ -141,7 +142,9 @@ describe('LoginHandler', () => {
     passwordHasher.verify.mockResolvedValue(true);
 
     const membership = createMembership(TENANT_ID, ROLE_ID, 'PRESIDENT', 'Peña Test', 'pena-test');
-    (prismaMain.tenantMembership as any).findMany.mockResolvedValue([membership]);
+    (
+      prismaMain.tenantMembership as unknown as { findMany: ReturnType<typeof vi.fn> }
+    ).findMany.mockResolvedValue([membership]);
 
     const result = await handler.execute(validCommand);
 
@@ -178,7 +181,9 @@ describe('LoginHandler', () => {
       createMembership(TENANT_ID, ROLE_ID, 'PRESIDENT', 'Peña Test', 'pena-test'),
       createMembership(TENANT_ID_2, ROLE_ID_2, 'SECRETARY', 'Club Deportivo', 'club-deportivo'),
     ];
-    (prismaMain.tenantMembership as any).findMany.mockResolvedValue(memberships);
+    (
+      prismaMain.tenantMembership as unknown as { findMany: ReturnType<typeof vi.fn> }
+    ).findMany.mockResolvedValue(memberships);
 
     const result = await handler.execute(validCommand);
 
@@ -236,7 +241,9 @@ describe('LoginHandler', () => {
     const user = createTestUser();
     userRepository.findByEmail.mockResolvedValue(user);
     passwordHasher.verify.mockResolvedValue(true);
-    (prismaMain.tenantMembership as any).findMany.mockResolvedValue([]);
+    (
+      prismaMain.tenantMembership as unknown as { findMany: ReturnType<typeof vi.fn> }
+    ).findMany.mockResolvedValue([]);
 
     await expect(handler.execute(validCommand)).rejects.toThrow(InvalidCredentialsError);
   });
@@ -247,7 +254,9 @@ describe('LoginHandler', () => {
     passwordHasher.verify.mockResolvedValue(true);
 
     const membership = createMembership(TENANT_ID, ROLE_ID, 'PRESIDENT', 'Peña Test', 'pena-test');
-    (prismaMain.tenantMembership as any).findMany.mockResolvedValue([membership]);
+    (
+      prismaMain.tenantMembership as unknown as { findMany: ReturnType<typeof vi.fn> }
+    ).findMany.mockResolvedValue([membership]);
 
     await handler.execute(validCommand);
 

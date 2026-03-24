@@ -37,6 +37,7 @@ AGENTS.override.md
 **/.env
 .env.*
 !.env.example
+!.env.production.example
 
 # Dependencias
 node_modules/
@@ -81,3 +82,6 @@ npm-debug.log*
 
 # mockups de branding
 doc/brand/mockups/*
+
+# Archivos trash
+trash/

@@ -14,11 +14,11 @@ describe('ObservabilityModule', () => {
 
     // Verificar que el módulo dinámico incluye APP_FILTER con DomainExceptionFilter
     const appFilterProvider = dynamicModule.providers?.find(
-      (provider: any) => provider.provide === APP_FILTER,
+      (provider) => (provider as { provide: string }).provide === APP_FILTER,
     );
 
     expect(appFilterProvider).toBeDefined();
-    expect((appFilterProvider as any).useClass).toBe(DomainExceptionFilter);
+    expect((appFilterProvider as { useClass: unknown }).useClass).toBe(DomainExceptionFilter);
   });
 
   it('debería ser un módulo global', () => {

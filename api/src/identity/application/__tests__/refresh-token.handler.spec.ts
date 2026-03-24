@@ -13,6 +13,7 @@ import type {
   RefreshTokenRepository,
   RefreshTokenData,
 } from '../../domain/repositories/refresh-token.repository';
+import type { PrismaMainService } from '../../../shared/infrastructure/persistence/prisma-main.service';
 
 const USER_ID = '550e8400-e29b-41d4-a716-446655440000';
 const TENANT_ID = '660e8400-e29b-41d4-a716-446655440001';
@@ -87,7 +88,7 @@ describe('RefreshTokenHandler', () => {
       userRepository as unknown as UserRepository,
       tokenService as unknown as TokenService,
       refreshTokenRepository as unknown as RefreshTokenRepository,
-      prismaMain as any,
+      prismaMain as unknown as PrismaMainService,
     );
   });
 
@@ -106,7 +107,9 @@ describe('RefreshTokenHandler', () => {
       tenant: { id: TENANT_ID, name: 'Peña Test', slug: 'pena-test' },
       role: { id: ROLE_ID, code: 'PRESIDENT', name: 'President', permissions: ['read:members'] },
     };
-    (prismaMain.tenantMembership as any).findFirst.mockResolvedValue(membership);
+    (
+      prismaMain.tenantMembership as unknown as { findFirst: ReturnType<typeof vi.fn> }
+    ).findFirst.mockResolvedValue(membership);
 
     const result = await handler.execute(command);
 
@@ -173,7 +176,9 @@ describe('RefreshTokenHandler', () => {
 
     const user = createTestUser();
     userRepository.findById.mockResolvedValue(user);
-    (prismaMain.tenantMembership as any).findFirst.mockResolvedValue(null);
+    (
+      prismaMain.tenantMembership as unknown as { findFirst: ReturnType<typeof vi.fn> }
+    ).findFirst.mockResolvedValue(null);
 
     await expect(handler.execute(command)).rejects.toThrow(InvalidRefreshTokenError);
   });

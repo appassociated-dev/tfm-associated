@@ -7,6 +7,123 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260323-001-acester-CLAUDECODE
+
+- **Fecha de sesion:** 23 de marzo de 2026
+- **Hora de inicio:** 01:43
+- **Hora de ultimos trabajos:** 13:32
+- **Documento de sesion:** [doc/agents-sessions/20260323-001-acester-CLAUDECODE.md](doc/agents-sessions/20260323-001-acester-CLAUDECODE.md)
+
+#### Added
+
+- Infraestructura i18n con react-i18next: 7 namespaces (auth, common, dashboard, errors, membership, treasury, validation) y type declarations — **SDD: i18n-infrastructure**
+- Migracion de strings hardcoded a i18n en 45+ componentes
+
+#### Changed
+
+- Internacionalizados 28 mensajes de validacion Zod via i18n.t() singleton — **SDD: i18n-zod-errorboundary**
+- Migrados strings de ErrorBoundary, http-client y main.tsx a i18n
+
+#### Fixed
+
+- Resuelto hang infinito en tests 4-12 de member-crud integration: watch() sin argumentos en personal-data-step.tsx generaba nuevo objeto cada render causando loop infinito — **SDD: fix-member-crud-tests-hang**
+- Agregado DatesProvider en test wrapper y setup.ts con dayjs plugins para DateInput
+
+#### Removed
+
+[Sin cambios]
+
+---
+
+### 20260322-001-acester-CLAUDECODE
+
+- **Fecha de sesion:** 22 de marzo de 2026
+- **Hora de inicio:** 00:43
+- **Hora de ultimos trabajos:** 23:19
+- **Documento de sesion:** [doc/agents-sessions/20260322-001-acester-CLAUDECODE.md](doc/agents-sessions/20260322-001-acester-CLAUDECODE.md)
+
+#### Added
+
+- Reescrita suite completa de tests del frontend: factories (auth, member, fee-plan, subscription, tenant), helpers de render, MSW handlers — **SDD: web-test-overhaul** — 92 archivos, 19806 inserciones
+- Tests de integracion nuevos: login-flow, member-crud, error-boundary, route-guards
+- Tests unitarios nuevos para hooks de auth, membership leave, registration, treasury
+- README del proyecto actualizado con informacion detallada, badges y banner SVG/PNG
+
+#### Changed
+
+- Migrado stack frontend a Zod 4 + react-hook-form (desde Zod 3.25 + @mantine/form) — **SDD: stack-alignment**
+- Sustituidas referencias a @mantine/form por RHF en 10 archivos de spec/doc — **SDD: spec-cleanup-forms**
+- Actualizados 9 archivos de references del skill doc-spec-manager
+
+#### Fixed
+
+- Resueltos 4 errores de TypeScript typecheck en el frontend
+
+#### Removed
+
+[Sin cambios]
+
+---
+
+### 20260320-001-acester-CLAUDECODE
+
+- **Fecha de sesion:** 20 de marzo de 2026
+- **Hora de inicio:** 15:39
+- **Hora de ultimos trabajos:** 15:39
+- **Documento de sesion:** [doc/agents-sessions/20260320-001-acester-CLAUDECODE.md](doc/agents-sessions/20260320-001-acester-CLAUDECODE.md)
+
+#### Added
+
+[Sin cambios]
+
+#### Changed
+
+- Actualizadas directrices de diseno UI: brand foundation con soporte de modo oscuro y optimizacion de sidebar documentados
+
+#### Fixed
+
+[Sin cambios]
+
+#### Removed
+
+[Sin cambios]
+
+---
+
+### 20260319-001-acester-CLAUDECODE
+
+- **Fecha de sesion:** 19 de marzo de 2026
+- **Hora de inicio:** 03:59
+- **Hora de ultimos trabajos:** 03:59
+- **Documento de sesion:** [doc/agents-sessions/20260319-001-acester-CLAUDECODE.md](doc/agents-sessions/20260319-001-acester-CLAUDECODE.md)
+
+#### Added
+
+- Componente RouteError y Breadcrumbs en 4 paginas internas
+- Endpoint check-email, preconditions DTO y activate fee plan en backend
+- postcss.config.cjs con responsive mixins de Mantine
+- Seed data y testing manual con screenshots
+
+#### Changed
+
+- Rediseno completo de AppShell: sidebar agrupado por BC, dark mode, logos adaptativos
+- Loading spinner global corregido en theme (Button.extend con loaderProps)
+- Migracion Prisma (290 lineas) para modelos de membership y treasury
+- Permisos frontend con matchPermission() y soporte de wildcards portado del backend
+
+#### Fixed
+
+- Resueltos 48 issues de auditoria del frontend fase 1 (127 archivos, 22156 inserciones)
+- Corregida race condition en auth provider: applyLoginResponse ahora async con await getCurrentUser()
+- Corregidos route params (:memberId), URLs de API (treasury prefix), schemas Zod de leave
+- Corregidos fixes de backend: registration charge adapter, fee-plan response DTO, link-member-types handler
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260318-001-acester-CLAUDECODE
 
 - **Fecha de sesion:** 18 de marzo de 2026

@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ArgumentsHost, HttpStatus } from '@nestjs/common';
 import {
   DomainExceptionFilter,
-  DomainException,
   ConflictException,
   NotFoundException,
   UnauthorizedException,
@@ -70,7 +69,7 @@ describe('DomainExceptionFilter', () => {
     });
 
     it('debería manejar ConflictException con status 409', () => {
-      const { host, status, json } = createMockHost();
+      const { host, status, json: _json } = createMockHost();
       const exception = new ConflictException('DUPLICATE', 'Ya existe');
 
       filter.catch(exception, host);

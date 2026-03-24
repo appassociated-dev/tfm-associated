@@ -137,6 +137,7 @@ describe('Tenant', () => {
       type: tenant.type,
       status: tenant.status,
       databaseName: tenant.databaseName,
+      databaseUser: tenant.databaseUser,
       contactEmail: tenant.contactEmail,
       createdAt: tenant.createdAt,
     });
@@ -161,6 +162,7 @@ describe('Tenant', () => {
       type: tenant.type,
       status: tenant.status,
       databaseName: tenant.databaseName,
+      databaseUser: tenant.databaseUser,
       contactEmail: tenant.contactEmail,
       createdAt: tenant.createdAt,
     });

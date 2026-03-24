@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { validate as uuidValidate } from 'uuid';
 import { User } from '../aggregates/user';
 import { UserId } from '../value-objects/user-id';
@@ -200,9 +200,9 @@ describe('User', () => {
       const hasher = createMockHasher(false);
       const user = reconstituteUser();
 
-      const before = new Date();
+      const _before = new Date();
       await user.authenticate('wrong-password', hasher);
-      const after = new Date();
+      const _after = new Date();
 
       // Verificamos indirectamente que hay timestamps recientes
       expect(user.failedAttempts).toBe(1);

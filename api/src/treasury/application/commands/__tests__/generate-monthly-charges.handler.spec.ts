@@ -12,8 +12,6 @@ import { ErrorReporter } from '../../../../shared/domain/ports/error-reporter.po
 import { MemberAccount } from '../../../domain/aggregates/member-account';
 import { FeePlan } from '../../../domain/aggregates/fee-plan';
 import { FeeSubscription } from '../../../domain/entities/fee-subscription';
-import { Discount } from '../../../domain/value-objects/discount';
-import { Money } from '../../../domain/value-objects/money';
 
 const TENANT_ID = 'tenant-uuid-1234';
 const MEMBER_ACCOUNT_ID_1 = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11';
@@ -174,7 +172,7 @@ function validCommand(
 describe('GenerateMonthlyChargesHandler', () => {
   // Silenciar logs de NestJS durante tests
   beforeEach(() => Logger.overrideLogger([]));
-  afterAll(() => Logger.overrideLogger(undefined as any));
+  afterAll(() => Logger.overrideLogger(false));
   let handler: GenerateMonthlyChargesHandler;
   let memberAccountRepository: MemberAccountRepository;
   let feePlanRepository: FeePlanRepository;
