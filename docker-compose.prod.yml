@@ -1,0 +1,198 @@
+# =============================================================
+# Associated — Docker Compose de PRODUCCION
+#
+# Servicios: postgres, migration (one-shot), api, web
+# Red: bridge interna (associated-net)
+# Logging: json-file con rotacion
+#
+# Uso:
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d
+#   docker compose -f docker-compose.prod.yml --env-file .env down
+#   docker compose -f docker-compose.prod.yml --env-file .env logs -f
+# =============================================================
+
+services:
+  # --- PostgreSQL 18 ---
+  postgres:
+    image: postgres:18-alpine
+    container_name: associated-prod-postgres
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:5432:5432'
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - associated-net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 256M
+    command:
+      - 'postgres'
+      - '-c'
+      - 'shared_buffers=256MB'
+      - '-c'
+      - 'effective_cache_size=512MB'
+      - '-c'
+      - 'work_mem=4MB'
+      - '-c'
+      - 'maintenance_work_mem=64MB'
+      - '-c'
+      - 'max_connections=100'
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # --- Migraciones (one-shot: ejecuta y sale) ---
+  migration:
+    build:
+      context: .
+      dockerfile: api/Dockerfile.prod
+    container_name: associated-prod-migration
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      DATABASE_MAIN_URL: ${DATABASE_MAIN_URL}
+      DATABASE_TENANT_URL: ${DATABASE_TENANT_URL}
+    networks:
+      - associated-net
+    # Override del CMD: ejecutar migraciones y salir
+    entrypoint: ['sh', '-c']
+    command:
+      - |
+        echo "[migration] Ejecutando migraciones de la BD principal..."
+        npx prisma migrate deploy --config=api/prisma/main/prisma.config.ts
+        echo "[migration] Migraciones principales completadas."
+        echo "[migration] Ejecutando migraciones de tenants..."
+        ./scripts/migrate-tenants.sh
+        echo "[migration] Todas las migraciones completadas."
+    restart: 'no'
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # --- API (NestJS) ---
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile.prod
+    image: ghcr.io/appassociated-dev/associated-api:latest
+    container_name: associated-prod-api
+    restart: unless-stopped
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    ports:
+      - '127.0.0.1:3000:3000'
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${API_PORT:-3000}
+      DATABASE_MAIN_URL: ${DATABASE_MAIN_URL}
+      DATABASE_TENANT_URL: ${DATABASE_TENANT_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      SUPERADMIN_API_KEY: ${SUPERADMIN_API_KEY}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-production}
+      TENANT_POOL_MAX_SIZE: ${TENANT_POOL_MAX_SIZE:-10}
+      TENANT_POOL_EVICTION_MS: ${TENANT_POOL_EVICTION_MS:-300000}
+    networks:
+      - associated-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/v1/health']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 256M
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # --- Web (React SPA via nginx) ---
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile.prod
+    image: ghcr.io/appassociated-dev/associated-web:latest
+    container_name: associated-prod-web
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - '127.0.0.1:8080:8080'
+    networks:
+      - associated-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/healthz']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 64M
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+# --- Volumenes persistentes ---
+volumes:
+  pgdata:
+    driver: local
+
+# --- Red interna ---
+networks:
+  associated-net:
+    driver: bridge

@@ -7,9 +7,6 @@ import { PaymentRepository } from '../../../domain/repositories/payment.reposito
 import { TreasuryOutboxPublisher } from '../../ports/treasury-outbox.publisher';
 import { MemberAccount } from '../../../domain/aggregates/member-account';
 import { Charge } from '../../../domain/entities/charge';
-import { ChargeDescription } from '../../../domain/value-objects/charge-description';
-import { Money } from '../../../domain/value-objects/money';
-import { ChargeStatus } from '../../../domain/value-objects/charge-status';
 import {
   MemberAccountNotFoundError,
   ChargeNotFoundError,

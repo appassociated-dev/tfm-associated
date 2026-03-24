@@ -7,8 +7,6 @@ import { FeePlanRepository } from '../../../domain/repositories/fee-plan.reposit
 import { MemberAccount } from '../../../domain/aggregates/member-account';
 import { FeePlan } from '../../../domain/aggregates/fee-plan';
 import { Charge } from '../../../domain/entities/charge';
-import { ChargeDescription } from '../../../domain/value-objects/charge-description';
-import { Money } from '../../../domain/value-objects/money';
 import { FeeSubscription } from '../../../domain/entities/fee-subscription';
 import { MemberAccountNotFoundError } from '../../../domain/exceptions';
 

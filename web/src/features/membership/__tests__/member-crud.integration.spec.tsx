@@ -1,15 +1,17 @@
 // Test de integracion del flujo de alta de socio (UC-011).
 // Usa componentes reales (SimpleRegistrationPage), hooks reales,
 // MSW para API y Notifications de Mantine.
-// NO usa vi.mock de modulos internos — testea comportamiento real del usuario.
+// Unico mock: DateInput de @mantine/dates (causa bucles infinitos en jsdom por floating-ui).
+// El resto usa componentes reales — testea comportamiento real del usuario.
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { type ReactNode } from 'react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { MantineProvider } from '@mantine/core';
+import { DatesProvider } from '@mantine/dates';
 import { Notifications, notifications } from '@mantine/notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { server } from '@/test/msw/server';
@@ -23,6 +25,62 @@ import type {
   MemberType,
   RegistrationResponse,
 } from '../registration/schemas/member-registration.schemas';
+
+// === Mock de DateInput ===
+// Mantine DateInput usa Popover + Calendar + floating-ui autoUpdate que causan
+// bucles infinitos con ResizeObserver/MutationObserver en jsdom.
+// Como este test verifica el flujo del wizard (no el componente DateInput),
+// lo reemplazamos con un <input> simple que emula el contrato:
+//   - value: string | null (RHF + Zod schema espera string "YYYY-MM-DD")
+//   - onChange: recibe string "YYYY-MM-DD"
+//   - placeholder: se propaga para que screen.getByPlaceholderText funcione
+vi.mock('@mantine/dates', async () => {
+  const actual = await vi.importActual('@mantine/dates');
+  return {
+    ...actual,
+    DateInput: ({ value, onChange, onBlur, placeholder }: any) => {
+      // value es string "YYYY-MM-DD" o null (segun el schema del form)
+      const displayValue = (() => {
+        if (!value) return '';
+        // Si viene como "YYYY-MM-DD", convertir a "DD/MM/YYYY" para display
+        if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+          const [y, m, d] = value.split('-');
+          return `${d}/${m}/${y}`;
+        }
+        // Si es Date (por si acaso), formatear
+        if (value instanceof Date && !isNaN(value.getTime())) {
+          return value.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          });
+        }
+        return String(value);
+      })();
+
+      return (
+        <input
+          type="text"
+          placeholder={placeholder}
+          value={displayValue}
+          onChange={(e: any) => {
+            const raw = e.target.value;
+            // Parsear DD/MM/YYYY → "YYYY-MM-DD" (lo que Mantine 8 DateInput produce)
+            const parts = raw.split('/');
+            if (parts.length === 3 && parts[0].length && parts[1].length && parts[2].length) {
+              const isoDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+              onChange?.(isoDate);
+            } else {
+              onChange?.(raw);
+            }
+          }}
+          onBlur={onBlur}
+          data-testid="mock-date-input"
+        />
+      );
+    },
+  };
+});
 
 // === Constantes ===
 
@@ -70,11 +128,13 @@ function renderWithDataRouter(auth?: Partial<AuthContextValue>) {
 
   function Providers({ children }: { children: ReactNode }) {
     return (
-      <MantineProvider theme={associatedTheme} defaultColorScheme="light">
-        <Notifications />
-        <QueryClientProvider client={queryClient}>
-          <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
-        </QueryClientProvider>
+      <MantineProvider theme={associatedTheme} defaultColorScheme="light" env="test">
+        <DatesProvider settings={{ locale: 'es' }}>
+          <Notifications />
+          <QueryClientProvider client={queryClient}>
+            <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
+          </QueryClientProvider>
+        </DatesProvider>
       </MantineProvider>
     );
   }
@@ -142,11 +202,13 @@ async function fillPersonalData(
   await user.clear(lastNameInput);
   await user.type(lastNameInput, lastName);
 
-  // Rellenar fecha de nacimiento con typing directo
-  // Mantine DateInput acepta texto en formato DD/MM/YYYY
+  // Rellenar fecha de nacimiento con fireEvent.change + blur.
+  // NO usar user.type() aqui: escribe caracter a caracter y cada uno
+  // dispara el parseo de Mantine DateInput + popover + floating-ui,
+  // causando un bucle infinito en jsdom.
   const birthDateInput = screen.getByPlaceholderText('dd/mm/aaaa');
-  await user.clear(birthDateInput);
-  await user.type(birthDateInput, '15/06/1990');
+  fireEvent.change(birthDateInput, { target: { value: '15/06/1990' } });
+  fireEvent.blur(birthDateInput);
 
   // Rellenar email (placeholder: "correo@ejemplo.com")
   const emailInput = screen.getByPlaceholderText('correo@ejemplo.com');
@@ -250,19 +312,27 @@ describe('Flujo de Alta de Socio (Integracion)', () => {
   // -----------------------------------------------
   describe('error al cargar precondiciones', () => {
     it('debe mostrar alerta de error cuando la API de precondiciones falla', async () => {
-      // Arrange — API devuelve error de red
+      // Arrange — API devuelve error 500.
+      // Nota: HttpResponse.error() causa que peticiones concurrentes queden
+      // colgadas en Node.js con MSW 2.x + Axios. Usamos HTTP 500 en su lugar.
       server.use(
         http.get('*/v1/members/preconditions', () => {
-          return HttpResponse.error();
+          return HttpResponse.json(
+            { error: { code: 'INTERNAL_ERROR', message: 'Server error', details: null } },
+            { status: 500 },
+          );
         }),
       );
 
       renderWithDataRouter();
 
       // Assert — alerta de error
-      await waitFor(() => {
-        expect(screen.getByText('Error al verificar precondiciones')).toBeInTheDocument();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByText('Error al verificar precondiciones')).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
     });
   });
 

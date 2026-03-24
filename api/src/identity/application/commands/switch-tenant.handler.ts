@@ -10,6 +10,7 @@ import {
 } from '../../domain/repositories/refresh-token.repository';
 import { PrismaMainService } from '../../../shared/infrastructure/persistence/prisma-main.service';
 import { TenantAccessDeniedError } from '../../domain/exceptions/tenant-access-denied.error';
+import { parsePermissions } from '../../../shared/application/utils/parse-permissions';
 
 /** Tiempo de expiración del access token en segundos (15 minutos). */
 const ACCESS_TOKEN_EXPIRY_SECONDS = 900;
@@ -55,7 +56,7 @@ export class SwitchTenantHandler implements ICommandHandler<SwitchTenantCommand>
       throw new TenantAccessDeniedError(command.newTenantId);
     }
 
-    const permissions = (membership.role.permissions as string[]) ?? [];
+    const permissions = parsePermissions(membership.role.permissions);
 
     // 3. Revocar refresh tokens anteriores del usuario
     await this.refreshTokenRepository.revokeAllForUser(command.userId);

@@ -12,7 +12,7 @@ import {
 } from '../ports/treasury-outbox.publisher';
 import { FeePlan, CreateFeePlanProps } from '../../domain/aggregates/fee-plan';
 import { FeePlanCode } from '../../domain/value-objects/fee-plan-code';
-import { FEE_PLAN_TEMPLATES, FeePlanTemplate } from '../data/fee-plan-templates';
+import { FEE_PLAN_TEMPLATES } from '../data/fee-plan-templates';
 
 /**
  * Handler del comando de importación de plantillas de planes de cuota.

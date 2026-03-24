@@ -7,6 +7,11 @@ import { ImportTemplateCommand } from '../../../application/commands/import-temp
 import { GetMemberTypeQuery } from '../../../application/queries/get-member-type.query';
 import { ListMemberTypesQuery } from '../../../application/queries/list-member-types.query';
 import { GetTemplatesQuery } from '../../../application/queries/get-templates.query';
+import type { CommandBus, QueryBus } from '@nestjs/cqrs';
+import type { Request } from 'express';
+import type { CreateMemberTypeDto } from '../../../application/dtos/create-member-type.dto';
+import type { UpdateMemberTypeDto } from '../../../application/dtos/update-member-type.dto';
+import type { ImportTemplateDto } from '../../../application/dtos/import-template.dto';
 
 describe('MemberTypesController', () => {
   let controller: MemberTypesController;
@@ -16,7 +21,7 @@ describe('MemberTypesController', () => {
   const mockReq = {
     tenantId: 'tenant-uuid-1234',
     user: { tenantType: 'COFRADIA' },
-  } as any;
+  } as unknown as Request & { tenantId: string; user: { tenantType?: string } };
 
   const mockResponseDto = {
     id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
@@ -39,7 +44,10 @@ describe('MemberTypesController', () => {
   beforeEach(() => {
     commandBus = { execute: vi.fn() };
     queryBus = { execute: vi.fn() };
-    controller = new MemberTypesController(commandBus as any, queryBus as any);
+    controller = new MemberTypesController(
+      commandBus as unknown as CommandBus,
+      queryBus as unknown as QueryBus,
+    );
   });
 
   describe('POST /member-types (create)', () => {
@@ -60,7 +68,7 @@ describe('MemberTypesController', () => {
         rulesConfig: {},
       };
 
-      const result = await controller.create(dto as any, mockReq);
+      const result = await controller.create(dto as unknown as CreateMemberTypeDto, mockReq);
 
       expect(result).toBe(mockResponseDto);
       expect(commandBus.execute).toHaveBeenCalledWith(expect.any(CreateMemberTypeCommand));
@@ -111,7 +119,7 @@ describe('MemberTypesController', () => {
       commandBus.execute.mockResolvedValue([mockResponseDto]);
 
       const dto = { collectivityType: 'COFRADIA' };
-      const result = await controller.importTemplate(dto as any, mockReq);
+      const result = await controller.importTemplate(dto as unknown as ImportTemplateDto, mockReq);
 
       expect(result).toEqual([mockResponseDto]);
       expect(commandBus.execute).toHaveBeenCalledWith(expect.any(ImportTemplateCommand));
@@ -148,7 +156,7 @@ describe('MemberTypesController', () => {
 
       const result = await controller.update(
         'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-        dto as any,
+        dto as unknown as UpdateMemberTypeDto,
         mockReq,
       );
 

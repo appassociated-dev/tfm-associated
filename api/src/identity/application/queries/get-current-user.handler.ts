@@ -5,6 +5,7 @@ import { UserProfileDto } from '../dtos/user-profile.dto';
 import { USER_REPOSITORY, UserRepository } from '../../domain/repositories/user.repository';
 import { PrismaMainService } from '../../../shared/infrastructure/persistence/prisma-main.service';
 import { InvalidCredentialsError } from '../../domain/exceptions/invalid-credentials.error';
+import { parsePermissions } from '../../../shared/application/utils/parse-permissions';
 
 /**
  * Handler de la query para obtener el perfil del usuario autenticado.
@@ -39,7 +40,7 @@ export class GetCurrentUserHandler implements IQueryHandler<GetCurrentUserQuery>
       throw new InvalidCredentialsError();
     }
 
-    const permissions = (membership.role.permissions as string[]) ?? [];
+    const permissions = parsePermissions(membership.role.permissions);
 
     // 3. Construir respuesta
     const dto = new UserProfileDto();

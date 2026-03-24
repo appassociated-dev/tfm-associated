@@ -1,3 +1,12 @@
+// Configurar dayjs ANTES de cualquier otra cosa (replica main.tsx)
+// Necesario para que @mantine/dates DateInput parsee formatos DD/MM/YYYY
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import 'dayjs/locale/es';
+
+dayjs.locale('es');
+dayjs.extend(customParseFormat);
+
 // Setup de entorno de testing para jsdom (web)
 // Aquí se pueden añadir mocks globales y configuración de testing-library
 import { beforeAll, afterEach, afterAll } from 'vitest';

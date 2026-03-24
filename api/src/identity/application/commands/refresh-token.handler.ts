@@ -10,6 +10,7 @@ import {
 } from '../../domain/repositories/refresh-token.repository';
 import { PrismaMainService } from '../../../shared/infrastructure/persistence/prisma-main.service';
 import { InvalidRefreshTokenError } from '../../domain/exceptions/invalid-refresh-token.error';
+import { parsePermissions } from '../../../shared/application/utils/parse-permissions';
 
 /** Tiempo de expiración del access token en segundos (15 minutos). */
 const ACCESS_TOKEN_EXPIRY_SECONDS = 900;
@@ -69,7 +70,7 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand>
       throw new InvalidRefreshTokenError();
     }
 
-    const permissions = (membership.role.permissions as string[]) ?? [];
+    const permissions = parsePermissions(membership.role.permissions);
 
     // 7. Generar nuevo access token
     const payload: JwtPayload = {
