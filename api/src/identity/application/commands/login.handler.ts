@@ -13,6 +13,7 @@ import {
 import { PrismaMainService } from '../../../shared/infrastructure/persistence/prisma-main.service';
 import { InvalidCredentialsError } from '../../domain/exceptions/invalid-credentials.error';
 import { AccountBlockedError } from '../../domain/exceptions/account-blocked.error';
+import { parsePermissions } from '../../../shared/application/utils/parse-permissions';
 
 /** Tiempo de expiración del access token en segundos (15 minutos). */
 const ACCESS_TOKEN_EXPIRY_SECONDS = 900;
@@ -90,7 +91,7 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     }
 
     const membership = memberships[0];
-    const permissions = (membership.role.permissions as string[]) ?? [];
+    const permissions = parsePermissions(membership.role.permissions);
 
     // 8. Generar tokens
     const payload: JwtPayload = {

@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PERMISSIONS_KEY } from './require-permissions.decorator';
+import { parsePermissions } from '../../application/utils/parse-permissions';
 
 /**
  * Guard de permisos basado en RBAC (ADR-007).
@@ -37,7 +38,7 @@ export class PermissionsGuard implements CanActivate {
 
     // Parsing defensivo: asegurar que permissions sea un array incluso si llega como string
     // (puede ocurrir por doble serialización en BD o JWT con datos legacy)
-    const userPermissions = this.parsePermissions(user.permissions);
+    const userPermissions = parsePermissions(user.permissions);
 
     if (userPermissions.length === 0) {
       throw new ForbiddenException('No permissions found');
@@ -54,30 +55,6 @@ export class PermissionsGuard implements CanActivate {
     }
 
     return true;
-  }
-
-  /**
-   * Parsea los permisos del usuario garantizando que el resultado sea string[].
-   * Maneja el caso en que permissions llegue como string JSON (doble serialización
-   * o JWT con datos legacy) en lugar de un array nativo.
-   */
-  private parsePermissions(raw: unknown): string[] {
-    if (Array.isArray(raw)) {
-      return raw.filter((item): item is string => typeof item === 'string');
-    }
-
-    if (typeof raw === 'string') {
-      try {
-        const parsed: unknown = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          return parsed.filter((item): item is string => typeof item === 'string');
-        }
-      } catch {
-        // Si no es JSON válido, no hay permisos recuperables
-      }
-    }
-
-    return [];
   }
 
   /**
