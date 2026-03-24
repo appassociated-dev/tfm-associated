@@ -37,6 +37,9 @@ jobs:
 
       - name: Generate Prisma clients
         run: npm run -w api prisma:generate
+        env:
+          DATABASE_MAIN_URL: postgresql://dummy:dummy@localhost:5432/dummy
+          DATABASE_TENANT_URL: postgresql://dummy:dummy@localhost:5432/dummy
 
       - name: Lint
         run: npm run -w api lint
