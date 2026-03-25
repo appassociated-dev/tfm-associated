@@ -1,15 +1,9 @@
 # 3. Guía de Primer Despliegue
 
 <p align="center">
-  <a href="02-artifacts.md">
-    <img src="https://img.shields.io/badge/←_Artefactos_Generados-3D5E6C" />
-  </a>
-  <a href="README.md">
-    <img src="https://img.shields.io/badge/↑_Índice-27343E" />
-  </a>
-  <a href="04-new-version-deploy.md">
-    <img src="https://img.shields.io/badge/Deploy_de_nueva_versión_→-3D5E6C" />
-  </a>
+  <a href="02-artifacts.md">← Artefactos Generados</a> · 
+  <a href="README.md">↑ Índice</a> · 
+  <a href="04-new-version-deploy.md">Deploy de nueva versión →</a>
 </p>
 
 ---
