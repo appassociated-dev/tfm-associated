@@ -185,7 +185,19 @@ export class DatabaseProvisioningService implements DatabaseProvisioningPort {
   async runMigrations(databaseUrl: string): Promise<void> {
     this.logger.log('Ejecutando migraciones del schema tenant...');
 
-    const prismaConfigPath = resolve(process.cwd(), 'prisma', 'tenant', 'prisma.config.ts');
+    // En Docker, WORKDIR=/app y prisma esta en /app/api/prisma/
+    // En desarrollo, cwd es la raiz del monorepo y prisma esta en api/prisma/
+    // Ambos casos se resuelven buscando desde __dirname hacia arriba
+    const prismaConfigPath = resolve(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'prisma',
+      'tenant',
+      'prisma.config.ts',
+    );
     const migrationUrl = this.buildMigrationDatabaseUrl(databaseUrl);
 
     try {

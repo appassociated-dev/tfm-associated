@@ -7,6 +7,43 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260324-001-acester-CLAUDECODE
+
+- **Fecha de sesion:** 24 de marzo de 2026
+- **Hora de inicio:** 21:48
+- **Hora de ultimos trabajos:** 21:48
+- **Documento de sesion:** [doc/agents-sessions/20260324-001-acester-CLAUDECODE.md](doc/agents-sessions/20260324-001-acester-CLAUDECODE.md)
+
+#### Added
+
+- Stack de despliegue Docker para produccion con 4 servicios (postgres, migration, api, web) — **SDD: production-docker-deploy**
+- `api/Dockerfile.prod` — imagen multi-stage para API NestJS (node:22-slim + tini)
+- `web/Dockerfile.prod` — imagen multi-stage para SPA React (nginx:1.27-alpine)
+- `docker-compose.prod.yml` — stack de produccion completo
+- `nginx/associated.conf` — vhost nginx del host con SSL termination y cabeceras de seguridad
+- `web/nginx.conf` — configuracion nginx para SPA routing en contenedor web
+- `.dockerignore` — exclusiones para build Docker
+- `.env.production.example` — plantilla de variables de entorno para produccion
+- Scripts de operaciones: `deploy.sh`, `migrate-tenants.sh`, `seed-production.sh`, `verify-deploy.sh`
+- Endpoint de health check `GET /api/v1/health` con `@nestjs/terminus`
+- Documentacion exhaustiva de despliegue en `doc/deploy/` (8 documentos, 3780 lineas)
+
+#### Changed
+
+- Movidos `tsconfig-paths`, `prisma`, `dotenv` de devDependencies a dependencies en `api/package.json`
+- Anadido `@nestjs/terminus` como dependencia de produccion
+
+#### Fixed
+
+- Path de configuracion Prisma en `DatabaseProvisioningService` (`process.cwd()` → `__dirname`)
+- Configuracion HTTP/2 en nginx 1.24 (`http2 on;` → `listen 443 ssl http2;`)
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260323-001-acester-CLAUDECODE
 
 - **Fecha de sesion:** 23 de marzo de 2026
