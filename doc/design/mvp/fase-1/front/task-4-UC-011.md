@@ -1,4 +1,4 @@
-# Task 4 — UC-011: Alta simple de socio (Frontend)
+# Task 4 - UC-011: Alta simple de socio (Frontend)
 
 ## Información general
 
@@ -42,9 +42,9 @@
 
 | Tarea                        | Artefacto necesario                                                                                                                                                                                             |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **F1-Back Task 7 — UC-011**  | Endpoints REST operativos: `POST /api/v1/members/simple-registration`, `GET /api/v1/members/check-dni/:dni` (verificación unicidad). Contratos de DTOs definidos (`SimpleRegistrationDto`, `MemberResponseDto`) |
-| **F1-Back Task 3 — UC-008**  | Endpoint `GET /api/v1/member-types` operativo para obtener tipos de socio con sus requisitos (rangos de edad, derechos)                                                                                         |
-| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                     |
+| **F1-Back Task 7 - UC-011**  | Endpoints REST operativos: `POST /api/v1/members/simple-registration`, `GET /api/v1/members/check-dni/:dni` (verificación unicidad). Contratos de DTOs definidos (`SimpleRegistrationDto`, `MemberResponseDto`) |
+| **F1-Back Task 3 - UC-008**  | Endpoint `GET /api/v1/member-types` operativo para obtener tipos de socio con sus requisitos (rangos de edad, derechos)                                                                                         |
+| **F1-Front Task 1 - UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                     |
 
 ### Checklist de verificación de dependencias
 
@@ -68,7 +68,7 @@ Antes de iniciar esta tarea, verificar que:
 
 | Artefacto                                                               | Consumido por                                                |
 | ----------------------------------------------------------------------- | ------------------------------------------------------------ |
-| Schemas Zod de alta de socio (`schemas/member-registration.schemas.ts`) | F1-Front Task 5 (UC-013 — baja necesita datos del socio)     |
+| Schemas Zod de alta de socio (`schemas/member-registration.schemas.ts`) | F1-Front Task 5 (UC-013 - baja necesita datos del socio)     |
 | Hook `useMemberTypes()` para listar tipos de socio                      | Reutilizable en otros módulos que necesiten selector de tipo |
 | Utilidad `validateDni()` para validación client-side de DNI/NIE         | Reutilizable en importación masiva (UC-056, Fase 2)          |
 | Página de alta como entrada de navegación en sidebar                    | Navegación desde "Socios > Nuevo Socio"                      |
@@ -233,9 +233,9 @@ Crear en `web/src/features/membership/registration/utils/`:
 Crear en `web/src/features/membership/registration/api/`:
 
 - **`registration.api.ts`**: Funciones API:
-  - `checkDni(dni: string): Promise<DniCheckResponse>` — parsea con `dniCheckResponseSchema.parse(response.data.data)`
-  - `getMemberTypes(): Promise<MemberType[]>` — parsea con `z.array(memberTypeSchema).parse(response.data.data)`
-  - `simpleRegistration(data: SimpleRegistrationRequest): Promise<RegistrationResponse>` — parsea con `registrationResponseSchema.parse(response.data.data)`
+  - `checkDni(dni: string): Promise<DniCheckResponse>` - parsea con `dniCheckResponseSchema.parse(response.data.data)`
+  - `getMemberTypes(): Promise<MemberType[]>` - parsea con `z.array(memberTypeSchema).parse(response.data.data)`
+  - `simpleRegistration(data: SimpleRegistrationRequest): Promise<RegistrationResponse>` - parsea con `registrationResponseSchema.parse(response.data.data)`
   - Si `ZodError` se produce, se reporta via `ErrorReporter.captureException()`
 
 ### Paso 4: Custom hooks con TanStack Query
@@ -324,7 +324,7 @@ Crear en `web/src/features/membership/registration/pages/`:
   - Botones "Anterior" (`variant="default"`) / "Siguiente" (`color="brand"`) / "Confirmar Alta" (`color="brand"`) según paso activo. Nunca usar `variant="gradient"`.
   - `useBlocker` de React Router para prevenir navegación accidental con datos sin guardar
 
-### Paso 6: Paso 1 — Datos personales
+### Paso 6: Paso 1 - Datos personales
 
 Crear en `web/src/features/membership/registration/components/`:
 
@@ -347,7 +347,7 @@ Crear en `web/src/features/membership/registration/components/`:
   - Campo `city` (TextInput, opcional)
   - Validación completa del paso antes de permitir avanzar
 
-### Paso 7: Paso 2 — Tipo de socio
+### Paso 7: Paso 2 - Tipo de socio
 
 Crear en `web/src/features/membership/registration/components/`:
 
@@ -367,7 +367,7 @@ Crear en `web/src/features/membership/registration/components/`:
   - Loading: skeleton de 3 tarjetas
   - Error: alerta con reintentar
 
-### Paso 8: Paso 3 — Confirmación
+### Paso 8: Paso 3 - Confirmación
 
 Crear en `web/src/features/membership/registration/components/`:
 

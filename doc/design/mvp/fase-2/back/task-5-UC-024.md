@@ -1,4 +1,4 @@
-# Task 5 — UC-024: Gestión de devoluciones SEPA (Backend)
+# Task 5 - UC-024: Gestión de devoluciones SEPA (Backend)
 
 ## Información general
 
@@ -43,12 +43,12 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 2 — UC-023 (Remesas SEPA)** | Aggregate `SepaRemittance` con entities `SepaDebit`, Entity `SepaMandate`, configuración SEPA |
-| **Fase 2 — UC-020 (Cargos manuales)** | Endpoint de cargo de penalización `POST .../charges/penalty` para repercutir gastos |
-| **Fase 1 — UC-021 (Registro de cobros)** | Aggregate `MemberAccount` con `Charge` y `Payment`, `CollectionService` |
-| **Fase 1 — UC-007 (Estados del socio)** | Máquina de estados para transición a morosidad |
+| Tarea                                    | Artefacto necesario                                                                           |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Fase 2 - UC-023 (Remesas SEPA)**       | Aggregate `SepaRemittance` con entities `SepaDebit`, Entity `SepaMandate`, configuración SEPA |
+| **Fase 2 - UC-020 (Cargos manuales)**    | Endpoint de cargo de penalización `POST .../charges/penalty` para repercutir gastos           |
+| **Fase 1 - UC-021 (Registro de cobros)** | Aggregate `MemberAccount` con `Charge` y `Payment`, `CollectionService`                       |
+| **Fase 1 - UC-007 (Estados del socio)**  | Máquina de estados para transición a morosidad                                                |
 
 ### Checklist de verificación de dependencias
 
@@ -64,26 +64,26 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Endpoint de registro de devolución | Frontend UC-024 |
-| Endpoint de programación de reintento | Frontend UC-024 |
-| Informe de devoluciones | Frontend UC-024 (descarga PDF/CSV) |
-| Cargos en estado DEVUELTO | UC-021 (pueden cobrarse por método alternativo), UC-023 (reinclusión en remesa) |
-| Cargos de penalización (gastos bancarios) | UC-021 (cobro de gastos) |
-| Evento `PaymentReturned` | BC-Membership (marcar morosidad), BC-Communication (notificar) |
-| Evento `SepaMandateRevoked` | Auditoría, exclusión de futuras remesas |
+| Artefacto                                 | Consumido por                                                                   |
+| ----------------------------------------- | ------------------------------------------------------------------------------- |
+| Endpoint de registro de devolución        | Frontend UC-024                                                                 |
+| Endpoint de programación de reintento     | Frontend UC-024                                                                 |
+| Informe de devoluciones                   | Frontend UC-024 (descarga PDF/CSV)                                              |
+| Cargos en estado DEVUELTO                 | UC-021 (pueden cobrarse por método alternativo), UC-023 (reinclusión en remesa) |
+| Cargos de penalización (gastos bancarios) | UC-021 (cobro de gastos)                                                        |
+| Evento `PaymentReturned`                  | BC-Membership (marcar morosidad), BC-Communication (notificar)                  |
+| Evento `SepaMandateRevoked`               | Auditoría, exclusión de futuras remesas                                         |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-024.md` | Flujo completo: registro manual, clasificación por código, reintento, estados |
-| `us/us-066.md` | Criterios: registro de devolución, clasificación por motivo, reintento |
-| `us/us-067.md` | Criterios: repercusión de gastos, informe de devoluciones |
+| Documento           | Contenido relevante                                                                             |
+| ------------------- | ----------------------------------------------------------------------------------------------- |
+| `uc/uc-024.md`      | Flujo completo: registro manual, clasificación por código, reintento, estados                   |
+| `us/us-066.md`      | Criterios: registro de devolución, clasificación por motivo, reintento                          |
+| `us/us-067.md`      | Criterios: repercusión de gastos, informe de devoluciones                                       |
 | `bc/bc-treasury.md` | Entity SepaDebit con returnReason/returnDate. Domain Events PaymentReturned, SepaMandateRevoked |
-| `adr/adr-008.md` | Outbox pattern para Domain Events |
-| `rnft/rnft-025.md` | Auditoría completa de cambios en pagos |
+| `adr/adr-008.md`    | Outbox pattern para Domain Events                                                               |
+| `rnft/rnft-025.md`  | Auditoría completa de cambios en pagos                                                          |
 
 ## Puntos críticos
 
@@ -101,16 +101,16 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Código SEPA no reconocido | Baja | Medio | Mapear a MS03 (genérico) por defecto. Log warning para investigar |
-| Reintento de cargo con IBAN incorrecto genera más gastos | Media | Alto | Validar que el motivo anterior se ha resuelto antes de permitir reintento |
-| Mandato revocado por error (MS02 mal clasificado) | Baja | Alto | Permitir reactivación manual de mandato revocado por el Tesorero |
-| Estado del socio desactualizado tras devolución | Baja | Medio | Event-driven: `PaymentReturned` notifica a BC-Membership. Si falla, retry del evento |
+| Riesgo                                                   | Probabilidad | Impacto | Mitigación                                                                           |
+| -------------------------------------------------------- | ------------ | ------- | ------------------------------------------------------------------------------------ |
+| Código SEPA no reconocido                                | Baja         | Medio   | Mapear a MS03 (genérico) por defecto. Log warning para investigar                    |
+| Reintento de cargo con IBAN incorrecto genera más gastos | Media        | Alto    | Validar que el motivo anterior se ha resuelto antes de permitir reintento            |
+| Mandato revocado por error (MS02 mal clasificado)        | Baja         | Alto    | Permitir reactivación manual de mandato revocado por el Tesorero                     |
+| Estado del socio desactualizado tras devolución          | Baja         | Medio   | Event-driven: `PaymentReturned` notifica a BC-Membership. Si falla, retry del evento |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Códigos de devolución SEPA
+### Paso 1: Capa de dominio - Códigos de devolución SEPA
 
 Crear en `api/src/treasury/domain/value-objects/`:
 
@@ -125,22 +125,22 @@ Crear en `api/src/treasury/domain/value-objects/`:
     - `MS02` → Rechazo del deudor, no retry, intervención crítica, REVOKE_MANDATE
     - `MS03` → No especificado, retry condicional, 30 días, intervención manual
 
-### Paso 2: Capa de dominio — Ampliación de entities existentes
+### Paso 2: Capa de dominio - Ampliación de entities existentes
 
 Ampliar en `api/src/treasury/domain/entities/`:
 
-- **`Charge`** — añadir:
+- **`Charge`** - añadir:
   - `sepaRetryCount: number` (inicializado a 0)
   - `lastReturnCode?: string`
   - `retryScheduledDate?: Date`
-  - Método `markAsReturned(returnCode: SepaReturnCode): void` — transiciona a RETURNED, incrementa `sepaRetryCount`, guarda `lastReturnCode`
-  - Método `scheduleRetry(date: Date): void` — establece `retryScheduledDate`
-  - Método `canRetry(maxRetries: number): boolean` — `sepaRetryCount < maxRetries && returnCode.allowRetry`
+  - Método `markAsReturned(returnCode: SepaReturnCode): void` - transiciona a RETURNED, incrementa `sepaRetryCount`, guarda `lastReturnCode`
+  - Método `scheduleRetry(date: Date): void` - establece `retryScheduledDate`
+  - Método `canRetry(maxRetries: number): boolean` - `sepaRetryCount < maxRetries && returnCode.allowRetry`
 
-- **`SepaDebit`** — añadir:
-  - Método `markAsReturned(returnCode: string, returnDate: Date): void` — actualiza `status = RETURNED`, `returnReason`, `returnDate`
+- **`SepaDebit`** - añadir:
+  - Método `markAsReturned(returnCode: string, returnDate: Date): void` - actualiza `status = RETURNED`, `returnReason`, `returnDate`
 
-### Paso 3: Capa de dominio — Domain Events
+### Paso 3: Capa de dominio - Domain Events
 
 Crear en `api/src/treasury/domain/events/`:
 
@@ -148,7 +148,7 @@ Crear en `api/src/treasury/domain/events/`:
 - **`SepaMandateRevokedEvent`**: Payload: `{ mandateId, memberId, reason: 'MS02_DEBTOR_REJECTION', revokedAt }`
 - **`ChargeMarkedForRetryEvent`**: Payload: `{ chargeId, memberId, retryNumber, scheduledDate, returnCode }`
 
-### Paso 4: Capa de dominio — Domain Service ReturnProcessor
+### Paso 4: Capa de dominio - Domain Service ReturnProcessor
 
 Crear en `api/src/treasury/domain/services/return-processor.ts`:
 
@@ -166,9 +166,9 @@ Crear en `api/src/treasury/domain/services/return-processor.ts`:
   - `penaltyChargeNeeded: boolean`, `penaltyAmount: Money`
   - `retryAllowed: boolean`, `suggestedRetryDate?: Date`
   - `requiresManualIntervention: boolean`
-  - `events: DomainEvent[]` — eventos a publicar
+  - `events: DomainEvent[]` - eventos a publicar
 
-### Paso 5: Capa de dominio — Port para estado de socio
+### Paso 5: Capa de dominio - Port para estado de socio
 
 Crear en `api/src/treasury/domain/ports/`:
 
@@ -176,7 +176,7 @@ Crear en `api/src/treasury/domain/ports/`:
   - `notifyPaymentReturned(memberId: string, returnCount: number): Promise<void>`
   - Implementado como adapter que publica evento para BC-Membership
 
-### Paso 6: Capa de aplicación — Commands y DTOs
+### Paso 6: Capa de aplicación - Commands y DTOs
 
 Crear en `api/src/treasury/application/`:
 
@@ -191,7 +191,7 @@ Crear en `api/src/treasury/application/`:
   - `ReturnResponseDto`: `{ debitId, chargeId, memberId, memberName, returnCode, returnDescription, actions: { mandateRevoked, penaltyCreated, retryAllowed, retryScheduled } }`
   - `ReturnReportDto`: agrupado por código de motivo con totales y acciones sugeridas
 
-### Paso 7: Capa de aplicación — Handlers
+### Paso 7: Capa de aplicación - Handlers
 
 Crear en `api/src/treasury/application/commands/`:
 
@@ -226,7 +226,7 @@ Crear en `api/src/treasury/application/commands/`:
   4. Para cada grupo: listar socios afectados con acciones sugeridas
   5. Retornar en formato solicitado (JSON/PDF/CSV)
 
-### Paso 8: Capa de infraestructura — Controller
+### Paso 8: Capa de infraestructura - Controller
 
 Crear en `api/src/treasury/infrastructure/controllers/`:
 
@@ -238,7 +238,7 @@ Crear en `api/src/treasury/infrastructure/controllers/`:
   - `GET /api/v1/tenants/:tenantId/charges/:chargeId/retry-history` → Historial de reintentos
   - Guards de permisos, Swagger decorators
 
-### Paso 9: Capa de infraestructura — Adapter MemberStatusPort
+### Paso 9: Capa de infraestructura - Adapter MemberStatusPort
 
 Crear en `api/src/treasury/infrastructure/adapters/`:
 
@@ -250,6 +250,7 @@ Crear en `api/src/treasury/infrastructure/adapters/`:
 ### Paso 10: Tests
 
 **Tests unitarios (dominio):**
+
 - `SepaReturnCode.create('AM04')` → allowRetry true, suggestedDays 15
 - `SepaReturnCode.create('MS02')` → autoAction REVOKE_MANDATE
 - `SepaReturnCode.create('UNKNOWN')` → fallback a MS03
@@ -260,6 +261,7 @@ Crear en `api/src/treasury/infrastructure/adapters/`:
 - `Charge.markAsReturned()` → incrementa sepaRetryCount, guarda returnCode
 
 **Tests unitarios (aplicación):**
+
 - `RecordReturnHandler` con AM04 → devolución + sugerencia de reintento
 - `RecordReturnHandler` con MS02 → devolución + mandato revocado
 - `RecordReturnHandler` con gastos → cargo de penalización creado
@@ -267,6 +269,7 @@ Crear en `api/src/treasury/infrastructure/adapters/`:
 - `ScheduleRetryHandler` con cargo AM04 retryCount < 3 → OK
 
 **Tests de integración:**
+
 - Registro de devolución AM04: verificar cargo DEVUELTO, mandato activo, sugerencia de reintento
 - Registro de devolución MS02: verificar mandato REVOKED, cargo DEVUELTO, no retry
 - Programar reintento: verificar fecha programada, cargo marcado para inclusión en próxima remesa

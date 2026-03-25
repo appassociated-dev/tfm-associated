@@ -16,14 +16,14 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 #### Added
 
-- Stack de despliegue Docker para produccion con 4 servicios (postgres, migration, api, web) — **SDD: production-docker-deploy**
-- `api/Dockerfile.prod` — imagen multi-stage para API NestJS (node:22-slim + tini)
-- `web/Dockerfile.prod` — imagen multi-stage para SPA React (nginx:1.27-alpine)
-- `docker-compose.prod.yml` — stack de produccion completo
-- `nginx/associated.conf` — vhost nginx del host con SSL termination y cabeceras de seguridad
-- `web/nginx.conf` — configuracion nginx para SPA routing en contenedor web
-- `.dockerignore` — exclusiones para build Docker
-- `.env.production.example` — plantilla de variables de entorno para produccion
+- Stack de despliegue Docker para produccion con 4 servicios (postgres, migration, api, web) - **SDD: production-docker-deploy**
+- `api/Dockerfile.prod` - imagen multi-stage para API NestJS (node:22-slim + tini)
+- `web/Dockerfile.prod` - imagen multi-stage para SPA React (nginx:1.27-alpine)
+- `docker-compose.prod.yml` - stack de produccion completo
+- `nginx/associated.conf` - vhost nginx del host con SSL termination y cabeceras de seguridad
+- `web/nginx.conf` - configuracion nginx para SPA routing en contenedor web
+- `.dockerignore` - exclusiones para build Docker
+- `.env.production.example` - plantilla de variables de entorno para produccion
 - Scripts de operaciones: `deploy.sh`, `migrate-tenants.sh`, `seed-production.sh`, `verify-deploy.sh`
 - Endpoint de health check `GET /api/v1/health` con `@nestjs/terminus`
 - Documentacion exhaustiva de despliegue en `doc/deploy/` (8 documentos, 3780 lineas)
@@ -53,17 +53,17 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 #### Added
 
-- Infraestructura i18n con react-i18next: 7 namespaces (auth, common, dashboard, errors, membership, treasury, validation) y type declarations — **SDD: i18n-infrastructure**
+- Infraestructura i18n con react-i18next: 7 namespaces (auth, common, dashboard, errors, membership, treasury, validation) y type declarations - **SDD: i18n-infrastructure**
 - Migracion de strings hardcoded a i18n en 45+ componentes
 
 #### Changed
 
-- Internacionalizados 28 mensajes de validacion Zod via i18n.t() singleton — **SDD: i18n-zod-errorboundary**
+- Internacionalizados 28 mensajes de validacion Zod via i18n.t() singleton - **SDD: i18n-zod-errorboundary**
 - Migrados strings de ErrorBoundary, http-client y main.tsx a i18n
 
 #### Fixed
 
-- Resuelto hang infinito en tests 4-12 de member-crud integration: watch() sin argumentos en personal-data-step.tsx generaba nuevo objeto cada render causando loop infinito — **SDD: fix-member-crud-tests-hang**
+- Resuelto hang infinito en tests 4-12 de member-crud integration: watch() sin argumentos en personal-data-step.tsx generaba nuevo objeto cada render causando loop infinito - **SDD: fix-member-crud-tests-hang**
 - Agregado DatesProvider en test wrapper y setup.ts con dayjs plugins para DateInput
 
 #### Removed
@@ -81,15 +81,15 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 #### Added
 
-- Reescrita suite completa de tests del frontend: factories (auth, member, fee-plan, subscription, tenant), helpers de render, MSW handlers — **SDD: web-test-overhaul** — 92 archivos, 19806 inserciones
+- Reescrita suite completa de tests del frontend: factories (auth, member, fee-plan, subscription, tenant), helpers de render, MSW handlers - **SDD: web-test-overhaul** - 92 archivos, 19806 inserciones
 - Tests de integracion nuevos: login-flow, member-crud, error-boundary, route-guards
 - Tests unitarios nuevos para hooks de auth, membership leave, registration, treasury
 - README del proyecto actualizado con informacion detallada, badges y banner SVG/PNG
 
 #### Changed
 
-- Migrado stack frontend a Zod 4 + react-hook-form (desde Zod 3.25 + @mantine/form) — **SDD: stack-alignment**
-- Sustituidas referencias a @mantine/form por RHF en 10 archivos de spec/doc — **SDD: spec-cleanup-forms**
+- Migrado stack frontend a Zod 4 + react-hook-form (desde Zod 3.25 + @mantine/form) - **SDD: stack-alignment**
+- Sustituidas referencias a @mantine/form por RHF en 10 archivos de spec/doc - **SDD: spec-cleanup-forms**
 - Actualizados 9 archivos de references del skill doc-spec-manager
 
 #### Fixed
@@ -181,7 +181,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Campo birthDate migrado de input nativo type="date" a Mantine DateInput con locale espanol y formato DD/MM/YYYY
 - Paso 3 del wizard de alta ahora muestra importe real de inscripcion con formatMoney() en vez de texto generico
 - Validacion condicional en schema createFeePlanInput: frequency y billingMonths requeridos solo para RECURRING
-- MemberRepository.save() acepta tx transaccional opcional — alta de socio ahora es atomica con artefactos de tesoreria
+- MemberRepository.save() acepta tx transaccional opcional - alta de socio ahora es atomica con artefactos de tesoreria
 - PrismaMemberRepository captura P2002 y lanza EmailAlreadyExistsError/DocumentAlreadyExistsError en vez de error Prisma crudo
 - Botones "Cancelar Baja" y "Generar Certificado PDF" deshabilitados con tooltip explicativo (requieren endpoints backend)
 - AppShell padding cambiado de md (16px) a lg (24px) segun guidelines de marca
@@ -203,7 +203,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Validacion codigo minimo 2 caracteres en formulario de planes de cuota + errores backend en toast
 - Toast autoClose reducido a 4000ms en los 5 hooks de fee-plans
 - Min-width 120px en boton Guardar de fee plans (fix loading spinner descentrado)
-- MantineProvider: forceColorScheme="light" cambiado a defaultColorScheme="auto" — detecta preferencia del sistema (light/dark)
+- MantineProvider: forceColorScheme="light" cambiado a defaultColorScheme="auto" - detecta preferencia del sistema (light/dark)
 - Logos adaptativos en header: useComputedColorScheme swapea entre versiones color y white segun color scheme
 - CSS del sidebar migrado de variables fijas (gray-X) a variables semanticas de Mantine (dimmed, text, default-hover, default-border) para compatibilidad dark mode
 - Header brand section con ancho fijo alineado al sidebar (240px abierto, 70px colapsado)
@@ -215,9 +215,9 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 #### Fixed
 
-- Corregido sistema de permisos frontend: implementado matchPermission() con soporte de wildcards (`*`, `bc:*`) portado del backend PermissionsGuard — sidebar ahora muestra todos los items segun rol
-- Corregida race condition de permisos: applyLoginResponse ahora async con await getCurrentUser() — permisos disponibles antes de renderizar sidebar
-- Corregido route param mismatch: `:id` cambiado a `:memberId` en 3 rutas de leave en router.tsx — paginas de baja/rehabilitacion ahora funcionales
+- Corregido sistema de permisos frontend: implementado matchPermission() con soporte de wildcards (`*`, `bc:*`) portado del backend PermissionsGuard - sidebar ahora muestra todos los items segun rol
+- Corregida race condition de permisos: applyLoginResponse ahora async con await getCurrentUser() - permisos disponibles antes de renderizar sidebar
+- Corregido route param mismatch: `:id` cambiado a `:memberId` en 3 rutas de leave en router.tsx - paginas de baja/rehabilitacion ahora funcionales
 - Anadidos Breadcrumbs (Mantine) a 4 paginas internas: voluntary-leave, nonpayment-leave, reinstatement, member-subscriptions
 - Corregido await faltante en login(): applyLoginResponse se llamaba sin await, causando sidebar vacio al re-login
 - Corregidas URLs de API de tesoreria: fee-plans y subscriptions apuntaban a `/v1/fee-plans` y `/v1/member-accounts` en vez de `/v1/treasury/fee-plans` y `/v1/treasury/member-accounts`
@@ -317,7 +317,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 #### Removed
 
-- Eliminados 4 archivos de test de typed IDs redundantes (tenant-id.spec.ts, user-id.spec.ts, member-id.spec.ts, member-type-id.spec.ts) — cubiertos por tests de clase base identifier.spec.ts
+- Eliminados 4 archivos de test de typed IDs redundantes (tenant-id.spec.ts, user-id.spec.ts, member-id.spec.ts, member-type-id.spec.ts) - cubiertos por tests de clase base identifier.spec.ts
 
 ---
 
@@ -330,10 +330,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 #### Added
 
-- SDD completo (proposal, spec, design, tasks) para cambio backend-http-layer-testing — 19 tareas en 4 batches
+- SDD completo (proposal, spec, design, tasks) para cambio backend-http-layer-testing - 19 tareas en 4 batches
 - Tests HTTP integration para TenantsController (7 tests) y AuthController (12 tests) con @nestjs/testing + supertest
-- Tests de cobertura para PermissionsGuard parsePermissions() — 12 escenarios (array, JSON string, null, tipos invalidos)
-- Tests de integracion para script generate-prisma-bridges.js — 22 tests (regex, idempotencia, exports)
+- Tests de cobertura para PermissionsGuard parsePermissions() - 12 escenarios (array, JSON string, null, tipos invalidos)
+- Tests de integracion para script generate-prisma-bridges.js - 22 tests (regex, idempotencia, exports)
 - EncryptedSecret Value Object para manejo seguro de ciphertext (toString retorna [ENCRYPTED])
 - EncryptionService port e implementacion reubicados de membership a shared (cross-BC)
 - TenantCredentialService para persistir/recuperar credenciales per-tenant encriptadas (AES-256-GCM)
@@ -345,14 +345,14 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Limpiados outbox publishers (Treasury y Membership): eliminado JSON.parse(JSON.stringify(...)) innecesario sobre campo Prisma Json
 - Documentado patron @Public() + SuperadminGuard como definitivo para endpoints de bootstrap (tenants.controller.ts)
 - Regla ESLint no-restricted-syntax (ERROR) para casteos inseguros sobre campos Prisma Json (as string[], as number[])
-- PrismaTenantService.getClient() ahora async — usa credenciales per-tenant via TenantCredentialProvider (RNF-004)
+- PrismaTenantService.getClient() ahora async - usa credenciales per-tenant via TenantCredentialProvider (RNF-004)
 - ProvisionTenantHandler persiste credenciales encriptadas en DB-Main tras crear el usuario PostgreSQL
 - DatabaseProvisioningService.grantSchemaPermissions() otorga GRANT ALL sobre tablas/secuencias del tenant
 
 #### Fixed
 
 - Corregidos 6 tests de integracion rotos por fix Bug 3: eliminados JSON.parse() sobre permissions, ahora se verifican como array nativo
-- Corregido Bug 5: DomainExceptionFilter registrado como APP_FILTER en ObservabilityModule — errores de dominio ahora devuelven status codes correctos (401, 409, etc.)
+- Corregido Bug 5: DomainExceptionFilter registrado como APP_FILTER en ObservabilityModule - errores de dominio ahora devuelven status codes correctos (401, 409, etc.)
 - Corregidas assertions E2E de [401, 500] a status codes exactos tras fix Bug 5
 - Corregido saga ordering en ProvisionTenantHandler: saveTenant antes de persistCredentials (Prisma update requiere registro existente)
 - Corregido grantPermissions insuficiente: tenant user ahora recibe GRANT ALL ON ALL TABLES/SEQUENCES
@@ -386,7 +386,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Corregido interceptor Axios que secuestraba errores 401 de login (solo excluia /auth/refresh, ahora excluye todos los endpoints /auth/)
 - Corregido extractHttpStatus en login page: usaba formato Axios crudo (error.response.status) en lugar de ApiError.status
 - Fix temporal: agregado @Public() en endpoint provision de tenant para resolver chicken-and-egg entre JwtAuthGuard global y SuperadminGuard (pendiente revision con responsable backend)
-- Corregido bug en generate-prisma-bridges.js: regex sobre-escapadas (8 backslashes en vez de 4) impedian generar modelos Prisma — client.tenant/user/etc eran undefined
+- Corregido bug en generate-prisma-bridges.js: regex sobre-escapadas (8 backslashes en vez de 4) impedian generar modelos Prisma - client.tenant/user/etc eran undefined
 - Corregido extractHttpStatus en login page: usaba formato Axios crudo (error.response.status) en lugar de ApiError.status
 - Corregido Bug 3: removido JSON.stringify innecesario en database-provisioning.service.ts (Prisma auto-serializa campos Json) + defensa en profundidad en permissions.guard.ts con parsePermissions()
 
@@ -430,13 +430,13 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 #### Added
 
-- Implementada Task 0 — Brand Setup: infraestructura de identidad visual del frontend
+- Implementada Task 0 - Brand Setup: infraestructura de identidad visual del frontend
 - Creado theme definitivo Mantine en `web/src/shared/theme/associated-theme.ts` con paleta brand, tipografia Inter, spacing, shadows y 11 component defaults
 - Copiados 6 SVGs de produccion a `web/src/shared/assets/` (isotipo, logo-horizontal, logo-stacked en variantes color y white)
 - Creadas utilities de formateo: `format-money.ts` (formatMoney) y `format-date.ts` (formatDateLong, formatDateCompact)
 - Persistidos artefactos SDD completos en engram (explore, proposal, spec, design, tasks, state)
-- Creados 19 unit tests: format-money (5), format-date (4), associated-theme (10) — 21/21 tests pasan
-- Implementada Task 1 — UC-002 Autenticacion multi-tenant (Frontend): login, selector tenant, auth provider, interceptors, rutas protegidas, layout y dashboard
+- Creados 19 unit tests: format-money (5), format-date (4), associated-theme (10) - 21/21 tests pasan
+- Implementada Task 1 - UC-002 Autenticacion multi-tenant (Frontend): login, selector tenant, auth provider, interceptors, rutas protegidas, layout y dashboard
 - Creado AuthProvider con token en memoria, refresh automatico y token accessors para interceptors Axios
 - Creados schemas Zod como contratos API con tipos inferidos y type guard para respuesta dual de login
 - Creado servicio API auth con 7 funciones validadas con Zod (login, selectTenant, refreshTokens, logout, switchTenant, getCurrentUser, getMyTenants)
@@ -446,24 +446,24 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Creado AppLayout con sidebar brandDark, navbar con menu usuario y switch tenant modal
 - Creado dashboard placeholder con 4 KPI cards
 - Creados 42 unit tests: schemas (15), permissions hook (10), auth hook (3), protected-route (5), tenant-selector (4), login-page (5)
-- Implementada Task 2 — UC-017 Configuracion de planes de cuota (Frontend): CRUD completo con tabla filtrable, formulario condicional, vinculacion tipos socio, plantillas e inactivacion protegida
+- Implementada Task 2 - UC-017 Configuracion de planes de cuota (Frontend): CRUD completo con tabla filtrable, formulario condicional, vinculacion tipos socio, plantillas e inactivacion protegida
 - Creados schemas Zod para planes de cuota (11 schemas, 10 tipos, 2 enums) y API service con 9 funciones validadas
 - Creados 8 hooks TanStack Query para planes (queries + mutations con invalidacion y notificaciones)
 - Creado formulario condicional RECURRING/ONE_TIME con chips de meses de cobro y preseleccion por periodicidad
 - Creados modales: crear, editar, vincular tipos socio (radio default + orden), plantillas por colectividad, inactivacion protegida
 - Creados 48 unit tests: schemas (26), form (9), list page (7), deactivate modal (6)
 - Creados 26 unit tests adicionales: link-member-types-modal (8), import-template-modal (6), hooks use-fee-plans (4), use-create-fee-plan (4), use-deactivate-fee-plan (4)
-- Implementada Task 3 — UC-018 Gestion de suscripciones de cuota (Frontend): selector de plan, descuentos multiplicativos, cambio plan, timeline historico, exenciones
+- Implementada Task 3 - UC-018 Gestion de suscripciones de cuota (Frontend): selector de plan, descuentos multiplicativos, cambio plan, timeline historico, exenciones
 - Creada utilidad calculateEffectiveAmount() con formula multiplicativa de descuentos y desglose paso a paso
 - Creado SubscriptionSelector reutilizable con preview de importe efectivo en tiempo real
 - Creada pagina de suscripciones del socio con seccion activa + timeline historico (Mantine Timeline)
 - Creados modales: cambio plan (fecha efectiva), modificar descuento (preview), exencion temporal
 - Creados 57 unit tests: discount-calculator (14), schemas (29), subscription-selector (6), member-subscriptions-page (8)
-- Implementada Task 4 — UC-011 Alta simple de socio (Frontend): wizard 3 pasos con validacion DNI mod 23, selector tipo socio con validacion edad, confirmacion con cargo inscripcion
+- Implementada Task 4 - UC-011 Alta simple de socio (Frontend): wizard 3 pasos con validacion DNI mod 23, selector tipo socio con validacion edad, confirmacion con cargo inscripcion
 - Creada utilidad validateDni/validateNie con algoritmo mod 23 espanol y calculateAge
 - Creado wizard de alta con Mantine Stepper, useBlocker para prevencion navegacion accidental, y verificacion precondiciones
 - Creados 111 unit tests: dni-validator (57), schemas (25), personal-data-step (7), member-type-step (8), confirmation-step (8), page (6)
-- Implementada Task 5 — UC-013 Baja de socio (Frontend): baja voluntaria con fecha segun estatutos, baja por impago con workflow 5 fases, rehabilitacion con desglose costes
+- Implementada Task 5 - UC-013 Baja de socio (Frontend): baja voluntaria con fecha segun estatutos, baja por impago con workflow 5 fases, rehabilitacion con desglose costes
 - Creados componentes reutilizables StatusBadge (8 estados), StatusTimeline (historico) y LeaveActions (botones contextuales)
 - Creados 81 unit tests: schemas (22), status-badge (12), status-timeline (6), leave-actions (6), voluntary-leave (8), reinstatement (8)
 
@@ -527,10 +527,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 #### Added
 
-- Implementada UC-017: Gestion de planes de cuota (Backend) en BC-Treasury — FeePlan aggregate, Amount VO en centavos, Periodicity, controller REST
-- Implementada UC-018: Gestion de suscripciones de cuota (Backend) — MemberAccount aggregate, FeeSubscription entity, Discount VO multiplicativo, 6 endpoints REST, 105 tests
-- Implementada UC-019: Generacion masiva de cargos periodicos (Backend) — Charge entity, GenerateChargesHandler, repositorio y controller
-- Implementada UC-021: Registro de cobros (Backend) — Payment entity, RegisterPaymentHandler, ReceiptGeneratedEvent, PDF receipt service
+- Implementada UC-017: Gestion de planes de cuota (Backend) en BC-Treasury - FeePlan aggregate, Amount VO en centavos, Periodicity, controller REST
+- Implementada UC-018: Gestion de suscripciones de cuota (Backend) - MemberAccount aggregate, FeeSubscription entity, Discount VO multiplicativo, 6 endpoints REST, 105 tests
+- Implementada UC-019: Generacion masiva de cargos periodicos (Backend) - Charge entity, GenerateChargesHandler, repositorio y controller
+- Implementada UC-021: Registro de cobros (Backend) - Payment entity, RegisterPaymentHandler, ReceiptGeneratedEvent, PDF receipt service
 
 #### Changed
 
@@ -562,10 +562,10 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 #### Added
 
-- Implementada UC-010: Gestion de ejercicios fiscales (Backend) — FiscalYear aggregate, DateRange VO, CQRS handlers, controller REST
-- Implementada UC-007: Gestion de estados de socio (Backend) — Maquina de estados con transiciones validadas, StatusHistory, eventos MemberStatusChanged
-- Implementada UC-011: Proceso de alta simplificado en 3 pasos (Backend) — Flujo incremental con guardado de progreso entre pasos
-- Implementada UC-013: Baja y reingreso de socios (Backend) — Leave, Expulsion, Reinstatement con conservacion de numero de socio
+- Implementada UC-010: Gestion de ejercicios fiscales (Backend) - FiscalYear aggregate, DateRange VO, CQRS handlers, controller REST
+- Implementada UC-007: Gestion de estados de socio (Backend) - Maquina de estados con transiciones validadas, StatusHistory, eventos MemberStatusChanged
+- Implementada UC-011: Proceso de alta simplificado en 3 pasos (Backend) - Flujo incremental con guardado de progreso entre pasos
+- Implementada UC-013: Baja y reingreso de socios (Backend) - Leave, Expulsion, Reinstatement con conservacion de numero de socio
 
 #### Changed
 
@@ -628,8 +628,8 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 #### Added
 
-- Implementada UC-002: Autenticacion multi-tenant (Backend) completa en BC-Identity — User aggregate con lockout temporal, JWT strategy, 5 endpoints auth, guards globales
-- Implementada UC-008: Gestion de tipos de socio (Backend) completa en BC-Membership — MemberType aggregate, RulesEvaluator, plantillas por colectividad, 7 endpoints REST
+- Implementada UC-002: Autenticacion multi-tenant (Backend) completa en BC-Identity - User aggregate con lockout temporal, JWT strategy, 5 endpoints auth, guards globales
+- Implementada UC-008: Gestion de tipos de socio (Backend) completa en BC-Membership - MemberType aggregate, RulesEvaluator, plantillas por colectividad, 7 endpoints REST
 - Value Objects de auth: Email, Password, PasswordHash, UserId, UserStatus
 - Servicios de infraestructura: Argon2PasswordHasher, JwtTokenService, JwtStrategy
 - Repositorios Prisma: User, RefreshToken, TenantMembership, UserProfile, MemberType
@@ -663,7 +663,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 #### Added
 
-- Completada Fase 0 — Scaffold del proyecto Associated (verificacion final y merge PR #1)
+- Completada Fase 0 - Scaffold del proyecto Associated (verificacion final y merge PR #1)
 - Implementada UC-001: Provision de nuevo tenant (Backend) completa en BC-Identity
 - Value Objects de dominio: TenantId, Cif (algoritmo CIF espanol), Slug (normalizacion NFD), TenantStatus, CollectivityType
 - Tenant Aggregate con factory create(), generacion automatica de databaseName y slug

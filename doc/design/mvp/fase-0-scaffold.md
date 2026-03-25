@@ -1,4 +1,4 @@
-# Fase 0 — Scaffold del proyecto
+# Fase 0 - Scaffold del proyecto
 
 ## Información general
 
@@ -26,7 +26,7 @@
 ### Excluido
 
 - Implementación de lógica de negocio de ningún UC
-- Datos semilla (roles, permisos) — se crean en UC-001
+- Datos semilla (roles, permisos) - se crean en UC-001
 - Configuración de entornos de producción / hosting
 
 ## Dependencias
@@ -61,16 +61,16 @@ Ninguna. Esta es la primera tarea del proyecto.
 
 | Documento      | Relevancia                                                |
 | -------------- | --------------------------------------------------------- |
-| ADR-001        | Monolito modular — estructura general                     |
-| ADR-002        | Multi-tenant por BD — PrismaTenantService, esquema de BDs |
-| ADR-003        | Módulos por BC — estructura de carpetas                   |
-| ADR-004        | Domain Events in-process — EventDispatcher                |
-| ADR-005        | PostgreSQL — configuración de BD                          |
-| ADR-008        | Outbox pattern — tabla `outbox_events`, procesador        |
-| ADR-009        | Clean Architecture — capas por módulo                     |
-| ADR-010        | API REST — convenciones de endpoints y respuestas         |
-| ADR-012        | Testing — Vitest, pirámide 70/20/10                       |
-| RNFT-004       | Multi-tenant con Prisma — código de referencia            |
+| ADR-001        | Monolito modular - estructura general                     |
+| ADR-002        | Multi-tenant por BD - PrismaTenantService, esquema de BDs |
+| ADR-003        | Módulos por BC - estructura de carpetas                   |
+| ADR-004        | Domain Events in-process - EventDispatcher                |
+| ADR-005        | PostgreSQL - configuración de BD                          |
+| ADR-008        | Outbox pattern - tabla `outbox_events`, procesador        |
+| ADR-009        | Clean Architecture - capas por módulo                     |
+| ADR-010        | API REST - convenciones de endpoints y respuestas         |
+| ADR-012        | Testing - Vitest, pirámide 70/20/10                       |
+| RNFT-004       | Multi-tenant con Prisma - código de referencia            |
 | Stack completo | Versiones de dependencias y justificaciones               |
 
 ## Puntos críticos
@@ -109,7 +109,7 @@ Ninguna. Esta es la primera tarea del proyecto.
   workspaces: ["api", "web"]
   ```
 
-### Paso 2: Backend — NestJS
+### Paso 2: Backend - NestJS
 
 - Inicializar proyecto NestJS en `api/`
 - Configurar `tsconfig.json` con strict mode:
@@ -124,7 +124,7 @@ Ninguna. Esta es la primera tarea del proyecto.
   - `@nestjs/cqrs`
   - `@nestjs/schedule`
   - `uuid`, `date-fns`
-  - `argon2` (en lugar de bcrypt — UC-002 especifica Argon2)
+  - `argon2` (en lugar de bcrypt - UC-002 especifica Argon2)
 - Crear estructura de módulos por BC:
 
 ```
@@ -214,7 +214,7 @@ api/src/
 - Configurar Swagger/OpenAPI en `main.ts`
 - Verificar que la aplicación arranca correctamente
 
-### Paso 3: Shared kernel — Clases base DDD
+### Paso 3: Shared kernel - Clases base DDD
 
 - **`AggregateRoot<TId>`**: Extiende `Entity<TId>`, acumula Domain Events, expone `pullDomainEvents()` para flush
 - **`Entity<TId>`**: Identidad por ID, `equals()`, `props`
@@ -290,11 +290,11 @@ Añadir a `.env.example` (ambos workspaces):
 
 - datasource apuntando a `DATABASE_TENANT_URL` (variable, se reemplaza en runtime)
 - Modelos iniciales (mínimos, se extenderán en cada UC de F1):
-  - `OutboxEvent` (misma estructura que en main — cada BD de tenant necesita su propia outbox)
+  - `OutboxEvent` (misma estructura que en main - cada BD de tenant necesita su propia outbox)
 - Este schema sirve como template: UC-001 lo ejecutará en cada BD de tenant durante la provisión
 - Las migraciones de este schema se generan una vez y se aplican a cada tenant en provisión
 
-### Paso 7: Frontend — React + Vite + Mantine
+### Paso 7: Frontend - React + Vite + Mantine
 
 - Crear proyecto Vite con template `react-ts` en `web/`
 - Instalar dependencias:
@@ -303,7 +303,7 @@ Añadir a `.env.example` (ambos workspaces):
   - `@tanstack/react-query`
   - `react-router`
   - `axios`
-  - `zod` (validación de schemas en runtime — RNF-008)
+  - `zod` (validación de schemas en runtime - RNF-008)
   - `@sentry/react` (adaptador de observabilidad)
   - `react-i18next`, `i18next`
 - Crear estructura de features:
@@ -379,7 +379,7 @@ Crear `docker-compose.yml` en la raíz:
 - Base URL `http://localhost:5173`
 - Script: `test:e2e`
 
-### Paso 10: CI/CD — GitHub Actions
+### Paso 10: CI/CD - GitHub Actions
 
 Crear `.github/workflows/ci.yml`:
 

@@ -9,15 +9,15 @@
 
 ## Resumen de la Sesion
 
-Sesion de completado de Fase 0 (scaffold), correccion critica de Prisma 7 (P1012), merge del PR de Fase 0, e implementacion completa de Task 1 — UC-001: Provision de nuevo tenant (Backend) en BC-Identity.
+Sesion de completado de Fase 0 (scaffold), correccion critica de Prisma 7 (P1012), merge del PR de Fase 0, e implementacion completa de Task 1 - UC-001: Provision de nuevo tenant (Backend) en BC-Identity.
 
 ---
 
 ## Objetivos
 
-- [x] Completar Fase 0 — Scaffold (verificacion final y merge PR)
+- [x] Completar Fase 0 - Scaffold (verificacion final y merge PR)
 - [x] Corregir error critico de Prisma 7 (P1012)
-- [x] Implementar Task 1 — UC-001: Provision de nuevo tenant (Backend)
+- [x] Implementar Task 1 - UC-001: Provision de nuevo tenant (Backend)
 
 ---
 
@@ -30,15 +30,15 @@ Correccion del error P1012 de Prisma 7 que impedia la generacion de clientes y l
 
 **Archivos creados:**
 
-- `api/prisma.config.main.ts` — Configuracion Prisma 7 para schema principal
-- `api/prisma.config.tenant.ts` — Configuracion Prisma 7 para schema tenant
+- `api/prisma.config.main.ts` - Configuracion Prisma 7 para schema principal
+- `api/prisma.config.tenant.ts` - Configuracion Prisma 7 para schema tenant
 
 **Archivos modificados:**
 
-- `api/prisma/main/schema.prisma` — Eliminado `url` del datasource, provider cambiado a `prisma-client`
-- `api/prisma/tenant/schema.prisma` — Misma correccion
-- `api/prisma.config.ts` — Actualizado para Prisma 7
-- `api/package.json` — Scripts y dependencias actualizados
+- `api/prisma/main/schema.prisma` - Eliminado `url` del datasource, provider cambiado a `prisma-client`
+- `api/prisma/tenant/schema.prisma` - Misma correccion
+- `api/prisma.config.ts` - Actualizado para Prisma 7
+- `api/package.json` - Scripts y dependencias actualizados
 
 **Decisiones tecnicas:**
 
@@ -49,8 +49,8 @@ Correccion del error P1012 de Prisma 7 que impedia la generacion de clientes y l
 
 **Resultados:**
 
-- Commit `3424bf4` — Prisma genera clientes correctamente
-- Commit `83105c5` — Scaffold de React/Vite/Mantine
+- Commit `3424bf4` - Prisma genera clientes correctamente
+- Commit `83105c5` - Scaffold de React/Vite/Mantine
 
 ---
 
@@ -61,7 +61,7 @@ Merge del PR #1 de fase-0-scaffold. La Fase 0 queda completamente terminada y co
 
 **Resultados:**
 
-- Commit `536927a` — Merge PR #1 fase-0-scaffold
+- Commit `536927a` - Merge PR #1 fase-0-scaffold
 
 ---
 
@@ -72,41 +72,41 @@ Implementacion completa del caso de uso UC-001: provision de nuevo tenant. Inclu
 
 **Archivos creados:**
 
-- `api/src/identity/domain/value-objects/tenant-id.ts` — Identifier con create() y fromString()
-- `api/src/identity/domain/value-objects/cif.ts` — VO con algoritmo CIF espanol completo
-- `api/src/identity/domain/value-objects/slug.ts` — VO con normalizacion NFD
-- `api/src/identity/domain/value-objects/tenant-status.ts` — Enum ACTIVE/SUSPENDED/DEPROVISIONED
-- `api/src/identity/domain/value-objects/collectivity-type.ts` — Enum PENA/COFRADIA/CLUB_DEPORTIVO/ASOCIACION_CULTURAL
-- `api/src/identity/domain/aggregates/tenant.ts` — AggregateRoot con factory create()
-- `api/src/identity/domain/events/tenant-provisioned.event.ts` — Evento de dominio
-- `api/src/identity/domain/events/user-created.event.ts` — Evento de dominio
-- `api/src/identity/domain/repositories/tenant.repository.ts` — Interfaz + symbol DI
-- `api/src/identity/application/commands/provision-tenant.command.ts` — Command CQRS
-- `api/src/identity/application/commands/provision-tenant.handler.ts` — Handler saga 10 pasos + rollback
-- `api/src/identity/application/dtos/provision-tenant.dto.ts` — DTO con class-validator
-- `api/src/identity/infrastructure/persistence/prisma-tenant.repository.ts` — Repositorio Prisma
-- `api/src/identity/infrastructure/persistence/tenant.mapper.ts` — Mapper bidireccional
-- `api/src/identity/infrastructure/services/database-provisioning.service.ts` — DDL directo pg.Client
-- `api/src/identity/infrastructure/controllers/tenant.controller.ts` — Controller REST
+- `api/src/identity/domain/value-objects/tenant-id.ts` - Identifier con create() y fromString()
+- `api/src/identity/domain/value-objects/cif.ts` - VO con algoritmo CIF espanol completo
+- `api/src/identity/domain/value-objects/slug.ts` - VO con normalizacion NFD
+- `api/src/identity/domain/value-objects/tenant-status.ts` - Enum ACTIVE/SUSPENDED/DEPROVISIONED
+- `api/src/identity/domain/value-objects/collectivity-type.ts` - Enum PENA/COFRADIA/CLUB_DEPORTIVO/ASOCIACION_CULTURAL
+- `api/src/identity/domain/aggregates/tenant.ts` - AggregateRoot con factory create()
+- `api/src/identity/domain/events/tenant-provisioned.event.ts` - Evento de dominio
+- `api/src/identity/domain/events/user-created.event.ts` - Evento de dominio
+- `api/src/identity/domain/repositories/tenant.repository.ts` - Interfaz + symbol DI
+- `api/src/identity/application/commands/provision-tenant.command.ts` - Command CQRS
+- `api/src/identity/application/commands/provision-tenant.handler.ts` - Handler saga 10 pasos + rollback
+- `api/src/identity/application/dtos/provision-tenant.dto.ts` - DTO con class-validator
+- `api/src/identity/infrastructure/persistence/prisma-tenant.repository.ts` - Repositorio Prisma
+- `api/src/identity/infrastructure/persistence/tenant.mapper.ts` - Mapper bidireccional
+- `api/src/identity/infrastructure/services/database-provisioning.service.ts` - DDL directo pg.Client
+- `api/src/identity/infrastructure/controllers/tenant.controller.ts` - Controller REST
 - Tests unitarios y de integracion en `api/src/identity/`
 
 **Decisiones tecnicas:**
 
-- CIF B12345678 del enunciado es invalido — el digito de control correcto es 4 (B12345674)
+- CIF B12345678 del enunciado es invalido - el digito de control correcto es 4 (B12345674)
 - Los roles de sistema se seedean en DB-Main (tabla roles con tenant_id), no en BD del tenant
 - `prisma migrate deploy` con execSync para aplicar migraciones a conexiones dinamicas
 - Saga compensatoria completa con rollback idempotente (FE-1)
 
 **Resultados:**
 
-- Commit `3ef6410` — UC-001 completo con dominio, aplicacion e infraestructura
+- Commit `3ef6410` - UC-001 completo con dominio, aplicacion e infraestructura
 - Tests unitarios y de integracion en verde
 
 ---
 
 ## Proximos Pasos
 
-- [ ] Implementar Task 2 — UC-002: Autenticacion multi-tenant (Backend)
+- [ ] Implementar Task 2 - UC-002: Autenticacion multi-tenant (Backend)
 - [ ] Ampliar tests de integracion contra BD real
 
 ---

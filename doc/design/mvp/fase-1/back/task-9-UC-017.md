@@ -1,4 +1,4 @@
-# Task 9 — UC-017: Configuración de planes de cuota (Backend)
+# Task 9 - UC-017: Configuración de planes de cuota (Backend)
 
 ## Información general
 
@@ -49,12 +49,12 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
-| **F1-Back Task 1 — UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados |
-| **F1-Back Task 2 — UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT |
-| **F1-Back Task 3 — UC-008** | Aggregate `MemberType` (dominio), modelo `MemberType` en schema tenant Prisma, tipos de socio configurados para vincular planes |
+| Tarea                       | Artefacto necesario                                                                                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**       | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
+| **F1-Back Task 1 - UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados                                                                              |
+| **F1-Back Task 2 - UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT                                          |
+| **F1-Back Task 3 - UC-008** | Aggregate `MemberType` (dominio), modelo `MemberType` en schema tenant Prisma, tipos de socio configurados para vincular planes                                                   |
 
 ### Checklist de verificación de dependencias
 
@@ -74,28 +74,28 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Aggregate `FeePlan` (dominio) | UC-018 (suscripciones: consultar plan para calcular importes), UC-019 (generación de cargos: leer billingMonths y amount) |
-| Entity `MemberTypeFeePlan` (dominio) | UC-018 (filtrar planes disponibles por tipo de socio), UC-011 (mostrar planes al dar de alta) |
-| Modelo `FeePlan` en schema tenant Prisma | Todos los UCs de BC-Treasury que referencien planes de cuota |
-| Modelo `MemberTypeFeePlan` en schema tenant Prisma | UC-018 (resolver vinculación plan-tipo) |
-| Puerto `MemberTypeQueryPort` | Reutilizable por UC-018, UC-019 para consultar datos de BC-Membership |
-| Endpoints REST de planes de cuota | Frontend UC-017, testing manual |
-| Evento `FeePlanCreated` | BC-Membership (invalidar caché de planes disponibles) |
-| Evento `FeePlanLinkedToMemberType` | BC-Membership (actualizar planes vinculados a tipos) |
+| Artefacto                                          | Consumido por                                                                                                             |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Aggregate `FeePlan` (dominio)                      | UC-018 (suscripciones: consultar plan para calcular importes), UC-019 (generación de cargos: leer billingMonths y amount) |
+| Entity `MemberTypeFeePlan` (dominio)               | UC-018 (filtrar planes disponibles por tipo de socio), UC-011 (mostrar planes al dar de alta)                             |
+| Modelo `FeePlan` en schema tenant Prisma           | Todos los UCs de BC-Treasury que referencien planes de cuota                                                              |
+| Modelo `MemberTypeFeePlan` en schema tenant Prisma | UC-018 (resolver vinculación plan-tipo)                                                                                   |
+| Puerto `MemberTypeQueryPort`                       | Reutilizable por UC-018, UC-019 para consultar datos de BC-Membership                                                     |
+| Endpoints REST de planes de cuota                  | Frontend UC-017, testing manual                                                                                           |
+| Evento `FeePlanCreated`                            | BC-Membership (invalidar caché de planes disponibles)                                                                     |
+| Evento `FeePlanLinkedToMemberType`                 | BC-Membership (actualizar planes vinculados a tipos)                                                                      |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-017.md` | Flujo completo de creación de planes, vinculación a tipos, plantillas predefinidas, flujos alternativos y excepciones |
-| `us/us-043.md` | Criterios de aceptación Gherkin: planes periódicos, trimestrales, únicos, importes no proporcionales |
-| `us/us-044.md` | Criterios de aceptación Gherkin: vinculación de planes a tipos con isDefault y orden, planes diferenciados por tipo |
-| `bc/bc-treasury.md` | Aggregate FeePlan — estructura, propiedades, invariantes, Value Objects (Money, Frequency, PlanType, BillingMonths) |
-| `bc/bc-treasury.md` | Entity MemberTypeFeePlan — estructura, propiedades, invariantes (solo 1 default por tipo) |
-| `adr/adr-002.md` | Estrategia multi-tenant por BD, acceso via PrismaTenantService |
-| `adr/adr-008.md` | Outbox pattern para Domain Events |
+| Documento           | Contenido relevante                                                                                                   |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `uc/uc-017.md`      | Flujo completo de creación de planes, vinculación a tipos, plantillas predefinidas, flujos alternativos y excepciones |
+| `us/us-043.md`      | Criterios de aceptación Gherkin: planes periódicos, trimestrales, únicos, importes no proporcionales                  |
+| `us/us-044.md`      | Criterios de aceptación Gherkin: vinculación de planes a tipos con isDefault y orden, planes diferenciados por tipo   |
+| `bc/bc-treasury.md` | Aggregate FeePlan - estructura, propiedades, invariantes, Value Objects (Money, Frequency, PlanType, BillingMonths)   |
+| `bc/bc-treasury.md` | Entity MemberTypeFeePlan - estructura, propiedades, invariantes (solo 1 default por tipo)                             |
+| `adr/adr-002.md`    | Estrategia multi-tenant por BD, acceso via PrismaTenantService                                                        |
+| `adr/adr-008.md`    | Outbox pattern para Domain Events                                                                                     |
 
 ## Puntos críticos
 
@@ -111,16 +111,16 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Importes monetarios con errores de floating point | Alta | Alto | Usar centavos (integer) en Value Object `Money`. `amount` almacena centavos, conversión a euros solo en presentación |
-| Plantillas predefinidas no cubren tipos de colectividad reales | Media | Bajo | Permitir personalización completa; las plantillas son punto de partida, no obligatorias |
-| Vinculación plan-tipo inconsistente tras desactivar tipo de socio | Baja | Medio | Validar en el handler que el tipo de socio referenciado esté activo al crear vinculación. No bloquear si el tipo se desactiva después (las suscripciones existentes continúan) |
-| Consulta de tipos de socio desde BC-Treasury falla si BC-Membership no tiene datos | Baja | Bajo | Retornar lista vacía si no hay tipos. Mostrar mensaje informativo en respuesta |
+| Riesgo                                                                             | Probabilidad | Impacto | Mitigación                                                                                                                                                                     |
+| ---------------------------------------------------------------------------------- | ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Importes monetarios con errores de floating point                                  | Alta         | Alto    | Usar centavos (integer) en Value Object `Money`. `amount` almacena centavos, conversión a euros solo en presentación                                                           |
+| Plantillas predefinidas no cubren tipos de colectividad reales                     | Media        | Bajo    | Permitir personalización completa; las plantillas son punto de partida, no obligatorias                                                                                        |
+| Vinculación plan-tipo inconsistente tras desactivar tipo de socio                  | Baja         | Medio   | Validar en el handler que el tipo de socio referenciado esté activo al crear vinculación. No bloquear si el tipo se desactiva después (las suscripciones existentes continúan) |
+| Consulta de tipos de socio desde BC-Treasury falla si BC-Membership no tiene datos | Baja         | Bajo    | Retornar lista vacía si no hay tipos. Mostrar mensaje informativo en respuesta                                                                                                 |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects
+### Paso 1: Capa de dominio - Value Objects
 
 Crear en `api/src/treasury/domain/value-objects/`:
 
@@ -133,7 +133,7 @@ Crear en `api/src/treasury/domain/value-objects/`:
 
 Tests unitarios: validación de `FeePlanCode` (válido, inválido, vacío, demasiado largo), validación de `Money` (positivo, cero, negativo rechazado, operaciones aritméticas en centavos), validación de `BillingMonths` (rango válido, duplicados, valores fuera de rango, array vacío).
 
-### Paso 2: Capa de dominio — Aggregate FeePlan
+### Paso 2: Capa de dominio - Aggregate FeePlan
 
 Crear en `api/src/treasury/domain/aggregates/fee-plan.ts`:
 
@@ -166,7 +166,7 @@ Crear en `api/src/treasury/domain/aggregates/fee-plan.ts`:
 
 Tests unitarios: creación de plan periódico válido, creación de plan único válido, rechazo de plan periódico sin billingMonths, rechazo de plan único con billingMonths, rechazo con código inválido, actualización de propiedades, desactivación, verificación de mes de cobro.
 
-### Paso 3: Capa de dominio — Entity MemberTypeFeePlan
+### Paso 3: Capa de dominio - Entity MemberTypeFeePlan
 
 Crear en `api/src/treasury/domain/entities/member-type-fee-plan.ts`:
 
@@ -183,7 +183,7 @@ Crear en `api/src/treasury/domain/entities/member-type-fee-plan.ts`:
 
 Tests unitarios: creación válida, valores por defecto correctos.
 
-### Paso 4: Capa de dominio — Domain Events
+### Paso 4: Capa de dominio - Domain Events
 
 Crear en `api/src/treasury/domain/events/`:
 
@@ -191,7 +191,7 @@ Crear en `api/src/treasury/domain/events/`:
 - **`FeePlanModifiedEvent`**: Extiende `DomainEvent`. Payload: `{ feePlanId: UUID, modifiedFields: string[], modificationDate: Date }`
 - **`FeePlanLinkedToMemberTypeEvent`**: Extiende `DomainEvent`. Payload: `{ feePlanId: UUID, memberTypeId: UUID, isDefault: boolean, linkDate: Date }`
 
-### Paso 5: Capa de dominio — Puertos e interfaces
+### Paso 5: Capa de dominio - Puertos e interfaces
 
 Crear en `api/src/treasury/domain/ports/`:
 
@@ -217,11 +217,12 @@ Crear en `api/src/treasury/domain/repositories/`:
   - `findDefault(memberTypeId: string): Promise<MemberTypeFeePlan | null>`
   - `deleteByFeePlanId(feePlanId: FeePlanId): Promise<void>`
 
-### Paso 6: Capa de aplicación — Commands, Queries y DTOs
+### Paso 6: Capa de aplicación - Commands, Queries y DTOs
 
 Crear en `api/src/treasury/application/`:
 
 **Commands:**
+
 - **`CreateFeePlanCommand`**: `{ code, name, description, type, frequency, amount, billingMonths }`
 - **`UpdateFeePlanCommand`**: `{ feePlanId, name, description, type, frequency, amount, billingMonths }`
 - **`DeactivateFeePlanCommand`**: `{ feePlanId }`
@@ -229,18 +230,20 @@ Crear en `api/src/treasury/application/`:
 - **`ImportFeePlanTemplateCommand`**: `{ collectivityType }`
 
 **Queries:**
+
 - **`GetFeePlanQuery`**: `{ feePlanId }`
 - **`ListFeePlansQuery`**: `{ active?: boolean }`
 - **`GetFeePlanTemplatesQuery`**: `{ collectivityType }`
 
 **DTOs:**
+
 - **`CreateFeePlanDto`**: DTO de entrada con validaciones `class-validator`: `@IsNotEmpty()` para code/name, `@IsEnum(PlanType)` para type, `@IsEnum(Frequency)` para frequency, `@IsInt()` `@Min(0)` para amount (centavos), `@IsArray()` `@ArrayMinSize(1)` para billingMonths (condicional si RECURRING), `@IsOptional()` para description
 - **`UpdateFeePlanDto`**: DTO de entrada parcial (mismos campos, opcionales excepto feePlanId)
 - **`LinkMemberTypesDto`**: DTO de entrada: `@IsArray()` de objetos con `@IsUUID()` memberTypeId, `@IsBoolean()` isDefault, `@IsInt()` `@Min(0)` order
 - **`FeePlanResponseDto`**: DTO de salida: `id`, `code`, `name`, `description`, `type`, `frequency`, `amount` (centavos), `amountFormatted` (euros con 2 decimales), `billingMonths`, `active`, `linkedMemberTypes`, `createdAt`, `updatedAt`
 - **`FeePlanTemplateDto`**: DTO de salida para plantillas: `collectivityType`, `templates: Array<{ code, name, type, frequency, amount, billingMonths }>`
 
-### Paso 7: Capa de aplicación — Handlers
+### Paso 7: Capa de aplicación - Handlers
 
 **`CreateFeePlanHandler`:**
 
@@ -256,6 +259,7 @@ Crear en `api/src/treasury/application/`:
 7. Retornar `FeePlanResponseDto`
 
 **En caso de fallo:**
+
 - Reportar excepción vía `ErrorReporter.captureException()` con contexto del paso fallido
 
 **`UpdateFeePlanHandler`:**
@@ -295,7 +299,7 @@ Crear en `api/src/treasury/application/`:
 2. Para cada plantilla: crear `FeePlan` y guardar
 3. Retornar lista de planes creados
 
-### Paso 8: Capa de infraestructura — Schema Prisma (tenant)
+### Paso 8: Capa de infraestructura - Schema Prisma (tenant)
 
 Extender `api/prisma/tenant/schema.prisma` con:
 
@@ -334,7 +338,7 @@ model MemberTypeFeePlan {
 
 Nota: El campo `amount` almacena centavos (integer) para evitar problemas de floating point. La columna `billing_months` usa array nativo de PostgreSQL (`Int[]`).
 
-### Paso 9: Capa de infraestructura — Repository (Prisma) y Puertos
+### Paso 9: Capa de infraestructura - Repository (Prisma) y Puertos
 
 Crear en `api/src/treasury/infrastructure/persistence/`:
 
@@ -347,7 +351,7 @@ Crear en `api/src/treasury/infrastructure/ports/`:
 
 - **`PrismaMemberTypeQueryAdapter`**: Implementa `MemberTypeQueryPort`. Consulta la tabla `member_types` de la BD del tenant via `PrismaTenantService.getClient(tenantId)`. NO importa repositorios de BC-Membership
 
-### Paso 10: Capa de infraestructura — Plantillas predefinidas
+### Paso 10: Capa de infraestructura - Plantillas predefinidas
 
 Crear en `api/src/treasury/infrastructure/data/fee-plan-templates.ts`:
 
@@ -355,20 +359,20 @@ Crear en `api/src/treasury/infrastructure/data/fee-plan-templates.ts`:
 - **Cofradías:** Trimestral (3500 cents = 35€, meses [1,4,7,10]), Semestral (6500 cents = 65€, meses [1,7]), Anual (12000 cents = 120€, meses [1])
 - **Clubes deportivos:** Temporada (15000 cents = 150€, meses [9]), Mensual (1500 cents = 15€, meses [9,10,11,12,1,2,3,4,5,6,7,8])
 
-### Paso 11: Capa de infraestructura — Controller
+### Paso 11: Capa de infraestructura - Controller
 
 Crear en `api/src/treasury/infrastructure/controllers/fee-plans.controller.ts`:
 
-| Endpoint | Método | Auth | Permiso | Body/Params | Response |
-|----------|--------|------|---------|-------------|----------|
-| `/api/v1/treasury/fee-plans` | POST | JWT | `treasury:fee-plans:create` | `CreateFeePlanDto` | 201 Created con `FeePlanResponseDto` |
-| `/api/v1/treasury/fee-plans` | GET | JWT | `treasury:fee-plans:read` | Query: `?active=true` | 200 con `FeePlanResponseDto[]` |
-| `/api/v1/treasury/fee-plans/templates` | GET | JWT | `treasury:fee-plans:read` | Query: `?collectivityType=COFRADIA` | 200 con `FeePlanTemplateDto` |
-| `/api/v1/treasury/fee-plans/import-template` | POST | JWT | `treasury:fee-plans:create` | `{ collectivityType }` | 201 Created con `FeePlanResponseDto[]` |
-| `/api/v1/treasury/fee-plans/:id` | GET | JWT | `treasury:fee-plans:read` | Param: `id` | 200 con `FeePlanResponseDto` |
-| `/api/v1/treasury/fee-plans/:id` | PUT | JWT | `treasury:fee-plans:update` | `UpdateFeePlanDto` | 200 con `FeePlanResponseDto` |
-| `/api/v1/treasury/fee-plans/:id/deactivate` | PATCH | JWT | `treasury:fee-plans:update` | — | 200 confirmación |
-| `/api/v1/treasury/fee-plans/:id/link-member-types` | POST | JWT | `treasury:fee-plans:update` | `LinkMemberTypesDto` | 200 con `{ linkedCount: number }` |
+| Endpoint                                           | Método | Auth | Permiso                     | Body/Params                         | Response                               |
+| -------------------------------------------------- | ------ | ---- | --------------------------- | ----------------------------------- | -------------------------------------- |
+| `/api/v1/treasury/fee-plans`                       | POST   | JWT  | `treasury:fee-plans:create` | `CreateFeePlanDto`                  | 201 Created con `FeePlanResponseDto`   |
+| `/api/v1/treasury/fee-plans`                       | GET    | JWT  | `treasury:fee-plans:read`   | Query: `?active=true`               | 200 con `FeePlanResponseDto[]`         |
+| `/api/v1/treasury/fee-plans/templates`             | GET    | JWT  | `treasury:fee-plans:read`   | Query: `?collectivityType=COFRADIA` | 200 con `FeePlanTemplateDto`           |
+| `/api/v1/treasury/fee-plans/import-template`       | POST   | JWT  | `treasury:fee-plans:create` | `{ collectivityType }`              | 201 Created con `FeePlanResponseDto[]` |
+| `/api/v1/treasury/fee-plans/:id`                   | GET    | JWT  | `treasury:fee-plans:read`   | Param: `id`                         | 200 con `FeePlanResponseDto`           |
+| `/api/v1/treasury/fee-plans/:id`                   | PUT    | JWT  | `treasury:fee-plans:update` | `UpdateFeePlanDto`                  | 200 con `FeePlanResponseDto`           |
+| `/api/v1/treasury/fee-plans/:id/deactivate`        | PATCH  | JWT  | `treasury:fee-plans:update` | -                                   | 200 confirmación                       |
+| `/api/v1/treasury/fee-plans/:id/link-member-types` | POST   | JWT  | `treasury:fee-plans:update` | `LinkMemberTypesDto`                | 200 con `{ linkedCount: number }`      |
 
 - Swagger decorators para documentación automática
 - Errores: 409 Conflict (código duplicado), 404 Not Found (plan no encontrado), 422 Unprocessable Entity (billingMonths inválidos, plan con suscripciones activas)
@@ -376,6 +380,7 @@ Crear en `api/src/treasury/infrastructure/controllers/fee-plans.controller.ts`:
 ### Paso 12: Tests
 
 **Tests unitarios (dominio):**
+
 - `FeePlan.create()` con datos válidos (plan periódico) → plan creado + evento emitido
 - `FeePlan.create()` con datos válidos (plan único) → plan creado + billingMonths vacío
 - `FeePlan.create()` con código inválido → error de validación
@@ -392,6 +397,7 @@ Crear en `api/src/treasury/infrastructure/controllers/fee-plans.controller.ts`:
 - `MemberTypeFeePlan.create()` → creación válida
 
 **Tests unitarios (aplicación):**
+
 - `CreateFeePlanHandler` con mock de `FeePlanRepository`:
   - Caso éxito: plan periódico creado con datos válidos
   - Caso éxito: plan único creado
@@ -412,6 +418,7 @@ Crear en `api/src/treasury/infrastructure/controllers/fee-plans.controller.ts`:
   - Caso éxito: plantillas importadas para cada tipo de colectividad
 
 **Tests de integración:**
+
 - CRUD completo contra BD real (Testcontainers):
   - Crear plan periódico → verificar persistencia correcta (amount en centavos, billingMonths como array)
   - Crear plan con código duplicado → verificar rechazo (constraint UNIQUE)

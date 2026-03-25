@@ -6,7 +6,7 @@ Se abordaron 6 issues P1 de la auditoria frontend-fase1 donde funcionalidad exis
 
 ## Issues abordados
 
-### P1-4: LinkMemberTypesModal sin cablear — FIXED
+### P1-4: LinkMemberTypesModal sin cablear - FIXED
 
 - **Estado**: FIXED
 - **Archivos modificados**: `web/src/features/treasury/fee-plans/pages/fee-plans-list.page.tsx`
@@ -19,25 +19,25 @@ Se abordaron 6 issues P1 de la auditoria frontend-fase1 donde funcionalidad exis
   - Renderizado `LinkMemberTypesModal` con conditional rendering `{selectedPlan && ...}`
 - **Nota**: El backend `GetFeePlanHandler.fromDomain()` no mapea `linkedMemberTypes` actualmente. El frontend pasa `planDetail?.linkedMemberTypes ?? []` que fallback a array vacio via Zod optional parse. El modal funciona correctamente para crear nuevas vinculaciones.
 
-### P1-5: DeactivateFeePlanModal con 0 suscripciones — POSTPONED
+### P1-5: DeactivateFeePlanModal con 0 suscripciones - POSTPONED
 
 - **Estado**: POSTPONED
 - **Justificacion**: El backend solo expone `hasActiveSubscriptions(boolean)` en el repositorio, utilizado internamente por `DeactivateFeePlanHandler` para lanzar `FeePlanHasActiveSubscriptionsError`. No existe un endpoint ni campo en `FeePlanResponseDto` que devuelva el conteo de suscripciones activas. La API de listado (`GET /v1/treasury/fee-plans`) retorna `FeePlan[]` sin este dato.
 - **Accion requerida**: Backend debe agregar `activeSubscriptionsCount: number` a `FeePlanResponseDto` o crear endpoint `GET /v1/treasury/fee-plans/:id/subscriptions-count`.
 
-### P1-8: Boton "Cancelar Baja - Regularizacion" sin handler — BLOCKED (mitigado)
+### P1-8: Boton "Cancelar Baja - Regularizacion" sin handler - BLOCKED (mitigado)
 
-- **Estado**: BLOCKED — requiere endpoint backend
+- **Estado**: BLOCKED - requiere endpoint backend
 - **Archivos modificados**: `web/src/features/membership/leave/pages/nonpayment-leave.page.tsx`
 - **Cambios**:
   - Importado `Tooltip` de Mantine
-  - Boton cambiado a `disabled` con `Tooltip` wrapper explicativo: "Funcionalidad pendiente — requiere endpoint de backend"
+  - Boton cambiado a `disabled` con `Tooltip` wrapper explicativo: "Funcionalidad pendiente - requiere endpoint de backend"
 - **Endpoint requerido**: `POST /v1/members/:id/cancel-nonpayment-leave` que regularice la deuda y revierta el estado del socio a ACTIVE.
 - **Verificacion**: No existe ningun endpoint `cancel*leave` ni `regulariz*` en `api/src/membership/infrastructure/controllers/`.
 
-### P1-9: Falta boton "Generar Certificado PDF" — BLOCKED (mitigado)
+### P1-9: Falta boton "Generar Certificado PDF" - BLOCKED (mitigado)
 
-- **Estado**: BLOCKED — requiere endpoint backend
+- **Estado**: BLOCKED - requiere endpoint backend
 - **Archivos modificados**: `web/src/features/membership/leave/pages/nonpayment-leave.page.tsx`
 - **Cambios**:
   - Agregado boton `disabled` "Generar Certificado PDF" con `Tooltip` en la seccion del certificado de descubierto
@@ -45,7 +45,7 @@ Se abordaron 6 issues P1 de la auditoria frontend-fase1 donde funcionalidad exis
 - **Endpoint requerido**: `GET /v1/members/:id/nonpayment-certificate` (o similar) que genere y retorne un PDF.
 - **Verificacion**: En treasury existe `receipt-generator.ts` para recibos de pago, pero NO hay generador de certificados de descubierto en membership.
 
-### P1-10: Falta alerta de workflow incompleto — FIXED
+### P1-10: Falta alerta de workflow incompleto - FIXED
 
 - **Estado**: FIXED
 - **Archivos modificados**: `web/src/features/membership/leave/pages/nonpayment-leave.page.tsx`
@@ -54,7 +54,7 @@ Se abordaron 6 issues P1 de la auditoria frontend-fase1 donde funcionalidad exis
   - Texto informativo: las 5 fases son obligatorias, el seguimiento se gestiona desde backend
 - **Nota**: El `DelinquencyTimeline` muestra todas las fases como "Pendiente" (active={-1}) porque el backend no proporciona datos de completitud de fases. Cuando el backend implemente el tracking de workflow, se podra alimentar el timeline con datos reales.
 
-### P1-11: DNI falta en datos del socio — FIXED (frontend-ready)
+### P1-11: DNI falta en datos del socio - FIXED (frontend-ready)
 
 - **Estado**: FIXED (frontend preparado, backend pendiente de enviar el campo)
 - **Archivos modificados**:
@@ -82,7 +82,7 @@ Se abordaron 6 issues P1 de la auditoria frontend-fase1 donde funcionalidad exis
 
 - **Total**: 428 tests (37 test files + 1 failing)
 - **Passed**: 427
-- **Failed**: 1 (pre-existente — `personal-data-step.spec.tsx` fallo de atributo `type="date"` en input, no relacionado con SDD-4)
+- **Failed**: 1 (pre-existente - `personal-data-step.spec.tsx` fallo de atributo `type="date"` en input, no relacionado con SDD-4)
 - **Regressions introducidas**: 0
 - **Tiempo**: 9.87s
 

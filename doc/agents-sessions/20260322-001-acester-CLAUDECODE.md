@@ -36,23 +36,23 @@ Reescritura completa del README.md del proyecto con informacion detallada sobre 
 colectividades espanolas, el stack tecnologico completo, la arquitectura del proyecto, y las
 instrucciones de uso.
 
-**Commit:** `9f94f03` — doc(readme): actualizar README del proyecto
+**Commit:** `9f94f03` - doc(readme): actualizar README del proyecto
 **Estadisticas:** 272 inserciones, 30 eliminaciones
 
 **Archivos modificados:**
 
-- `README.md` — Contenido completamente renovado: descripcion del proyecto, tabla de stack, estructura de directorios, instrucciones de setup, comandos utiles
+- `README.md` - Contenido completamente renovado: descripcion del proyecto, tabla de stack, estructura de directorios, instrucciones de setup, comandos utiles
 
 ### 00:50 - Mejora formato README
 
 **Descripcion:**
 Ajustes de formato en badges y tablas del README para mejorar la presentacion visual en GitHub.
 
-**Commit:** `7693101` — doc(readme): mejorar formato de badges y tablas
+**Commit:** `7693101` - doc(readme): mejorar formato de badges y tablas
 
 **Archivos modificados:**
 
-- `README.md` — Badges alineados, tablas reformateadas
+- `README.md` - Badges alineados, tablas reformateadas
 
 ### 01:13 - Resolucion errores TypeScript typecheck
 
@@ -60,33 +60,33 @@ Ajustes de formato en badges y tablas del README para mejorar la presentacion vi
 Correccion de 4 errores de TypeScript detectados por `tsc --noEmit`, mas eliminacion del hook
 obsoleto `use-auth.ts` (71 lineas) que ya no era necesario tras la reestructuracion del auth provider.
 
-**Commit:** `52b6285` — fix(web): resolve 4 TypeScript typecheck errors
+**Commit:** `52b6285` - fix(web): resolve 4 TypeScript typecheck errors
 **Estadisticas:** 5 archivos, 4 inserciones, 75 eliminaciones
 
 **Archivos modificados:**
 
-- `web/src/features/membership/leave/pages/nonpayment-leave.page.tsx` — eliminado `openConfirm` no usado de useDisclosure
-- `web/src/features/membership/registration/components/personal-data-step.tsx` — non-null assertion para birthDate
-- `web/src/features/membership/registration/pages/simple-registration.page.tsx` — eliminado import `useRef` no usado
-- `web/src/features/treasury/fee-plans/schemas/fee-plan.schemas.ts` — eliminada comparacion imposible con string vacio
-- `web/src/shared/hooks/use-auth.ts` — ELIMINADO (hook obsoleto, 71 lineas)
+- `web/src/features/membership/leave/pages/nonpayment-leave.page.tsx` - eliminado `openConfirm` no usado de useDisclosure
+- `web/src/features/membership/registration/components/personal-data-step.tsx` - non-null assertion para birthDate
+- `web/src/features/membership/registration/pages/simple-registration.page.tsx` - eliminado import `useRef` no usado
+- `web/src/features/treasury/fee-plans/schemas/fee-plan.schemas.ts` - eliminada comparacion imposible con string vacio
+- `web/src/shared/hooks/use-auth.ts` - ELIMINADO (hook obsoleto, 71 lineas)
 
 ### 02:46 - Banner del proyecto en README
 
 **Descripcion:**
 Creacion e incorporacion de un banner visual SVG y PNG para el README del proyecto.
 
-**Commit:** `cd2af50` — doc(readme): incorporar banner al README.md
+**Commit:** `cd2af50` - doc(readme): incorporar banner al README.md
 **Estadisticas:** 1446 inserciones (SVG con 1442 lineas)
 
 **Archivos creados:**
 
-- `doc/brand/assets/banner-associated.svg` — Banner vectorial del proyecto
-- `doc/brand/assets/banner-associated.png` — Version rasterizada del banner
+- `doc/brand/assets/banner-associated.svg` - Banner vectorial del proyecto
+- `doc/brand/assets/banner-associated.png` - Version rasterizada del banner
 
 **Archivos modificados:**
 
-- `README.md` — Referencia al banner insertada
+- `README.md` - Referencia al banner insertada
 
 ### 03:00 - SDD web-test-overhaul: Reescritura completa de la suite de tests
 
@@ -97,7 +97,7 @@ FAKE (testeaban sus propios mocks), y la infraestructura critica (AuthProvider, 
 5 API layers) tenia CERO tests. Esta reescritura reemplazo toda la suite por tests reales con
 validacion de comportamiento.
 
-**Commit:** `3278047` — test(web): reescribir suite de tests y crear infraestructura de testing
+**Commit:** `3278047` - test(web): reescribir suite de tests y crear infraestructura de testing
 **Estadisticas:** 92 archivos, 19806 inserciones
 
 **SDD Fases:**
@@ -112,16 +112,16 @@ validacion de comportamiento.
 
 **Infraestructura creada:**
 
-- `web/src/test/test-wrapper.tsx` — TestWrapper centralizado (MantineProvider + QueryClientProvider + MemoryRouter)
-- `web/src/test/helpers/render.ts` — Custom render con setup() pattern + userEvent
-- `web/src/test/factories/` — Data builders: auth-factory, member-factory, fee-plan-factory, subscription-factory, tenant-factory
-- `web/src/test/msw/` — MSW handlers: auth-handlers, member-handlers, fee-plan-handlers, subscription-handlers + server.ts
-- `web/src/test/setup.ts` — Integracion MSW (beforeAll/afterEach/afterAll)
+- `web/src/test/test-wrapper.tsx` - TestWrapper centralizado (MantineProvider + QueryClientProvider + MemoryRouter)
+- `web/src/test/helpers/render.ts` - Custom render con setup() pattern + userEvent
+- `web/src/test/factories/` - Data builders: auth-factory, member-factory, fee-plan-factory, subscription-factory, tenant-factory
+- `web/src/test/msw/` - MSW handlers: auth-handlers, member-handlers, fee-plan-handlers, subscription-handlers + server.ts
+- `web/src/test/setup.ts` - Integracion MSW (beforeAll/afterEach/afterAll)
 
 **Tests eliminados (FAKE):**
 
-- `web/src/app/__tests__/app.spec.tsx` — testeaba que App renderizaba sin crash (mock-theater)
-- `web/src/shared/theme/associated-theme.spec.ts` — testeaba existencia de objeto theme (trivial)
+- `web/src/app/__tests__/app.spec.tsx` - testeaba que App renderizaba sin crash (mock-theater)
+- `web/src/shared/theme/associated-theme.spec.ts` - testeaba existencia de objeto theme (trivial)
 
 **Tests reescritos (20 archivos SHALLOW → tests reales con userEvent):**
 
@@ -133,8 +133,8 @@ validacion de comportamiento.
 
 **Tests nuevos criticos (P0):**
 
-- `auth.provider.spec.tsx` — 22 tests: token storage, refresh flow, logout, expired token, redirect on 401
-- `http-client.spec.ts` — 36 tests: interceptors, refresh queue (concurrent 401s), retry, error transformation
+- `auth.provider.spec.tsx` - 22 tests: token storage, refresh flow, logout, expired token, redirect on 401
+- `http-client.spec.ts` - 36 tests: interceptors, refresh queue (concurrent 401s), retry, error transformation
 
 **Tests nuevos API layer (116 tests):**
 
@@ -148,14 +148,14 @@ validacion de comportamiento.
 
 **Tests de integracion (4 suites, 51 tests):**
 
-- `login-flow.integration.spec.tsx` — form submission → API → token storage → redirect
-- `route-guards.integration.spec.tsx` — unauthenticated redirect, authenticated access, role guards
-- `member-crud.integration.spec.tsx` — list → create → edit → delete con confirmacion (UC-011)
-- `error-boundary.integration.spec.tsx` — API failure → error display → retry
+- `login-flow.integration.spec.tsx` - form submission → API → token storage → redirect
+- `route-guards.integration.spec.tsx` - unauthenticated redirect, authenticated access, role guards
+- `member-crud.integration.spec.tsx` - list → create → edit → delete con confirmacion (UC-011)
+- `error-boundary.integration.spec.tsx` - API failure → error display → retry
 
 **Bug de produccion descubierto y corregido:**
 
-- 9 hooks usaban `error.response?.status` (patron Axios) en vez de `error.status` (ApiError) para notificaciones — corregido en el hook `use-voluntary-leave.ts` y otros
+- 9 hooks usaban `error.response?.status` (patron Axios) en vez de `error.status` (ApiError) para notificaciones - corregido en el hook `use-voluntary-leave.ts` y otros
 
 **Resultados finales:**
 
@@ -171,7 +171,7 @@ documentacion activa del proyecto y reemplazarlas por `react-hook-form 7.71.2 + 
 Cambio motivado por la decision arquitectonica de estandarizar en react-hook-form como UNICA libreria
 de formularios, eliminando la ambiguedad que causaba confusion a agentes AI.
 
-**Commit:** `3e56194` — fix(spec): sustituir @mantine/form por RHF
+**Commit:** `3e56194` - fix(spec): sustituir @mantine/form por RHF
 **Estadisticas:** 10 archivos, 1242 inserciones, 1166 eliminaciones
 
 **SDD Fases:** Explore (#638) → Proposal (#639) → Tasks (#640) → Apply (#641) → Verify (#642) → Archive (#671)
@@ -179,20 +179,20 @@ de formularios, eliminando la ambiguedad que causaba confusion a agentes AI.
 
 **Archivos modificados (16 ediciones atomicas en 11 archivos):**
 
-- `spec/007_stack.md` — eliminada fila @mantine/form de tabla de stack
-- `doc/brand/002-associated-ui-product-guidelines.md` — parrafo Formularios actualizado
-- `doc/design/mvp/fase-0-scaffold.md` — eliminado @mantine/form de lista de instalacion
-- `doc/design/mvp/fase-1/front/task-1-UC-002.md` — formulario login → RHF + zodResolver
-- `doc/design/mvp/fase-1/front/task-2-UC-017.md` — 4 ediciones (prerrequisito + instrucciones + validacion + riesgos)
-- `doc/design/mvp/fase-1/front/task-3-UC-018.md` — prerrequisito actualizado
-- `doc/design/mvp/fase-1/front/task-4-UC-011.md` — prerrequisito + instruccion formulario
-- `doc/design/mvp/fase-1/front/task-5-UC-013.md` — prerrequisito + campo motivo
-- `doc/design/mvp/fase-2/front/task-1-UC-006.md` — useForm de Mantine → useForm de RHF
-- `web/AGENTS.md` — trigger actualizado "Mantine UI inputs within a react-hook-form layout"
+- `spec/007_stack.md` - eliminada fila @mantine/form de tabla de stack
+- `doc/brand/002-associated-ui-product-guidelines.md` - parrafo Formularios actualizado
+- `doc/design/mvp/fase-0-scaffold.md` - eliminado @mantine/form de lista de instalacion
+- `doc/design/mvp/fase-1/front/task-1-UC-002.md` - formulario login → RHF + zodResolver
+- `doc/design/mvp/fase-1/front/task-2-UC-017.md` - 4 ediciones (prerrequisito + instrucciones + validacion + riesgos)
+- `doc/design/mvp/fase-1/front/task-3-UC-018.md` - prerrequisito actualizado
+- `doc/design/mvp/fase-1/front/task-4-UC-011.md` - prerrequisito + instruccion formulario
+- `doc/design/mvp/fase-1/front/task-5-UC-013.md` - prerrequisito + campo motivo
+- `doc/design/mvp/fase-2/front/task-1-UC-006.md` - useForm de Mantine → useForm de RHF
+- `web/AGENTS.md` - trigger actualizado "Mantine UI inputs within a react-hook-form layout"
 
 **Verificacion:** 16/16 checks PASS, 8 checks globales PASS, CERO ocurrencias residuales de @mantine/form en scope
 
-**Warning pendiente:** `web/CLAUDE.md` L192 trigger text dice "Mantine form inputs within a Mantine layout" — inconsistente con AGENTS.md actualizado (severidad LOW)
+**Warning pendiente:** `web/CLAUDE.md` L192 trigger text dice "Mantine form inputs within a Mantine layout" - inconsistente con AGENTS.md actualizado (severidad LOW)
 
 ### 20:14 - Actualizacion skill doc-spec-manager
 
@@ -200,20 +200,20 @@ de formularios, eliminando la ambiguedad que causaba confusion a agentes AI.
 Actualizacion de los archivos de referencia del skill doc-spec-manager para reflejar el stack
 tecnologico actualizado tras los cambios del dia (Zod 4, RHF, eliminacion @mantine/form).
 
-**Commit:** `c5795fe` — update(skill): Actualizar skill doc-spec-manager
+**Commit:** `c5795fe` - update(skill): Actualizar skill doc-spec-manager
 **Estadisticas:** 9 archivos, 218 inserciones, 204 eliminaciones
 
 **Archivos modificados:**
 
-- `skills/doc-spec-manager/references/head-stack.md` — tabla de stack actualizada
-- `skills/doc-spec-manager/references/stack/backend.md` — versiones actualizadas
-- `skills/doc-spec-manager/references/stack/base-de-datos.md` — versiones actualizadas
-- `skills/doc-spec-manager/references/stack/devops-ci-cd.md` — versiones actualizadas
-- `skills/doc-spec-manager/references/stack/frontend.md` — Zod 4, RHF, eliminado @mantine/form
-- `skills/doc-spec-manager/references/stack/herramientas.md` — versiones actualizadas
-- `skills/doc-spec-manager/references/stack/infraestructura.md` — versiones actualizadas
-- `skills/doc-spec-manager/references/stack/servicios.md` — versiones actualizadas
-- `skills/doc-spec-manager/references/stack/testing.md` — MSW anadido, versiones actualizadas
+- `skills/doc-spec-manager/references/head-stack.md` - tabla de stack actualizada
+- `skills/doc-spec-manager/references/stack/backend.md` - versiones actualizadas
+- `skills/doc-spec-manager/references/stack/base-de-datos.md` - versiones actualizadas
+- `skills/doc-spec-manager/references/stack/devops-ci-cd.md` - versiones actualizadas
+- `skills/doc-spec-manager/references/stack/frontend.md` - Zod 4, RHF, eliminado @mantine/form
+- `skills/doc-spec-manager/references/stack/herramientas.md` - versiones actualizadas
+- `skills/doc-spec-manager/references/stack/infraestructura.md` - versiones actualizadas
+- `skills/doc-spec-manager/references/stack/servicios.md` - versiones actualizadas
+- `skills/doc-spec-manager/references/stack/testing.md` - MSW anadido, versiones actualizadas
 
 ### 23:19 - SDD stack-alignment: Migracion Zod 4 + react-hook-form
 
@@ -222,14 +222,14 @@ Ejecucion completa del SDD stack-alignment para alinear el stack real del fronte
 especificacion oficial (spec/007_stack.md y web/CLAUDE.md). Dos migraciones en un solo SDD:
 Zod 3.25.76 → 4.3.6 y @mantine/form → react-hook-form 7.71.2 + @hookform/resolvers 5.2.2.
 
-**Commit:** `3c0af17` — refactor(web): migrar stack frontend a Zod 4 + react-hook-form
+**Commit:** `3c0af17` - refactor(web): migrar stack frontend a Zod 4 + react-hook-form
 **Estadisticas:** 13 archivos, 462 inserciones, 400 eliminaciones
 
 **SDD Fases:** Explore (#645) → Proposal (#646) → Design (#647) → Spec (#648) → Tasks (#650) → Apply → Verify (#655) → Archive (#674)
 
 **Resultados de la migracion Zod 3→4:**
 
-- 14 archivos usan Zod en el proyecto — CERO cambios de codigo requeridos (APIs 100% retrocompatibles)
+- 14 archivos usan Zod en el proyecto - CERO cambios de codigo requeridos (APIs 100% retrocompatibles)
 - Unico breaking change: `z.record()` en `api-error.ts` requirio ajuste de syntax
 - Decision D1: mantener API Zod v3 compatible (no adoptar z.email()/z.uuid() top-level)
 
@@ -288,7 +288,7 @@ Zod 3.25.76 → 4.3.6 y @mantine/form → react-hook-form 7.71.2 + @hookform/res
 
 ## Metricas de la Sesion
 
-- **Duracion total:** ~22 horas 36 minutos (00:43 — 23:19)
+- **Duracion total:** ~22 horas 36 minutos (00:43 - 23:19)
 - **Archivos modificados:** ~130 (acumulado de 7 commits)
 - **Archivos creados:** ~65 (factories, MSW handlers, tests nuevos, banner)
 - **Commits realizados:** 7

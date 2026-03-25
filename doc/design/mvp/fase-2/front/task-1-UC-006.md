@@ -1,4 +1,4 @@
-# Task 1 — UC-006: Gestión de ficha de socio (Frontend)
+# Task 1 - UC-006: Gestión de ficha de socio (Frontend)
 
 ## Información general
 
@@ -30,9 +30,9 @@
 - Formulario de alta de socio (ya implementado en Fase 1 front task-4-UC-011)
 - Formulario de baja de socio (ya implementado en Fase 1 front task-5-UC-013)
 - Portal del socio completo (solo vista básica de perfil propio)
-- Adjuntar archivos (certificados médicos, documentos) — diferido post-MVP
-- Solicitud de cambios por parte del socio (FA-2, formulario que genera notificación) — diferido post-MVP
-- Exportación de listado a Excel/CSV — diferido post-MVP
+- Adjuntar archivos (certificados médicos, documentos) - diferido post-MVP
+- Solicitud de cambios por parte del socio (FA-2, formulario que genera notificación) - diferido post-MVP
+- Exportación de listado a Excel/CSV - diferido post-MVP
 
 ## Dependencias
 
@@ -40,10 +40,10 @@
 
 | Tarea                        | Artefacto necesario                                                                                                                                                                |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Fase 0 — Scaffold**        | Proyecto React + Vite + Mantine, HttpClient, TanStack Query, Router, Zod                                                                                                           |
-| **F1-Back Task 6 — UC-006**  | Endpoints REST: `GET /members` (listado paginado), `GET /members/:id` (detalle), `PUT /members/:id` (actualización), `GET /members/:id/status-history` (historial). DTOs definidos |
-| **F1-Front Task 1 — UC-002** | AuthProvider, ProtectedRoute, HttpClient con interceptors, usePermissions()                                                                                                        |
-| **F1-Front Task 4 — UC-011** | Componentes base de formulario de socio (parcialmente reutilizables)                                                                                                               |
+| **Fase 0 - Scaffold**        | Proyecto React + Vite + Mantine, HttpClient, TanStack Query, Router, Zod                                                                                                           |
+| **F1-Back Task 6 - UC-006**  | Endpoints REST: `GET /members` (listado paginado), `GET /members/:id` (detalle), `PUT /members/:id` (actualización), `GET /members/:id/status-history` (historial). DTOs definidos |
+| **F1-Front Task 1 - UC-002** | AuthProvider, ProtectedRoute, HttpClient con interceptors, usePermissions()                                                                                                        |
+| **F1-Front Task 4 - UC-011** | Componentes base de formulario de socio (parcialmente reutilizables)                                                                                                               |
 
 ### Checklist de verificación de dependencias
 

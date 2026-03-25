@@ -1,4 +1,4 @@
-# Web Guidelines (Frontend — React + Mantine)
+# Web Guidelines (Frontend - React + Mantine)
 
 ## How to Use This Guide
 
@@ -8,14 +8,14 @@
 
 ---
 
-## Critical Rules — Non-Negotiable
+## Critical Rules - Non-Negotiable
 
 **ALWAYS:**
 
 - Use functional components with TypeScript (no class components).
-- Use React Query (TanStack Query 5) for server state — never manual `fetch` in components.
+- Use React Query (TanStack Query 5) for server state - never manual `fetch` in components.
 - Validate forms with Zod 4 + react-hook-form 7.
-- Use Mantine 8 as the UI kit — do not mix with other component libraries.
+- Use Mantine 8 as the UI kit - do not mix with other component libraries.
 - Ensure WCAG AA compliance in every component (RNF-046).
 - Use skeleton screens during loading states (RNF-050).
 - Support i18n via `react-i18next` for all user-visible text.
@@ -83,7 +83,7 @@ web/
 
 1. Create an API hook: `use{Entity}{Action}.ts` using `useQuery` or `useMutation`.
 2. Define the query key and fetch function.
-3. Use the hook in the component — never call `fetch` directly.
+3. Use the hook in the component - never call `fetch` directly.
 
 ### New feature module
 
@@ -132,7 +132,7 @@ Before committing frontend code, verify:
 - [ ] All user-visible text uses i18n keys.
 - [ ] Forms validate with Zod schema.
 - [ ] Server data flows through React Query.
-- [ ] No inline styles — uses Mantine theme/styles.
+- [ ] No inline styles - uses Mantine theme/styles.
 - [ ] Component tests exist for new components.
 - [ ] No lint errors (`npm run lint`).
 

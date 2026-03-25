@@ -1,4 +1,4 @@
-# Task 3 — UC-018: Gestión de suscripciones de cuota (Frontend)
+# Task 3 - UC-018: Gestión de suscripciones de cuota (Frontend)
 
 ## Información general
 
@@ -38,9 +38,9 @@
 
 | Tarea                        | Artefacto necesario                                                                                                                                                                                                                                                                                                                                    |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **F1-Back Task 10 — UC-018** | Endpoints REST operativos: `POST /api/v1/member-accounts/:id/subscriptions`, `GET /api/v1/member-accounts/:id/subscriptions`, `PUT /api/v1/member-accounts/:id/subscriptions/:subId`, `POST /api/v1/member-accounts/:id/subscriptions/:subId/change-plan`, `PATCH /api/v1/member-accounts/:id/subscriptions/:subId/close`. Contratos de DTOs definidos |
-| **F1-Front Task 2 — UC-017** | Schemas Zod de planes de cuota, hook `useFeePlans()`, servicio API `fee-plan.api.ts` para consultar planes vinculados al tipo de socio                                                                                                                                                                                                                 |
-| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                                                                                                                                                            |
+| **F1-Back Task 10 - UC-018** | Endpoints REST operativos: `POST /api/v1/member-accounts/:id/subscriptions`, `GET /api/v1/member-accounts/:id/subscriptions`, `PUT /api/v1/member-accounts/:id/subscriptions/:subId`, `POST /api/v1/member-accounts/:id/subscriptions/:subId/change-plan`, `PATCH /api/v1/member-accounts/:id/subscriptions/:subId/close`. Contratos de DTOs definidos |
+| **F1-Front Task 2 - UC-017** | Schemas Zod de planes de cuota, hook `useFeePlans()`, servicio API `fee-plan.api.ts` para consultar planes vinculados al tipo de socio                                                                                                                                                                                                                 |
+| **F1-Front Task 1 - UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                                                                                                                                                            |
 
 ### Checklist de verificación de dependencias
 
@@ -62,10 +62,10 @@ Antes de iniciar esta tarea, verificar que:
 
 | Artefacto                                                               | Consumido por                                                               |
 | ----------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Schemas Zod de suscripciones (`schemas/subscription.schemas.ts`)        | F1-Front Task 4 (UC-011 — alta de socio selecciona plan y crea suscripción) |
-| Hook `useSubscriptions(memberId)` y `useCreateSubscription()`           | F1-Front Task 4 (UC-011 — paso 3 del wizard de alta)                        |
-| Componente `SubscriptionSelector`                                       | F1-Front Task 4 (UC-011 — selector de plan en wizard)                       |
-| Función `calculateEffectiveAmount()` (utilidad de cálculo de descuento) | F1-Front Task 4 (UC-011 — preview de importe en alta)                       |
+| Schemas Zod de suscripciones (`schemas/subscription.schemas.ts`)        | F1-Front Task 4 (UC-011 - alta de socio selecciona plan y crea suscripción) |
+| Hook `useSubscriptions(memberId)` y `useCreateSubscription()`           | F1-Front Task 4 (UC-011 - paso 3 del wizard de alta)                        |
+| Componente `SubscriptionSelector`                                       | F1-Front Task 4 (UC-011 - selector de plan en wizard)                       |
+| Función `calculateEffectiveAmount()` (utilidad de cálculo de descuento) | F1-Front Task 4 (UC-011 - preview de importe en alta)                       |
 
 ## Referencia de especificación
 
@@ -229,10 +229,11 @@ Crear en `web/src/features/treasury/subscriptions/schemas/`:
 Crear en `web/src/features/treasury/subscriptions/utils/`:
 
 - **`discount-calculator.ts`**: Función pura para cálculo multiplicativo de descuentos:
+
   ```typescript
   /**
    * Calcula el importe efectivo aplicando descuentos multiplicativamente.
-   * NUNCA suma porcentajes — cada descuento se aplica sobre el importe ya descontado.
+   * NUNCA suma porcentajes - cada descuento se aplica sobre el importe ya descontado.
    *
    * @example
    * calculateEffectiveAmount(120, 0.30, 0.10)
@@ -254,10 +255,10 @@ Crear en `web/src/features/treasury/subscriptions/utils/`:
 Crear en `web/src/features/treasury/subscriptions/api/`:
 
 - **`subscription.api.ts`**: Funciones API:
-  - `getSubscriptions(memberAccountId: string): Promise<MemberSubscriptionsResponse>` — parsea con `memberSubscriptionsResponseSchema`
-  - `createSubscription(memberAccountId: string, data: CreateSubscriptionInput): Promise<FeeSubscription>` — parsea con `feeSubscriptionSchema`
-  - `changePlan(memberAccountId: string, subscriptionId: string, data: ChangePlanInput): Promise<FeeSubscription>` — parsea con `feeSubscriptionSchema`
-  - `updateDiscount(memberAccountId: string, subscriptionId: string, data: UpdateDiscountInput): Promise<FeeSubscription>` — parsea con `feeSubscriptionSchema`
+  - `getSubscriptions(memberAccountId: string): Promise<MemberSubscriptionsResponse>` - parsea con `memberSubscriptionsResponseSchema`
+  - `createSubscription(memberAccountId: string, data: CreateSubscriptionInput): Promise<FeeSubscription>` - parsea con `feeSubscriptionSchema`
+  - `changePlan(memberAccountId: string, subscriptionId: string, data: ChangePlanInput): Promise<FeeSubscription>` - parsea con `feeSubscriptionSchema`
+  - `updateDiscount(memberAccountId: string, subscriptionId: string, data: UpdateDiscountInput): Promise<FeeSubscription>` - parsea con `feeSubscriptionSchema`
   - `closeSubscription(memberAccountId: string, subscriptionId: string, reason: CancelReason): Promise<void>`
   - Si `ZodError` se produce, se reporta via `ErrorReporter.captureException()` con contexto del schema
 
@@ -380,7 +381,7 @@ Crear en `web/src/features/treasury/subscriptions/components/`:
   - Alerta informativa: "Los cargos futuros del plan actual se cancelarán"
   - Si hay cargos pendientes (FE-1): alerta amarilla (`color="yellow"`) con opciones:
     - "Mantener cargos pendientes (la deuda se arrastra)"
-    - "Cancelar cargos pendientes (requiere autorización)" — solo si `can('treasury:subscriptions:cancel-charges')`
+    - "Cancelar cargos pendientes (requiere autorización)" - solo si `can('treasury:subscriptions:cancel-charges')`
   - Botones "Cancelar" y "Confirmar Cambio" (`color="brand"`) con loading state
 
 ### Paso 8: Modal de modificación de descuento
@@ -403,8 +404,8 @@ Crear en `web/src/features/treasury/subscriptions/components/`:
 
 - **`exemption-modal.tsx`**: Modal para aplicar exención temporal:
   - Selector de tipo de exención:
-    - "Exención total (sin suscripción)" — cierra suscripción con motivo EXEMPTION
-    - "Exención con trazabilidad (descuento 100%)" — modifica descuento a 100%
+    - "Exención total (sin suscripción)" - cierra suscripción con motivo EXEMPTION
+    - "Exención con trazabilidad (descuento 100%)" - modifica descuento a 100%
   - Campos:
     - Motivo (Textarea, requerido)
     - Periodo de exención: fecha inicio / fecha fin (DatePicker de Mantine, formato compacto "dd/MM/yyyy")

@@ -1,4 +1,4 @@
-# Task 1 — UC-002: Autenticación multi-tenant (Frontend)
+# Task 1 - UC-002: Autenticación multi-tenant (Frontend)
 
 ## Información general
 
@@ -41,8 +41,8 @@
 
 | Tarea                       | Artefacto necesario                                                                                                                                                                                                                                                                |
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Fase 0 — Scaffold**       | Proyecto React + Vite + Mantine configurado, HttpClient (Axios) base, estructura de features, `QueryClientProvider`, `RouterProvider`, Zod instalado, `ErrorBoundary` + `ErrorReporter` configurados                                                                               |
-| **F1-Back Task 2 — UC-002** | Endpoints de autenticación operativos: `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `POST /auth/switch-tenant`, `GET /auth/me`. Contratos de DTOs definidos (`LoginRequestDto`, `LoginResponseDto`, `RefreshResponseDto`, `TenantSelectorDto`, `UserProfileDto`) |
+| **Fase 0 - Scaffold**       | Proyecto React + Vite + Mantine configurado, HttpClient (Axios) base, estructura de features, `QueryClientProvider`, `RouterProvider`, Zod instalado, `ErrorBoundary` + `ErrorReporter` configurados                                                                               |
+| **F1-Back Task 2 - UC-002** | Endpoints de autenticación operativos: `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `POST /auth/switch-tenant`, `GET /auth/me`. Contratos de DTOs definidos (`LoginRequestDto`, `LoginResponseDto`, `RefreshResponseDto`, `TenantSelectorDto`, `UserProfileDto`) |
 
 ### Checklist de verificación de dependencias
 
@@ -167,12 +167,12 @@ Crear en `web/src/features/auth/schemas/`:
 Crear en `web/src/features/auth/api/`:
 
 - **`auth.api.ts`**: Funciones que encapsulan llamadas al backend. Cada función parsea la respuesta con el schema Zod correspondiente (`schema.parse(response.data.data)`), lo que valida la estructura en runtime:
-  - `login(credentials): Promise<LoginResponse | TenantSelectorResponse>` — parsea con `loginResponseSchema` o `tenantSelectorResponseSchema` según la forma de la respuesta
-  - `selectTenant(tenantId: string): Promise<LoginResponse>` — parsea con `loginResponseSchema`
-  - `refreshTokens(refreshToken: string): Promise<AuthTokens>` — parsea con `authTokensSchema`
+  - `login(credentials): Promise<LoginResponse | TenantSelectorResponse>` - parsea con `loginResponseSchema` o `tenantSelectorResponseSchema` según la forma de la respuesta
+  - `selectTenant(tenantId: string): Promise<LoginResponse>` - parsea con `loginResponseSchema`
+  - `refreshTokens(refreshToken: string): Promise<AuthTokens>` - parsea con `authTokensSchema`
   - `logout(refreshToken: string): Promise<void>`
-  - `switchTenant(tenantId: string): Promise<LoginResponse>` — parsea con `loginResponseSchema`
-  - `getCurrentUser(): Promise<UserProfile>` — parsea con `userProfileSchema`
+  - `switchTenant(tenantId: string): Promise<LoginResponse>` - parsea con `loginResponseSchema`
+  - `getCurrentUser(): Promise<UserProfile>` - parsea con `userProfileSchema`
   - Si `ZodError` se produce, se reporta vía `ErrorReporter.captureException()` con el detalle de los campos que no coinciden
 
 ### Paso 3: AuthProvider y useAuth hook
@@ -236,7 +236,7 @@ Crear en `web/src/features/auth/pages/`:
   - Formulario con `react-hook-form` + `zodResolver`:
     - Campo `email` (TextInput, type email, validación: formato email)
     - Campo `password` (PasswordInput, validación: no vacío)
-    - Botón "Acceder" (`color="brand"`, loading state durante submit). Nunca usar `variant="gradient"` — prohibido por directrices de marca
+    - Botón "Acceder" (`color="brand"`, loading state durante submit). Nunca usar `variant="gradient"` - prohibido por directrices de marca
   - Manejo de errores:
     - Credenciales inválidas → notificación roja: "Credenciales incorrectas"
     - Cuenta bloqueada → notificación yellow (Mantine `color="yellow"`, shade 6 `#FAB005`): "Cuenta bloqueada temporalmente. Reintente en X minutos"
@@ -287,7 +287,7 @@ Crear en `web/src/shared/components/layout/`:
   - **Sidebar** (navbar lateral):
     - **Logo sidebar abierto**: usar `logo-horizontal-white.svg` importado desde `@/shared/assets/logo-horizontal-white.svg` con ancho de 140-160px. La variante blanca usa `#EAF7FE` (`brand.0`), no blanco puro
     - **Logo sidebar colapsado**: usar `isotipo-white.svg` importado desde `@/shared/assets/isotipo-white.svg` con ancho de 28-32px
-    - Fondo del sidebar: `theme.other.brandDark` (`#27343E`) — nunca hardcodear el hex, usar el token del theme
+    - Fondo del sidebar: `theme.other.brandDark` (`#27343E`) - nunca hardcodear el hex, usar el token del theme
     - Texto de items activos: opacidad 100%
     - Texto de items inactivos: opacidad 60%
     - Labels de sección (ej: "Tesorería", "Socios"): opacidad 30%

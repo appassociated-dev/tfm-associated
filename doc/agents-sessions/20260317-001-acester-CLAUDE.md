@@ -41,7 +41,7 @@ Auditoria profunda de 1.276 tests distribuidos en 131 archivos de test en `api/s
 **Decisiones tecnicas:**
 
 - Se reclasificaron muchos handler tests previamente marcados como "mock-theater" como VALIOSOS (ProvisionTenantHandler, LoginHandler, CreateMemberHandler)
-- Se decidio NO eliminar controller tests (auth.controller.spec.ts) — son borderline pero utiles
+- Se decidio NO eliminar controller tests (auth.controller.spec.ts) - son borderline pero utiles
 
 **Resultados:**
 
@@ -83,14 +83,14 @@ Especificacion delta con 10 requisitos (R-TA-001 a R-TA-010) y diseno tecnico de
 ### 13:29 - SDD backend-test-audit: Tasks + Apply (4 batches)
 
 **Descripcion:**
-Generacion del plan de tareas y ejecucion de 4 batches de optimizacion. 0 lineas de codigo de produccion modificadas — solo archivos de test.
+Generacion del plan de tareas y ejecucion de 4 batches de optimizacion. 0 lineas de codigo de produccion modificadas - solo archivos de test.
 
-**Batch 1 — Cookie-Cutter Event Test Deletion (7 archivos, ~21 tests eliminados):**
+**Batch 1 - Cookie-Cutter Event Test Deletion (7 archivos, ~21 tests eliminados):**
 
 - Eliminados tests identicos que solo verificaban comportamiento de la clase base `DomainEvent`
 - Archivos afectados en `identity/domain/__tests__/` y `membership/domain/__tests__/`
 
-**Batch 2 — Typed ID Spec File Deletion (4 archivos borrados + 3 editados, ~39 tests eliminados):**
+**Batch 2 - Typed ID Spec File Deletion (4 archivos borrados + 3 editados, ~39 tests eliminados):**
 
 - Archivos BORRADOS:
   - `api/src/identity/domain/__tests__/tenant-id.spec.ts`
@@ -99,7 +99,7 @@ Generacion del plan de tareas y ejecucion de 4 batches de optimizacion. 0 lineas
   - `api/src/membership/domain/__tests__/member-type-id.spec.ts`
 - Tests redundantes que verificaban comportamiento heredado de clases base de Value Objects tipados
 
-**Batch 3 — Consolidacion enum/status tests a it.each() (7 archivos, ~27 tests consolidados):**
+**Batch 3 - Consolidacion enum/status tests a it.each() (7 archivos, ~27 tests consolidados):**
 
 - Convertidos tests individuales por cada valor de enum a tablas `it.each()` parametrizadas
 - Archivos afectados:
@@ -109,7 +109,7 @@ Generacion del plan de tareas y ejecucion de 4 batches de optimizacion. 0 lineas
   - `member-status.spec.ts`
   - Y otros archivos de VOs de treasury
 
-**Batch 4 — Fortalecimiento de assertions debiles (10 archivos, ~22 tests mejorados):**
+**Batch 4 - Fortalecimiento de assertions debiles (10 archivos, ~22 tests mejorados):**
 
 - Reemplazados `toHaveBeenCalled()` por `toHaveBeenCalledWith(expect.objectContaining(...))`
 - Verificacion de argumentos especificos en vez de solo "se llamo al mock"
@@ -163,14 +163,14 @@ Se detecto que el collect time de vitest era de 1.517 segundos (25 minutos) para
 
 **Archivos modificados:**
 
-- `api/vitest.config.ts` — SWC + pool + deps.inline
-- `api/vitest.integration.config.ts` — SWC + pool + deps.inline
-- `api/vitest.e2e.config.ts` — pool config (SWC ya estaba)
+- `api/vitest.config.ts` - SWC + pool + deps.inline
+- `api/vitest.integration.config.ts` - SWC + pool + deps.inline
+- `api/vitest.e2e.config.ts` - pool config (SWC ya estaba)
 
 **Resultados:**
 
 - Collect time bajo de 1.517s a 1.217s (~20% mejora) en /mnt/c/
-- Insuficiente — se procedio a investigar la causa raiz
+- Insuficiente - se procedio a investigar la causa raiz
 
 ---
 
@@ -190,13 +190,13 @@ Se copio el proyecto al filesystem nativo ext4 de WSL2 (`~/git-projects/tfm-asso
 | Tests run time  | ~1.5s             | ~1.5s                  | 1x (identico) |
 
 **Causa raiz:**
-WSL2 usa el protocolo 9P para montar NTFS de Windows en /mnt/c/. Este protocolo tiene rendimiento catastrofico para operaciones I/O intensivas con muchos archivos pequenos (tipico de node_modules con miles de archivos). La penalizacion es puramente de I/O — la CPU y el tiempo de ejecucion de tests son identicos.
+WSL2 usa el protocolo 9P para montar NTFS de Windows en /mnt/c/. Este protocolo tiene rendimiento catastrofico para operaciones I/O intensivas con muchos archivos pequenos (tipico de node_modules con miles de archivos). La penalizacion es puramente de I/O - la CPU y el tiempo de ejecucion de tests son identicos.
 
 **Decisiones tecnicas:**
 
 - **Decision**: Mover el proyecto permanentemente a `~/git-projects/tfm-associated` en ext4 nativo de WSL2
-- **Alternativa descartada**: Seguir en /mnt/c/ con mas optimizaciones de vitest — el protocolo 9P es el cuello de botella insalvable
-- **Los fixes de SWC se mantienen**: En ext4, transform baja de 53s a 2.49s — es mejora real independiente del filesystem
+- **Alternativa descartada**: Seguir en /mnt/c/ con mas optimizaciones de vitest - el protocolo 9P es el cuello de botella insalvable
+- **Los fixes de SWC se mantienen**: En ext4, transform baja de 53s a 2.49s - es mejora real independiente del filesystem
 - **Los fixes de pool/deps tambien se mantienen**: Son best practices de configuracion de vitest
 
 **Resultados:**
@@ -213,7 +213,7 @@ WSL2 usa el protocolo 9P para montar NTFS de Windows en /mnt/c/. Este protocolo 
 - [ ] Implementar los ~60 tests FALTANTES identificados en la exploracion (tests de integracion/wiring para requisitos de specs)
 - [ ] Migrar flujo de trabajo permanentemente a ~/git-projects/tfm-associated
 - [ ] Configurar git remote y branch tracking en la copia ext4
-- [ ] Batch 5 del SDD (mock-theater handler rewrites) — pendiente de evaluacion
+- [ ] Batch 5 del SDD (mock-theater handler rewrites) - pendiente de evaluacion
 
 ---
 
@@ -221,7 +221,7 @@ WSL2 usa el protocolo 9P para montar NTFS de Windows en /mnt/c/. Este protocolo 
 
 ### Lecciones Tecnicas
 
-- **El conteo de tests no mide calidad**: 1.276 tests no detectaron 5 bugs criticos. La cobertura era ficticia — verificaba que los mocks se llamaban, no que el comportamiento fuera correcto segun las specs.
+- **El conteo de tests no mide calidad**: 1.276 tests no detectaron 5 bugs criticos. La cobertura era ficticia - verificaba que los mocks se llamaban, no que el comportamiento fuera correcto segun las specs.
 - **Los tests de integracion/wiring son los que faltan**: Los unit tests de dominio son excelentes (73% genuinamente valiosos). Los bugs escaparon en las capas de aplicacion e infraestructura donde no habia tests de integracion.
 - **vitest overhead domina sobre test execution**: Los tests reales tardan 1.5s. El overhead de vitest (collect + transform + prepare) tarda entre 14s (ext4) y 430s (/mnt/c/).
 - **WSL2 9P protocol es inaceptable para desarrollo Node.js**: Miles de archivos pequenos en node_modules + transpilacion = penalizacion de 31-53x. No hay fix de configuracion que lo resuelva.

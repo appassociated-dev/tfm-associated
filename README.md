@@ -67,26 +67,26 @@ No existe ninguna herramienta que combine estas tres cosas a la vez:
 <details>
 <summary><strong>Por tipo de colectividad</strong></summary>
 
-**Asociación cultural** — Socios, actividades, tesorería e informes para subvenciones en una plataforma pensada para asociaciones con mucha vocación y poco presupuesto.
+**Asociación cultural** - Socios, actividades, tesorería e informes para subvenciones en una plataforma pensada para asociaciones con mucha vocación y poco presupuesto.
 
-**Peña festera** — Socios, cobros, comidas populares y turnos de barra en un solo sitio. Para que la junta dedique su energía a las fiestas, no a perseguir recibos.
+**Peña festera** - Socios, cobros, comidas populares y turnos de barra en un solo sitio. Para que la junta dedique su energía a las fiestas, no a perseguir recibos.
 
-**Club deportivo** — Socios, licencias, cuotas y calendario deportivo integrados. Control real de tu club sin necesitar un administrativo a jornada completa.
+**Club deportivo** - Socios, licencias, cuotas y calendario deportivo integrados. Control real de tu club sin necesitar un administrativo a jornada completa.
 
-**Cofradía** — Gestiona hermanos, cuotas, papeletas de sitio y cuadrillas con una herramienta que entiende cómo funciona tu hermandad, sin adaptar tu tradición al software.
+**Cofradía** - Gestiona hermanos, cuotas, papeletas de sitio y cuadrillas con una herramienta que entiende cómo funciona tu hermandad, sin adaptar tu tradición al software.
 
 </details>
 
 <details>
 <summary><strong>Por rol en la junta directiva</strong></summary>
 
-**Tesorero** — Las cuotas se cobran solas. Las remesas SEPA se generan en tres clics. La morosidad se gestiona con un workflow automático. Y cuando llegue la Asamblea, el informe económico está listo.
+**Tesorero** - Las cuotas se cobran solas. Las remesas SEPA se generan en tres clics. La morosidad se gestiona con un workflow automático. Y cuando llegue la Asamblea, el informe económico está listo.
 
-**Secretario** — Una sola fuente de verdad para todos los socios. Altas, bajas, histórico, carnets y actas en un lugar que no depende de que tú recuerdes en qué carpeta guardaste el archivo.
+**Secretario** - Una sola fuente de verdad para todos los socios. Altas, bajas, histórico, carnets y actas en un lugar que no depende de que tú recuerdes en qué carpeta guardaste el archivo.
 
-**Presidente** — Un dashboard que te dice en 30 segundos cómo está tu entidad. Y cuando entregues el cargo al siguiente, toda la información seguirá ahí.
+**Presidente** - Un dashboard que te dice en 30 segundos cómo está tu entidad. Y cuando entregues el cargo al siguiente, toda la información seguirá ahí.
 
-**Socio** — Tu carnet en el móvil, tus cuotas al día, los eventos de tu colectividad a un toque. Sin llamar a nadie para preguntar si estás al corriente de pago.
+**Socio** - Tu carnet en el móvil, tus cuotas al día, los eventos de tu colectividad a un toque. Sin llamar a nadie para preguntar si estás al corriente de pago.
 
 </details>
 
@@ -116,8 +116,8 @@ No existe ninguna herramienta que combine estas tres cosas a la vez:
 | ORM              | Prisma                  |    7    |
 | Testing unitario | Vitest                  |    4    |
 | Testing E2E      | Playwright              |  1.58   |
-| Contenedores     | Docker + Docker Compose |    —    |
-| CI/CD            | GitHub Actions          |    —    |
+| Contenedores     | Docker + Docker Compose |    -    |
+| CI/CD            | GitHub Actions          |    -    |
 | Observabilidad   | Sentry                  |   10    |
 
 ---
@@ -172,7 +172,7 @@ El MVP cubre **19 de 76 casos de uso** (25%), distribuidos en 3 fases funcionale
 
 | Fase | Objetivo                              | UCs |
 | :--: | :------------------------------------ | :-: |
-|  0   | Scaffold e infraestructura            |  —  |
+|  0   | Scaffold e infraestructura            |  -  |
 |  1   | Cimientos y operativa diaria mínima   | 12  |
 |  2   | Gestión económica avanzada y SEPA     |  5  |
 |  3   | Dashboard, analítica y administración |  2  |
@@ -214,11 +214,11 @@ graph LR
 
 ```
 Associated/
-├── api/                    # Backend — NestJS
+├── api/                    # Backend - NestJS
 │   └── src/{bc}/           # Un módulo por Bounded Context
-├── web/                    # Frontend — React + Vite
+├── web/                    # Frontend - React + Vite
 │   └── src/features/       # Módulos por funcionalidad
-├── e2e/                    # Tests E2E — Playwright
+├── e2e/                    # Tests E2E - Playwright
 ├── spec/                   # Especificación completa del proyecto
 ├── doc/                    # Documentación complementaria
 ├── docker-compose.yml      # Entorno de desarrollo

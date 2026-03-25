@@ -19,9 +19,9 @@ en `references/`, optimizados para consulta por agentes.
 
 Este skill tiene 3 modos de uso por orden de importancia:
 
-1. **Implementación alineada** — Verificar que el código cumple la spec.
-2. **Extensión de spec** — Crear o completar entidades documentales.
-3. **Consulta** — Buscar y navegar la documentación.
+1. **Implementación alineada** - Verificar que el código cumple la spec.
+2. **Extensión de spec** - Crear o completar entidades documentales.
+3. **Consulta** - Buscar y navegar la documentación.
 
 ---
 
@@ -35,33 +35,43 @@ debes verificar el alineamiento con la especificación.
 Antes de escribir código para un UC o US:
 
 1. **Leer el UC** que vas a implementar:
+
    ```
    Read references/uc/uc-001.md
    ```
+
    Extraer: Application Service, Aggregates, flujos, Domain Events.
 
 2. **Leer las US referenciadas** por el UC:
+
    ```
    Read references/us/us-001.md
    ```
+
    Extraer: criterios de aceptación (escenarios Gherkin), prioridad.
 
 3. **Leer el BC** donde se implementa:
+
    ```
    Read references/bc/bc-identity.md
    ```
+
    Verificar: Aggregates, Entities, Value Objects, invariantes, Domain Events.
 
 4. **Verificar RNFs aplicables**: buscar qué RNFs afectan a esta funcionalidad:
+
    ```
    Grep "N2RF01" references/rnf/
    ```
+
    Cada RNF tiene criterios de aceptación que el código DEBE cumplir.
 
 5. **Verificar RNFTs técnicos**: concreciones con el stack:
+
    ```
    Grep "RNF-004" references/rnft/
    ```
+
    Cada RNFT tiene configuraciones específicas, métricas y código de referencia.
 
 6. **Verificar ADRs aplicables**:
@@ -144,14 +154,14 @@ RF (qué necesita el negocio)
 
 ### Campos de trazabilidad por tipo de entidad
 
-| Tipo | Campos obligatorios | Ejemplo |
-|------|--------------------| --------|
-| **RF** | Sección (N{x}) | `> **Sección:** N2: Arquitectura...` |
-| **RNF** | Categoría + `Trazabilidad RF:` códigos RF | `**Trazabilidad RF:** N2RF01, N2RF03` |
-| **RNFT** | Categoría + `RNF Base:` código RNF | `**RNF Base:** RNF-004 (...)` |
-| **ADR** | Estado + Trazabilidad RNF en texto | `Según RNF-004, se requiere...` |
-| **US** | Contexto (BC + subsección) + `RF Origen:` + `Prioridad:` | `**RF Origen:** N2RF01` |
-| **UC** | BC + `User Stories:` + `Application Service:` + `Aggregates:` + `Prioridad:` | Sección Metadatos completa |
+| Tipo     | Campos obligatorios                                                          | Ejemplo                               |
+| -------- | ---------------------------------------------------------------------------- | ------------------------------------- |
+| **RF**   | Sección (N{x})                                                               | `> **Sección:** N2: Arquitectura...`  |
+| **RNF**  | Categoría + `Trazabilidad RF:` códigos RF                                    | `**Trazabilidad RF:** N2RF01, N2RF03` |
+| **RNFT** | Categoría + `RNF Base:` código RNF                                           | `**RNF Base:** RNF-004 (...)`         |
+| **ADR**  | Estado + Trazabilidad RNF en texto                                           | `Según RNF-004, se requiere...`       |
+| **US**   | Contexto (BC + subsección) + `RF Origen:` + `Prioridad:`                     | `**RF Origen:** N2RF01`               |
+| **UC**   | BC + `User Stories:` + `Application Service:` + `Aggregates:` + `Prioridad:` | Sección Metadatos completa            |
 
 ### Workflow para crear una nueva US
 
@@ -185,16 +195,16 @@ RF (qué necesita el negocio)
 
 ### Tipos de entidad
 
-| Tipo | Código | Carpeta | Head file | Cantidad |
-|------|--------|---------|-----------|----------|
-| Requisitos Funcionales | N{x}RF{yy} | `rf/` | `head-requisitos-funcionales.md` | 221 |
-| Requisitos No Funcionales | RNF-{xxx} | `rnf/` | `head-requisitos-no-funcionales.md` | 66 |
-| Bounded Contexts | BC-{Name} | `bc/` | `head-modelo-dominio.md` | 7 |
-| Decisiones Arquitectónicas | ADR-{xxx} | `adr/` | `head-adrs.md` | 12 |
-| Stack Tecnológico | (por sección) | `stack/` | `head-stack.md` | 8 |
-| RNF Técnicos | RNFT-{xxx} | `rnft/` | `head-requisitos-no-funcionales-tech.md` | 27 |
-| User Stories | US-{xxx} | `us/` | `head-user-stories.md` | 202 |
-| Casos de Uso | UC-{xxx} | `uc/` | `head-use-cases.md` | 76 |
+| Tipo                       | Código        | Carpeta  | Head file                                | Cantidad |
+| -------------------------- | ------------- | -------- | ---------------------------------------- | -------- |
+| Requisitos Funcionales     | N{x}RF{yy}    | `rf/`    | `head-requisitos-funcionales.md`         | 221      |
+| Requisitos No Funcionales  | RNF-{xxx}     | `rnf/`   | `head-requisitos-no-funcionales.md`      | 66       |
+| Bounded Contexts           | BC-{Name}     | `bc/`    | `head-modelo-dominio.md`                 | 7        |
+| Decisiones Arquitectónicas | ADR-{xxx}     | `adr/`   | `head-adrs.md`                           | 12       |
+| Stack Tecnológico          | (por sección) | `stack/` | `head-stack.md`                          | 8        |
+| RNF Técnicos               | RNFT-{xxx}    | `rnft/`  | `head-requisitos-no-funcionales-tech.md` | 27       |
+| User Stories               | US-{xxx}      | `us/`    | `head-user-stories.md`                   | 202      |
+| Casos de Uso               | UC-{xxx}      | `uc/`    | `head-use-cases.md`                      | 76       |
 
 ### Jerarquía de archivos
 
@@ -245,16 +255,16 @@ Grep "Categoría.*Seguridad" references/rnf/
 
 ### Secciones del Stack
 
-| Archivo | Contenido |
-|---------|-----------|
-| `backend.md` | TypeScript + NestJS |
-| `frontend.md` | React + Mantine + Vite |
-| `base-de-datos.md` | PostgreSQL + Prisma |
-| `infraestructura.md` | Docker + MinIO/S3 |
-| `testing.md` | Vitest + Playwright |
-| `devops-ci-cd.md` | GitHub Actions |
-| `herramientas.md` | ESLint, Prettier, etc. |
-| `servicios.md` | Sentry, SMTP, etc. |
+| Archivo              | Contenido              |
+| -------------------- | ---------------------- |
+| `backend.md`         | TypeScript + NestJS    |
+| `frontend.md`        | React + Mantine + Vite |
+| `base-de-datos.md`   | PostgreSQL + Prisma    |
+| `infraestructura.md` | Docker + MinIO/S3      |
+| `testing.md`         | Vitest + Playwright    |
+| `devops-ci-cd.md`    | GitHub Actions         |
+| `herramientas.md`    | ESLint, Prettier, etc. |
+| `servicios.md`       | Sentry, SMTP, etc.     |
 
 ---
 

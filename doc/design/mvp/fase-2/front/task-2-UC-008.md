@@ -1,4 +1,4 @@
-# Task 2 — UC-008: Configuración de tipos de socio (Frontend)
+# Task 2 - UC-008: Configuración de tipos de socio (Frontend)
 
 ## Información general
 
@@ -34,11 +34,11 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Proyecto React + Vite + Mantine, HttpClient, TanStack Query, Router, Zod |
-| **F1-Back Task 3 — UC-008** | Endpoints REST: `GET /member-types`, `POST /member-types`, `PUT /member-types/:id`, `DELETE /member-types/:id`. DTOs definidos |
-| **F1-Front Task 1 — UC-002** | AuthProvider, ProtectedRoute, usePermissions() |
+| Tarea                        | Artefacto necesario                                                                                                            |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **Fase 0 - Scaffold**        | Proyecto React + Vite + Mantine, HttpClient, TanStack Query, Router, Zod                                                       |
+| **F1-Back Task 3 - UC-008**  | Endpoints REST: `GET /member-types`, `POST /member-types`, `PUT /member-types/:id`, `DELETE /member-types/:id`. DTOs definidos |
+| **F1-Front Task 1 - UC-002** | AuthProvider, ProtectedRoute, usePermissions()                                                                                 |
 
 ### Checklist de verificación de dependencias
 
@@ -50,21 +50,21 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Página `/settings/member-types` | Navegación de configuración |
+| Artefacto                                                                  | Consumido por                                                                   |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Página `/settings/member-types`                                            | Navegación de configuración                                                     |
 | Hooks `useMemberTypes()`, `useCreateMemberType()`, `useUpdateMemberType()` | UC-011 (select de tipo en alta), UC-006 (filtro por tipo), UC-056 (importación) |
-| Select component `MemberTypeSelect` reutilizable | Formularios que necesiten seleccionar tipo de socio |
+| Select component `MemberTypeSelect` reutilizable                           | Formularios que necesiten seleccionar tipo de socio                             |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
-| `uc/uc-008.md` | Flujo completo: formularios por colectividad, plantillas, reglas, transiciones |
-| `us/us-015.md` a `us/us-019.md` | Criterios por tipo de colectividad y motor de reglas |
-| `bc/bc-membership.md` | Aggregate MemberType — estructura, reglas, invariantes |
+| `uc/uc-008.md`                                      | Flujo completo: formularios por colectividad, plantillas, reglas, transiciones                                                     |
+| `us/us-015.md` a `us/us-019.md`                     | Criterios por tipo de colectividad y motor de reglas                                                                               |
+| `bc/bc-membership.md`                               | Aggregate MemberType - estructura, reglas, invariantes                                                                             |
 
 ## Puntos críticos
 
@@ -76,10 +76,10 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Configuración de transiciones automáticas confusa para el usuario | Media | Medio | UI clara con select de tipo destino y condición (edad). Tooltip explicativo |
-| Inactivación de tipo con socios asignados no entendida | Baja | Bajo | Diálogo de confirmación mostrando conteo de socios afectados y explicación |
+| Riesgo                                                            | Probabilidad | Impacto | Mitigación                                                                  |
+| ----------------------------------------------------------------- | ------------ | ------- | --------------------------------------------------------------------------- |
+| Configuración de transiciones automáticas confusa para el usuario | Media        | Medio   | UI clara con select de tipo destino y condición (edad). Tooltip explicativo |
+| Inactivación de tipo con socios asignados no entendida            | Baja         | Bajo    | Diálogo de confirmación mostrando conteo de socios afectados y explicación  |
 
 ## Plan de implementación
 

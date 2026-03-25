@@ -1,4 +1,4 @@
-# Task 4 — UC-065: Gráficos de evolución (Frontend)
+# Task 4 - UC-065: Gráficos de evolución (Frontend)
 
 ## Información general
 
@@ -37,12 +37,12 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F3-Back Task 2 — UC-065** | Endpoints REST: members-evolution, collection-monthly, payment-distribution |
-| **F3-Front Task 3 — UC-064** | Layout de dashboard, `DashboardPeriodSelector`, utilidades de formateo |
-| **F3-Front Task 2 — UC-010** | `FiscalYearSelector` y hook `useFiscalYears()` para comparativa multi-ejercicio |
-| **F1-Front Task 1 — UC-002** | AuthProvider, usePermissions() (analytics:read) |
+| Tarea                        | Artefacto necesario                                                             |
+| ---------------------------- | ------------------------------------------------------------------------------- |
+| **F3-Back Task 2 - UC-065**  | Endpoints REST: members-evolution, collection-monthly, payment-distribution     |
+| **F3-Front Task 3 - UC-064** | Layout de dashboard, `DashboardPeriodSelector`, utilidades de formateo          |
+| **F3-Front Task 2 - UC-010** | `FiscalYearSelector` y hook `useFiscalYears()` para comparativa multi-ejercicio |
+| **F1-Front Task 1 - UC-002** | AuthProvider, usePermissions() (analytics:read)                                 |
 
 ### Checklist de verificación de dependencias
 
@@ -56,25 +56,25 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Página `/dashboard/analytics` | Navegación del dashboard |
-| Componente `MemberEvolutionChart` | Reutilizable en informes de membresía |
-| Componente `CollectionChart` | Reutilizable en informes de tesorería |
+| Artefacto                             | Consumido por                         |
+| ------------------------------------- | ------------------------------------- |
+| Página `/dashboard/analytics`         | Navegación del dashboard              |
+| Componente `MemberEvolutionChart`     | Reutilizable en informes de membresía |
+| Componente `CollectionChart`          | Reutilizable en informes de tesorería |
 | Componente `PaymentDistributionChart` | Reutilizable en informes de tesorería |
-| Componente `ChartExportButton` | Reutilizable en cualquier gráfico |
+| Componente `ChartExportButton`        | Reutilizable en cualquier gráfico     |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
-| `uc/uc-065.md` | Flujo: 3 gráficos principales, comparativa multi-ejercicio, filtrado por período, exportación |
-| `us/us-165.md` | Criterios: evolución de socios y recaudación con series temporales |
-| `us/us-166.md` | Criterios: gráficos interactivos y exportación |
-| `rnft/rnft-018.md` | Gráficos interactivos responsivos |
-| `rnft/rnft-015.md` | Performance: p95 <500ms (cache hit <50ms) |
+| `uc/uc-065.md`                                      | Flujo: 3 gráficos principales, comparativa multi-ejercicio, filtrado por período, exportación                                      |
+| `us/us-165.md`                                      | Criterios: evolución de socios y recaudación con series temporales                                                                 |
+| `us/us-166.md`                                      | Criterios: gráficos interactivos y exportación                                                                                     |
+| `rnft/rnft-018.md`                                  | Gráficos interactivos responsivos                                                                                                  |
+| `rnft/rnft-015.md`                                  | Performance: p95 <500ms (cache hit <50ms)                                                                                          |
 
 ## Puntos críticos
 
@@ -88,11 +88,11 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Recharts pesado penaliza TTI | Media | Medio | Lazy loading con React.lazy() + Suspense + skeleton. Code splitting por ruta |
-| Series con muchos puntos (60 meses = 5 ejercicios) renderizan lento | Baja | Bajo | Limitar a 5 ejercicios máximo. Recharts optimizado con `isAnimationActive={false}` si >36 puntos |
-| Formateo de ejes inconsistente entre gráficos | Media | Bajo | Funciones de formateo centralizadas en utils. Configuración de Recharts reutilizable |
+| Riesgo                                                              | Probabilidad | Impacto | Mitigación                                                                                       |
+| ------------------------------------------------------------------- | ------------ | ------- | ------------------------------------------------------------------------------------------------ |
+| Recharts pesado penaliza TTI                                        | Media        | Medio   | Lazy loading con React.lazy() + Suspense + skeleton. Code splitting por ruta                     |
+| Series con muchos puntos (60 meses = 5 ejercicios) renderizan lento | Baja         | Bajo    | Limitar a 5 ejercicios máximo. Recharts optimizado con `isAnimationActive={false}` si >36 puntos |
+| Formateo de ejes inconsistente entre gráficos                       | Media        | Bajo    | Funciones de formateo centralizadas en utils. Configuración de Recharts reutilizable             |
 
 ## Plan de implementación
 

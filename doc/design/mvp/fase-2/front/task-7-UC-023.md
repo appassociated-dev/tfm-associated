@@ -1,4 +1,4 @@
-# Task 7 — UC-023: Generación de remesas SEPA (Frontend)
+# Task 7 - UC-023: Generación de remesas SEPA (Frontend)
 
 ## Información general
 
@@ -36,30 +36,30 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F2-Back Task 4 — UC-023** | Endpoints REST: sepa/config, mandatos, remittances/preview, remittances, remittances/:id/xml, remittances/:id/sent |
-| **F1-Front Task 1 — UC-002** | AuthProvider, usePermissions(), HttpClient |
-| **F2-Front Task 1 — UC-006** | Página de ficha de socio (para integrar sección de mandato) |
+| Tarea                        | Artefacto necesario                                                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **F2-Back Task 4 - UC-023**  | Endpoints REST: sepa/config, mandatos, remittances/preview, remittances, remittances/:id/xml, remittances/:id/sent |
+| **F1-Front Task 1 - UC-002** | AuthProvider, usePermissions(), HttpClient                                                                         |
+| **F2-Front Task 1 - UC-006** | Página de ficha de socio (para integrar sección de mandato)                                                        |
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Página `/settings/sepa` | Navegación de configuración |
-| Página `/treasury/remittances` | Navegación de tesorería |
-| Sección de mandato en ficha de socio | UC-006 (ficha de socio) |
+| Artefacto                                        | Consumido por                                 |
+| ------------------------------------------------ | --------------------------------------------- |
+| Página `/settings/sepa`                          | Navegación de configuración                   |
+| Página `/treasury/remittances`                   | Navegación de tesorería                       |
+| Sección de mandato en ficha de socio             | UC-006 (ficha de socio)                       |
 | Hook `useRemittances()`, `useRemittanceDetail()` | UC-024 (devoluciones, para ver remesa origen) |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
-| `uc/uc-023.md` | Flujo completo: configuración, mandatos, generación, tipos de secuencia, descarga |
-| `us/us-061.md` a `us/us-065.md` | Criterios por funcionalidad |
-| `bc/bc-treasury.md` | Aggregates SepaRemittance, SepaDebit, SepaMandate, CreditorIdentifier |
+| `uc/uc-023.md`                                      | Flujo completo: configuración, mandatos, generación, tipos de secuencia, descarga                                                  |
+| `us/us-061.md` a `us/us-065.md`                     | Criterios por funcionalidad                                                                                                        |
+| `bc/bc-treasury.md`                                 | Aggregates SepaRemittance, SepaDebit, SepaMandate, CreditorIdentifier                                                              |
 
 ## Puntos críticos
 
@@ -96,16 +96,16 @@
 - **`MandateForm.tsx`**: Formulario de registro de mandato con upload de documento firmado
 - **`MandateCard.tsx`**: Card en ficha de socio mostrando estado del mandato (activo/revocado/sin mandato). Badges de estado usan `variant="light"` y `radius="sm"`: activo=`color="green"`, revocado=`color="red"`, sin mandato=`color="gray"`
 - **`RemittanceWizard.tsx`**: Stepper de 3 pasos
-  - Paso 1: `RemittanceSelectionStep` — fecha de cobro + selección de cargos (radio: todos/vencidos/mes actual/manual)
-  - Paso 2: `RemittanceValidationStep` — resultado de validación, advertencias, socios sin mandato
-  - Paso 3: `RemittancePreviewStep` — preview con desglose, botón "Generar" usa `color="brand"` (nunca `variant="gradient"`). Importes formateados con `formatMoney()` de `@/shared/utils/format-money.ts`
+  - Paso 1: `RemittanceSelectionStep` - fecha de cobro + selección de cargos (radio: todos/vencidos/mes actual/manual)
+  - Paso 2: `RemittanceValidationStep` - resultado de validación, advertencias, socios sin mandato
+  - Paso 3: `RemittancePreviewStep` - preview con desglose, botón "Generar" usa `color="brand"` (nunca `variant="gradient"`). Importes formateados con `formatMoney()` de `@/shared/utils/format-money.ts`
 - **`RemittanceResultCard.tsx`**: Post-generación: instrucciones + descarga XML + botón "Marcar enviada". Botones primarios usan `color="brand"` (nunca `variant="gradient"`)
 - **`RemittanceDetailPage.tsx`**: Detalle de remesa con estadísticas y lista de adeudos. Importes formateados con `formatMoney()` de `@/shared/utils/format-money.ts`. Fechas en formato español: `dd/MM/yyyy` usando `Intl.DateTimeFormat('es-ES')` o `dayjs` con locale `es`
 
 ### Paso 4: Páginas
 
-- **`SepaConfigPage.tsx`**: `/settings/sepa` — formulario de configuración
-- **`RemittancesPage.tsx`**: `/treasury/remittances` — listado + wizard de generación
+- **`SepaConfigPage.tsx`**: `/settings/sepa` - formulario de configuración
+- **`RemittancesPage.tsx`**: `/treasury/remittances` - listado + wizard de generación
 - Integrar `MandateCard` en `MemberDetailPage` (UC-006) como nueva pestaña/sección
 
 ### Paso 5: Tests

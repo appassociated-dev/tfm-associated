@@ -1,4 +1,4 @@
-# Informe de Auditoria — Frontend Fase 1
+# Informe de Auditoria - Frontend Fase 1
 
 **Fecha:** 18 de marzo de 2026
 **Branch:** mvp/frontend-fase1
@@ -13,15 +13,15 @@ La fase 1 del frontend tiene la **estructura correcta** (archivos, schemas, API 
 
 **Estadisticas globales:**
 
-- **6 bugs CRITICOS** (P0) — bloquean uso completo de la aplicacion
-- **12 issues ALTOS** (P1) — funcionalidad incompleta o rota
-- **18 issues MEDIOS** (P2) — afectan UX/calidad
-- **12 issues BAJOS** (P3) — cosmeticos/tecnicos menores
-- **404 unit tests passing** — pero enmascaran bugs reales (mocks de useParams, permissions)
+- **6 bugs CRITICOS** (P0) - bloquean uso completo de la aplicacion
+- **12 issues ALTOS** (P1) - funcionalidad incompleta o rota
+- **18 issues MEDIOS** (P2) - afectan UX/calidad
+- **12 issues BAJOS** (P3) - cosmeticos/tecnicos menores
+- **404 unit tests passing** - pero enmascaran bugs reales (mocks de useParams, permissions)
 
 ---
 
-## Seccion 1: Bugs CRITICOS (P0) — Bloquean la aplicacion
+## Seccion 1: Bugs CRITICOS (P0) - Bloquean la aplicacion
 
 ### P0-1: `hasPermission` no soporta wildcards
 
@@ -30,12 +30,12 @@ La fase 1 del frontend tiene la **estructura correcta** (archivos, schemas, API 
 | Aspecto        | Detalle                                                                    |
 | -------------- | -------------------------------------------------------------------------- |
 | Archivo        | `web/src/features/auth/context/use-permissions.ts:13`                      |
-| Problema       | `permissions.includes(permission)` — match EXACTO de strings               |
+| Problema       | `permissions.includes(permission)` - match EXACTO de strings               |
 | Backend envia  | PRESIDENT: `['*']`, TREASURER: `['treasury:*', 'membership:members:read']` |
 | Frontend busca | `'membership:members:read'`, `'treasury:*:read'`, `'settings:*:read'`      |
 | Resultado      | `['*'].includes('membership:members:read')` → `false`                      |
 
-### P0-2: Race condition — permisos vacios tras login
+### P0-2: Race condition - permisos vacios tras login
 
 | Aspecto   | Detalle                                                                                         |
 | --------- | ----------------------------------------------------------------------------------------------- |
@@ -51,12 +51,12 @@ La fase 1 del frontend tiene la **estructura correcta** (archivos, schemas, API 
 | Frontend NAV_ITEMS | `treasury:*:read` (3 segmentos con wildcard intermedia)                     |
 | Resultado          | Incluso con wildcard matching, `treasury:*` no matchearia `treasury:*:read` |
 
-### P0-4: Route param mismatch `:id` vs `memberId` (Task 5 — Leave)
+### P0-4: Route param mismatch `:id` vs `memberId` (Task 5 - Leave)
 
 | Aspecto   | Detalle                                                                           |
 | --------- | --------------------------------------------------------------------------------- |
 | Router    | `members/:id/leave`, `members/:id/nonpayment-leave`, `members/:id/reinstate`      |
-| Paginas   | `useParams<{ memberId: string }>()` — buscan `memberId`                           |
+| Paginas   | `useParams<{ memberId: string }>()` - buscan `memberId`                           |
 | Resultado | `memberId` siempre `undefined`, hooks con `enabled: !!memberId` nunca se ejecutan |
 | Tests     | Enmascaran el bug: mockean `useParams` devolviendo `{ memberId: '...' }`          |
 
@@ -73,29 +73,29 @@ La fase 1 del frontend tiene la **estructura correcta** (archivos, schemas, API 
 
 Clickear "Socios", "Tesoreria" o "Configuracion" navega a pagina en blanco.
 
-### P0-6: Paginas inaccesibles — sin links de navegacion
+### P0-6: Paginas inaccesibles - sin links de navegacion
 
 | Pagina          | Ruta                                        | Accesible desde sidebar? | Link desde otra pagina?                  |
 | --------------- | ------------------------------------------- | ------------------------ | ---------------------------------------- |
-| Suscripciones   | `/treasury/members/:memberId/subscriptions` | NO                       | NO — 0 links en toda la app              |
-| Baja voluntaria | `/members/:id/leave`                        | NO                       | NO — requiere ficha de socio inexistente |
-| Baja impago     | `/members/:id/nonpayment-leave`             | NO                       | NO — idem                                |
-| Rehabilitacion  | `/members/:id/reinstate`                    | NO                       | NO — idem                                |
+| Suscripciones   | `/treasury/members/:memberId/subscriptions` | NO                       | NO - 0 links en toda la app              |
+| Baja voluntaria | `/members/:id/leave`                        | NO                       | NO - requiere ficha de socio inexistente |
+| Baja impago     | `/members/:id/nonpayment-leave`             | NO                       | NO - idem                                |
+| Rehabilitacion  | `/members/:id/reinstate`                    | NO                       | NO - idem                                |
 
 ---
 
-## Seccion 2: Issues ALTOS (P1) — Funcionalidad incompleta
+## Seccion 2: Issues ALTOS (P1) - Funcionalidad incompleta
 
 | #     | Task | Issue                                                                                                                 | Archivo(s)                                  |
 | ----- | ---- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| P1-1  | T4   | `birthDate` usa `<input type="date">` nativo en vez de Mantine `DateInput` — formato depende del locale del navegador | `personal-data-step.tsx:248`                |
+| P1-1  | T4   | `birthDate` usa `<input type="date">` nativo en vez de Mantine `DateInput` - formato depende del locale del navegador | `personal-data-step.tsx:248`                |
 | P1-2  | T4   | Faltan precondiciones FE-4 (plan inscripcion) y FE-5 (ejercicio fiscal activo)                                        | `simple-registration.page.tsx`              |
 | P1-3  | T4   | Paso 3 Confirmacion no muestra importe real de cargo inscripcion con `formatMoney()`                                  | `confirmation-step.tsx:88-98`               |
-| P1-4  | T2   | "Ver vinculaciones" menu item sin onClick — `LinkMemberTypesModal` existe pero NO esta cableado                       | `fee-plans-list.page.tsx:231`               |
-| P1-5  | T2   | `DeactivateFeePlanModal` siempre asume 0 suscripciones — proteccion inactiva                                          | `fee-plans-list.page.tsx:250-254`           |
-| P1-6  | T2   | Formulario usa `@mantine/form` en vez de `react-hook-form + zodResolver` — viola convenciones                         | `fee-plan-form.tsx`                         |
+| P1-4  | T2   | "Ver vinculaciones" menu item sin onClick - `LinkMemberTypesModal` existe pero NO esta cableado                       | `fee-plans-list.page.tsx:231`               |
+| P1-5  | T2   | `DeactivateFeePlanModal` siempre asume 0 suscripciones - proteccion inactiva                                          | `fee-plans-list.page.tsx:250-254`           |
+| P1-6  | T2   | Formulario usa `@mantine/form` en vez de `react-hook-form + zodResolver` - viola convenciones                         | `fee-plan-form.tsx`                         |
 | P1-7  | T3   | `ExemptionModal` sin DatePicker para periodo inicio/fin de exencion                                                   | `exemption-modal.tsx`                       |
-| P1-8  | T5   | "Cancelar Baja - Regularizacion" boton sin handler — no hace nada                                                     | `nonpayment-leave.page.tsx`                 |
+| P1-8  | T5   | "Cancelar Baja - Regularizacion" boton sin handler - no hace nada                                                     | `nonpayment-leave.page.tsx`                 |
 | P1-9  | T5   | Falta boton "Generar Certificado PDF"                                                                                 | `nonpayment-leave.page.tsx`                 |
 | P1-10 | T5   | Falta alerta de workflow de morosidad incompleto                                                                      | `nonpayment-leave.page.tsx`                 |
 | P1-11 | T5   | Falta DNI en datos del socio (schema y UI)                                                                            | `leave.schemas.ts`, todas las paginas leave |
@@ -103,14 +103,14 @@ Clickear "Socios", "Tesoreria" o "Configuracion" navega a pagina en blanco.
 
 ---
 
-## Seccion 3: Issues MEDIOS (P2) — Afectan UX/calidad
+## Seccion 3: Issues MEDIOS (P2) - Afectan UX/calidad
 
 | #     | Task | Issue                                                                                          |
 | ----- | ---- | ---------------------------------------------------------------------------------------------- |
-| P2-1  | ALL  | **No hay i18n** — web/CLAUDE.md dice "ALWAYS use react-i18next". Todos los textos hardcodeados |
-| P2-2  | ALL  | **No hay ErrorReporter** — diseno requiere `captureException()` para 5xx y ZodError            |
+| P2-1  | ALL  | **No hay i18n** - web/CLAUDE.md dice "ALWAYS use react-i18next". Todos los textos hardcodeados |
+| P2-2  | ALL  | **No hay ErrorReporter** - diseno requiere `captureException()` para 5xx y ZodError            |
 | P2-3  | T0   | AppShell padding `md` (16px) en vez de `lg` (24px) segun guidelines                            |
-| P2-4  | T0   | Falta PostCSS config (`postcss-preset-mantine`) — responsive mixins no funcionan               |
+| P2-4  | T0   | Falta PostCSS config (`postcss-preset-mantine`) - responsive mixins no funcionan               |
 | P2-5  | T2   | Schema `createFeePlanInput` sin validacion condicional RECURRING (frequency + billingMonths)   |
 | P2-6  | T2   | Colores badges en ImportTemplateModal inconsistentes con tabla principal                       |
 | P2-7  | T3   | Falta Breadcrumb en pagina de suscripciones                                                    |
@@ -118,7 +118,7 @@ Clickear "Socios", "Tesoreria" o "Configuracion" navega a pagina en blanco.
 | P2-9  | T3   | SubscriptionSelector no filtra planes por memberTypeId                                         |
 | P2-10 | T4   | Hook `useSimpleRegistration` no maneja error HTTP 412                                          |
 | P2-11 | T4   | `onValidChange` falta en dependency array del useEffect                                        |
-| P2-12 | T5   | Workflow morosidad hardcodeado — fases estaticas con texto "Pendiente" fijo                    |
+| P2-12 | T5   | Workflow morosidad hardcodeado - fases estaticas con texto "Pendiente" fijo                    |
 | P2-13 | T5   | Notificacion exito generica sin detalles (fecha, suscripciones cerradas)                       |
 | P2-14 | T5   | Falta boton "Procesar Baja por Impago" para estado PENDING_PAYMENT                             |
 | P2-15 | T5   | Falta campo re-escritura "CONFIRMAR BAJA" en doble paso                                        |
@@ -128,7 +128,7 @@ Clickear "Socios", "Tesoreria" o "Configuracion" navega a pagina en blanco.
 
 ---
 
-## Seccion 4: Issues BAJOS (P3) — Cosmeticos/tecnicos menores
+## Seccion 4: Issues BAJOS (P3) - Cosmeticos/tecnicos menores
 
 | #     | Task | Issue                                                                     |
 | ----- | ---- | ------------------------------------------------------------------------- |
@@ -166,9 +166,9 @@ A pesar de los bugs criticos, la **base estructural** es solida:
 
 ---
 
-## Seccion 6: Estrategia de Subsanacion — Flujos SDD Propuestos
+## Seccion 6: Estrategia de Subsanacion - Flujos SDD Propuestos
 
-### SDD-1: `fix/permissions-and-navigation` (P0 — BLOQUEANTE)
+### SDD-1: `fix/permissions-and-navigation` (P0 - BLOQUEANTE)
 
 **Alcance:** Desbloquea TODA la aplicacion. Sin este fix, nada mas importa.
 
@@ -182,7 +182,7 @@ A pesar de los bugs criticos, la **base estructural** es solida:
 
 **Estimacion de complejidad:** Baja-media. ~5 archivos afectados.
 
-### SDD-2: `fix/route-params-and-accessibility` (P0 — BLOQUEANTE)
+### SDD-2: `fix/route-params-and-accessibility` (P0 - BLOQUEANTE)
 
 **Alcance:** Hace accesibles las paginas que existen pero no se pueden alcanzar.
 
@@ -258,4 +258,4 @@ SDD-2 (routes/nav)   ─┘         │
 
 ## Nota sobre el "boton gris" del login
 
-El boton "Acceder" usa `color="brand"` correctamente. El color brand base es `#5B7682` (gris azulado) — **es asi por diseno de marca**, documentado en `doc/brand/001-associated-brand-foundation.md`. Si se desea un boton mas vibrante, requiere revision del Brand Foundation, no un fix de implementacion.
+El boton "Acceder" usa `color="brand"` correctamente. El color brand base es `#5B7682` (gris azulado) - **es asi por diseno de marca**, documentado en `doc/brand/001-associated-brand-foundation.md`. Si se desea un boton mas vibrante, requiere revision del Brand Foundation, no un fix de implementacion.

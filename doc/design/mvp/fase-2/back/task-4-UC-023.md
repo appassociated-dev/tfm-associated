@@ -1,4 +1,4 @@
-# Task 4 — UC-023: Generación de remesas SEPA (Backend)
+# Task 4 - UC-023: Generación de remesas SEPA (Backend)
 
 ## Información general
 
@@ -47,14 +47,14 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel, MinIO/S3 |
-| **Fase 1 — UC-001 (Provisión de tenant)** | Tenant provisionado con BD aislada |
-| **Fase 1 — UC-011 (Alta simple de socio)** | Socios registrados con `MemberAccount` |
-| **Fase 1 — UC-019 (Cargos periódicos)** | Cargos generados en estado PENDING |
-| **Fase 1 — UC-021 (Registro de cobros)** | Aggregate `MemberAccount` con entity `Payment` |
-| **Fase 2 — UC-020 (Cargos manuales)** | Cargos manuales en estado PENDING (opcional, aporta más cargos cobrables) |
+| Tarea                                      | Artefacto necesario                                                       |
+| ------------------------------------------ | ------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**                      | Estructura de módulos NestJS, Shared kernel, MinIO/S3                     |
+| **Fase 1 - UC-001 (Provisión de tenant)**  | Tenant provisionado con BD aislada                                        |
+| **Fase 1 - UC-011 (Alta simple de socio)** | Socios registrados con `MemberAccount`                                    |
+| **Fase 1 - UC-019 (Cargos periódicos)**    | Cargos generados en estado PENDING                                        |
+| **Fase 1 - UC-021 (Registro de cobros)**   | Aggregate `MemberAccount` con entity `Payment`                            |
+| **Fase 2 - UC-020 (Cargos manuales)**      | Cargos manuales en estado PENDING (opcional, aporta más cargos cobrables) |
 
 ### Checklist de verificación de dependencias
 
@@ -70,30 +70,30 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Aggregate `SepaRemittance` con entity `SepaDebit` | UC-024 (devoluciones SEPA) |
-| Entity `SepaMandate` en `MemberAccount` | UC-024 (consulta de mandatos), frontend de ficha de socio |
-| Fichero XML pain.008 descargable | Banca online del tenant (manual: descarga → upload en banco) |
-| Configuración SEPA del tenant | UC-024 (contexto de acreedor) |
-| Endpoint de generación de remesa | Frontend UC-023 |
-| Evento `SepaRemittanceGenerated` | BC-Communication (avisar socios 2 días antes del cobro) |
-| Evento `SepaMandateRegistered` | Auditoría |
-| Cargos en estado EN_PROCESO_COBRO | UC-024 (transición a DEVUELTO o PAGADO) |
+| Artefacto                                         | Consumido por                                                |
+| ------------------------------------------------- | ------------------------------------------------------------ |
+| Aggregate `SepaRemittance` con entity `SepaDebit` | UC-024 (devoluciones SEPA)                                   |
+| Entity `SepaMandate` en `MemberAccount`           | UC-024 (consulta de mandatos), frontend de ficha de socio    |
+| Fichero XML pain.008 descargable                  | Banca online del tenant (manual: descarga → upload en banco) |
+| Configuración SEPA del tenant                     | UC-024 (contexto de acreedor)                                |
+| Endpoint de generación de remesa                  | Frontend UC-023                                              |
+| Evento `SepaRemittanceGenerated`                  | BC-Communication (avisar socios 2 días antes del cobro)      |
+| Evento `SepaMandateRegistered`                    | Auditoría                                                    |
+| Cargos en estado EN_PROCESO_COBRO                 | UC-024 (transición a DEVUELTO o PAGADO)                      |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-023.md` | Flujo completo: configuración acreedor, mandatos, generación remesa, tipos de secuencia |
-| `us/us-061.md` | Criterios: generación de remesa SEPA con selección de cargos |
-| `us/us-062.md` | Criterios: configuración del identificador de acreedor |
-| `us/us-063.md` | Criterios: registro de mandatos SEPA |
-| `us/us-064.md` | Criterios: determinación tipo de secuencia FRST/RCUR/OOFF |
-| `us/us-065.md` | Criterios: validación de plazos de presentación |
-| `bc/bc-treasury.md` | Aggregates SepaRemittance, SepaDebit, SepaMandate, CreditorIdentifier |
-| `adr/adr-008.md` | Outbox pattern para Domain Events |
-| `rnft/rnft-015.md` | Performance: generación de 200 adeudos en <5 segundos |
+| Documento           | Contenido relevante                                                                     |
+| ------------------- | --------------------------------------------------------------------------------------- |
+| `uc/uc-023.md`      | Flujo completo: configuración acreedor, mandatos, generación remesa, tipos de secuencia |
+| `us/us-061.md`      | Criterios: generación de remesa SEPA con selección de cargos                            |
+| `us/us-062.md`      | Criterios: configuración del identificador de acreedor                                  |
+| `us/us-063.md`      | Criterios: registro de mandatos SEPA                                                    |
+| `us/us-064.md`      | Criterios: determinación tipo de secuencia FRST/RCUR/OOFF                               |
+| `us/us-065.md`      | Criterios: validación de plazos de presentación                                         |
+| `bc/bc-treasury.md` | Aggregates SepaRemittance, SepaDebit, SepaMandate, CreditorIdentifier                   |
+| `adr/adr-008.md`    | Outbox pattern para Domain Events                                                       |
+| `rnft/rnft-015.md`  | Performance: generación de 200 adeudos en <5 segundos                                   |
 
 ## Puntos críticos
 
@@ -111,17 +111,17 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| XML generado no cumple schema ISO 20022 | Media | Alto | Usar librería SEPA validada. Test con XML validator antes de cada generación. Tests con schemas reales |
-| Tipo de secuencia incorrecto causa rechazo bancario | Media | Alto | Tests exhaustivos del algoritmo de Tabla 8 con todos los escenarios. Logging de cada asignación |
-| Cálculo de días hábiles incorrecto por festivos | Baja | Medio | Usar librería `date-holidays` para festivos españoles. Tests con fechas conocidas |
-| Fichero XML con caracteres especiales no SEPA | Media | Medio | Sanitizar todos los campos de texto: eliminar acentos, ñ→n, limitar a ASCII básico para campos XML |
-| Mandato caducado incluido como RCUR | Baja | Alto | Calcular monthsUnused para CADA mandato antes de incluir en remesa. Rechazar si caducado sin conversión a FRST |
+| Riesgo                                              | Probabilidad | Impacto | Mitigación                                                                                                     |
+| --------------------------------------------------- | ------------ | ------- | -------------------------------------------------------------------------------------------------------------- |
+| XML generado no cumple schema ISO 20022             | Media        | Alto    | Usar librería SEPA validada. Test con XML validator antes de cada generación. Tests con schemas reales         |
+| Tipo de secuencia incorrecto causa rechazo bancario | Media        | Alto    | Tests exhaustivos del algoritmo de Tabla 8 con todos los escenarios. Logging de cada asignación                |
+| Cálculo de días hábiles incorrecto por festivos     | Baja         | Medio   | Usar librería `date-holidays` para festivos españoles. Tests con fechas conocidas                              |
+| Fichero XML con caracteres especiales no SEPA       | Media        | Medio   | Sanitizar todos los campos de texto: eliminar acentos, ñ→n, limitar a ASCII básico para campos XML             |
+| Mandato caducado incluido como RCUR                 | Baja         | Alto    | Calcular monthsUnused para CADA mandato antes de incluir en remesa. Rechazar si caducado sin conversión a FRST |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects SEPA
+### Paso 1: Capa de dominio - Value Objects SEPA
 
 Crear en `api/src/treasury/domain/value-objects/`:
 
@@ -132,24 +132,25 @@ Crear en `api/src/treasury/domain/value-objects/`:
 - **`MandateStatus`**: Enum VO con valores `ACTIVE`, `REVOKED`, `EXPIRED`
 - **`DebitStatus`**: Enum VO con valores `INCLUDED`, `COLLECTED`, `RETURNED`
 
-### Paso 2: Capa de dominio — Entity SepaMandate
+### Paso 2: Capa de dominio - Entity SepaMandate
 
 Crear en `api/src/treasury/domain/entities/sepa-mandate.ts`:
 
 - Entity `SepaMandate` dentro de `MemberAccount`:
   - `id: MandateId`, `reference: MandateReference`, `debtorIban: string` (cifrado), `debtorName: string`
   - `signatureDate: Date`, `lastDebitDate: Date?`, `status: MandateStatus`, `signedDocumentId?: string`
-  - Método `isExpired(): boolean` — `lastDebitDate && monthsDiff(lastDebitDate, now) >= 36`
-  - Método `determineSequenceType(isOneTimeCharge: boolean): SepaSequence` — implementa Tabla 8
+  - Método `isExpired(): boolean` - `lastDebitDate && monthsDiff(lastDebitDate, now) >= 36`
+  - Método `determineSequenceType(isOneTimeCharge: boolean): SepaSequence` - implementa Tabla 8
   - Método `updateLastDebitDate(date: Date): void`
-  - Método `revoke(): void` — cambia status a REVOKED
+  - Método `revoke(): void` - cambia status a REVOKED
 
 Añadir a `MemberAccount`:
+
 - Propiedad `sepaMandate?: SepaMandate`
 - Método `registerMandate(mandateData): void`
 - Método `revokeMandate(): void`
 
-### Paso 3: Capa de dominio — Aggregate SepaRemittance
+### Paso 3: Capa de dominio - Aggregate SepaRemittance
 
 Crear en `api/src/treasury/domain/aggregates/sepa-remittance.ts`:
 
@@ -162,15 +163,15 @@ Crear en `api/src/treasury/domain/aggregates/sepa-remittance.ts`:
     - Valida que todos los débitos tienen mandato válido
     - Calcula `totalAmount` y `totalDebits`
     - Registra evento `SepaRemittanceGenerated`
-  - Método `markAsSent(): void` — transiciona a SENT, registra evento `SepaRemittanceSent`
-  - Método `markAsProcessed(): void` — transiciona a PROCESSED
+  - Método `markAsSent(): void` - transiciona a SENT, registra evento `SepaRemittanceSent`
+  - Método `markAsProcessed(): void` - transiciona a PROCESSED
 
 - Entity `SepaDebit` dentro de `SepaRemittance`:
   - `id: DebitId`, `chargeId: ChargeId`, `mandateId: MandateId`, `amount: Money`
   - `sequenceType: SepaSequence`, `debtorName: string`, `debtorIban: string`
   - `status: DebitStatus`, `returnReason?: string`, `returnDate?: Date`
 
-### Paso 4: Capa de dominio — Domain Service SepaRemittanceGenerator
+### Paso 4: Capa de dominio - Domain Service SepaRemittanceGenerator
 
 Crear en `api/src/treasury/domain/services/sepa-remittance-generator.ts`:
 
@@ -185,13 +186,13 @@ Crear en `api/src/treasury/domain/services/sepa-remittance-generator.ts`:
   - Retorna XML como string
 
 - **`BusinessDayCalculator`**: Domain Service para cálculo de días hábiles
-  - `isBusinessDay(date: Date): boolean` — excluye sábados, domingos y festivos nacionales
+  - `isBusinessDay(date: Date): boolean` - excluye sábados, domingos y festivos nacionales
   - `addBusinessDays(date: Date, days: number): Date`
   - `countBusinessDays(from: Date, to: Date): number`
-  - `getMinimumChargeDate(fromDate: Date): Date` — añade 3 días hábiles
+  - `getMinimumChargeDate(fromDate: Date): Date` - añade 3 días hábiles
   - Festivos nacionales españoles cargados desde constante o configuración
 
-### Paso 5: Capa de dominio — SEPA Config
+### Paso 5: Capa de dominio - SEPA Config
 
 Crear en `api/src/treasury/domain/entities/sepa-config.ts`:
 
@@ -201,7 +202,7 @@ Crear en `api/src/treasury/domain/entities/sepa-config.ts`:
   - `bankFeesPerReturn: Money` (gastos por devolución, configurable)
   - `maxRetries: number` (límite de reintentos, por defecto 3)
 
-### Paso 6: Capa de aplicación — Commands y Queries
+### Paso 6: Capa de aplicación - Commands y Queries
 
 Crear en `api/src/treasury/application/`:
 
@@ -226,7 +227,7 @@ Crear en `api/src/treasury/application/`:
   - `RemittanceResponseDto`: `{ id, chargeDate, status, totalDebits, totalAmount, xmlAvailable }`
   - `RemittancePreviewDto`: `{ totalDebits, totalAmount, firstDebits: number, recurringDebits: number, oneOffDebits: number, membersWithoutMandate: number }`
 
-### Paso 7: Capa de aplicación — Handlers
+### Paso 7: Capa de aplicación - Handlers
 
 Crear en `api/src/treasury/application/commands/`:
 
@@ -267,7 +268,7 @@ Crear en `api/src/treasury/application/commands/`:
   3. Actualizar `lastDebitDate` en mandatos de adeudos FRST y RCUR
   4. Persistir y publicar evento `SepaRemittanceSent`
 
-### Paso 8: Capa de infraestructura — Repository y Storage
+### Paso 8: Capa de infraestructura - Repository y Storage
 
 Crear en `api/src/treasury/infrastructure/persistence/`:
 
@@ -282,7 +283,7 @@ Crear en `api/src/treasury/infrastructure/services/`:
   - `retrieve(remittanceId: string): Promise<string>` (retorna XML)
   - Retención: 5 años (requisito legal)
 
-### Paso 9: Capa de infraestructura — Controller
+### Paso 9: Capa de infraestructura - Controller
 
 Crear en `api/src/treasury/infrastructure/controllers/`:
 
@@ -303,6 +304,7 @@ Crear en `api/src/treasury/infrastructure/controllers/`:
 ### Paso 10: Tests
 
 **Tests unitarios (dominio):**
+
 - `CreditorIdentifier.create()` con formato válido → OK. Con formato inválido → error. Dígito de control → calculado correctamente
 - `SepaMandate.determineSequenceType()` → FRST si `lastDebitDate = null`, RCUR si uso reciente, FRST si >36 meses, OOFF si cobro único
 - `SepaRemittance.create()` con fecha insuficiente → error de plazo
@@ -310,12 +312,14 @@ Crear en `api/src/treasury/infrastructure/controllers/`:
 - `BusinessDayCalculator.addBusinessDays()` → cálculo correcto saltando fines de semana y festivos
 
 **Tests unitarios (aplicación):**
+
 - `GenerateRemittanceHandler` con mocks → flujo completo incluyendo generación XML
 - `GenerateRemittanceHandler` sin config SEPA → error FE-1
 - `GenerateRemittanceHandler` con fecha insuficiente → error FE-2
 - `RegisterMandateHandler` → mandato creado con status ACTIVE
 
 **Tests de integración:**
+
 - Configuración SEPA completa, registro de mandato, generación de remesa con 10 adeudos
 - Verificar que XML generado es parseable y contiene todos los adeudos
 - Verificar tipos de secuencia: mix de FRST y RCUR en misma remesa

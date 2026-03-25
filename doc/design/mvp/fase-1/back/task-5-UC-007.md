@@ -1,4 +1,4 @@
-# Task 5 — UC-007: Gestión de estados del socio (Backend)
+# Task 5 - UC-007: Gestión de estados del socio (Backend)
 
 ## Información general
 
@@ -44,12 +44,12 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
-| **F1-Back Task 1 — UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados |
-| **F1-Back Task 2 — UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT |
-| **F1-Back Task 3 — UC-008** | Aggregate `MemberType` (dominio), modelo `MemberType` en schema tenant, tipos de socio configurados para asignar a miembros |
+| Tarea                       | Artefacto necesario                                                                                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**       | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
+| **F1-Back Task 1 - UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados                                                                              |
+| **F1-Back Task 2 - UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT                                          |
+| **F1-Back Task 3 - UC-008** | Aggregate `MemberType` (dominio), modelo `MemberType` en schema tenant, tipos de socio configurados para asignar a miembros                                                       |
 
 ### Checklist de verificación de dependencias
 
@@ -69,23 +69,23 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
+| Artefacto                                           | Consumido por                                                                                                              |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | Aggregate `Member` con máquina de estados (dominio) | UC-006 (alta de socio inicia en APPLICANT/ACTIVE), UC-011 (registro completo de socio), UC-013 (rehabilitación desde baja) |
-| Entity `StatusHistory` (dominio) | UC-006 (primera entrada al dar de alta), UC-011 (timeline), consultas de auditoría |
-| Domain Service `StatusTransitionValidator` | UC-006 (validar transición APPLICANT → ACTIVE), UC-013 (rehabilitación), UC-021 (sanción → DISCIPLINARY_LEAVE) |
-| `DelinquencyManager` (infraestructura) | Proceso nocturno de morosidad, BC-Treasury (trigger de detección de impagos) |
-| Modelo `StatusHistory` en schema tenant Prisma | Consultas de historial, auditoría, timeline |
-| Endpoints REST de estados | Frontend UC-007, testing manual |
-| Evento `MemberStatusChanged` | BC-Treasury (suspender/reactivar cobros), BC-Communication (notificar socio) |
+| Entity `StatusHistory` (dominio)                    | UC-006 (primera entrada al dar de alta), UC-011 (timeline), consultas de auditoría                                         |
+| Domain Service `StatusTransitionValidator`          | UC-006 (validar transición APPLICANT → ACTIVE), UC-013 (rehabilitación), UC-021 (sanción → DISCIPLINARY_LEAVE)             |
+| `DelinquencyManager` (infraestructura)              | Proceso nocturno de morosidad, BC-Treasury (trigger de detección de impagos)                                               |
+| Modelo `StatusHistory` en schema tenant Prisma      | Consultas de historial, auditoría, timeline                                                                                |
+| Endpoints REST de estados                           | Frontend UC-007, testing manual                                                                                            |
+| Evento `MemberStatusChanged`                        | BC-Treasury (suspender/reactivar cobros), BC-Communication (notificar socio)                                               |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-007.md` | Flujo completo de transiciones, Tabla 1 (matriz de transiciones), historial, transiciones automáticas, flujos de excepción |
-| `us/us-014.md` | Criterios de aceptación: 8 estados, transición automática por morosidad, transiciones controladas con rechazo |
-| `bc/bc-membership.md` | Aggregate Member — estructura, comportamientos (changeStatus, deactivate), Value Objects (MemberStatus), Domain Events (MemberStatusChanged) |
+| Documento             | Contenido relevante                                                                                                                          |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `uc/uc-007.md`        | Flujo completo de transiciones, Tabla 1 (matriz de transiciones), historial, transiciones automáticas, flujos de excepción                   |
+| `us/us-014.md`        | Criterios de aceptación: 8 estados, transición automática por morosidad, transiciones controladas con rechazo                                |
+| `bc/bc-membership.md` | Aggregate Member - estructura, comportamientos (changeStatus, deactivate), Value Objects (MemberStatus), Domain Events (MemberStatusChanged) |
 
 ## Puntos críticos
 
@@ -103,34 +103,34 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| `DelinquencyManager` procesa lote grande (>500 socios) y excede timeout | Media | Medio | Procesar en batches de 50. Registrar progreso. Implementar reanudación desde último procesado |
-| Race condition entre cambio manual y automático sobre mismo socio | Baja | Alto | Optimistic locking con campo `version`. Reintentar automáticamente 1 vez si falla por versión |
-| Historial de estados crece sin límite en tenants con mucha rotación | Baja | Bajo | No paginar en consulta (timeline limitado naturalmente). En futuro: archivado de históricos > 5 años |
-| Evento `MemberStatusChanged` no procesado por BC-Treasury (cobros siguen activos) | Baja | Alto | Outbox pattern con reintentos. Monitorizar cola de eventos. Alerta si evento no procesado en 5 minutos |
+| Riesgo                                                                            | Probabilidad | Impacto | Mitigación                                                                                             |
+| --------------------------------------------------------------------------------- | ------------ | ------- | ------------------------------------------------------------------------------------------------------ |
+| `DelinquencyManager` procesa lote grande (>500 socios) y excede timeout           | Media        | Medio   | Procesar en batches de 50. Registrar progreso. Implementar reanudación desde último procesado          |
+| Race condition entre cambio manual y automático sobre mismo socio                 | Baja         | Alto    | Optimistic locking con campo `version`. Reintentar automáticamente 1 vez si falla por versión          |
+| Historial de estados crece sin límite en tenants con mucha rotación               | Baja         | Bajo    | No paginar en consulta (timeline limitado naturalmente). En futuro: archivado de históricos > 5 años   |
+| Evento `MemberStatusChanged` no procesado por BC-Treasury (cobros siguen activos) | Baja         | Alto    | Outbox pattern con reintentos. Monitorizar cola de eventos. Alerta si evento no procesado en 5 minutos |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects
+### Paso 1: Capa de dominio - Value Objects
 
 Crear en `api/src/membership/domain/value-objects/`:
 
 - **`MemberId`**: Extiende `Identifier`. UUID v4. Método factory `create(): MemberId` y `fromString(id: string): MemberId`
 - **`MemberStatus`**: Enum VO con valores:
-  - `ACTIVE` — plenos derechos
-  - `PENDING_PAYMENT` — derechos limitados (sin voto)
-  - `SUSPENDED` — sin derechos
-  - `APPLICANT` — sin derechos (en proceso de alta)
-  - `VOLUNTARY_LEAVE` — terminal rehabilitable
-  - `NONPAYMENT_LEAVE` — terminal rehabilitable
-  - `DISCIPLINARY_LEAVE` — terminal inmutable
-  - `DECEASED` — terminal inmutable
+  - `ACTIVE` - plenos derechos
+  - `PENDING_PAYMENT` - derechos limitados (sin voto)
+  - `SUSPENDED` - sin derechos
+  - `APPLICANT` - sin derechos (en proceso de alta)
+  - `VOLUNTARY_LEAVE` - terminal rehabilitable
+  - `NONPAYMENT_LEAVE` - terminal rehabilitable
+  - `DISCIPLINARY_LEAVE` - terminal inmutable
+  - `DECEASED` - terminal inmutable
 - **`StatusChangeReason`**: Value Object con `reason: string`. Método factory `create(reason: string): Result<StatusChangeReason, ReasonRequiredError>`. Invariante: no vacío, mínimo 3 caracteres, máximo 500 caracteres
 
 Tests unitarios: enumeración completa de `MemberStatus`, validación de `StatusChangeReason` (válido, vacío, demasiado corto, demasiado largo).
 
-### Paso 2: Capa de dominio — Entity StatusHistory
+### Paso 2: Capa de dominio - Entity StatusHistory
 
 Crear en `api/src/membership/domain/entities/status-history.ts`:
 
@@ -150,7 +150,7 @@ Crear en `api/src/membership/domain/entities/status-history.ts`:
 
 Tests unitarios: creación válida, rechazo si `previousStatus === newStatus`, inmutabilidad (no hay setters).
 
-### Paso 3: Capa de dominio — Domain Service StatusTransitionValidator
+### Paso 3: Capa de dominio - Domain Service StatusTransitionValidator
 
 Crear en `api/src/membership/domain/services/status-transition-validator.ts`:
 
@@ -172,6 +172,7 @@ Crear en `api/src/membership/domain/services/status-transition-validator.ts`:
   - `isImmutable(status: MemberStatus): boolean`: retorna true si es `DISCIPLINARY_LEAVE` o `DECEASED` (ni siquiera rehabilitación)
 
 Tests unitarios (sin mocks, dominio puro):
+
 - Todas las transiciones válidas de la matriz → aceptadas
 - Transiciones inválidas (ej: `ACTIVE → DECEASED` sin pasar por suspensión) → rechazadas
 - Transiciones desde terminales → rechazadas con mensaje apropiado
@@ -179,7 +180,7 @@ Tests unitarios (sin mocks, dominio puro):
 - `getAvailableTransitions(DECEASED)` → retorna array vacío
 - `isTerminal` y `isImmutable` correctos para cada estado
 
-### Paso 4: Capa de dominio — Extensión del Aggregate Member
+### Paso 4: Capa de dominio - Extensión del Aggregate Member
 
 Crear/extender en `api/src/membership/domain/aggregates/member.ts`:
 
@@ -202,6 +203,7 @@ Crear/extender en `api/src/membership/domain/aggregates/member.ts`:
   - Los cambios de estado solo se ejecutan via `changeStatus()` (encapsulación)
 
 Tests unitarios:
+
 - Transición `ACTIVE → PENDING_PAYMENT` → estado actualizado, historial con nueva entrada, evento emitido
 - Transición `ACTIVE → DECEASED` → rechazada (no está en la matriz)
 - Transición desde `DECEASED` → rechazada (inmutable)
@@ -209,13 +211,13 @@ Tests unitarios:
 - Múltiples transiciones secuenciales → historial acumula todas las entradas en orden
 - Optimistic locking: versión incrementada en cada cambio
 
-### Paso 5: Capa de dominio — Domain Events
+### Paso 5: Capa de dominio - Domain Events
 
 Crear en `api/src/membership/domain/events/`:
 
 - **`MemberStatusChangedEvent`**: Extiende `DomainEvent`. Payload: `{ memberId: UUID, previousStatus: string, newStatus: string, reason: string, changedBy: string, changedAt: Date }`
 
-### Paso 6: Capa de dominio — Repository interfaces
+### Paso 6: Capa de dominio - Repository interfaces
 
 Crear/extender en `api/src/membership/domain/repositories/`:
 
@@ -230,26 +232,29 @@ Crear/extender en `api/src/membership/domain/repositories/`:
   - `save(entry: StatusHistory): Promise<void>`
   - `findByMemberId(memberId: MemberId): Promise<StatusHistory[]>` (ordenado por `changedAt` DESC)
 
-### Paso 7: Capa de aplicación — Commands, Queries y DTOs
+### Paso 7: Capa de aplicación - Commands, Queries y DTOs
 
 Crear en `api/src/membership/application/`:
 
 **Commands:**
+
 - **`ChangeStatusCommand`**: `{ memberId, newStatus, reason, changedBy }`
 - **`RunDelinquencyCheckCommand`**: `{ daysOverdue: number }` (por defecto 90)
 
 **Queries:**
+
 - **`GetStatusHistoryQuery`**: `{ memberId }`
 - **`GetAvailableTransitionsQuery`**: `{ memberId }`
 
 **DTOs:**
+
 - **`ChangeStatusDto`**: DTO de entrada: `@IsEnum(MemberStatus)` para newStatus, `@IsNotEmpty()` `@MinLength(3)` `@MaxLength(500)` para reason
 - **`StatusHistoryEntryDto`**: DTO de salida: `id`, `previousStatus`, `newStatus`, `reason`, `changedBy`, `changedAt`
 - **`StatusHistoryResponseDto`**: DTO de salida: `memberId`, `currentStatus`, `entries: StatusHistoryEntryDto[]`
 - **`AvailableTransitionsDto`**: DTO de salida: `memberId`, `currentStatus`, `availableTransitions: Array<{ status: string, description: string }>`
 - **`DelinquencyCheckResultDto`**: DTO de salida: `processedCount`, `transitionedCount`, `errors: Array<{ memberId, error }>`
 
-### Paso 8: Capa de aplicación — Handlers
+### Paso 8: Capa de aplicación - Handlers
 
 **`ChangeStatusHandler`:**
 
@@ -264,6 +269,7 @@ Crear en `api/src/membership/application/`:
 9. Retornar confirmación con nuevo estado
 
 **En caso de fallo de optimistic locking:**
+
 - Reintentar 1 vez (recargar aggregate, re-ejecutar transición)
 - Si falla de nuevo → error 409 "El socio fue modificado concurrentemente, intente de nuevo"
 - Reportar vía `ErrorReporter.captureException()` si falla en el reintento
@@ -292,7 +298,7 @@ Crear en `api/src/membership/application/`:
 2. Obtener transiciones disponibles via `statusTransitionValidator.getAvailableTransitions(member.currentStatus)`
 3. Retornar `AvailableTransitionsDto`
 
-### Paso 9: Capa de infraestructura — Schema Prisma (tenant)
+### Paso 9: Capa de infraestructura - Schema Prisma (tenant)
 
 Extender `api/prisma/tenant/schema.prisma` con:
 
@@ -313,6 +319,7 @@ model StatusHistory {
 ```
 
 Nota: También extender el modelo `Member` (cuando exista, se creará en UC-006) con:
+
 - `current_status String @default("APPLICANT") @db.VarChar(30)`
 - `version Int @default(0)`
 
@@ -333,7 +340,7 @@ model Member {
 }
 ```
 
-### Paso 10: Capa de infraestructura — Repository (Prisma)
+### Paso 10: Capa de infraestructura - Repository (Prisma)
 
 Crear en `api/src/membership/infrastructure/persistence/`:
 
@@ -342,34 +349,35 @@ Crear en `api/src/membership/infrastructure/persistence/`:
 - Mappers: `MemberPrismaMapper`, `StatusHistoryPrismaMapper` (toDomain / toPersistence)
 - La conexión se obtiene del tenant activo en el request (vía `PrismaTenantService`)
 
-### Paso 11: Capa de infraestructura — DelinquencyManager
+### Paso 11: Capa de infraestructura - DelinquencyManager
 
 Crear en `api/src/membership/infrastructure/services/delinquency-manager.ts`:
 
 - **`DelinquencyManager`**: Servicio de infraestructura que encapsula la detección y procesamiento de morosidad
-- Utiliza `@nestjs/schedule` con `@Cron('0 2 * * *')` para ejecución nocturna (2:00 AM) — configurable
+- Utiliza `@nestjs/schedule` con `@Cron('0 2 * * *')` para ejecución nocturna (2:00 AM) - configurable
 - Alternativamente, expuesto como endpoint para invocación manual en testing
 - Flujo: obtener socios morosos → filtrar activos → cambiar estado en batch → reportar resultados
 - Tolerancia a fallos: si un socio falla, se registra el error y se continúa con el siguiente
 - Reportar excepciones individuales vía `ErrorReporter.captureException()`
 
-### Paso 12: Capa de infraestructura — Controller
+### Paso 12: Capa de infraestructura - Controller
 
 Crear en `api/src/membership/infrastructure/controllers/member-status.controller.ts`:
 
-| Endpoint | Método | Auth | Permiso | Body/Params | Response |
-|----------|--------|------|---------|-------------|----------|
-| `/api/v1/members/:id/status` | POST | JWT | `membership:members:update-status` | `ChangeStatusDto` | 200 con `{ memberId, previousStatus, newStatus, changedAt }` |
-| `/api/v1/members/:id/status-history` | GET | JWT | `membership:members:read` | Param: `id` | 200 con `StatusHistoryResponseDto` |
-| `/api/v1/members/:id/available-transitions` | GET | JWT | `membership:members:read` | Param: `id` | 200 con `AvailableTransitionsDto` |
-| `/api/v1/members/delinquency-check` | POST | JWT | `membership:members:update-status` | `{ daysOverdue?: number }` | 200 con `DelinquencyCheckResultDto` |
+| Endpoint                                    | Método | Auth | Permiso                            | Body/Params                | Response                                                     |
+| ------------------------------------------- | ------ | ---- | ---------------------------------- | -------------------------- | ------------------------------------------------------------ |
+| `/api/v1/members/:id/status`                | POST   | JWT  | `membership:members:update-status` | `ChangeStatusDto`          | 200 con `{ memberId, previousStatus, newStatus, changedAt }` |
+| `/api/v1/members/:id/status-history`        | GET    | JWT  | `membership:members:read`          | Param: `id`                | 200 con `StatusHistoryResponseDto`                           |
+| `/api/v1/members/:id/available-transitions` | GET    | JWT  | `membership:members:read`          | Param: `id`                | 200 con `AvailableTransitionsDto`                            |
+| `/api/v1/members/delinquency-check`         | POST   | JWT  | `membership:members:update-status` | `{ daysOverdue?: number }` | 200 con `DelinquencyCheckResultDto`                          |
 
 - Swagger decorators para documentación automática
-- Errores: 404 Not Found (socio no encontrado), 422 Unprocessable Entity (transición no permitida), 409 Conflict (concurrencia — optimistic locking)
+- Errores: 404 Not Found (socio no encontrado), 422 Unprocessable Entity (transición no permitida), 409 Conflict (concurrencia - optimistic locking)
 
 ### Paso 13: Tests
 
 **Tests unitarios (dominio):**
+
 - `StatusTransitionValidator.validate()`: todas las transiciones válidas de la matriz aceptadas
 - `StatusTransitionValidator.validate()`: transiciones inválidas rechazadas (ej: `ACTIVE → DECEASED`, `VOLUNTARY_LEAVE → ACTIVE`)
 - `StatusTransitionValidator.getAvailableTransitions()`: retorna estados correctos para cada origen
@@ -385,6 +393,7 @@ Crear en `api/src/membership/infrastructure/controllers/member-status.controller
 - `StatusChangeReason.create()`: validación (válido, vacío, demasiado corto)
 
 **Tests unitarios (aplicación):**
+
 - `ChangeStatusHandler` con mocks de `MemberRepository` y `StatusHistoryRepository`:
   - Caso éxito: transición válida ejecutada, historial guardado, evento publicado
   - Caso socio no encontrado: 404
@@ -404,6 +413,7 @@ Crear en `api/src/membership/infrastructure/controllers/member-status.controller
   - Caso `DECEASED`: retorna array vacío
 
 **Tests de integración:**
+
 - Cambio de estado contra BD real (Testcontainers):
   - Crear socio (mínimo) → cambiar estado `APPLICANT → ACTIVE` → verificar persistencia
   - Verificar que `StatusHistory` se crea correctamente

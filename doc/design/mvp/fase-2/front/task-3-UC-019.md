@@ -1,4 +1,4 @@
-# Task 3 — UC-019: Vista de cargos periódicos (Frontend)
+# Task 3 - UC-019: Vista de cargos periódicos (Frontend)
 
 ## Información general
 
@@ -33,31 +33,31 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F1-Back Task 11 — UC-019** | Endpoints REST: `GET /charges?type=periodic` (listado), `GET /charges/:id` (detalle), `POST /charges/generate` (ejecución manual), `GET /charges/generation-log` (resultado) |
-| **F1-Front Task 1 — UC-002** | AuthProvider, usePermissions(), HttpClient |
-| **F2-Front Task 1 — UC-006** | Componente `MemberSearchCombobox` para filtrar por socio |
+| Tarea                        | Artefacto necesario                                                                                                                                                          |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **F1-Back Task 11 - UC-019** | Endpoints REST: `GET /charges?type=periodic` (listado), `GET /charges/:id` (detalle), `POST /charges/generate` (ejecución manual), `GET /charges/generation-log` (resultado) |
+| **F1-Front Task 1 - UC-002** | AuthProvider, usePermissions(), HttpClient                                                                                                                                   |
+| **F2-Front Task 1 - UC-006** | Componente `MemberSearchCombobox` para filtrar por socio                                                                                                                     |
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Página `/treasury/charges/periodic` | Navegación de tesorería |
-| Hooks `useCharges()`, `useCharge()` | UC-021 (cobros), UC-023 (remesas) |
-| Componente `ChargeStatusBadge` reutilizable | UC-020 (cargos manuales), UC-021 (cobros), UC-024 (devoluciones) |
-| Componente `ChargeDetailDrawer` reutilizable | Cualquier vista que necesite detalle de cargo |
+| Artefacto                                    | Consumido por                                                    |
+| -------------------------------------------- | ---------------------------------------------------------------- |
+| Página `/treasury/charges/periodic`          | Navegación de tesorería                                          |
+| Hooks `useCharges()`, `useCharge()`          | UC-021 (cobros), UC-023 (remesas)                                |
+| Componente `ChargeStatusBadge` reutilizable  | UC-020 (cargos manuales), UC-021 (cobros), UC-024 (devoluciones) |
+| Componente `ChargeDetailDrawer` reutilizable | Cualquier vista que necesite detalle de cargo                    |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
-| `uc/uc-019.md` | Flujo de generación automática, prorrateo, ejecución manual, prevención de duplicados |
-| `us/us-047.md` | Criterios: proceso mensual, evaluación de suscripciones |
-| `us/us-048.md` | Criterios: prorrateo en altas a mitad de ejercicio |
-| `bc/bc-treasury.md` | Entity Charge, ChargeStatus, estados y transiciones |
+| `uc/uc-019.md`                                      | Flujo de generación automática, prorrateo, ejecución manual, prevención de duplicados                                              |
+| `us/us-047.md`                                      | Criterios: proceso mensual, evaluación de suscripciones                                                                            |
+| `us/us-048.md`                                      | Criterios: prorrateo en altas a mitad de ejercicio                                                                                 |
+| `bc/bc-treasury.md`                                 | Entity Charge, ChargeStatus, estados y transiciones                                                                                |
 
 ## Puntos críticos
 
@@ -90,7 +90,7 @@
   - Columnas numéricas (importe): `fontVariantNumeric: 'tabular-nums'`, `textAlign: 'right'`
   - Columnas de fecha (emisión, vencimiento): `textAlign: 'right'`. Formato español: largo "8 de marzo de 2026", compacto "08/03/2026" (dd/MM/yyyy). Nunca formato anglosajón
   - Headers de columna: `uppercase`, `fz="xs"`, `fw={600}`, `c="dimmed"`
-- **`ChargeStatusBadge.tsx`**: Badge con color por estado (verde=PAID, amarillo=PENDING, rojo=RETURNED, amarillo=PARTIAL con `color="yellow"`). Todos los badges: `variant="light"`, `radius="sm"`. No usar naranja/orange — no es un color semántico definido en la guía de marca. Warning = `yellow` (shade 6, `#FAB005`)
+- **`ChargeStatusBadge.tsx`**: Badge con color por estado (verde=PAID, amarillo=PENDING, rojo=RETURNED, amarillo=PARTIAL con `color="yellow"`). Todos los badges: `variant="light"`, `radius="sm"`. No usar naranja/orange - no es un color semántico definido en la guía de marca. Warning = `yellow` (shade 6, `#FAB005`)
 - **`ChargeDetailDrawer.tsx`**: Drawer lateral con detalle del cargo + pagos asociados
 - **`ManualGenerationPanel.tsx`**: Panel con selector de mes/año, botón ejecutar, resultado
 - **`GenerationResultCard.tsx`**: Card con resumen de última generación

@@ -1,4 +1,4 @@
-# Task 2 — UC-002: Autenticación multi-tenant (Backend)
+# Task 2 - UC-002: Autenticación multi-tenant (Backend)
 
 ## Información general
 
@@ -44,10 +44,10 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Guards base (`jwt-auth.guard.ts`, `permissions.guard.ts`), PrismaMainService, middleware tenant, esquema de respuesta API |
-| **F1-Back Task 1 — UC-001** | Aggregate `Tenant` (dominio), tabla `tenants` con datos, tabla `users` con admin creado, tabla `roles` con permisos seedeados, tabla `tenant_memberships`, tabla `refresh_tokens`, `DatabaseProvisioningService` (para tests de integración que necesiten un tenant provisionado) |
+| Tarea                       | Artefacto necesario                                                                                                                                                                                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**       | Guards base (`jwt-auth.guard.ts`, `permissions.guard.ts`), PrismaMainService, middleware tenant, esquema de respuesta API                                                                                                                                                         |
+| **F1-Back Task 1 - UC-001** | Aggregate `Tenant` (dominio), tabla `tenants` con datos, tabla `users` con admin creado, tabla `roles` con permisos seedeados, tabla `tenant_memberships`, tabla `refresh_tokens`, `DatabaseProvisioningService` (para tests de integración que necesiten un tenant provisionado) |
 
 ### Checklist de verificación de dependencias
 
@@ -65,29 +65,29 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Aggregate `User` completo (dominio) | UC-004 (roles), UC-006/UC-011 (relación con Member) |
-| `JwtAuthGuard` funcional | Todos los endpoints protegidos del sistema |
-| `PermissionsGuard` + `@RequirePermissions()` | Todos los endpoints con control de acceso |
-| JWT Strategy (Passport) | Todas las peticiones autenticadas |
-| `TenantMiddleware` integrado con JWT | Todos los módulos que acceden a BD de tenant |
-| Endpoints de auth (`/auth/*`) | Frontend UC-002 (login, refresh, logout, switch) |
-| Interceptor de extracción de `tenantId` del JWT | PrismaTenantService (routing de conexión) |
+| Artefacto                                       | Consumido por                                       |
+| ----------------------------------------------- | --------------------------------------------------- |
+| Aggregate `User` completo (dominio)             | UC-004 (roles), UC-006/UC-011 (relación con Member) |
+| `JwtAuthGuard` funcional                        | Todos los endpoints protegidos del sistema          |
+| `PermissionsGuard` + `@RequirePermissions()`    | Todos los endpoints con control de acceso           |
+| JWT Strategy (Passport)                         | Todas las peticiones autenticadas                   |
+| `TenantMiddleware` integrado con JWT            | Todos los módulos que acceden a BD de tenant        |
+| Endpoints de auth (`/auth/*`)                   | Frontend UC-002 (login, refresh, logout, switch)    |
+| Interceptor de extracción de `tenantId` del JWT | PrismaTenantService (routing de conexión)           |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-002.md` | Flujo completo de autenticación, selector de tenant, switch sin re-login |
-| `us/us-002.md` | Criterios de aceptación Gherkin (3 escenarios: multi-tenant, switch, roles independientes) |
-| `bc/bc-identity.md` | Aggregates User, TenantMembership — estructura y invariantes |
-| `adr/adr-006.md` | JWT con refresh tokens, claims, flujo de autenticación |
-| `adr/adr-007.md` | RBAC con permisos granulares `{module}:{resource}:{action}` |
-| `rnf/rnf-001.md` | Política de complejidad de password (8+ chars, mayúsculas, minúsculas, números) |
-| `rnf/rnf-002.md` | Gestión de sesiones: expiración 30 min inactividad, 24h absoluta |
-| `rnf/rnf-006.md` | Contraseñas con Argon2, datos sensibles cifrados |
-| `rnf/rnf-007.md` | Auditoría de acciones críticas (login, intentos fallidos) |
+| Documento           | Contenido relevante                                                                        |
+| ------------------- | ------------------------------------------------------------------------------------------ |
+| `uc/uc-002.md`      | Flujo completo de autenticación, selector de tenant, switch sin re-login                   |
+| `us/us-002.md`      | Criterios de aceptación Gherkin (3 escenarios: multi-tenant, switch, roles independientes) |
+| `bc/bc-identity.md` | Aggregates User, TenantMembership - estructura y invariantes                               |
+| `adr/adr-006.md`    | JWT con refresh tokens, claims, flujo de autenticación                                     |
+| `adr/adr-007.md`    | RBAC con permisos granulares `{module}:{resource}:{action}`                                |
+| `rnf/rnf-001.md`    | Política de complejidad de password (8+ chars, mayúsculas, minúsculas, números)            |
+| `rnf/rnf-002.md`    | Gestión de sesiones: expiración 30 min inactividad, 24h absoluta                           |
+| `rnf/rnf-006.md`    | Contraseñas con Argon2, datos sensibles cifrados                                           |
+| `rnf/rnf-007.md`    | Auditoría de acciones críticas (login, intentos fallidos)                                  |
 
 ## Puntos críticos
 
@@ -103,16 +103,16 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| JWT secret comprometido invalida toda la seguridad | Baja | Crítico | Usar variable de entorno, rotar periódicamente, RS256 si posible |
-| Argon2 demasiado lento en tests (hashing costoso) | Alta | Bajo | Reducir parámetros de Argon2 en entorno de test |
-| Race condition en contador de intentos fallidos | Baja | Bajo | Usar UPDATE atómico con condición en PostgreSQL |
-| Refresh token filtrado permite acceso indefinido | Baja | Alto | Rotación: al usar refresh token, invalidar el anterior y generar uno nuevo |
+| Riesgo                                             | Probabilidad | Impacto | Mitigación                                                                 |
+| -------------------------------------------------- | ------------ | ------- | -------------------------------------------------------------------------- |
+| JWT secret comprometido invalida toda la seguridad | Baja         | Crítico | Usar variable de entorno, rotar periódicamente, RS256 si posible           |
+| Argon2 demasiado lento en tests (hashing costoso)  | Alta         | Bajo    | Reducir parámetros de Argon2 en entorno de test                            |
+| Race condition en contador de intentos fallidos    | Baja         | Bajo    | Usar UPDATE atómico con condición en PostgreSQL                            |
+| Refresh token filtrado permite acceso indefinido   | Baja         | Alto    | Rotación: al usar refresh token, invalidar el anterior y generar uno nuevo |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects
+### Paso 1: Capa de dominio - Value Objects
 
 Crear en `api/src/identity/domain/value-objects/`:
 
@@ -124,7 +124,7 @@ Crear en `api/src/identity/domain/value-objects/`:
 
 Tests unitarios: validación de email (válido, inválido, normalización), validación de password (cumple/no cumple política), PasswordHash no expone valor.
 
-### Paso 2: Capa de dominio — Aggregate User
+### Paso 2: Capa de dominio - Aggregate User
 
 Crear en `api/src/identity/domain/aggregates/user.ts`:
 
@@ -150,7 +150,7 @@ Crear en `api/src/identity/domain/aggregates/user.ts`:
 
 Tests unitarios: autenticación exitosa, autenticación fallida con incremento de intentos, bloqueo tras 5 intentos en ventana de 10 min, desbloqueo tras expiración, intentos fuera de ventana no bloquean.
 
-### Paso 3: Capa de dominio — Domain Events
+### Paso 3: Capa de dominio - Domain Events
 
 Crear en `api/src/identity/domain/events/`:
 
@@ -158,7 +158,7 @@ Crear en `api/src/identity/domain/events/`:
 - **`AuthenticationFailedEvent`**: Payload: `{ email, ipAddress, timestamp, attemptCount }`
 - **`UserBlockedEvent`**: Payload: `{ userId, email, blockReason, blockDuration, timestamp }`
 
-### Paso 4: Capa de dominio — Interfaces
+### Paso 4: Capa de dominio - Interfaces
 
 Crear en `api/src/identity/domain/repositories/`:
 
@@ -178,27 +178,30 @@ Crear en `api/src/identity/domain/services/`:
   - `generateRefreshToken(): string`
   - `verifyAccessToken(token: string): JwtPayload`
 
-### Paso 5: Capa de aplicación — Commands y Queries
+### Paso 5: Capa de aplicación - Commands y Queries
 
 Crear en `api/src/identity/application/`:
 
 **Commands:**
+
 - **`LoginCommand`**: `{ email, password, ipAddress, userAgent }`
 - **`RefreshTokenCommand`**: `{ refreshToken }`
 - **`LogoutCommand`**: `{ userId, refreshToken }`
 - **`SwitchTenantCommand`**: `{ userId, newTenantId }`
 
 **Queries:**
+
 - **`GetCurrentUserQuery`**: `{ userId, tenantId }`
 
 **DTOs:**
+
 - **`LoginRequestDto`**: `email` (@IsEmail), `password` (@IsNotEmpty)
 - **`LoginResponseDto`**: `accessToken`, `refreshToken`, `expiresIn`, `user: { id, email, name }`, `tenant: { id, name, slug }`, `role: string`
 - **`RefreshResponseDto`**: `accessToken`, `refreshToken`, `expiresIn`
 - **`TenantSelectorDto`**: `tenants: Array<{ id, name, slug, role }>`
 - **`UserProfileDto`**: `id`, `email`, `name`, `currentTenant`, `role`, `permissions`
 
-### Paso 6: Capa de aplicación — AuthenticationService (Handlers)
+### Paso 6: Capa de aplicación - AuthenticationService (Handlers)
 
 **`LoginHandler`:**
 
@@ -239,7 +242,7 @@ Crear en `api/src/identity/application/`:
 3. Generar nuevo Access Token con `tenant_id` y `rol` del nuevo tenant
 4. Retornar `LoginResponseDto` con datos del nuevo tenant
 
-### Paso 7: Capa de infraestructura — Implementaciones
+### Paso 7: Capa de infraestructura - Implementaciones
 
 Crear en `api/src/identity/infrastructure/`:
 
@@ -248,7 +251,7 @@ Crear en `api/src/identity/infrastructure/`:
 - **`PrismaUserRepository`**: Implementa `UserRepository` usando `PrismaMainService`. Incluye mappers dominio↔persistencia
 - **`PrismaRefreshTokenRepository`**: CRUD de refresh tokens en DB-Main
 
-### Paso 8: Capa de infraestructura — JWT Strategy y Guards
+### Paso 8: Capa de infraestructura - JWT Strategy y Guards
 
 Crear en `api/src/identity/infrastructure/auth/`:
 
@@ -259,20 +262,21 @@ Crear en `api/src/identity/infrastructure/auth/`:
 - **`@RequirePermissions()`** decorator: Especifica permisos necesarios para el endpoint
 
 Integración con TenantMiddleware:
+
 - Tras validar JWT, extraer `tenant_id` de los claims
 - Setear `req.tenantId` para que `PrismaTenantService` enrute a la BD correcta
 
-### Paso 9: Capa de infraestructura — Controller
+### Paso 9: Capa de infraestructura - Controller
 
 Crear en `api/src/identity/infrastructure/controllers/auth.controller.ts`:
 
-| Endpoint | Método | Auth | Body | Response |
-|----------|--------|------|------|----------|
-| `/api/v1/auth/login` | POST | @Public | `LoginRequestDto` | `LoginResponseDto` (200/401/403) |
-| `/api/v1/auth/refresh` | POST | @Public | `{ refreshToken }` | `RefreshResponseDto` (200/401) |
-| `/api/v1/auth/logout` | POST | JWT | `{ refreshToken }` | 204 No Content |
-| `/api/v1/auth/switch-tenant` | POST | JWT | `{ tenantId }` | `LoginResponseDto` (200/403) |
-| `/api/v1/auth/me` | GET | JWT | — | `UserProfileDto` (200) |
+| Endpoint                     | Método | Auth    | Body               | Response                         |
+| ---------------------------- | ------ | ------- | ------------------ | -------------------------------- |
+| `/api/v1/auth/login`         | POST   | @Public | `LoginRequestDto`  | `LoginResponseDto` (200/401/403) |
+| `/api/v1/auth/refresh`       | POST   | @Public | `{ refreshToken }` | `RefreshResponseDto` (200/401)   |
+| `/api/v1/auth/logout`        | POST   | JWT     | `{ refreshToken }` | 204 No Content                   |
+| `/api/v1/auth/switch-tenant` | POST   | JWT     | `{ tenantId }`     | `LoginResponseDto` (200/403)     |
+| `/api/v1/auth/me`            | GET    | JWT     | -                  | `UserProfileDto` (200)           |
 
 - Swagger decorators para documentación automática
 - Extraer `ipAddress` y `userAgent` del request para eventos de auditoría
@@ -280,11 +284,13 @@ Crear en `api/src/identity/infrastructure/controllers/auth.controller.ts`:
 ### Paso 10: Tests
 
 **Tests unitarios (dominio):**
+
 - `User.authenticate()`: éxito, fallo, bloqueo tras 5 intentos en ventana, desbloqueo automático
 - `Email.create()`: formatos válidos e inválidos, normalización
 - `Password`: política de complejidad (corto, sin mayúscula, sin número, válido)
 
 **Tests unitarios (aplicación):**
+
 - `LoginHandler`: flujo completo con mocks
   - Login exitoso con 1 tenant → tokens emitidos
   - Login exitoso con múltiples tenants → selector retornado
@@ -294,6 +300,7 @@ Crear en `api/src/identity/infrastructure/controllers/auth.controller.ts`:
 - `SwitchTenantHandler`: tenant válido, tenant sin pertenencia → 403
 
 **Tests de integración:**
+
 - Endpoint `POST /auth/login` contra BD real (Testcontainers)
   - Login con admin creado por UC-001 → JWT válido
   - Verificar que JWT contiene claims correctos (sub, tenant_id, rol, permissions)
