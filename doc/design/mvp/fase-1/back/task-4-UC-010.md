@@ -1,4 +1,4 @@
-# Task 4 — UC-010: Gestión de ejercicios (Backend)
+# Task 4 - UC-010: Gestión de ejercicios (Backend)
 
 ## Información general
 
@@ -48,11 +48,11 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
-| **F1-Back Task 1 — UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados |
-| **F1-Back Task 2 — UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT |
+| Tarea                       | Artefacto necesario                                                                                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**       | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
+| **F1-Back Task 1 - UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados                                                                              |
+| **F1-Back Task 2 - UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT                                          |
 
 ### Checklist de verificación de dependencias
 
@@ -72,27 +72,27 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Aggregate `FiscalYear` (dominio) | UC-006 (alta de socio vinculada a ejercicio activo), UC-017 (planes de cuota por ejercicio), UC-019 (facturación por ejercicio) |
-| Modelo `FiscalYear` en schema tenant Prisma | Todos los UCs que requieran contexto de ejercicio activo |
-| Endpoints REST de ejercicios | Frontend UC-010, testing manual |
-| Evento `FiscalYearOpened` | BC-Treasury (activar generación mensual de cargos), BC-Documents (crear estructura) |
-| Evento `FiscalYearClosed` | BC-Documents (archivar memoria), BC-Communication (notificar Junta) |
-| Evento `MemberTypeChanged` (por transiciones automáticas) | BC-Treasury (revisar plan cuota), BC-Communication (notificar socio) |
-| Lógica de arrastre de socios activos | Reutilizable en futuros procesos de migración de ejercicio |
+| Artefacto                                                 | Consumido por                                                                                                                   |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Aggregate `FiscalYear` (dominio)                          | UC-006 (alta de socio vinculada a ejercicio activo), UC-017 (planes de cuota por ejercicio), UC-019 (facturación por ejercicio) |
+| Modelo `FiscalYear` en schema tenant Prisma               | Todos los UCs que requieran contexto de ejercicio activo                                                                        |
+| Endpoints REST de ejercicios                              | Frontend UC-010, testing manual                                                                                                 |
+| Evento `FiscalYearOpened`                                 | BC-Treasury (activar generación mensual de cargos), BC-Documents (crear estructura)                                             |
+| Evento `FiscalYearClosed`                                 | BC-Documents (archivar memoria), BC-Communication (notificar Junta)                                                             |
+| Evento `MemberTypeChanged` (por transiciones automáticas) | BC-Treasury (revisar plan cuota), BC-Communication (notificar socio)                                                            |
+| Lógica de arrastre de socios activos                      | Reutilizable en futuros procesos de migración de ejercicio                                                                      |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-010.md` | Flujo completo de apertura/cierre, configurador de ejercicio, validaciones pre-cierre, comparativas, eventos |
-| `us/us-023.md` | Concepto de ejercicio como agrupador temporal: fechas, estado, snapshot de socios, cuotas, eventos, documentación |
-| `us/us-024.md` | Apertura con arrastre de socios activos y transiciones automáticas de categoría por edad |
-| `us/us-025.md` | Cierre con validaciones (cuotas, remesas, actas) y generación de memoria |
-| `us/us-026.md` | Comparativas entre ejercicios: socios activos, altas, bajas, tasa retención, tendencias |
-| `us/us-027.md` | Flexibilidad de tipos de ejercicio: año natural, temporada, cofrade, personalizado |
-| `bc/bc-membership.md` | Aggregate FiscalYear — estructura, propiedades, invariantes, Value Objects (FiscalYearPeriod) |
+| Documento             | Contenido relevante                                                                                               |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `uc/uc-010.md`        | Flujo completo de apertura/cierre, configurador de ejercicio, validaciones pre-cierre, comparativas, eventos      |
+| `us/us-023.md`        | Concepto de ejercicio como agrupador temporal: fechas, estado, snapshot de socios, cuotas, eventos, documentación |
+| `us/us-024.md`        | Apertura con arrastre de socios activos y transiciones automáticas de categoría por edad                          |
+| `us/us-025.md`        | Cierre con validaciones (cuotas, remesas, actas) y generación de memoria                                          |
+| `us/us-026.md`        | Comparativas entre ejercicios: socios activos, altas, bajas, tasa retención, tendencias                           |
+| `us/us-027.md`        | Flexibilidad de tipos de ejercicio: año natural, temporada, cofrade, personalizado                                |
+| `bc/bc-membership.md` | Aggregate FiscalYear - estructura, propiedades, invariantes, Value Objects (FiscalYearPeriod)                     |
 
 ## Puntos críticos
 
@@ -108,16 +108,16 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Apertura con muchos socios (>1000) excede timeout de transacción | Media | Alto | Implementar en transacción con timeout configurable. En MVP, procesar en lote (batch de 100). Considerar job asíncrono para tenants grandes |
-| Transición automática a tipo inexistente o inactivo | Baja | Medio | Emitir advertencia pero continuar apertura. Registrar socios no transicionados para revisión manual |
-| Race condition en constraint de ejercicio abierto único | Baja | Alto | Constraint parcial en BD como última línea de defensa. Verificación previa en aplicación. Usar `SELECT FOR UPDATE` en la verificación |
-| Comparativas con ejercicios sin datos estadísticos completos | Media | Bajo | Rellenar con ceros los campos sin datos. Indicar "datos parciales" si el ejercicio no tiene stats completas |
+| Riesgo                                                           | Probabilidad | Impacto | Mitigación                                                                                                                                  |
+| ---------------------------------------------------------------- | ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Apertura con muchos socios (>1000) excede timeout de transacción | Media        | Alto    | Implementar en transacción con timeout configurable. En MVP, procesar en lote (batch de 100). Considerar job asíncrono para tenants grandes |
+| Transición automática a tipo inexistente o inactivo              | Baja         | Medio   | Emitir advertencia pero continuar apertura. Registrar socios no transicionados para revisión manual                                         |
+| Race condition en constraint de ejercicio abierto único          | Baja         | Alto    | Constraint parcial en BD como última línea de defensa. Verificación previa en aplicación. Usar `SELECT FOR UPDATE` en la verificación       |
+| Comparativas con ejercicios sin datos estadísticos completos     | Media        | Bajo    | Rellenar con ceros los campos sin datos. Indicar "datos parciales" si el ejercicio no tiene stats completas                                 |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects
+### Paso 1: Capa de dominio - Value Objects
 
 Crear en `api/src/membership/domain/value-objects/`:
 
@@ -128,7 +128,7 @@ Crear en `api/src/membership/domain/value-objects/`:
 
 Tests unitarios: validación de `FiscalYearPeriod` (fechas válidas, invertidas, solapamiento entre periodos, containsDate), enums correctos.
 
-### Paso 2: Capa de dominio — Aggregate FiscalYear
+### Paso 2: Capa de dominio - Aggregate FiscalYear
 
 Crear en `api/src/membership/domain/aggregates/fiscal-year.ts`:
 
@@ -160,7 +160,7 @@ Crear en `api/src/membership/domain/aggregates/fiscal-year.ts`:
 
 Tests unitarios: creación de ejercicio válido, apertura exitosa con transición de estado, cierre exitoso con emisión de evento, rechazo de cierre sin apertura previa, rechazo de apertura desde estado cerrado, validación de periodo.
 
-### Paso 3: Capa de dominio — Domain Events
+### Paso 3: Capa de dominio - Domain Events
 
 Crear en `api/src/membership/domain/events/`:
 
@@ -168,7 +168,7 @@ Crear en `api/src/membership/domain/events/`:
 - **`FiscalYearClosedEvent`**: Extiende `DomainEvent`. Payload: `{ fiscalYearId: UUID, name: string, membersAtEnd: number, closedAt: Date, warnings: string[] }`
 - **`MemberTypeChangedEvent`**: Extiende `DomainEvent`. Payload: `{ memberId: UUID, previousTypeId: UUID, previousTypeName: string, newTypeId: UUID, newTypeName: string, reason: string, fiscalYearId: UUID }`
 
-### Paso 4: Capa de dominio — Repository interfaces
+### Paso 4: Capa de dominio - Repository interfaces
 
 Crear en `api/src/membership/domain/repositories/`:
 
@@ -181,21 +181,24 @@ Crear en `api/src/membership/domain/repositories/`:
   - `existsOpenFiscalYear(): Promise<boolean>`
   - `findOverlapping(period: FiscalYearPeriod): Promise<FiscalYear[]>`
 
-### Paso 5: Capa de aplicación — Commands, Queries y DTOs
+### Paso 5: Capa de aplicación - Commands, Queries y DTOs
 
 Crear en `api/src/membership/application/`:
 
 **Commands:**
+
 - **`OpenFiscalYearCommand`**: `{ name, type, startDate, endDate, previousFiscalYearId?, carryOverMembers: boolean, applyAutomaticTransitions: boolean }`
 - **`CloseFiscalYearCommand`**: `{ fiscalYearId, force: boolean }`
 
 **Queries:**
+
 - **`GetFiscalYearQuery`**: `{ fiscalYearId }`
 - **`GetActiveFiscalYearQuery`**: `{}`
 - **`ListFiscalYearsQuery`**: `{}`
 - **`CompareFiscalYearsQuery`**: `{ fiscalYearIds: string[] }`
 
 **DTOs:**
+
 - **`OpenFiscalYearDto`**: DTO de entrada con validaciones: `@IsNotEmpty()` para name, `@IsEnum(FiscalYearType)`, `@IsDateString()` para startDate/endDate, `@IsBoolean()` para carryOverMembers y applyAutomaticTransitions
 - **`CloseFiscalYearDto`**: DTO de entrada: `@IsBoolean()` para force
 - **`FiscalYearResponseDto`**: DTO de salida: `id`, `name`, `type`, `startDate`, `endDate`, `status`, `membersAtStart`, `membersAtEnd`, `previousFiscalYearId`, `createdAt`, `closedAt`
@@ -203,7 +206,7 @@ Crear en `api/src/membership/application/`:
 - **`CloseFiscalYearResultDto`**: DTO de resultado de cierre: `fiscalYear: FiscalYearResponseDto`, `warnings: string[]`
 - **`FiscalYearComparisonDto`**: DTO de comparativa: `years: Array<{ fiscalYearId, name, activeMembers, newMembers, leavingMembers, retentionRate }>`
 
-### Paso 6: Capa de aplicación — Handlers
+### Paso 6: Capa de aplicación - Handlers
 
 **`OpenFiscalYearHandler`:**
 
@@ -226,6 +229,7 @@ Crear en `api/src/membership/application/`:
 9. Retornar `OpenFiscalYearResultDto`
 
 **En caso de fallo en pasos 4-7:**
+
 - Rollback de transacción (automático por Prisma)
 - Reportar excepción vía `ErrorReporter.captureException()` con contexto
 
@@ -252,7 +256,7 @@ Crear en `api/src/membership/application/`:
 3. Calcular tasas de retención y tendencias
 4. Retornar `FiscalYearComparisonDto`
 
-### Paso 7: Capa de infraestructura — Schema Prisma (tenant)
+### Paso 7: Capa de infraestructura - Schema Prisma (tenant)
 
 Extender `api/prisma/tenant/schema.prisma` con:
 
@@ -280,11 +284,12 @@ model FiscalYear {
 ```
 
 Nota: El índice parcial para la unicidad de ejercicio abierto se crea mediante migration manual:
+
 ```sql
 CREATE UNIQUE INDEX idx_fiscal_year_open ON fiscal_years ((1)) WHERE status = 'OPEN';
 ```
 
-### Paso 8: Capa de infraestructura — Repository (Prisma)
+### Paso 8: Capa de infraestructura - Repository (Prisma)
 
 Crear en `api/src/membership/infrastructure/persistence/`:
 
@@ -294,18 +299,18 @@ Crear en `api/src/membership/infrastructure/persistence/`:
 - Implementación de `existsOpenFiscalYear`: query con `WHERE status = 'OPEN'`
 - La conexión se obtiene del tenant activo en el request (vía `PrismaTenantService`)
 
-### Paso 9: Capa de infraestructura — Controller
+### Paso 9: Capa de infraestructura - Controller
 
 Crear en `api/src/membership/infrastructure/controllers/fiscal-years.controller.ts`:
 
-| Endpoint | Método | Auth | Permiso | Body/Params | Response |
-|----------|--------|------|---------|-------------|----------|
-| `/api/v1/fiscal-years` | POST | JWT | `membership:fiscal-years:create` | `OpenFiscalYearDto` | 201 Created con `OpenFiscalYearResultDto` |
-| `/api/v1/fiscal-years` | GET | JWT | `membership:fiscal-years:read` | — | 200 con `FiscalYearResponseDto[]` |
-| `/api/v1/fiscal-years/active` | GET | JWT | `membership:fiscal-years:read` | — | 200 con `FiscalYearResponseDto` o 404 |
-| `/api/v1/fiscal-years/compare` | GET | JWT | `membership:fiscal-years:read` | Query: `?ids=uuid1,uuid2,uuid3` | 200 con `FiscalYearComparisonDto` |
-| `/api/v1/fiscal-years/:id` | GET | JWT | `membership:fiscal-years:read` | Param: `id` | 200 con `FiscalYearResponseDto` |
-| `/api/v1/fiscal-years/:id/close` | POST | JWT | `membership:fiscal-years:close` | `CloseFiscalYearDto` | 200 con `CloseFiscalYearResultDto` |
+| Endpoint                         | Método | Auth | Permiso                          | Body/Params                     | Response                                  |
+| -------------------------------- | ------ | ---- | -------------------------------- | ------------------------------- | ----------------------------------------- |
+| `/api/v1/fiscal-years`           | POST   | JWT  | `membership:fiscal-years:create` | `OpenFiscalYearDto`             | 201 Created con `OpenFiscalYearResultDto` |
+| `/api/v1/fiscal-years`           | GET    | JWT  | `membership:fiscal-years:read`   | -                               | 200 con `FiscalYearResponseDto[]`         |
+| `/api/v1/fiscal-years/active`    | GET    | JWT  | `membership:fiscal-years:read`   | -                               | 200 con `FiscalYearResponseDto` o 404     |
+| `/api/v1/fiscal-years/compare`   | GET    | JWT  | `membership:fiscal-years:read`   | Query: `?ids=uuid1,uuid2,uuid3` | 200 con `FiscalYearComparisonDto`         |
+| `/api/v1/fiscal-years/:id`       | GET    | JWT  | `membership:fiscal-years:read`   | Param: `id`                     | 200 con `FiscalYearResponseDto`           |
+| `/api/v1/fiscal-years/:id/close` | POST   | JWT  | `membership:fiscal-years:close`  | `CloseFiscalYearDto`            | 200 con `CloseFiscalYearResultDto`        |
 
 - Swagger decorators para documentación automática
 - Errores: 409 Conflict (ejercicio ya abierto), 404 Not Found (ejercicio no encontrado), 422 Unprocessable Entity (fechas solapadas, advertencias de cierre sin force)
@@ -313,6 +318,7 @@ Crear en `api/src/membership/infrastructure/controllers/fiscal-years.controller.
 ### Paso 10: Tests
 
 **Tests unitarios (dominio):**
+
 - `FiscalYear.create()` con datos válidos → ejercicio creado en estado `PREPARATION`
 - `FiscalYear.open()` desde `PREPARATION` → transición a `OPEN` + evento emitido
 - `FiscalYear.open()` desde `CLOSED` → error (transición no permitida)
@@ -323,6 +329,7 @@ Crear en `api/src/membership/infrastructure/controllers/fiscal-years.controller.
 - `FiscalYearPeriod.containsDate()` → fecha dentro/fuera del periodo
 
 **Tests unitarios (aplicación):**
+
 - `OpenFiscalYearHandler` con mocks de `FiscalYearRepository` y `MemberTypeRulesEvaluator`:
   - Caso éxito sin arrastre: ejercicio creado y abierto
   - Caso éxito con arrastre: socios activos vinculados al nuevo ejercicio
@@ -339,6 +346,7 @@ Crear en `api/src/membership/infrastructure/controllers/fiscal-years.controller.
   - Caso con ejercicio sin datos: relleno con ceros
 
 **Tests de integración:**
+
 - Apertura de ejercicio contra BD real (Testcontainers):
   - Crear ejercicio y abrirlo → verificar persistencia y estado `OPEN`
   - Intentar abrir segundo ejercicio → verificar rechazo (constraint)

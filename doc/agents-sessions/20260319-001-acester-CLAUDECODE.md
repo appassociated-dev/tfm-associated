@@ -59,12 +59,12 @@ usuario, y multiples fixes adicionales descubiertos durante la verificacion.
 
 **Documentacion:**
 
-- `doc/reports/frontend-fase1-audit.md` — informe completo con 48 issues
-- `doc/reports/sdd3-forms-validation-report.md` — SDD-3 forms y validacion
-- `doc/reports/sdd4-uncabled-features-report.md` — SDD-4 features no cableadas
-- `doc/reports/sdd5-cross-cutting-quality-report.md` — SDD-5 calidad transversal
-- `doc/manual-testing/` — resultados del testing manual
-- `CHANGELOG.md` — 133 lineas de cambios documentados
+- `doc/reports/frontend-fase1-audit.md` - informe completo con 48 issues
+- `doc/reports/sdd3-forms-validation-report.md` - SDD-3 forms y validacion
+- `doc/reports/sdd4-uncabled-features-report.md` - SDD-4 features no cableadas
+- `doc/reports/sdd5-cross-cutting-quality-report.md` - SDD-5 calidad transversal
+- `doc/manual-testing/` - resultados del testing manual
+- `CHANGELOG.md` - 133 lineas de cambios documentados
 - Sesion previa documentada: `doc/agents-sessions/20260317-002-acester-CLAUDECODE.md`
 
 **Paquetes instalados:** postcss-preset-mantine, postcss-simple-vars, @tabler/icons-react

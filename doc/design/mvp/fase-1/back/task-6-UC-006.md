@@ -1,4 +1,4 @@
-# Task 6 — UC-006: Gestión de ficha de socio (Backend)
+# Task 6 - UC-006: Gestión de ficha de socio (Backend)
 
 ## Información general
 
@@ -34,25 +34,25 @@
 
 ### Excluido
 
-- Proceso de alta simplificado en 3 pasos (UC-011 — F1-Back Task 7)
+- Proceso de alta simplificado en 3 pasos (UC-011 - F1-Back Task 7)
 - Generación de carnet digital (UC fuera del MVP core)
 - Portal del socio con consulta propia (FA-2, diferido a frontend Fase 2)
 - Envío de email de bienvenida (BC-Communication, consumidor del evento `MemberRegistered`)
 - Creación de MemberAccount en BC-Treasury (consumidor del evento `MemberRegistered`)
-- Gestión de estados del socio (UC-007 — F1-Back Task 5, ya implementada)
+- Gestión de estados del socio (UC-007 - F1-Back Task 5, ya implementada)
 - Adjuntos de certificados médicos y documentos (simplificado para MVP: solo metadatos)
 
 ## Dependencias
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
-| **F1-Back Task 1 — UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados, `CollectivityType` del tenant disponible |
-| **F1-Back Task 2 — UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT |
-| **F1-Back Task 3 — UC-008** | Aggregate `MemberType` (dominio), modelo `MemberType` en schema tenant, tipos de socio configurados, `MemberTypeRulesEvaluator` |
-| **F1-Back Task 5 — UC-007** | Aggregate `Member` parcial con máquina de estados (`MemberStatus`, `StatusHistory`, `StatusTransitionValidator`), modelo `Member` mínimo en schema tenant |
+| Tarea                       | Artefacto necesario                                                                                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**       | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
+| **F1-Back Task 1 - UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados, `CollectivityType` del tenant disponible                                    |
+| **F1-Back Task 2 - UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT                                          |
+| **F1-Back Task 3 - UC-008** | Aggregate `MemberType` (dominio), modelo `MemberType` en schema tenant, tipos de socio configurados, `MemberTypeRulesEvaluator`                                                   |
+| **F1-Back Task 5 - UC-007** | Aggregate `Member` parcial con máquina de estados (`MemberStatus`, `StatusHistory`, `StatusTransitionValidator`), modelo `Member` mínimo en schema tenant                         |
 
 ### Checklist de verificación de dependencias
 
@@ -73,27 +73,27 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Aggregate `Member` completo (dominio) con ficha y datos personales | UC-011 (alta simple), UC-013 (baja), consultas de ficha |
-| Value Objects de datos personales (`PersonalData`, `ContactData`, `IdentityDocument`, `BankDetails`) | UC-011 (reutiliza validaciones), UC-056 (importación masiva) |
-| `MemberService` (application) | UC-011 (delegación para creación de ficha), UC-013 (consulta de datos) |
-| Modelo `Member` completo en schema tenant Prisma | Todos los UCs que referencien socios |
-| Endpoints REST de ficha de socio | Frontend UC-006 (Fase 2), testing manual |
-| Evento `MemberRegistered` | BC-Treasury (crear MemberAccount + MandatoSepa), BC-Communication (email bienvenida) |
-| Evento `MemberDataUpdated` | BC-Treasury (actualizar IBAN si cambió), BC-Communication (actualizar email si cambió) |
+| Artefacto                                                                                            | Consumido por                                                                          |
+| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Aggregate `Member` completo (dominio) con ficha y datos personales                                   | UC-011 (alta simple), UC-013 (baja), consultas de ficha                                |
+| Value Objects de datos personales (`PersonalData`, `ContactData`, `IdentityDocument`, `BankDetails`) | UC-011 (reutiliza validaciones), UC-056 (importación masiva)                           |
+| `MemberService` (application)                                                                        | UC-011 (delegación para creación de ficha), UC-013 (consulta de datos)                 |
+| Modelo `Member` completo en schema tenant Prisma                                                     | Todos los UCs que referencien socios                                                   |
+| Endpoints REST de ficha de socio                                                                     | Frontend UC-006 (Fase 2), testing manual                                               |
+| Evento `MemberRegistered`                                                                            | BC-Treasury (crear MemberAccount + MandatoSepa), BC-Communication (email bienvenida)   |
+| Evento `MemberDataUpdated`                                                                           | BC-Treasury (actualizar IBAN si cambió), BC-Communication (actualizar email si cambió) |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-006.md` | Flujo completo de creación/actualización de ficha, campos obligatorios, campos específicos por colectividad, validaciones, flujos alternativos y excepciones |
-| `us/us-009.md` | Ficha centralizada con datos básicos: nombre, DNI, fecha nacimiento, email, teléfono, IBAN cifrado |
-| `us/us-010.md` | Campos específicos para cofradías: bautismo, padrinos, jura de reglas, túnica, cortejo |
-| `us/us-011.md` | Campos específicos para clubes deportivos: licencia federativa, certificado médico, categoría deportiva |
-| `us/us-012.md` | Campos específicos para peñas festeras: tallas, preferencias alimentarias, voluntariado |
-| `us/us-013.md` | Campos específicos para asociaciones culturales: profesión, habilidades, áreas de interés, idiomas |
-| `bc/bc-membership.md` | Aggregate Member — estructura, Value Objects (PersonalData, ContactData, IdentityDocument, BankDetails), invariantes, comportamientos |
+| Documento             | Contenido relevante                                                                                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `uc/uc-006.md`        | Flujo completo de creación/actualización de ficha, campos obligatorios, campos específicos por colectividad, validaciones, flujos alternativos y excepciones |
+| `us/us-009.md`        | Ficha centralizada con datos básicos: nombre, DNI, fecha nacimiento, email, teléfono, IBAN cifrado                                                           |
+| `us/us-010.md`        | Campos específicos para cofradías: bautismo, padrinos, jura de reglas, túnica, cortejo                                                                       |
+| `us/us-011.md`        | Campos específicos para clubes deportivos: licencia federativa, certificado médico, categoría deportiva                                                      |
+| `us/us-012.md`        | Campos específicos para peñas festeras: tallas, preferencias alimentarias, voluntariado                                                                      |
+| `us/us-013.md`        | Campos específicos para asociaciones culturales: profesión, habilidades, áreas de interés, idiomas                                                           |
+| `bc/bc-membership.md` | Aggregate Member - estructura, Value Objects (PersonalData, ContactData, IdentityDocument, BankDetails), invariantes, comportamientos                        |
 
 ## Puntos críticos
 
@@ -109,16 +109,16 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Extensión del Aggregate Member rompe tests de Task 5 | Media | Alto | Mantener retrocompatibilidad en factory `Member.create()` con parámetros opcionales para datos de ficha. Ejecutar tests de Task 5 tras cada cambio |
-| Clave de cifrado AES perdida impide leer IBANs existentes | Baja | Crítico | Backup seguro de la clave. Implementar campo `encryption_key_version` para soportar rotación. Documentar proceso de recuperación |
-| Validación de DNI rechaza formatos válidos poco comunes | Baja | Medio | Soportar DNI (8 dígitos + letra), NIE (X/Y/Z + 7 dígitos + letra) y Pasaporte (alfanumérico libre). Incluir tests con todos los formatos |
-| Schema JSON de `custom_fields` evoluciona con nuevos campos | Media | Bajo | Versionado del schema JSON. Campos nuevos son siempre opcionales. Validación permisiva: aceptar campos desconocidos, rechazar campos requeridos faltantes |
+| Riesgo                                                      | Probabilidad | Impacto | Mitigación                                                                                                                                                |
+| ----------------------------------------------------------- | ------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Extensión del Aggregate Member rompe tests de Task 5        | Media        | Alto    | Mantener retrocompatibilidad en factory `Member.create()` con parámetros opcionales para datos de ficha. Ejecutar tests de Task 5 tras cada cambio        |
+| Clave de cifrado AES perdida impide leer IBANs existentes   | Baja         | Crítico | Backup seguro de la clave. Implementar campo `encryption_key_version` para soportar rotación. Documentar proceso de recuperación                          |
+| Validación de DNI rechaza formatos válidos poco comunes     | Baja         | Medio   | Soportar DNI (8 dígitos + letra), NIE (X/Y/Z + 7 dígitos + letra) y Pasaporte (alfanumérico libre). Incluir tests con todos los formatos                  |
+| Schema JSON de `custom_fields` evoluciona con nuevos campos | Media        | Bajo    | Versionado del schema JSON. Campos nuevos son siempre opcionales. Validación permisiva: aceptar campos desconocidos, rechazar campos requeridos faltantes |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects
+### Paso 1: Capa de dominio - Value Objects
 
 Crear en `api/src/membership/domain/value-objects/`:
 
@@ -134,7 +134,7 @@ Crear en `api/src/membership/domain/value-objects/`:
 
 Tests unitarios: validación de DNI (válido con letra correcta, letra incorrecta, formato inválido), validación de NIE (X, Y, Z), validación de IBAN (ES válido, mod 97 inválido, formato incorrecto), validación de `PersonalData` (edad calculada, nombre vacío), `CustomFields` con schemas por colectividad.
 
-### Paso 2: Capa de dominio — Extensión del Aggregate Member
+### Paso 2: Capa de dominio - Extensión del Aggregate Member
 
 Extender en `api/src/membership/domain/aggregates/member.ts`:
 
@@ -163,14 +163,14 @@ Extender en `api/src/membership/domain/aggregates/member.ts`:
 
 Tests unitarios: creación de Member con ficha completa, rechazo con DNI inválido, rechazo con IBAN inválido, actualización de datos con evento emitido, protección de campo DNI en actualización, cálculo de antigüedad, compatibilidad de edad con tipo de socio.
 
-### Paso 3: Capa de dominio — Domain Events
+### Paso 3: Capa de dominio - Domain Events
 
 Crear en `api/src/membership/domain/events/`:
 
 - **`MemberRegisteredEvent`**: Extiende `DomainEvent`. Payload: `{ memberId: UUID, memberNumber: string, name: string, surnames: string, email: string, memberTypeId: UUID, registrationDate: Date, iban?: string }`
 - **`MemberDataUpdatedEvent`**: Extiende `DomainEvent`. Payload: `{ memberId: UUID, modifiedFields: string[], newEmail?: string, newIban?: string, updateDate: Date }`
 
-### Paso 4: Capa de dominio — Port de cifrado
+### Paso 4: Capa de dominio - Port de cifrado
 
 Crear en `api/src/membership/domain/ports/`:
 
@@ -178,7 +178,7 @@ Crear en `api/src/membership/domain/ports/`:
   - `encrypt(plainText: string): Promise<string>`
   - `decrypt(cipherText: string): Promise<string>`
 
-### Paso 5: Capa de dominio — Repository interfaces
+### Paso 5: Capa de dominio - Repository interfaces
 
 Extender en `api/src/membership/domain/repositories/`:
 
@@ -192,19 +192,22 @@ Extender en `api/src/membership/domain/repositories/`:
   - `existsByEmail(email: string): Promise<boolean>` (nuevo)
   - `getNextMemberNumber(): Promise<number>` (nuevo: obtiene siguiente secuencial)
 
-### Paso 6: Capa de aplicación — Commands, Queries y DTOs
+### Paso 6: Capa de aplicación - Commands, Queries y DTOs
 
 Crear en `api/src/membership/application/`:
 
 **Commands:**
+
 - **`CreateMemberCommand`**: `{ name, surnames, birthDate, documentType, documentNumber, email, phone, address, postalCode, city, iban, memberTypeId, customFields, initialStatus }`
 - **`UpdateMemberCommand`**: `{ memberId, name, surnames, email, phone, address, postalCode, city, iban, customFields }`
 
 **Queries:**
+
 - **`GetMemberQuery`**: `{ memberId }`
 - **`ListMembersQuery`**: `{ status?, memberTypeId?, search? }`
 
 **DTOs:**
+
 - **`CreateMemberDto`**: DTO de entrada con validaciones `class-validator`:
   - `@IsNotEmpty()` para name, surnames, documentNumber, email
   - `@IsDateString()` para birthDate
@@ -216,7 +219,7 @@ Crear en `api/src/membership/application/`:
 - **`MemberResponseDto`**: DTO de salida: `id`, `memberNumber`, `name`, `surnames`, `birthDate`, `age`, `documentType`, `documentNumber`, `email`, `phone`, `address`, `postalCode`, `city`, `ibanMasked` (nunca el IBAN completo en respuestas), `memberTypeId`, `memberTypeName`, `currentStatus`, `customFields`, `registrationDate`, `leaveDate`, `createdAt`, `updatedAt`
 - **`MemberListResponseDto`**: DTO de salida para listados: `id`, `memberNumber`, `name`, `surnames`, `email`, `currentStatus`, `memberTypeName`, `registrationDate`
 
-### Paso 7: Capa de aplicación — Handlers
+### Paso 7: Capa de aplicación - Handlers
 
 **`CreateMemberHandler`:**
 
@@ -229,12 +232,13 @@ Crear en `api/src/membership/application/`:
    - Si no compatible → error 422 "La edad no cumple los requisitos del tipo '{typeName}'" (FE de UC-011)
 5. Si edad < 18 y no se proporciona representante legal en customFields → advertencia (FE-4)
 6. Obtener siguiente número de socio (`memberRepository.getNextMemberNumber()`)
-7. Crear Aggregate `Member` via `Member.register(props)` — incluye primera entrada en `StatusHistory`
+7. Crear Aggregate `Member` via `Member.register(props)` - incluye primera entrada en `StatusHistory`
 8. Guardar via `memberRepository.save(member)`
 9. Publicar `MemberRegistered` via Outbox
 10. Retornar `MemberResponseDto`
 
 **En caso de fallo:**
+
 - Reportar excepción vía `ErrorReporter.captureException()` con contexto del paso fallido
 
 **`UpdateMemberHandler`:**
@@ -261,7 +265,7 @@ Crear en `api/src/membership/application/`:
 2. Mapear a `MemberListResponseDto[]`
 3. Retornar lista
 
-### Paso 8: Capa de infraestructura — Schema Prisma (tenant)
+### Paso 8: Capa de infraestructura - Schema Prisma (tenant)
 
 Extender el modelo `Member` existente (creado parcialmente en Task 5) en `api/prisma/tenant/schema.prisma`:
 
@@ -298,7 +302,7 @@ model Member {
 }
 ```
 
-### Paso 9: Capa de infraestructura — Repository (Prisma) y servicios
+### Paso 9: Capa de infraestructura - Repository (Prisma) y servicios
 
 Extender en `api/src/membership/infrastructure/persistence/`:
 
@@ -309,16 +313,16 @@ Crear en `api/src/membership/infrastructure/services/`:
 
 - **`Aes256EncryptionService`**: Implementa `EncryptionService` usando `crypto` de Node.js con AES-256-GCM. La clave se obtiene de `process.env.ENCRYPTION_KEY`. Genera IV aleatorio por cada cifrado. Almacena como `iv:authTag:cipherText` en base64
 
-### Paso 10: Capa de infraestructura — Controller
+### Paso 10: Capa de infraestructura - Controller
 
 Crear en `api/src/membership/infrastructure/controllers/members.controller.ts`:
 
-| Endpoint | Método | Auth | Permiso | Body/Params | Response |
-|----------|--------|------|---------|-------------|----------|
-| `/api/v1/members` | POST | JWT | `membership:members:create` | `CreateMemberDto` | 201 Created con `MemberResponseDto` |
-| `/api/v1/members` | GET | JWT | `membership:members:read` | Query: `?status=ACTIVE&memberTypeId=uuid&search=juan` | 200 con `MemberListResponseDto[]` |
-| `/api/v1/members/:id` | GET | JWT | `membership:members:read` | Param: `id` | 200 con `MemberResponseDto` |
-| `/api/v1/members/:id` | PUT | JWT | `membership:members:update` | `UpdateMemberDto` | 200 con `MemberResponseDto` |
+| Endpoint              | Método | Auth | Permiso                     | Body/Params                                           | Response                            |
+| --------------------- | ------ | ---- | --------------------------- | ----------------------------------------------------- | ----------------------------------- |
+| `/api/v1/members`     | POST   | JWT  | `membership:members:create` | `CreateMemberDto`                                     | 201 Created con `MemberResponseDto` |
+| `/api/v1/members`     | GET    | JWT  | `membership:members:read`   | Query: `?status=ACTIVE&memberTypeId=uuid&search=juan` | 200 con `MemberListResponseDto[]`   |
+| `/api/v1/members/:id` | GET    | JWT  | `membership:members:read`   | Param: `id`                                           | 200 con `MemberResponseDto`         |
+| `/api/v1/members/:id` | PUT    | JWT  | `membership:members:update` | `UpdateMemberDto`                                     | 200 con `MemberResponseDto`         |
 
 - Swagger decorators para documentación automática
 - Errores: 409 Conflict (DNI o email duplicado), 404 Not Found (socio no encontrado), 422 Unprocessable Entity (edad incompatible con tipo, IBAN inválido, DNI inválido)
@@ -326,6 +330,7 @@ Crear en `api/src/membership/infrastructure/controllers/members.controller.ts`:
 ### Paso 11: Tests
 
 **Tests unitarios (dominio):**
+
 - `IdentityDocument.create()` con DNI válido (12345678Z) → aceptado
 - `IdentityDocument.create()` con DNI letra incorrecta → rechazado
 - `IdentityDocument.create()` con NIE válido (X1234567L) → aceptado
@@ -344,6 +349,7 @@ Crear en `api/src/membership/infrastructure/controllers/members.controller.ts`:
 - `Member.calculateSeniority()` → cálculo correcto de años y meses
 
 **Tests unitarios (aplicación):**
+
 - `CreateMemberHandler` con mocks de `MemberRepository` y `MemberTypeRepository`:
   - Caso éxito: socio creado con número asignado, evento publicado
   - Caso DNI duplicado: rechazo con 409 y datos del socio existente
@@ -361,6 +367,7 @@ Crear en `api/src/membership/infrastructure/controllers/members.controller.ts`:
   - Caso con búsqueda textual: coincidencia por nombre/apellidos/email
 
 **Tests de integración:**
+
 - CRUD completo contra BD real (Testcontainers):
   - Crear socio con ficha completa → verificar persistencia correcta
   - Verificar que IBAN se almacena cifrado en BD (leer registro raw y confirmar que no es texto plano)

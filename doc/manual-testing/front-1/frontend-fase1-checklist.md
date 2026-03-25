@@ -1,4 +1,4 @@
-# Checklist de Verificacion Manual — Frontend Fase 1
+# Checklist de Verificacion Manual - Frontend Fase 1
 
 > **Fecha:** 15 de marzo de 2026
 > **Branch:** mvp/frontend-fase1
@@ -19,9 +19,9 @@
 
 ---
 
-## Task 0 — Brand Setup
+## Task 0 - Brand Setup
 
-### T0-01 Identidad visual — Fuente Inter
+### T0-01 Identidad visual - Fuente Inter
 
 - [ ] T0-01-01 La fuente Inter se carga correctamente (DevTools > Computed > font-family contiene "Inter")
 - [ ] T0-01-02 La carga de Inter usa `display=swap` (no bloquea el render)
@@ -29,19 +29,19 @@
 - [ ] T0-01-04 `<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />` presente en `<head>`
 - [ ] T0-01-05 La URL de Google Fonts incluye pesos 400, 500, 600, 700
 
-### T0-02 Identidad visual — Favicon y meta tags
+### T0-02 Identidad visual - Favicon y meta tags
 
 - [ ] T0-02-01 El favicon SVG de Associated aparece en la pestana del navegador
 - [ ] T0-02-02 Favicon PNG 96x96 referenciado en `<head>` (`favicon-96x96.png`)
 - [ ] T0-02-03 Favicon ICO referenciado en `<head>` (`favicon.ico`)
 - [ ] T0-02-04 Apple touch icon referenciado (`apple-touch-icon.png`, 180x180)
-- [ ] T0-02-05 El titulo de la pestana es "Associated — Gestion para colectividades"
+- [ ] T0-02-05 El titulo de la pestana es "Associated - Gestion para colectividades"
 - [ ] T0-02-06 Meta description presente: "ERP ligero para asociaciones culturales..."
 - [ ] T0-02-07 Meta theme-color es `#27343E`
 
-### T0-03 Identidad visual — Open Graph y Twitter Card
+### T0-03 Identidad visual - Open Graph y Twitter Card
 
-- [ ] T0-03-01 `og:title` = "Associated — Gestion para colectividades"
+- [ ] T0-03-01 `og:title` = "Associated - Gestion para colectividades"
 - [ ] T0-03-02 `og:description` = "ERP ligero para asociaciones culturales, penas festeras, clubes deportivos y cofradias."
 - [ ] T0-03-03 `og:image` = "/og-image.png"
 - [ ] T0-03-04 `og:type` = "website"
@@ -50,12 +50,12 @@
 - [ ] T0-03-07 `twitter:description` presente
 - [ ] T0-03-08 `twitter:image` = "/og-image.png"
 
-### T0-04 Identidad visual — PWA
+### T0-04 Identidad visual - PWA
 
 - [ ] T0-04-01 `<link rel="manifest" href="/site.webmanifest" />` presente en `<head>`
 - [ ] T0-04-02 El webmanifest es accesible desde el navegador (`/site.webmanifest`)
 
-### T0-05 Theme Mantine — Colores
+### T0-05 Theme Mantine - Colores
 
 - [ ] T0-05-01 Los botones primarios usan color brand (#5B7682), NO azul default de Mantine
 - [ ] T0-05-02 `primaryColor` es `'brand'` (verificar en DevTools que el color aplicado es la paleta brand)
@@ -64,17 +64,17 @@
 - [ ] T0-05-05 `theme.other.brandDark` es `#27343E` (verificar que el sidebar usa este token, no hex hardcodeado)
 - [ ] T0-05-06 Ningun boton usa `variant="gradient"` (prohibido por directrices de marca)
 
-### T0-06 Theme Mantine — Tipografia y espaciado
+### T0-06 Theme Mantine - Tipografia y espaciado
 
 - [ ] T0-06-01 El radius por defecto de los componentes es "sm" (4px)
 - [ ] T0-06-02 Los inputs y selects tienen bordes redondeados consistentes (radius sm)
 - [ ] T0-06-03 Spacing xs=8, sm=12, md=16, lg=24, xl=32 (verificar con DevTools en margenes/paddings)
 - [ ] T0-06-04 Headings usan la escala de tamanos definida en el brand
-- [ ] T0-06-05 `focusRing: 'auto'` — los elementos focuseados muestran anillo de foco
-- [ ] T0-06-06 `respectReducedMotion: true` — si el OS tiene "reduce motion", las transiciones se desactivan
-- [ ] T0-06-07 `cursorType: 'pointer'` — los elementos interactivos muestran cursor pointer
+- [ ] T0-06-05 `focusRing: 'auto'` - los elementos focuseados muestran anillo de foco
+- [ ] T0-06-06 `respectReducedMotion: true` - si el OS tiene "reduce motion", las transiciones se desactivan
+- [ ] T0-06-07 `cursorType: 'pointer'` - los elementos interactivos muestran cursor pointer
 
-### T0-07 Theme Mantine — Component defaults
+### T0-07 Theme Mantine - Component defaults
 
 - [ ] T0-07-01 Button: defaults de color brand aplicados
 - [ ] T0-07-02 Paper: sombra y radius por defecto
@@ -122,9 +122,9 @@
 
 ---
 
-## Task 1 — UC-002 Autenticacion
+## Task 1 - UC-002 Autenticacion
 
-### T1-01 Login page — Layout
+### T1-01 Login page - Layout
 
 - [ ] T1-01-01 La URL `/login` muestra la pagina de login
 - [ ] T1-01-02 Layout centrado en pantalla
@@ -132,7 +132,7 @@
 - [ ] T1-01-04 El logo `logo-stacked.svg` (isotipo arriba + texto debajo) aparece centrado con ancho 120-140px
 - [ ] T1-01-05 El logo no usa la variante HQ
 
-### T1-02 Login page — Formulario
+### T1-02 Login page - Formulario
 
 - [ ] T1-02-01 Campo email con label "Correo electronico" (TextInput, type email)
 - [ ] T1-02-02 Campo password con label "Contrasena" (PasswordInput)
@@ -140,20 +140,20 @@
 - [ ] T1-02-04 Boton "Acceder" con `color="brand"`, no azul default
 - [ ] T1-02-05 Boton "Acceder" NO usa `variant="gradient"`
 
-### T1-03 Login page — Validaciones
+### T1-03 Login page - Validaciones
 
 - [ ] T1-03-01 Al intentar login con campos vacios: errores de validacion inline
 - [ ] T1-03-02 Al intentar login con email invalido (sin @): error de formato inline
 - [ ] T1-03-03 Al intentar login con password vacio: error de validacion inline
 
-### T1-04 Login page — Errores de autenticacion
+### T1-04 Login page - Errores de autenticacion
 
 - [ ] T1-04-01 Credenciales incorrectas: notificacion roja "Credenciales incorrectas"
 - [ ] T1-04-02 Cuenta bloqueada: notificacion amarilla (`color="yellow"`, shade 6 `#FAB005`) "Cuenta bloqueada temporalmente. Reintente en X minutos"
 - [ ] T1-04-03 Sin backend / error de red: notificacion roja "Error de conexion. Verifique su conexion a internet"
 - [ ] T1-04-04 Error 5xx del servidor: notificacion descriptiva (reportado via ErrorReporter)
 
-### T1-05 Login page — Flujo exitoso
+### T1-05 Login page - Flujo exitoso
 
 - [ ] T1-05-01 Login exitoso con 1 tenant: redirige directamente a `/dashboard`
 - [ ] T1-05-02 Login exitoso con multiples tenants: muestra selector de tenant (no redirige automaticamente)
@@ -168,16 +168,16 @@
 - [ ] T1-06-04 Al seleccionar tenant: redirige a `/dashboard`
 - [ ] T1-06-05 Indicador "Ultima sesion" en el tenant usado previamente (persistido en localStorage)
 
-### T1-07 Dashboard — Layout general
+### T1-07 Dashboard - Layout general
 
 - [ ] T1-07-01 Se muestra el AppShell completo (sidebar + navbar + contenido)
 - [ ] T1-07-02 Titulo "Dashboard" visible
 - [ ] T1-07-03 Nombre de la colectividad como subtitulo del dashboard
 - [ ] T1-07-04 4 cards placeholder de KPIs con texto "Proximamente"
 
-### T1-08 Dashboard — Sidebar
+### T1-08 Dashboard - Sidebar
 
-- [ ] T1-08-01 Sidebar con fondo `theme.other.brandDark` (`#27343E`) — verificar que no es hex hardcodeado
+- [ ] T1-08-01 Sidebar con fondo `theme.other.brandDark` (`#27343E`) - verificar que no es hex hardcodeado
 - [ ] T1-08-02 Logo horizontal blanco (`logo-horizontal-white.svg`) visible cuando sidebar abierto, ancho 140-160px
 - [ ] T1-08-03 Isotipo blanco (`isotipo-white.svg`) visible cuando sidebar colapsado, ancho 28-32px
 - [ ] T1-08-04 Logos usan color `#EAF7FE` (brand.0), no blanco puro
@@ -187,7 +187,7 @@
 - [ ] T1-08-08 Links inactivos con texto al 60% opacidad
 - [ ] T1-08-09 Labels de seccion (ej: "Tesoreria", "Socios") con opacidad 30%
 
-### T1-09 Sidebar — Navegacion y permisos
+### T1-09 Sidebar - Navegacion y permisos
 
 - [ ] T1-09-01 Link "Dashboard" siempre visible (todos los roles)
 - [ ] T1-09-02 Link "Socios" visible solo si tiene permiso `membership:members:read`
@@ -253,9 +253,9 @@
 
 ---
 
-## Task 2 — UC-017 Planes de Cuota
+## Task 2 - UC-017 Planes de Cuota
 
-### T2-01 Listado — Layout y datos
+### T2-01 Listado - Layout y datos
 
 - [ ] T2-01-01 Navegar a `/treasury/fee-plans` muestra la pagina
 - [ ] T2-01-02 Titulo "Planes de Cuota" visible
@@ -264,20 +264,20 @@
 - [ ] T2-01-05 Boton "Nuevo Plan" NO visible sin permiso `treasury:fee-plans:create`
 - [ ] T2-01-06 Boton "Nuevo Plan" NO usa `variant="gradient"`
 
-### T2-02 Listado — Tabla
+### T2-02 Listado - Tabla
 
 - [ ] T2-02-01 Tabla con columnas: Codigo, Nombre, Tipo, Importe, Periodicidad, Estado, Acciones
 - [ ] T2-02-02 Headers de tabla en `uppercase`, `fz="xs"`, `fw={600}`, `c="dimmed"`
 - [ ] T2-02-03 Codigo mostrado como badge monospace (`variant="light"`, `radius="sm"`)
 - [ ] T2-02-04 Importes alineados a la derecha (`textAlign: 'right'`)
 - [ ] T2-02-05 Importes con `fontVariantNumeric: 'tabular-nums'` (digitos alineados verticalmente)
-- [ ] T2-02-06 Importes formateados con `formatMoney()` — centavos a euros (ej: 34500 -> "345,00 EUR")
+- [ ] T2-02-06 Importes formateados con `formatMoney()` - centavos a euros (ej: 34500 -> "345,00 EUR")
 - [ ] T2-02-07 Badge tipo "Periodico" en verde (`variant="light"`, `radius="sm"`)
 - [ ] T2-02-08 Badge tipo "Unica" en azul (`variant="light"`, `radius="sm"`)
 - [ ] T2-02-09 Badge estado "Activo" en verde (`variant="light"`, `radius="sm"`)
 - [ ] T2-02-10 Badge estado "Inactivo" en gris (`variant="light"`, `radius="sm"`)
 
-### T2-03 Listado — Filtros y estados
+### T2-03 Listado - Filtros y estados
 
 - [ ] T2-03-01 Switch "Mostrar inactivos" visible
 - [ ] T2-03-02 Con switch OFF: solo planes activos en la tabla
@@ -286,7 +286,7 @@
 - [ ] T2-03-05 Loading: skeleton de tabla con 5 filas
 - [ ] T2-03-06 Error de carga: alerta roja con boton de reintentar
 
-### T2-04 Creacion de plan — Modal y campos basicos
+### T2-04 Creacion de plan - Modal y campos basicos
 
 - [ ] T2-04-01 Boton "Nuevo Plan" abre modal
 - [ ] T2-04-02 Campo `code` (TextInput): auto-transformacion a mayusculas, 1-20 chars alfanumericos
@@ -296,7 +296,7 @@
 - [ ] T2-04-06 Campo `amount` (NumberInput): precision 2 decimales, sufijo "EUR"
 - [ ] T2-04-07 Importe se guarda en centavos (verificar que 15.00 EUR se envia como 1500 al backend)
 
-### T2-05 Creacion de plan — Campos condicionales RECURRING
+### T2-05 Creacion de plan - Campos condicionales RECURRING
 
 - [ ] T2-05-01 Seleccionar "Periodico": aparecen campos `frequency` y `billingMonths`
 - [ ] T2-05-02 Seleccionar "Cuota Unica": desaparecen `frequency` y `billingMonths`
@@ -310,7 +310,7 @@
 - [ ] T2-05-10 Texto informativo "Se generaran X cargos al ano" refleja la cantidad de meses seleccionados
 - [ ] T2-05-11 Meses seleccionables manualmente tras preseleccion (se pueden agregar/quitar)
 
-### T2-06 Creacion de plan — Validaciones
+### T2-06 Creacion de plan - Validaciones
 
 - [ ] T2-06-01 Codigo vacio: error de validacion inline
 - [ ] T2-06-02 Nombre vacio: error de validacion inline
@@ -319,12 +319,12 @@
 - [ ] T2-06-05 Boton "Guardar" con `color="brand"` y loading state durante submit
 - [ ] T2-06-06 Boton "Guardar" NO usa `variant="gradient"`
 
-### T2-07 Creacion de plan — Resultado
+### T2-07 Creacion de plan - Resultado
 
 - [ ] T2-07-01 Al guardar exitoso: modal se cierra
 - [ ] T2-07-02 Al guardar exitoso: plan aparece en la tabla
-- [ ] T2-07-03 Al guardar exitoso: notificacion verde "Plan creado — El plan de cuota se ha creado correctamente"
-- [ ] T2-07-04 Codigo duplicado: notificacion roja "Codigo duplicado — Ya existe un plan con ese codigo. Pruebe con otro."
+- [ ] T2-07-03 Al guardar exitoso: notificacion verde "Plan creado - El plan de cuota se ha creado correctamente"
+- [ ] T2-07-04 Codigo duplicado: notificacion roja "Codigo duplicado - Ya existe un plan con ese codigo. Pruebe con otro."
 - [ ] T2-07-05 Plan periodico mensual con 12 meses se almacena correctamente
 - [ ] T2-07-06 Plan trimestral con meses [9,12,3,6] (temporada no natural) se almacena correctamente
 - [ ] T2-07-07 Plan de cuota unica sin periodicidad ni meses se crea correctamente
@@ -379,16 +379,16 @@
 
 ---
 
-## Task 3 — UC-018 Suscripciones
+## Task 3 - UC-018 Suscripciones
 
-### T3-01 Pagina de suscripciones — Acceso y layout
+### T3-01 Pagina de suscripciones - Acceso y layout
 
 - [ ] T3-01-01 Navegar a `/treasury/members/:id/subscriptions` muestra la pagina
 - [ ] T3-01-02 Breadcrumb: "Tesoreria > Cuentas de Socio > [Nombre] > Suscripciones"
 - [ ] T3-01-03 Loading: skeleton completo
 - [ ] T3-01-04 Error de carga: alerta con boton reintentar
 
-### T3-02 Suscripcion activa — Detalle completo
+### T3-02 Suscripcion activa - Detalle completo
 
 - [ ] T3-02-01 Si hay suscripcion activa: card con detalle visible
 - [ ] T3-02-02 Nombre del plan visible
@@ -404,7 +404,7 @@
 - [ ] T3-02-12 Fecha registro en formato largo ("8 de marzo de 2026")
 - [ ] T3-02-13 Cargos generados / total cobrado mostrados
 
-### T3-03 Suscripcion activa — Botones de accion
+### T3-03 Suscripcion activa - Botones de accion
 
 - [ ] T3-03-01 Botones de accion visibles con permiso `treasury:subscriptions:update`
 - [ ] T3-03-02 Botones de accion NO visibles sin permiso update
@@ -419,7 +419,7 @@
 - [ ] T3-04-03 Boton "Crear Suscripcion" NO visible sin permiso create
 - [ ] T3-04-04 Si ya existe suscripcion periodica activa: boton de creacion deshabilitado, sugiere "Cambiar Plan"
 
-### T3-05 Crear suscripcion — SubscriptionSelector
+### T3-05 Crear suscripcion - SubscriptionSelector
 
 - [ ] T3-05-01 Cards por cada plan disponible para el tipo de socio
 - [ ] T3-05-02 Cada card muestra: nombre del plan, tipo (badge), importe base (`formatMoney()`)
@@ -429,7 +429,7 @@
 - [ ] T3-05-06 Campo motivo del descuento personalizado obligatorio si descuento > 0 (Textarea, min 3 chars)
 - [ ] T3-05-07 Preview en tiempo real del importe efectivo actualizado al cambiar descuento
 
-### T3-06 Crear suscripcion — Desglose de descuentos
+### T3-06 Crear suscripcion - Desglose de descuentos
 
 - [ ] T3-06-01 Desglose paso a paso visible:
   - Importe base: 120,00 EUR
@@ -445,12 +445,12 @@
 - [ ] T3-06-06 Dto tipo 50% + dto personal 50%: 120 _ 0.50 _ 0.50 = 30.00 EUR (NO 0 EUR)
 - [ ] T3-06-07 Importes con `fontVariantNumeric: 'tabular-nums'` y `textAlign: 'right'`
 
-### T3-07 Crear suscripcion — Validaciones
+### T3-07 Crear suscripcion - Validaciones
 
 - [ ] T3-07-01 Descuento total combinado >= 100%: error de validacion (maximo 99%)
 - [ ] T3-07-02 Descuento personal sin motivo: error de validacion
 - [ ] T3-07-03 Error 409 al crear segunda suscripcion periodica activa: notificacion roja "Ya existe una suscripcion periodica activa. Cierrela primero o cambie de plan."
-- [ ] T3-07-04 Al crear exitoso: notificacion verde "Suscripcion creada — La suscripcion se ha creado correctamente"
+- [ ] T3-07-04 Al crear exitoso: notificacion verde "Suscripcion creada - La suscripcion se ha creado correctamente"
 - [ ] T3-07-05 Queries de suscripciones invalidadas tras creacion
 
 ### T3-08 Cambio de plan
@@ -486,8 +486,8 @@
 
 - [ ] T3-10-01 Boton "Exencion Temporal" abre modal
 - [ ] T3-10-02 Selector tipo exencion:
-  - "Exencion total (sin suscripcion)" — cierra suscripcion con motivo EXEMPTION
-  - "Exencion con trazabilidad (descuento 100%)" — modifica descuento
+  - "Exencion total (sin suscripcion)" - cierra suscripcion con motivo EXEMPTION
+  - "Exencion con trazabilidad (descuento 100%)" - modifica descuento
 - [ ] T3-10-03 Campo motivo (Textarea, requerido)
 - [ ] T3-10-04 Periodo de exencion: fecha inicio / fecha fin (DatePicker, formato compacto dd/MM/yyyy)
 - [ ] T3-10-05 Campo "Aprobado por" (TextInput)
@@ -505,9 +505,9 @@
 
 ---
 
-## Task 4 — UC-011 Alta de Socio
+## Task 4 - UC-011 Alta de Socio
 
-### T4-01 Wizard — Layout general
+### T4-01 Wizard - Layout general
 
 - [ ] T4-01-01 Navegar a `/members/new` muestra el wizard
 - [ ] T4-01-02 Stepper con 3 pasos visibles: "Datos Personales", "Tipo de Socio", "Confirmacion"
@@ -516,7 +516,7 @@
 - [ ] T4-01-05 Paso 3 con icono de check
 - [ ] T4-01-06 Progress bar visual del wizard
 
-### T4-02 Wizard — Navegacion
+### T4-02 Wizard - Navegacion
 
 - [ ] T4-02-01 Boton "Siguiente" deshabilitado hasta que el paso actual sea valido
 - [ ] T4-02-02 Boton "Anterior" navega al paso previo sin perder datos
@@ -525,13 +525,13 @@
 - [ ] T4-02-05 Intentar navegar fuera del wizard: confirmacion de salida (`useBlocker` de React Router)
 - [ ] T4-02-06 `beforeunload` event para advertir al cerrar pestana con datos sin guardar
 
-### T4-03 Wizard — Precondiciones
+### T4-03 Wizard - Precondiciones
 
 - [ ] T4-03-01 Sin ejercicio activo abierto (FE-5): alerta bloqueante "No hay ejercicio abierto. Abra el ejercicio actual primero." con link a gestion de ejercicios
 - [ ] T4-03-02 Sin tipos de socio configurados: alerta bloqueante con link a configuracion de tipos
 - [ ] T4-03-03 Sin plan de inscripcion (UNICA): alerta bloqueante "Debe configurar un plan de cuota de inscripcion" con link a configuracion de planes (verificado en paso 3)
 
-### T4-04 Paso 1 — Datos personales — Campos obligatorios
+### T4-04 Paso 1 - Datos personales - Campos obligatorios
 
 - [ ] T4-04-01 Campo `dni` (TextInput): obligatorio, max 20 chars
 - [ ] T4-04-02 Campo `firstName` (TextInput): obligatorio, max 100 chars
@@ -540,14 +540,14 @@
 - [ ] T4-04-05 Campo `email` (TextInput, type email): obligatorio
 - [ ] T4-04-06 Formato fecha de nacimiento: dd/MM/yyyy (NUNCA formato anglosajon)
 
-### T4-05 Paso 1 — Datos personales — Campos opcionales
+### T4-05 Paso 1 - Datos personales - Campos opcionales
 
 - [ ] T4-05-01 Campo `phone` (TextInput): opcional, max 20 chars
 - [ ] T4-05-02 Campo `address` (TextInput): opcional, max 300 chars
 - [ ] T4-05-03 Campo `postalCode` (TextInput): opcional, solo 5 digitos
 - [ ] T4-05-04 Campo `city` (TextInput): opcional, max 100 chars
 
-### T4-06 Paso 1 — Validacion DNI/NIE
+### T4-06 Paso 1 - Validacion DNI/NIE
 
 - [ ] T4-06-01 DNI valido (ej: 12345678Z): check verde al perder foco
 - [ ] T4-06-02 DNI con letra incorrecta (ej: 12345678A): error de formato inline
@@ -557,7 +557,7 @@
 - [ ] T4-06-06 Algoritmo mod 23 para DNI: validacion client-side correcta
 - [ ] T4-06-07 NIE: conversion X->0, Y->1, Z->2 para calculo de letra de control
 
-### T4-07 Paso 1 — Verificacion unicidad DNI
+### T4-07 Paso 1 - Verificacion unicidad DNI
 
 - [ ] T4-07-01 Consulta debounced (500ms) al backend via `check-dni`
 - [ ] T4-07-02 Indicador spinner mientras consulta al backend
@@ -566,7 +566,7 @@
 - [ ] T4-07-05 DNI existente: alerta roja con datos del socio existente ("Ya existe un socio con DNI 12345678A (Juan Garcia, #00142). Es una reactivacion?")
 - [ ] T4-07-06 Consulta solo se ejecuta si DNI tiene al menos 8 caracteres
 
-### T4-08 Paso 1 — Otras validaciones
+### T4-08 Paso 1 - Otras validaciones
 
 - [ ] T4-08-01 Fecha nacimiento: muestra edad calculada "(30 anos)"
 - [ ] T4-08-02 Email invalido: error de formato inline
@@ -574,7 +574,7 @@
 - [ ] T4-08-04 No permite avanzar al paso 2 con campos obligatorios vacios
 - [ ] T4-08-05 No permite avanzar al paso 2 con errores de validacion
 
-### T4-09 Paso 2 — Tipo de socio
+### T4-09 Paso 2 - Tipo de socio
 
 - [ ] T4-09-01 Cards con todos los tipos de socio activos
 - [ ] T4-09-02 Cada card muestra: nombre del tipo (titulo)
@@ -585,7 +585,7 @@
 - [ ] T4-09-07 Loading: skeleton de 3 tarjetas
 - [ ] T4-09-08 Error de carga: alerta con reintentar
 
-### T4-10 Paso 2 — Validacion de edad
+### T4-10 Paso 2 - Validacion de edad
 
 - [ ] T4-10-01 Al seleccionar tipo compatible con edad del aspirante: indicador verde "Edad compatible"
 - [ ] T4-10-02 Al seleccionar tipo incompatible: alerta amarilla (`color="yellow"`) con mensaje descriptivo (ej: "El aspirante tiene 30 anos, pero 'Adulto' requiere 35+ anos")
@@ -593,7 +593,7 @@
 - [ ] T4-10-04 Sugerencia: resalta tipos compatibles con la edad del aspirante
 - [ ] T4-10-05 No permite continuar si tipo seleccionado es incompatible con la edad
 
-### T4-11 Paso 3 — Confirmacion — Resumen
+### T4-11 Paso 3 - Confirmacion - Resumen
 
 - [ ] T4-11-01 Tarjeta de resumen con todos los datos del aspirante
 - [ ] T4-11-02 Nombre completo visible
@@ -604,21 +604,21 @@
 - [ ] T4-11-07 Fecha de alta (hoy) visible
 - [ ] T4-11-08 Fechas en formato largo (NUNCA formato anglosajon)
 
-### T4-12 Paso 3 — Confirmacion — Cargo de inscripcion
+### T4-12 Paso 3 - Confirmacion - Cargo de inscripcion
 
 - [ ] T4-12-01 Seccion "Cargos a generar" visible
 - [ ] T4-12-02 Checkbox marcado por defecto (no editable): "Cuota de inscripcion: XXX,XX EUR (UNICA)"
 - [ ] T4-12-03 Importe formateado con `formatMoney()` (centavos a euros)
 - [ ] T4-12-04 Si no hay plan de inscripcion (FE-4): alerta roja bloqueante con link a configuracion de planes
 
-### T4-13 Paso 3 — Confirmacion — Seccion informativa
+### T4-13 Paso 3 - Confirmacion - Seccion informativa
 
 - [ ] T4-13-01 Seccion "Al confirmar" con textos informativos:
   - "Se creara el socio en estado Activo"
   - "Se generara cargo de inscripcion"
   - "Se asignara numero de socio automaticamente"
 
-### T4-14 Paso 3 — Confirmacion — Submit
+### T4-14 Paso 3 - Confirmacion - Submit
 
 - [ ] T4-14-01 Boton "Confirmar Alta" (`color="brand"`, NO `variant="gradient"`)
 - [ ] T4-14-02 Boton muestra loading state durante submit
@@ -627,7 +627,7 @@
 - [ ] T4-14-05 Error 422 (datos invalidos): notificacion roja con detalle del error
 - [ ] T4-14-06 Error 412 (sin ejercicio abierto): alerta bloqueante
 
-### T4-15 Paso 3 — Confirmacion — Exito
+### T4-15 Paso 3 - Confirmacion - Exito
 
 - [ ] T4-15-01 Modal de exito con datos del socio creado
 - [ ] T4-15-02 Numero de socio asignado visible (ej: #00343)
@@ -638,9 +638,9 @@
 
 ---
 
-## Task 5 — UC-013 Baja de Socio
+## Task 5 - UC-013 Baja de Socio
 
-### T5-01 Baja voluntaria — Layout y datos del socio
+### T5-01 Baja voluntaria - Layout y datos del socio
 
 - [ ] T5-01-01 Pagina `/members/:id/leave` carga correctamente
 - [ ] T5-01-02 Breadcrumb: "Socios > [Nombre del socio] > Baja Voluntaria"
@@ -649,22 +649,22 @@
 - [ ] T5-01-05 DNI visible
 - [ ] T5-01-06 Estado actual mostrado con StatusBadge (color correcto)
 
-### T5-02 Baja voluntaria — Proteccion de estado
+### T5-02 Baja voluntaria - Proteccion de estado
 
 - [ ] T5-02-01 Si estado actual permite baja voluntaria: formulario completo visible
 - [ ] T5-02-02 Si estado NO permite baja: alerta roja "Este socio no puede darse de baja desde el estado actual"
 - [ ] T5-02-03 Si estado no permite baja: muestra transiciones disponibles como alternativas
 - [ ] T5-02-04 Solo accesible con permiso `membership:members:deactivate`
 
-### T5-03 Baja voluntaria — Fecha efectiva
+### T5-03 Baja voluntaria - Fecha efectiva
 
 - [ ] T5-03-01 Radio Group con opciones de fecha efectiva segun estatutos del tenant
-- [ ] T5-03-02 Opcion "Baja inmediata ([fecha])" — efectiva hoy
-- [ ] T5-03-03 Opcion "Baja a fin de ejercicio ([fecha])" — efectiva 31/12/YYYY
-- [ ] T5-03-04 Opcion "Baja tras preaviso de 30 dias ([fecha])" — efectiva hoy + 30 dias
+- [ ] T5-03-02 Opcion "Baja inmediata ([fecha])" - efectiva hoy
+- [ ] T5-03-03 Opcion "Baja a fin de ejercicio ([fecha])" - efectiva 31/12/YYYY
+- [ ] T5-03-04 Opcion "Baja tras preaviso de 30 dias ([fecha])" - efectiva hoy + 30 dias
 - [ ] T5-03-05 Cada opcion muestra la fecha efectiva calculada (formato largo o compacto dd/MM/yyyy, NUNCA anglosajon)
 
-### T5-04 Baja voluntaria — Impacto financiero
+### T5-04 Baja voluntaria - Impacto financiero
 
 - [ ] T5-04-01 Alerta informativa: amarilla (`color="yellow"`) si hay deuda, verde si no hay
 - [ ] T5-04-02 Tabla de suscripciones activas que se cerraran: plan, importe efectivo, periodicidad
@@ -677,14 +677,14 @@
 - [ ] T5-04-09 Si endpoint `leave-summary` falla: alerta "Estado de cuotas temporalmente no disponible" con opcion reintentar
 - [ ] T5-04-10 Boton "Confirmar" bloqueado si leave-summary no cargo
 
-### T5-05 Baja voluntaria — Motivo y confirmacion
+### T5-05 Baja voluntaria - Motivo y confirmacion
 
 - [ ] T5-05-01 Campo motivo (Textarea, obligatorio, min 3 chars, max 500)
 - [ ] T5-05-02 No permite confirmar sin motivo
 - [ ] T5-05-03 Boton "Confirmar Baja Voluntaria" con `color="red"`, NO `variant="gradient"`
 - [ ] T5-05-04 Boton muestra loading state durante submit
 
-### T5-06 Baja voluntaria — Confirmacion doble paso
+### T5-06 Baja voluntaria - Confirmacion doble paso
 
 - [ ] T5-06-01 Al pulsar "Confirmar Baja Voluntaria": modal de confirmacion aparece
 - [ ] T5-06-02 Modal muestra resumen: "Se dara de baja al socio [Nombre] (#XXXXX) con fecha efectiva [fecha]"
@@ -695,13 +695,13 @@
 - [ ] T5-06-07 Al confirmar: estado del socio cambia (verificar con StatusBadge)
 - [ ] T5-06-08 Error 422 (transicion no permitida): notificacion roja "No se puede procesar la baja desde el estado actual."
 
-### T5-07 Baja por impago — Layout
+### T5-07 Baja por impago - Layout
 
 - [ ] T5-07-01 Pagina `/members/:id/nonpayment-leave` carga correctamente
 - [ ] T5-07-02 Solo accesible con permiso `membership:members:deactivate`
 - [ ] T5-07-03 Solo accesible si el socio cumple condiciones del workflow de morosidad
 
-### T5-08 Baja por impago — Timeline de fases
+### T5-08 Baja por impago - Timeline de fases
 
 - [ ] T5-08-01 Timeline de fases del workflow de morosidad (5 fases)
 - [ ] T5-08-02 Fase 1 (90 dias): Primera notificacion [fecha]
@@ -711,7 +711,7 @@
 - [ ] T5-08-06 Fase 5: Baja efectiva [pendiente]
 - [ ] T5-08-07 Si no todas las fases completas: alerta "El workflow de morosidad no esta completo. Faltan X fases."
 
-### T5-09 Baja por impago — Certificado y acciones
+### T5-09 Baja por impago - Certificado y acciones
 
 - [ ] T5-09-01 Preview del certificado de descubierto con datos del socio
 - [ ] T5-09-02 Deuda detallada (cargos, importes, fechas) en el preview
@@ -720,13 +720,13 @@
 - [ ] T5-09-05 Boton "Cancelar Baja - Regularizacion" (`color="brand"`) si socio paga antes del plazo
 - [ ] T5-09-06 Al regularizar: confirmar que el proceso se cancela y socio vuelve a ACTIVO
 
-### T5-10 Baja por impago — Confirmacion
+### T5-10 Baja por impago - Confirmacion
 
 - [ ] T5-10-01 Boton "Ejecutar Baja por Impago" con `color="red"`, NO `variant="gradient"`
 - [ ] T5-10-02 Confirmacion de doble paso (modal con resumen de impacto)
 - [ ] T5-10-03 Al confirmar: estado del socio cambia a NONPAYMENT_LEAVE
 
-### T5-11 Rehabilitacion — Acceso y datos
+### T5-11 Rehabilitacion - Acceso y datos
 
 - [ ] T5-11-01 Pagina `/members/:id/reinstate` carga correctamente
 - [ ] T5-11-02 Solo accesible si estado es VOLUNTARY_LEAVE o NONPAYMENT_LEAVE
@@ -736,7 +736,7 @@
 - [ ] T5-11-06 Fecha de baja visible (formato largo)
 - [ ] T5-11-07 Tipo de baja visible (StatusBadge)
 
-### T5-12 Rehabilitacion — Desglose de importe
+### T5-12 Rehabilitacion - Desglose de importe
 
 - [ ] T5-12-01 Tabla desglosada (Mantine Table) con:
   - Deuda pendiente: XXX,XX EUR
@@ -747,12 +747,12 @@
 - [ ] T5-12-03 Importes con `fontVariantNumeric: 'tabular-nums'` y `textAlign: 'right'`
 - [ ] T5-12-04 Alerta amarilla (`color="yellow"`): "El pago debe ser completo. No se permiten pagos parciales." (FE-3)
 
-### T5-13 Rehabilitacion — Antiguedad
+### T5-13 Rehabilitacion - Antiguedad
 
 - [ ] T5-13-01 Si `keepSeniority = true`: "Se recuperara la antiguedad anterior (XX meses)"
 - [ ] T5-13-02 Si `keepSeniority = false`: "La antiguedad comenzara desde la fecha de rehabilitacion"
 
-### T5-14 Rehabilitacion — Confirmacion
+### T5-14 Rehabilitacion - Confirmacion
 
 - [ ] T5-14-01 Checkbox: "Confirmo que el pago de XXX,XX EUR ha sido recibido" (obligatorio, `formatMoney()`)
 - [ ] T5-14-02 Boton "Rehabilitar Socio" (`color="green"`, NO `variant="gradient"`)
@@ -762,7 +762,7 @@
 - [ ] T5-14-06 Al confirmar exitoso: redirige a ficha del socio
 - [ ] T5-14-07 Error de pago incompleto (FE-3): notificacion de error
 
-### T5-15 StatusBadge — Mapeo de colores
+### T5-15 StatusBadge - Mapeo de colores
 
 - [ ] T5-15-01 ACTIVE: `color="green"`, `variant="light"` -> badge verde claro
 - [ ] T5-15-02 APPLICANT: `color="blue"`, `variant="light"` -> badge azul claro
@@ -774,7 +774,7 @@
 - [ ] T5-15-08 DECEASED: `color="dark"`, `variant="filled"` -> badge oscuro solido
 - [ ] T5-15-09 Todos los badges con `radius="sm"` (default de marca)
 
-### T5-16 StatusTimeline — Historial de estados
+### T5-16 StatusTimeline - Historial de estados
 
 - [ ] T5-16-01 Timeline (Mantine Timeline) con entradas de historial de estados
 - [ ] T5-16-02 Entradas ordenadas cronologicamente (mas reciente arriba)
@@ -786,7 +786,7 @@
 - [ ] T5-16-08 Badge diferenciado para cambios automaticos ("Sistema") vs manuales
 - [ ] T5-16-09 Badges con `variant="light"` y `radius="sm"` (defaults de marca)
 
-### T5-17 LeaveActions — Acciones contextuales
+### T5-17 LeaveActions - Acciones contextuales
 
 - [ ] T5-17-01 Si socio puede darse de baja (transicion a VOLUNTARY_LEAVE disponible): boton "Procesar Baja Voluntaria" (`color="red"`, `variant="outline"`, icono `IconUserMinus`)
 - [ ] T5-17-02 Boton de baja voluntaria enlaza a `/members/:id/leave`
@@ -843,8 +843,8 @@
 ### CC-05 Formateo de datos consistente
 
 - [ ] CC-05-01 Todos los importes en la app usan `formatMoney()` (centavos a euros con separador decimal coma)
-- [ ] CC-05-02 Todas las fechas largas usan `formatDateLong()` — "8 de marzo de 2026"
-- [ ] CC-05-03 Todas las fechas compactas usan `formatDateCompact()` — "08/03/2026" (dd/MM/yyyy)
+- [ ] CC-05-02 Todas las fechas largas usan `formatDateLong()` - "8 de marzo de 2026"
+- [ ] CC-05-03 Todas las fechas compactas usan `formatDateCompact()` - "08/03/2026" (dd/MM/yyyy)
 - [ ] CC-05-04 NUNCA se muestra formato de fecha anglosajon (MM/dd/yyyy o yyyy-MM-dd en UI)
 - [ ] CC-05-05 Todas las columnas de importes en tablas: `tabular-nums`, `textAlign: 'right'`
 - [ ] CC-05-06 Todos los headers de tabla: `uppercase`, `fz="xs"`, `fw={600}`, `c="dimmed"`
@@ -867,11 +867,11 @@
 | Seccion                         | Items   |
 | ------------------------------- | ------- |
 | Prerequisitos                   | 10      |
-| Task 0 — Brand Setup            | 66      |
-| Task 1 — UC-002 Autenticacion   | 82      |
-| Task 2 — UC-017 Planes de Cuota | 89      |
-| Task 3 — UC-018 Suscripciones   | 78      |
-| Task 4 — UC-011 Alta de Socio   | 81      |
-| Task 5 — UC-013 Baja de Socio   | 101     |
+| Task 0 - Brand Setup            | 66      |
+| Task 1 - UC-002 Autenticacion   | 82      |
+| Task 2 - UC-017 Planes de Cuota | 89      |
+| Task 3 - UC-018 Suscripciones   | 78      |
+| Task 4 - UC-011 Alta de Socio   | 81      |
+| Task 5 - UC-013 Baja de Socio   | 101     |
 | Cross-cutting                   | 42      |
 | **TOTAL**                       | **549** |

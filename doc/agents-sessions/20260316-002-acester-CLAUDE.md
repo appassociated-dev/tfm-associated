@@ -22,7 +22,7 @@ Dos SDDs completados en esta sesion:
 - [x] R2: Test E2E flujo provision -> login -> operacion en tenant (incluye fix Bug 4)
 - [x] R1: Capa de tests de integracion HTTP con @nestjs/testing + supertest
 - [x] R3: Validacion defensiva en PermissionsGuard + test
-- [x] R4: Revisar patron provisioning (SuperadminGuard vs JWT) — documentar decision
+- [x] R4: Revisar patron provisioning (SuperadminGuard vs JWT) - documentar decision
 - [x] R5: Auditar campos Json de Prisma para doble serializacion
 - [x] R6: Test de integracion para script de bridges Prisma
 - [x] R7: Regla lint para casts inseguros sobre campos Prisma Json
@@ -40,8 +40,8 @@ SDD completo para cambio `backend-http-layer-testing`. Se generaron 4 artefactos
 
 **Decisiones tecnicas:**
 
-- OQ1: buildTenantDatabaseName() NO valida UUID — boundary interno, ya validado en TenantId VO
-- OQ2: ESLint Json cast rule = ERROR (no warning) — Bug 3 fue bloqueante, warnings se ignoran
+- OQ1: buildTenantDatabaseName() NO valida UUID - boundary interno, ya validado en TenantId VO
+- OQ2: ESLint Json cast rule = ERROR (no warning) - Bug 3 fue bloqueante, warnings se ignoran
 - OQ3: Bug 4 fix = PrismaTenantService lee databaseName de DB-Main. Credenciales per-tenant (RNF-004) diferidas a SDD separado
 
 **Hallazgo critico:**
@@ -61,7 +61,7 @@ Batch 1 verificado. Tasks 1.1.1-1.3.2 ya estaban implementadas en working direct
 
 **Archivos modificados:**
 
-- `api/src/identity/__tests__/tenant-provisioning.integration-spec.ts` — eliminados 6 JSON.parse() sobre permissions, reemplazados por assertions sobre array nativo
+- `api/src/identity/__tests__/tenant-provisioning.integration-spec.ts` - eliminados 6 JSON.parse() sobre permissions, reemplazados por assertions sobre array nativo
 
 **Resultados:**
 
@@ -77,15 +77,15 @@ Creados 65 tests nuevos cubriendo la capa HTTP completa: TenantsController (7), 
 
 **Archivos creados:**
 
-- `api/test/e2e/tenants-controller.e2e-spec.ts` — 7 tests HTTP para provisioning
-- `api/test/e2e/auth-controller.e2e-spec.ts` — 12 tests HTTP para autenticacion
-- `api/scripts/__tests__/generate-prisma-bridges.spec.ts` — 22 tests para script de bridges
+- `api/test/e2e/tenants-controller.e2e-spec.ts` - 7 tests HTTP para provisioning
+- `api/test/e2e/auth-controller.e2e-spec.ts` - 12 tests HTTP para autenticacion
+- `api/scripts/__tests__/generate-prisma-bridges.spec.ts` - 22 tests para script de bridges
 
 **Archivos modificados:**
 
-- `api/src/shared/infrastructure/guards/__tests__/permissions.guard.spec.ts` — 12 tests nuevos para parsePermissions()
+- `api/src/shared/infrastructure/guards/__tests__/permissions.guard.spec.ts` - 12 tests nuevos para parsePermissions()
 
-**Hallazgo critico — Bug 5 (NUEVO):**
+**Hallazgo critico - Bug 5 (NUEVO):**
 DomainExceptionFilter existe pero NUNCA se registra como APP_FILTER. Todos los errores de dominio (InvalidCredentialsError, CifAlreadyExistsError, etc.) devuelven HTTP 500 en vez de su status code correcto (401, 409). Solo detectado al testear via HTTP real, no en unit tests.
 
 **Decisiones tecnicas:**
@@ -106,13 +106,13 @@ DomainExceptionFilter registrado como APP_FILTER en ObservabilityModule. Elegido
 
 **Archivos creados:**
 
-- `api/src/shared/infrastructure/observability/__tests__/observability.module.spec.ts` — 3 tests unitarios
+- `api/src/shared/infrastructure/observability/__tests__/observability.module.spec.ts` - 3 tests unitarios
 
 **Archivos modificados:**
 
-- `api/src/shared/infrastructure/observability/observability.module.ts` — APP_FILTER provider
-- `api/test/e2e/tenants-controller.e2e-spec.ts` — assertions exactas (401, 409)
-- `api/test/e2e/auth-controller.e2e-spec.ts` — assertions exactas (401)
+- `api/src/shared/infrastructure/observability/observability.module.ts` - APP_FILTER provider
+- `api/test/e2e/tenants-controller.e2e-spec.ts` - assertions exactas (401, 409)
+- `api/test/e2e/auth-controller.e2e-spec.ts` - assertions exactas (401)
 
 **Resultados:**
 
@@ -122,34 +122,34 @@ DomainExceptionFilter registrado como APP_FILTER en ObservabilityModule. Elegido
 
 ---
 
-### 23:37 - Batch 3: Hardening — R5 audit + R7 lint + R4 documentacion
+### 23:37 - Batch 3: Hardening - R5 audit + R7 lint + R4 documentacion
 
 **Descripcion:**
 Batch 3 completado. R7 (ESLint rule) y R4 (documentacion @Public+SuperadminGuard) fueron completados por el agente antes de que WSL se cayera. R5 (audit JSON.stringify) completado tras el reinicio. Limpieza de outbox publishers (JSON.parse(JSON.stringify(...)) innecesario).
 
-**R5 — Audit JSON.stringify sobre campos Prisma Json:**
-7 campos Json auditados (3 main, 4 tenant). Sin bugs criticos. Unico hallazgo: patron JSON.parse(JSON.stringify(...)) en outbox publishers — innecesario, limpiado.
+**R5 - Audit JSON.stringify sobre campos Prisma Json:**
+7 campos Json auditados (3 main, 4 tenant). Sin bugs criticos. Unico hallazgo: patron JSON.parse(JSON.stringify(...)) en outbox publishers - innecesario, limpiado.
 
-**R7 — Regla ESLint (completada antes del crash):**
+**R7 - Regla ESLint (completada antes del crash):**
 
-- `eslint.config.mjs` — regla `no-restricted-syntax` como ERROR para casteos `as string[]`, `as number[]`, `as Array` sobre campos Prisma Json
+- `eslint.config.mjs` - regla `no-restricted-syntax` como ERROR para casteos `as string[]`, `as number[]`, `as Array` sobre campos Prisma Json
 - Excepcion para archivos de test (_.spec.ts, _.test.ts, etc.)
 
-**R4 — Documentacion decision (completada antes del crash):**
+**R4 - Documentacion decision (completada antes del crash):**
 
-- `api/src/identity/infrastructure/controllers/tenants.controller.ts` — JSDoc documentando que @Public() + @UseGuards(SuperadminGuard) es el patron CORRECTO y DEFINITIVO para endpoints de bootstrap/provision. Referencia a UC-001, ADR-006, ADR-007.
+- `api/src/identity/infrastructure/controllers/tenants.controller.ts` - JSDoc documentando que @Public() + @UseGuards(SuperadminGuard) es el patron CORRECTO y DEFINITIVO para endpoints de bootstrap/provision. Referencia a UC-001, ADR-006, ADR-007.
 
 **Archivos modificados:**
 
-- `api/src/treasury/infrastructure/services/prisma-treasury-outbox.publisher.ts` — eliminado JSON.parse(JSON.stringify(...))
-- `api/src/membership/infrastructure/services/prisma-member-outbox.publisher.ts` — eliminado JSON.parse(JSON.stringify(...))
-- `eslint.config.mjs` — regla no-restricted-syntax (antes del crash)
-- `api/src/identity/infrastructure/controllers/tenants.controller.ts` — JSDoc (antes del crash)
+- `api/src/treasury/infrastructure/services/prisma-treasury-outbox.publisher.ts` - eliminado JSON.parse(JSON.stringify(...))
+- `api/src/membership/infrastructure/services/prisma-member-outbox.publisher.ts` - eliminado JSON.parse(JSON.stringify(...))
+- `eslint.config.mjs` - regla no-restricted-syntax (antes del crash)
+- `api/src/identity/infrastructure/controllers/tenants.controller.ts` - JSDoc (antes del crash)
 
 **Resultados:**
 
 - 122 unit test files (1223 tests) GREEN tras limpieza de outbox publishers
-- R5 audit limpio — sin mas instancias de doble serializacion
+- R5 audit limpio - sin mas instancias de doble serializacion
 - R7 regla ESLint activa como ERROR
 - R4 decision documentada como definitiva
 
@@ -160,13 +160,13 @@ Batch 3 completado. R7 (ESLint rule) y R4 (documentacion @Public+SuperadminGuard
 **Descripcion:**
 Corregidos 3 problemas detectados durante verificacion final:
 
-**Fix 1 — Healthcheck Docker Compose:**
+**Fix 1 - Healthcheck Docker Compose:**
 `pg_isready -U associated` intentaba conectar a BD `associated` (no existe). Corregido a `pg_isready -U associated -d associated_main`. Eliminado FATAL cada 10s en logs de PostgreSQL.
 
-**Fix 2 — Cleanup E2E incompleto:**
+**Fix 2 - Cleanup E2E incompleto:**
 Los afterAll de los 3 E2E hacian `DROP DATABASE` con conexiones activas → ERROR. Corregido: (1) cerrar app PRIMERO para liberar pool de PrismaTenantService, (2) helper `cleanupTenantDatabase()` que termina conexiones, revoca privilegios y dropea en orden correcto.
 
-**Fix 3 — Integration tests falsamente GREEN sin Docker:**
+**Fix 3 - Integration tests falsamente GREEN sin Docker:**
 Los integration tests usaban `if (!pgAvailable) return;` dentro de cada `it()`, lo que vitest contaba como PASSED. Corregido a `describe.skipIf(!pgAvailable)` para que se marquen como SKIPPED.
 
 **Archivos creados:**
@@ -175,18 +175,18 @@ Los integration tests usaban `if (!pgAvailable) return;` dentro de cada `it()`, 
 
 **Archivos modificados:**
 
-- `docker-compose.yml` — healthcheck con `-d` flag
-- `api/src/shared/infrastructure/testing/create-test-app.ts` — helper cleanupTenantDatabase()
-- `api/test/e2e/tenants-controller.e2e-spec.ts` — cleanup con helper, closeTestApp primero
-- `api/test/e2e/auth-controller.e2e-spec.ts` — cleanup con helper, closeTestApp primero
-- `api/test/e2e/provision-login-operate.e2e-spec.ts` — cleanup con helper, closeTestApp primero
-- `api/src/identity/__tests__/tenant-provisioning.integration-spec.ts` — describe.skipIf en vez de early return
+- `docker-compose.yml` - healthcheck con `-d` flag
+- `api/src/shared/infrastructure/testing/create-test-app.ts` - helper cleanupTenantDatabase()
+- `api/test/e2e/tenants-controller.e2e-spec.ts` - cleanup con helper, closeTestApp primero
+- `api/test/e2e/auth-controller.e2e-spec.ts` - cleanup con helper, closeTestApp primero
+- `api/test/e2e/provision-login-operate.e2e-spec.ts` - cleanup con helper, closeTestApp primero
+- `api/src/identity/__tests__/tenant-provisioning.integration-spec.ts` - describe.skipIf en vez de early return
 
 **Resultados:**
 
 - 1223 unit/integration tests GREEN
 - 23 E2E tests GREEN
-- PostgreSQL logs limpios — sin FATAL ni ERROR en la ejecucion final
+- PostgreSQL logs limpios - sin FATAL ni ERROR en la ejecucion final
 - Cleanup E2E sin conexiones huerfanas ni BDs residuales
 
 ---
@@ -198,20 +198,20 @@ SDD fast-forward completo (proposal, spec, design, tasks). 25 tareas en 5 fases.
 
 **Archivos creados:**
 
-- `api/src/shared/domain/value-objects/encrypted-secret.ts` — VO que wrappea ciphertext, toString() retorna [ENCRYPTED]
-- `api/src/shared/domain/ports/encryption-service.port.ts` — port reubicado desde membership
-- `api/src/shared/infrastructure/services/aes256-encryption.service.ts` — impl reubicada desde membership
+- `api/src/shared/domain/value-objects/encrypted-secret.ts` - VO que wrappea ciphertext, toString() retorna [ENCRYPTED]
+- `api/src/shared/domain/ports/encryption-service.port.ts` - port reubicado desde membership
+- `api/src/shared/infrastructure/services/aes256-encryption.service.ts` - impl reubicada desde membership
 
 **Archivos modificados:**
 
-- `api/prisma/main/schema.prisma` — 2 columnas nuevas nullable en Tenant
-- `api/src/shared/domain/index.ts` — exports nuevos
-- `api/src/membership/domain/ports/encryption-service.port.ts` — re-export desde shared
-- `api/src/membership/infrastructure/services/aes256-encryption.service.ts` — re-export desde shared
+- `api/prisma/main/schema.prisma` - 2 columnas nuevas nullable en Tenant
+- `api/src/shared/domain/index.ts` - exports nuevos
+- `api/src/membership/domain/ports/encryption-service.port.ts` - re-export desde shared
+- `api/src/membership/infrastructure/services/aes256-encryption.service.ts` - re-export desde shared
 
 **Resultados:**
 
-- 9 tests EncryptedSecret + 8 tests EncryptionService — TDD RED → GREEN
+- 9 tests EncryptedSecret + 8 tests EncryptionService - TDD RED → GREEN
 
 ---
 
@@ -228,9 +228,9 @@ TenantCredentialService creado (implementa ambos ports), Tenant aggregate actual
 
 **Archivos modificados:**
 
-- `api/src/identity/domain/aggregates/tenant.ts` — databaseUser property
-- `api/src/identity/infrastructure/persistence/tenant-prisma.mapper.ts` — mapping databaseUser
-- `api/src/identity/application/commands/provision-tenant.handler.ts` — persistCredentials en saga
+- `api/src/identity/domain/aggregates/tenant.ts` - databaseUser property
+- `api/src/identity/infrastructure/persistence/tenant-prisma.mapper.ts` - mapping databaseUser
+- `api/src/identity/application/commands/provision-tenant.handler.ts` - persistCredentials en saga
 
 **Resultados:**
 
@@ -246,16 +246,16 @@ PrismaTenantService.getClient() convertido a async. Inyeccion @Optional() de Ten
 
 **Archivos creados:**
 
-- `api/src/shared/infrastructure/persistence/__tests__/prisma-tenant.service.spec.ts` — 8 tests
+- `api/src/shared/infrastructure/persistence/__tests__/prisma-tenant.service.spec.ts` - 8 tests
 
 **Archivos modificados:**
 
-- `api/src/shared/infrastructure/persistence/prisma-tenant.service.ts` — async getClient, credential provider
-- 14 repositories (Membership + Treasury) — get prisma → async getPrisma
-- 4 handlers — await getClient
-- 2 outbox publishers — await getClient
-- `api/src/identity/application/commands/provision-tenant.handler.ts` — reordenado saga (saveTenant antes de persistCredentials)
-- `api/src/identity/domain/repositories/tenant.repository.ts` — deleteById para rollback
+- `api/src/shared/infrastructure/persistence/prisma-tenant.service.ts` - async getClient, credential provider
+- 14 repositories (Membership + Treasury) - get prisma → async getPrisma
+- 4 handlers - await getClient
+- 2 outbox publishers - await getClient
+- `api/src/identity/application/commands/provision-tenant.handler.ts` - reordenado saga (saveTenant antes de persistCredentials)
+- `api/src/identity/domain/repositories/tenant.repository.ts` - deleteById para rollback
 
 **Hallazgo critico:**
 persistCredentials hacia prisma.tenant.update() ANTES de saveTenant (que crea el registro). Prisma no puede update sin registro existente → 500. Fix: reordenar saga.
@@ -273,19 +273,19 @@ Creado @Global() TenantCredentialsModule para que TODOS los BCs usen credenciale
 
 **Archivos creados:**
 
-- `api/src/shared/infrastructure/modules/tenant-credentials.module.ts` — @Global module
-- `api/src/shared/infrastructure/modules/__tests__/tenant-credentials.module.spec.ts` — 8 tests
+- `api/src/shared/infrastructure/modules/tenant-credentials.module.ts` - @Global module
+- `api/src/shared/infrastructure/modules/__tests__/tenant-credentials.module.spec.ts` - 8 tests
 
 **Archivos modificados:**
 
-- `api/src/app.module.ts` — import TenantCredentialsModule
-- `api/src/identity/identity.module.ts` — removidos providers ahora globales
-- `api/src/membership/membership.module.ts` — removido ENCRYPTION_SERVICE
-- `api/src/treasury/treasury.module.ts` — removido PrismaMainService
-- `api/src/identity/infrastructure/services/database-provisioning.service.ts` — grantSchemaPermissions()
-- `api/src/identity/application/ports/database-provisioning.port.ts` — nuevo metodo en port
-- `api/test/e2e/*.e2e-spec.ts` — cleanupKnownE2eFixtures en beforeAll
-- `api/vitest.e2e.config.ts` — fileParallelism: false
+- `api/src/app.module.ts` - import TenantCredentialsModule
+- `api/src/identity/identity.module.ts` - removidos providers ahora globales
+- `api/src/membership/membership.module.ts` - removido ENCRYPTION_SERVICE
+- `api/src/treasury/treasury.module.ts` - removido PrismaMainService
+- `api/src/identity/infrastructure/services/database-provisioning.service.ts` - grantSchemaPermissions()
+- `api/src/identity/application/ports/database-provisioning.port.ts` - nuevo metodo en port
+- `api/test/e2e/*.e2e-spec.ts` - cleanupKnownE2eFixtures en beforeAll
+- `api/vitest.e2e.config.ts` - fileParallelism: false
 
 **Resultados:**
 
@@ -320,12 +320,12 @@ Creado @Global() TenantCredentialsModule para que TODOS los BCs usen credenciale
 - ESLint `no-restricted-syntax` como ERROR (no warning) para casteos inseguros sobre Prisma Json. Los warnings se ignoran.
 - Credenciales per-tenant ahora se persisten encriptadas en DB-Main y se usan en runtime (RNF-004 cumplido).
 - TenantCredentialsModule @Global() provee credenciales a todos los BCs sin importar IdentityModule (evita duplicar APP_GUARD).
-- PrismaTenantService.getClient() ahora es async — 21 callers actualizados mecanicamente.
+- PrismaTenantService.getClient() ahora es async - 21 callers actualizados mecanicamente.
 - El saga de provisioning DEBE guardar el tenant antes de persistir credenciales (Prisma update necesita registro existente).
 
 ### Problemas Encontrados
 
-**Bug 5 — DomainExceptionFilter no registrado:**
+**Bug 5 - DomainExceptionFilter no registrado:**
 
 - **Descripcion:** El filter existia pero nunca se registro como APP_FILTER. Todos los errores de dominio devolvian HTTP 500.
 - **Solucion:** Registrado como APP_FILTER en ObservabilityModule.

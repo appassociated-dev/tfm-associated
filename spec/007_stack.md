@@ -144,7 +144,7 @@ src/
 | `@nestjs/schedule`  | Jobs programados    | 6.x                                                  | ADR-008   |
 | `argon2`            | Hash passwords      | 0.44.x                                               | RNF-006   |
 | `date-fns`          | Manipulación fechas | 4.x                                                  | -         |
-| `sepa-xml`          | Generación SEPA     | 0.4.x _(pendiente de evaluación — posible abandono)_ | N4RF17-23 |
+| `sepa-xml`          | Generación SEPA     | 0.4.x _(pendiente de evaluación - posible abandono)_ | N4RF17-23 |
 
 ---
 

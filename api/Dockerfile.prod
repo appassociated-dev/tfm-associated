@@ -20,12 +20,20 @@ COPY package.json package-lock.json ./
 COPY api/package.json ./api/
 
 # Instalar TODAS las dependencias (necesarias para build)
-RUN npm ci --workspace=api
+# --ignore-scripts evita ejecutar husky prepare dentro de Docker
+RUN npm ci --workspace=api --ignore-scripts
 
-# Copiar schemas de Prisma para generar clientes
+# Copiar schemas de Prisma y script de bridges
 COPY api/prisma ./api/prisma
+COPY api/scripts/generate-prisma-bridges.js ./api/scripts/
+
+# Instalar openssl (requerido por Prisma engine)
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 
 # Generar clientes Prisma + CJS bridges
+# Variables dummy — prisma generate solo necesita que existan, no conecta a la DB
+ENV DATABASE_MAIN_URL="postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
+ENV DATABASE_TENANT_URL="postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
 RUN npm run --workspace=api prisma:generate
 
 # ---- Etapa 2: Build ----
@@ -55,7 +63,8 @@ COPY package.json package-lock.json ./
 COPY api/package.json ./api/
 
 # Instalar solo dependencias de produccion
-RUN npm ci --workspace=api --omit=dev
+# --ignore-scripts evita ejecutar husky prepare dentro de Docker
+RUN npm ci --workspace=api --omit=dev --ignore-scripts
 
 # Copiar artefactos de build
 COPY --from=build /app/api/dist ./api/dist
@@ -73,6 +82,9 @@ COPY api/tsconfig.json ./api/
 # Asegurar que el script de migracion es ejecutable
 RUN chmod +x ./scripts/migrate-tenants.sh
 
+# Dar permisos al directorio de engines de Prisma (npx prisma migrate deploy necesita escribir ahi)
+RUN chmod -R 777 ./node_modules/@prisma/engines || true
+
 # Crear usuario no-root para seguridad
 RUN groupadd --gid 1001 appgroup && \
     useradd --uid 1001 --gid appgroup --shell /bin/sh --create-home appuser
@@ -81,6 +93,7 @@ USER appuser
 
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV TS_NODE_PROJECT=/app/api/tsconfig.json
 
 EXPOSE 3000
 

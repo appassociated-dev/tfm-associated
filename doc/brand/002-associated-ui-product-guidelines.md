@@ -1,4 +1,4 @@
-# Associated — UI/Product Brand Guidelines
+# Associated - UI/Product Brand Guidelines
 
 > Versión mínima de alto nivel para el inicio del desarrollo frontend.
 > Framework de referencia: **Mantine 8.x** + React 19 + Vite 7.
@@ -6,15 +6,15 @@
 
 ---
 
-## 1. Theme de Mantine — Configuración central
+## 1. Theme de Mantine - Configuración central
 
 Todo el sistema visual de Associated se implementa a través de un único `createTheme()` que se pasa a `MantineProvider` en la raíz de la aplicación. El theme se almacena en `web/src/shared/theme/associated-theme.ts`. Ningún componente debe usar valores de color, tipografía o espaciado hardcodeados fuera de los tokens definidos aquí.
 
-### 1.1 Color primario de marca — Paleta de 10 shades
+### 1.1 Color primario de marca - Paleta de 10 shades
 
 Mantine requiere que cada color personalizado tenga exactamente 10 shades (índices 0–9, de más claro a más oscuro). Associated define una única paleta personalizada como `primaryColor` del theme.
 
-El `primaryColor` de la aplicación es `'brand'`, generado a partir del gris azulado del isotipo (`#5B7682`). Este es el color que Mantine aplicará automáticamente a todos los componentes interactivos: botones, links, checkboxes, radios, selects activos, focus rings, segmented controls, tabs y cualquier componente que no reciba una prop `color` explícita. El `primaryShade` se configura como `{ light: 7, dark: 5 }` — en light mode se usa el shade más oscuro para contrastar contra fondos claros; en dark mode se invierte la lógica y se usa un shade más luminoso para contrastar contra fondos oscuros.
+El `primaryColor` de la aplicación es `'brand'`, generado a partir del gris azulado del isotipo (`#5B7682`). Este es el color que Mantine aplicará automáticamente a todos los componentes interactivos: botones, links, checkboxes, radios, selects activos, focus rings, segmented controls, tabs y cualquier componente que no reciba una prop `color` explícita. El `primaryShade` se configura como `{ light: 7, dark: 5 }` - en light mode se usa el shade más oscuro para contrastar contra fondos claros; en dark mode se invierte la lógica y se usa un shade más luminoso para contrastar contra fondos oscuros.
 
 **Paleta `brand` (base `#5B7682`, generada con [Mantine Colors Generator](https://mantine.dev/colors-generator/)):**
 
@@ -27,11 +27,11 @@ El `primaryColor` de la aplicación es `'brand'`, generado a partir del gris azu
 | 4     | `#8ca1aa` | Iconos secundarios                                              |
 | 5     | `#7a939e` | Texto de enlace hover                                           |
 | 6     | `#708c99` | Hover sobre acciones primarias                                  |
-| 7     | `#5b7682` | **Color base del isotipo** — acciones primarias en light scheme |
+| 7     | `#5b7682` | **Color base del isotipo** - acciones primarias en light scheme |
 | 8     | `#506c78` | Acciones primarias en dark scheme                               |
 | 9     | `#3d5e6c` | Pressed / active state                                          |
 
-> **¿Por qué `#5B7682` y no `#27343E`?** El isotipo de Associated tiene dos colores: `#5B7682` (gris azulado) y `#27343E` (azul oscuro). El azul oscuro es tan cercano al negro que, al generar la paleta de 10 shades, los shades intermedios (6–7) — que son los que Mantine usa para botones y elementos interactivos — resultan en grises apagados sin personalidad de marca. En cambio, `#5B7682` como base produce una paleta donde el shade 7 es exactamente el color identitario del isotipo. Los botones, links y acciones primarias transmiten la identidad de Associated de forma inmediata.
+> **¿Por qué `#5B7682` y no `#27343E`?** El isotipo de Associated tiene dos colores: `#5B7682` (gris azulado) y `#27343E` (azul oscuro). El azul oscuro es tan cercano al negro que, al generar la paleta de 10 shades, los shades intermedios (6–7) - que son los que Mantine usa para botones y elementos interactivos - resultan en grises apagados sin personalidad de marca. En cambio, `#5B7682` como base produce una paleta donde el shade 7 es exactamente el color identitario del isotipo. Los botones, links y acciones primarias transmiten la identidad de Associated de forma inmediata.
 
 **El color `#27343E` (azul Associated oscuro)** no se registra como paleta en `theme.colors`. Se usa de forma estructural mediante CSS directo:
 
@@ -50,7 +50,7 @@ other: {
 
 Accesible en componentes via `useMantineTheme().other.brandDark`.
 
-**Colores semánticos:** Associated no sobreescribe los colores semánticos por defecto de Mantine (`red`, `green`, `orange`, `blue`). Se usan tal como vienen en Open Color. Esto garantiza coherencia con todos los componentes de Mantine sin mantenimiento adicional. Los colores semánticos definidos en el Brand Foundation (`#2D7A4F`, `#C0392B`, etc.) eran aproximaciones previas a la elección de Mantine — los colores de Open Color los reemplazan en el producto.
+**Colores semánticos:** Associated no sobreescribe los colores semánticos por defecto de Mantine (`red`, `green`, `orange`, `blue`). Se usan tal como vienen en Open Color. Esto garantiza coherencia con todos los componentes de Mantine sin mantenimiento adicional. Los colores semánticos definidos en el Brand Foundation (`#2D7A4F`, `#C0392B`, etc.) eran aproximaciones previas a la elección de Mantine - los colores de Open Color los reemplazan en el producto.
 
 | Función                | Color Mantine | Shade por defecto |
 | ---------------------- | ------------- | ----------------- |
@@ -102,7 +102,7 @@ export const associatedTheme = createTheme({
   luminanceThreshold: 0.3,
 
   other: {
-    brandDark: '#27343E', // Azul oscuro del isotipo — uso estructural (PDFs, emails, landing CTA). NO se usa como fondo de sidebar.
+    brandDark: '#27343E', // Azul oscuro del isotipo - uso estructural (PDFs, emails, landing CTA). NO se usa como fondo de sidebar.
   },
 
   // ─── Tipografía ───
@@ -124,11 +124,11 @@ export const associatedTheme = createTheme({
     },
   },
   fontSizes: {
-    xs: '0.75rem', // 12px — captions
-    sm: '0.8125rem', // 13px — labels, texto secundario
-    md: '0.875rem', // 14px — cuerpo de texto
-    lg: '1rem', // 16px — texto destacado
-    xl: '1.25rem', // 20px — subtítulos grandes
+    xs: '0.75rem', // 12px - captions
+    sm: '0.8125rem', // 13px - labels, texto secundario
+    md: '0.875rem', // 14px - cuerpo de texto
+    lg: '1rem', // 16px - texto destacado
+    xl: '1.25rem', // 20px - subtítulos grandes
   },
   lineHeights: {
     xs: '1.4',
@@ -252,11 +252,11 @@ Para los grids de KPIs y tarjetas, la regla es: 4 columnas en desktop (lg+), 2 e
 
 ### 2.3 Contenedores
 
-El contenido principal no tiene `maxWidth` fijo — se expande para ocupar el espacio disponible restando el ancho de la sidebar. El padding interno del área principal es `lg` (24px).
+El contenido principal no tiene `maxWidth` fijo - se expande para ocupar el espacio disponible restando el ancho de la sidebar. El padding interno del área principal es `lg` (24px).
 
 ---
 
-## 3. Componentes — Default props y patrones
+## 3. Componentes - Default props y patrones
 
 Mantine permite definir `defaultProps` para todos los componentes a nivel de theme. Esto garantiza coherencia sin tener que recordar pasar las mismas props en cada instancia.
 
@@ -267,7 +267,7 @@ Mantine permite definir `defaultProps` para todos los componentes a nivel de the
 components: {
   Button: {
     defaultProps: {
-      radius: 'sm',    // 4px — bordes sutiles, no redondeados
+      radius: 'sm',    // 4px - bordes sutiles, no redondeados
     },
   },
   Paper: {
@@ -351,11 +351,11 @@ components: {
 
 **Formularios.** Se usa `react-hook-form` 7 con `@hookform/resolvers/zod` para validación Zod integrada. Los labels usan el tamaño por defecto de Mantine (`sm`). Los mensajes de error se muestran inline debajo del campo, en rojo, con el componente de error nativo de cada input.
 
-**Estados vacíos.** Se usa un bloque centrado con texto en `c="dimmed"` y un botón de acción primaria. Sin ilustraciones decorativas — texto directo que explica qué irá ahí y cómo empezar. Coherente con el valor de funcionalidad de la marca.
+**Estados vacíos.** Se usa un bloque centrado con texto en `c="dimmed"` y un botón de acción primaria. Sin ilustraciones decorativas - texto directo que explica qué irá ahí y cómo empezar. Coherente con el valor de funcionalidad de la marca.
 
 **Skeleton loaders.** Se usa `Skeleton` de Mantine para cada widget de forma independiente durante la carga. Esto permite renderizado progresivo: si un módulo del dashboard falla, los demás se muestran normalmente (errores aislados, según UC-064).
 
-**Notificaciones.** Se usa `@mantine/notifications`. Sin emojis, sin exclamaciones. Tono funcional. Ejemplo: "Remesa generada correctamente. 47 recibos incluidos." — nunca "¡Tu remesa está lista! 🎉".
+**Notificaciones.** Se usa `@mantine/notifications`. Sin emojis, sin exclamaciones. Tono funcional. Ejemplo: "Remesa generada correctamente. 47 recibos incluidos." - nunca "¡Tu remesa está lista! 🎉".
 
 ---
 
@@ -369,7 +369,7 @@ import { IconUsers, IconCash, IconCalendar } from '@tabler/icons-react';
 import { Users, Banknote, Calendar } from 'lucide-react';
 ```
 
-> **Decisión práctica:** Mantine tiene integración nativa con `@tabler/icons-react` (misma familia visual que Lucide — ambos son forks de Feather Icons). Si se prefiere minimizar dependencias, Tabler Icons es la opción natural con Mantine. Si se quiere mantener la especificación literal del Brand Foundation, se usa `lucide-react`. Ambas librerías son visualmente compatibles (outline, stroke 1.5px). **No mezclar ambas librerías en la misma aplicación.**
+> **Decisión práctica:** Mantine tiene integración nativa con `@tabler/icons-react` (misma familia visual que Lucide - ambos son forks de Feather Icons). Si se prefiere minimizar dependencias, Tabler Icons es la opción natural con Mantine. Si se quiere mantener la especificación literal del Brand Foundation, se usa `lucide-react`. Ambas librerías son visualmente compatibles (outline, stroke 1.5px). **No mezclar ambas librerías en la misma aplicación.**
 
 Reglas de tamaño (via prop `size` en el componente icon o `style`):
 
@@ -425,11 +425,11 @@ new Intl.NumberFormat('es-ES').format(1247);
 
 ---
 
-## 6. Responsive — Criterios de adaptación
+## 6. Responsive - Criterios de adaptación
 
 ### 6.1 Regla general
 
-Mobile-first no significa que el MVP esté optimizado para móvil — la audiencia principal (tesoreros, secretarios) trabaja en desktop. Pero el portal del socio (PWA) sí es mobile-first. Las reglas responsive se aplican mediante el sistema de breakpoints de Mantine y la prop `visibleFrom` / `hiddenFrom` para mostrar/ocultar elementos.
+Mobile-first no significa que el MVP esté optimizado para móvil - la audiencia principal (tesoreros, secretarios) trabaja en desktop. Pero el portal del socio (PWA) sí es mobile-first. Las reglas responsive se aplican mediante el sistema de breakpoints de Mantine y la prop `visibleFrom` / `hiddenFrom` para mostrar/ocultar elementos.
 
 ### 6.2 Sidebar
 
@@ -459,23 +459,23 @@ En pantallas < sm, las tablas de datos (socios, cargos, cobros) se transforman e
 
 ---
 
-## 7. Accesibilidad — WCAG AA
+## 7. Accesibilidad - WCAG AA
 
 Requisitos derivados del Brand Foundation (§ 7.1 contraste mínimo 4.5:1) y de RNFT-046:
 
 **Contraste de color.** Todos los textos deben cumplir ratio 4.5:1 contra su fondo. Los textos grandes (≥ 18px o ≥ 14px bold) cumplen con ratio 3:1. Mantine con `autoContrast: true` ajusta automáticamente el color de texto en variantes filled.
 
-**Focus ring.** `focusRing: 'auto'` (default Mantine) — visible solo al navegar con teclado.
+**Focus ring.** `focusRing: 'auto'` (default Mantine) - visible solo al navegar con teclado.
 
 **Labels en inputs.** Todo input debe tener un `label` visible. No se usan `placeholder` como sustituto de label.
 
 **Iconos como acción.** Nunca se usa un icono como único elemento de acción sin `aria-label` o tooltip accesible. Esto está alineado con la regla del Brand Foundation (§ 7.5): "los iconos acompañan al texto, no lo sustituyen".
 
-**Reducción de movimiento.** `respectReducedMotion: true` — las animaciones se deshabilitan si el usuario tiene `prefers-reduced-motion: reduce` en su sistema operativo.
+**Reducción de movimiento.** `respectReducedMotion: true` - las animaciones se deshabilitan si el usuario tiene `prefers-reduced-motion: reduce` en su sistema operativo.
 
 ---
 
-## 8. Brand Assets — Inventario y uso
+## 8. Brand Assets - Inventario y uso
 
 Esta sección documenta todos los archivos gráficos de marca, su ubicación en el proyecto, cuándo usar cada uno y las reglas de integración en el HTML.
 
@@ -489,25 +489,25 @@ web/
 │   ├── favicon.ico                      # Favicon legacy (32×32, multi-size 16+32)
 │   ├── favicon.svg                      # Favicon moderno (con soporte light/dark mode)
 │   ├── favicon-96x96.png                # Favicon PNG para contextos específicos
-│   ├── apple-touch-icon.png             # iOS — añadir a pantalla de inicio (180×180)
+│   ├── apple-touch-icon.png             # iOS - añadir a pantalla de inicio (180×180)
 │   ├── web-app-manifest-192x192.png     # PWA Android (192×192, maskable)
 │   ├── web-app-manifest-512x512.png     # PWA Android splash (512×512, maskable)
 │   ├── site.webmanifest                 # Manifest PWA
-│   └── og-image.png                     # Open Graph — compartir en redes (1200×630)
+│   └── og-image.png                     # Open Graph - compartir en redes (1200×630)
 │
 └── src/
     └── shared/
         └── assets/
-            ├── isotipo.svg              # Isotipo colores de marca — uso general
-            ├── isotipo-hq.svg           # Isotipo alta calidad — fuente maestra (no usar en producción)
-            ├── isotipo-white.svg        # Isotipo blanco (#EAF7FE) — fondos oscuros
-            ├── logo-horizontal.svg      # Isotipo + "associated" — colores de marca
-            ├── logo-horizontal-white.svg # Isotipo + "associated" — blanco (#EAF7FE)
-            ├── logo-stacked.svg         # Isotipo arriba + "associated" debajo — colores de marca
-            └── logo-stacked-white.svg   # Isotipo arriba + "associated" debajo — blanco (#EAF7FE)
+            ├── isotipo.svg              # Isotipo colores de marca - uso general
+            ├── isotipo-hq.svg           # Isotipo alta calidad - fuente maestra (no usar en producción)
+            ├── isotipo-white.svg        # Isotipo blanco (#EAF7FE) - fondos oscuros
+            ├── logo-horizontal.svg      # Isotipo + "associated" - colores de marca
+            ├── logo-horizontal-white.svg # Isotipo + "associated" - blanco (#EAF7FE)
+            ├── logo-stacked.svg         # Isotipo arriba + "associated" debajo - colores de marca
+            └── logo-stacked-white.svg   # Isotipo arriba + "associated" debajo - blanco (#EAF7FE)
 ```
 
-> **`isotipo-hq.svg`** es la fuente maestra del isotipo con máximo detalle en los paths. No se usa directamente en la aplicación — se usa como origen para generar las demás variantes. En producción se usa `isotipo.svg` (versión optimizada para web).
+> **`isotipo-hq.svg`** es la fuente maestra del isotipo con máximo detalle en los paths. No se usa directamente en la aplicación - se usa como origen para generar las demás variantes. En producción se usa `isotipo.svg` (versión optimizada para web).
 
 ### 8.2 Uso de cada asset
 
@@ -523,16 +523,16 @@ web/
 
 | Archivo                        | Cuándo se usa                       | Notas                                                   |
 | ------------------------------ | ----------------------------------- | ------------------------------------------------------- |
-| `apple-touch-icon.png`         | iOS — "Añadir a pantalla de inicio" | 180×180px. iOS no consulta el webmanifest para el icono |
-| `web-app-manifest-192x192.png` | Android — icono de app PWA          | Declarado en `site.webmanifest` con `purpose: maskable` |
-| `web-app-manifest-512x512.png` | Android — splash screen PWA         | Declarado en `site.webmanifest` con `purpose: maskable` |
+| `apple-touch-icon.png`         | iOS - "Añadir a pantalla de inicio" | 180×180px. iOS no consulta el webmanifest para el icono |
+| `web-app-manifest-192x192.png` | Android - icono de app PWA          | Declarado en `site.webmanifest` con `purpose: maskable` |
+| `web-app-manifest-512x512.png` | Android - splash screen PWA         | Declarado en `site.webmanifest` con `purpose: maskable` |
 | `site.webmanifest`             | Manifest PWA                        | Contiene nombre, descripción, iconos, colores de tema   |
 
 **Open Graph (redes sociales):**
 
 | Archivo        | Cuándo se usa                                                                                 | Notas                                                                                                                 |
 | -------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `og-image.png` | Cuando se comparte un enlace de Associated en redes sociales, WhatsApp, Slack, LinkedIn, etc. | 1200×630px. Fondo transparente — considerar exportar versión con fondo `#F8F9FA` si las plataformas lo renderizan mal |
+| `og-image.png` | Cuando se comparte un enlace de Associated en redes sociales, WhatsApp, Slack, LinkedIn, etc. | 1200×630px. Fondo transparente - considerar exportar versión con fondo `#F8F9FA` si las plataformas lo renderizan mal |
 
 **Logos dentro de la aplicación:**
 
@@ -565,7 +565,7 @@ Los logos se ubican en la zona de marca del header, no en la sidebar. La variant
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Associated — Gestión para colectividades</title>
+    <title>Associated - Gestión para colectividades</title>
     <meta
       name="description"
       content="ERP ligero para asociaciones culturales, peñas festeras, clubes deportivos y cofradías."
@@ -582,7 +582,7 @@ Los logos se ubican en la zona de marca del header, no en la sidebar. La variant
     <meta name="theme-color" content="#27343E" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Associated — Gestión para colectividades" />
+    <meta property="og:title" content="Associated - Gestión para colectividades" />
     <meta
       property="og:description"
       content="ERP ligero para asociaciones culturales, peñas festeras, clubes deportivos y cofradías."
@@ -592,7 +592,7 @@ Los logos se ubican en la zona de marca del header, no en la sidebar. La variant
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Associated — Gestión para colectividades" />
+    <meta name="twitter:title" content="Associated - Gestión para colectividades" />
     <meta
       name="twitter:description"
       content="ERP ligero para asociaciones culturales, peñas festeras, clubes deportivos y cofradías."
@@ -619,14 +619,14 @@ Los logos se ubican en la zona de marca del header, no en la sidebar. La variant
 Los SVGs de `src/shared/assets/` se importan como componentes React o como URLs según el uso:
 
 ```tsx
-// Como URL (para <img> tags — mantiene el SVG como archivo externo)
+// Como URL (para <img> tags - mantiene el SVG como archivo externo)
 import logoHorizontalWhite from '@/shared/assets/logo-horizontal-white.svg';
 
 // En el componente
 <img src={logoHorizontalWhite} alt="associated" height={32} />;
 ```
 
-> **No usar SVGs inline en JSX** para los logos — los paths son complejos y ensucian el código. Importar como URL y usar `<img>` es más limpio y cacheable. Si se necesita cambiar colores dinámicamente con CSS, considerar `<img>` con filtros CSS o un componente wrapper que cargue el SVG.
+> **No usar SVGs inline en JSX** para los logos - los paths son complejos y ensucian el código. Importar como URL y usar `<img>` es más limpio y cacheable. Si se necesita cambiar colores dinámicamente con CSS, considerar `<img>` con filtros CSS o un componente wrapper que cargue el SVG.
 
 ### 8.5 Reglas de uso
 
@@ -649,7 +649,7 @@ import logoHorizontalWhite from '@/shared/assets/logo-horizontal-white.svg';
 
 ---
 
-## 9. Dark mode — Implementacion activa
+## 9. Dark mode - Implementacion activa
 
 El dark mode esta soportado desde el MVP. La configuracion se realiza con `defaultColorScheme="auto"` en `MantineProvider`, lo que permite que la aplicacion detecte automaticamente la preferencia del sistema operativo del usuario y aplique el esquema correspondiente.
 
@@ -680,7 +680,7 @@ Para evitar el destello visual que ocurre cuando React aun no ha montado y el na
 
 Este script debe ir en el `<head>` antes de cualquier stylesheet para que el navegador aplique los estilos correctos desde el primer frame.
 
-### 9.3 Regla de variables CSS — Prohibicion de valores hardcodeados
+### 9.3 Regla de variables CSS - Prohibicion de valores hardcodeados
 
 Todo el CSS de la aplicacion DEBE usar variables semanticas de Mantine que se adaptan automaticamente al esquema de color activo. Esta prohibido usar valores hex hardcodeados o variables de shade directo como `gray.X` (que no se invierten entre light y dark mode).
 
@@ -698,7 +698,7 @@ Todo el CSS de la aplicacion DEBE usar variables semanticas de Mantine que se ad
 **Ejemplos de uso incorrecto vs correcto:**
 
 ```css
-/* INCORRECTO — no se adapta a dark mode */
+/* INCORRECTO - no se adapta a dark mode */
 .nav-item {
   color: #868e96;
 }
@@ -706,7 +706,7 @@ Todo el CSS de la aplicacion DEBE usar variables semanticas de Mantine que se ad
   background: rgba(0, 0, 0, 0.05);
 }
 
-/* CORRECTO — se adapta automaticamente */
+/* CORRECTO - se adapta automaticamente */
 .nav-item {
   color: var(--mantine-color-dimmed);
 }
@@ -734,7 +734,7 @@ function BrandLogo() {
 
 El fallback `'light'` en `useComputedColorScheme('light')` garantiza que si el esquema aun no se ha resuelto (SSR, primer render), se usa la variante de light mode por defecto.
 
-### 9.5 Direccion de diseno — Paleta dark con identidad de marca
+### 9.5 Direccion de diseno - Paleta dark con identidad de marca
 
 La paleta `dark` de Mantine por defecto usa Open Color, que tiene un matiz violeta-grisaceo (`dark.7: #1d1e30`) sin relacion con la identidad de Associated. La direccion de diseno validada e implementada es sobreescribir la paleta `dark` con shades derivados del azul Associated (`#27343E`), manteniendo el matiz azul-petroleo que identifica a la marca.
 
@@ -752,7 +752,7 @@ La paleta `dark` de Mantine por defecto usa Open Color, que tiene un matiz viole
 
 > Los valores son orientativos. Deben generarse y validarse para cumplir WCAG AA (4.5:1 para texto normal, 3:1 para texto grande) a medida que se refine la paleta custom.
 
-**Paleta `brand` en dark mode.** El `primaryShade` esta configurado como `{ light: 7, dark: 5 }`. En dark mode los elementos interactivos usan `brand.5` (`#7a939e`), un shade mas luminoso que el base (`#5b7682`), necesario para que los botones y links contrasten contra fondos oscuros. Esta decision se valido visualmente comparando `brand.4`, `brand.5` y `brand.6` sobre el fondo previsto (`#1A2329`): el shade 5 ofrece el equilibrio optimo entre presencia visual y coherencia de marca — el shade 6 resulta demasiado apagado y el shade 4 demasiado lavado, desdibujando el caracter del color.
+**Paleta `brand` en dark mode.** El `primaryShade` esta configurado como `{ light: 7, dark: 5 }`. En dark mode los elementos interactivos usan `brand.5` (`#7a939e`), un shade mas luminoso que el base (`#5b7682`), necesario para que los botones y links contrasten contra fondos oscuros. Esta decision se valido visualmente comparando `brand.4`, `brand.5` y `brand.6` sobre el fondo previsto (`#1A2329`): el shade 5 ofrece el equilibrio optimo entre presencia visual y coherencia de marca - el shade 6 resulta demasiado apagado y el shade 4 demasiado lavado, desdibujando el caracter del color.
 
 > **Logica de inversion:** en paletas desaturadas como la de Associated, el dark mode requiere invertir la direccion del shade respecto al light mode. En light mode el shade alto (7) contrasta contra el fondo claro. En dark mode el shade bajo (5) contrasta contra el fondo oscuro. Esto es diferente de paletas saturadas (como `blue` de Open Color) donde el shade alto sigue funcionando en dark mode gracias a la intensidad cromatica.
 

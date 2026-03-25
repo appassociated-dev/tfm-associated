@@ -32,11 +32,11 @@ El controller de tenants tiene @UseGuards(SuperadminGuard) pero NO tiene @Public
 
 **Fix temporal aplicado:**
 
-1. Agregado @Public() en TenantsController.provision() — bypasea JWT, pero SuperadminGuard sigue protegiendo con API Key
+1. Agregado @Public() en TenantsController.provision() - bypasea JWT, pero SuperadminGuard sigue protegiendo con API Key
 2. Agregado SUPERADMIN_API_KEY=dev-superadmin-key en api/.env
 3. Actualizado seed-data.sh con header X-Api-Key
 
-**Estado:** TEMPORAL — pendiente revision con responsable backend para confirmar el approach.
+**Estado:** TEMPORAL - pendiente revision con responsable backend para confirmar el approach.
 
 **Archivos modificados:**
 
@@ -68,13 +68,13 @@ Aplicados ambos fixes para Bug 3 (doble serializacion permisos): Fix A (causa ra
 **Descripcion:**
 Al intentar seedear datos para testing manual del frontend, se detectaron 3 bugs en la capa HTTP del backend que impiden el flujo basico de provision + autenticacion.
 
-**Bug 1 — @Public() faltante en provisioning (FIXED TEMPORAL):**
+**Bug 1 - @Public() faltante en provisioning (FIXED TEMPORAL):**
 JwtAuthGuard global se ejecuta antes que SuperadminGuard. Sin JWT no hay acceso al endpoint de provision. Fix: @Public() en controller.
 
-**Bug 2 — Regex Prisma bridges sobre-escapadas (FIXED):**
-generate-prisma-bridges.js tenia 8 backslashes donde necesitaba 4. Los modelos Prisma no se generaban — client.tenant era undefined. Fix: corregidas regex.
+**Bug 2 - Regex Prisma bridges sobre-escapadas (FIXED):**
+generate-prisma-bridges.js tenia 8 backslashes donde necesitaba 4. Los modelos Prisma no se generaban - client.tenant era undefined. Fix: corregidas regex.
 
-**Bug 3 — PermissionsGuard recibe string en vez de array (PENDIENTE):**
+**Bug 3 - PermissionsGuard recibe string en vez de array (PENDIENTE):**
 database-provisioning.service.ts hace JSON.stringify sobre permissions que Prisma ya serializa. El login handler los mete como string en el JWT. PermissionsGuard llama .some() sobre un string → TypeError.
 
 **Archivos creados:**

@@ -15,7 +15,7 @@ Testing manual del frontend fase 1. Se descubrieron y corrigieron multiples bugs
 
 ## Objetivos
 
-- [ ] Testing manual del frontend fase 1 (en progreso — login funciona, pendiente feedback completo)
+- [ ] Testing manual del frontend fase 1 (en progreso - login funciona, pendiente feedback completo)
 - [x] Corregir errores de compilacion TypeScript en backend
 - [x] Corregir migracion incompleta de tenant DB
 - [x] Corregir schema mismatch entre backend y frontend en login
@@ -80,7 +80,7 @@ El login fallaba silenciosamente. El backend retornaba tokens en formato flat (`
 **Decisiones tecnicas:**
 
 - El schema Zod del frontend debe coincidir exactamente con el contrato del backend
-- El patron de `safeParse` que falla silenciosamente es peligroso — el error real se pierde y se muestra un mensaje generico
+- El patron de `safeParse` que falla silenciosamente es peligroso - el error real se pierde y se muestra un mensaje generico
 
 **Resultados:**
 
@@ -123,9 +123,9 @@ El interceptor Axios lee `associated_tenant_id` de localStorage para enviar el h
 
 ### Lecciones Tecnicas
 
-- Los stubs de Prisma client deben mantenerse sincronizados cuando se agregan columnas al schema — el stub `prisma-client.stub.d.ts` es manual y no se autogenera
-- Prisma devuelve `null` para campos nullable, no `undefined` — los tipos en mappers y aggregates deben usar `string | null`
-- `safeParse` de Zod que falla silenciosamente puede ocultar errores criticos — considerar logging cuando la validacion falla
+- Los stubs de Prisma client deben mantenerse sincronizados cuando se agregan columnas al schema - el stub `prisma-client.stub.d.ts` es manual y no se autogenera
+- Prisma devuelve `null` para campos nullable, no `undefined` - los tipos en mappers y aggregates deben usar `string | null`
+- `safeParse` de Zod que falla silenciosamente puede ocultar errores criticos - considerar logging cuando la validacion falla
 - El interceptor Axios depende de localStorage para el tenant ID, lo que crea un acoplamiento implicito entre AuthProvider y el interceptor
 
 ### Problemas Encontrados

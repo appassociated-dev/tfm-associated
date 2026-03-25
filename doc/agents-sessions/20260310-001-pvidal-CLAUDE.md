@@ -9,7 +9,7 @@
 
 ## Resumen de la Sesion
 
-Implementacion completa de la Task 6 — UC-006: Gestion de ficha de socio (Backend) dentro de BC-Membership. Se siguio el flujo SDD completo (explore -> apply x4 batches -> verify -> archive) con metodologia TDD. Se crearon 6 Value Objects, 2 Domain Events, 1 port + impl de cifrado AES-256-GCM, 4 handlers CQRS, 4 DTOs, 1 controller REST, extension del schema Prisma y 21 tests de integracion.
+Implementacion completa de la Task 6 - UC-006: Gestion de ficha de socio (Backend) dentro de BC-Membership. Se siguio el flujo SDD completo (explore -> apply x4 batches -> verify -> archive) con metodologia TDD. Se crearon 6 Value Objects, 2 Domain Events, 1 port + impl de cifrado AES-256-GCM, 4 handlers CQRS, 4 DTOs, 1 controller REST, extension del schema Prisma y 21 tests de integracion.
 
 ---
 
@@ -180,7 +180,7 @@ Se ejecuto sdd-verify que dio PASS WITH WARNINGS. Se corrigieron 6 archivos de t
 
 ## Proximos Pasos
 
-- [ ] Task 7 — UC-011: Proceso de alta simplificado en 3 pasos (Backend)
+- [ ] Task 7 - UC-011: Proceso de alta simplificado en 3 pasos (Backend)
 - [ ] Ejecutar migracion Prisma del schema extendido en BDs de tenant
 - [ ] Implementar campo `encryption_key_version` para rotacion de claves (post-MVP)
 
@@ -224,4 +224,4 @@ Se ejecuto sdd-verify que dio PASS WITH WARNINGS. Se corrigieron 6 archivos de t
 ---
 
 **Estado final:** Completada
-**Proxima sesion:** Implementar Task 7 — UC-011: Proceso de alta simplificado en 3 pasos
+**Proxima sesion:** Implementar Task 7 - UC-011: Proceso de alta simplificado en 3 pasos

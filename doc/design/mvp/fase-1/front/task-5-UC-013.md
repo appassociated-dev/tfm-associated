@@ -1,4 +1,4 @@
-# Task 5 — UC-013: Baja de socio (Frontend)
+# Task 5 - UC-013: Baja de socio (Frontend)
 
 ## Información general
 
@@ -40,10 +40,10 @@
 
 | Tarea                        | Artefacto necesario                                                                                                                                                                                                            |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **F1-Back Task 8 — UC-013**  | Endpoints REST operativos: `POST /api/v1/members/:id/voluntary-leave`, `POST /api/v1/members/:id/nonpayment-leave`, `POST /api/v1/members/:id/reinstate`, `GET /api/v1/members/:id/leave-summary`. Contratos de DTOs definidos |
-| **F1-Back Task 5 — UC-007**  | Endpoints de estados: `GET /api/v1/members/:id/available-transitions`, `GET /api/v1/members/:id/status-history`. Máquina de estados validando transiciones a VOLUNTARY_LEAVE, NONPAYMENT_LEAVE                                 |
-| **F1-Front Task 4 — UC-011** | Listado de socios existente con navegación a ficha del socio. Schemas de socio reutilizables                                                                                                                                   |
-| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                                    |
+| **F1-Back Task 8 - UC-013**  | Endpoints REST operativos: `POST /api/v1/members/:id/voluntary-leave`, `POST /api/v1/members/:id/nonpayment-leave`, `POST /api/v1/members/:id/reinstate`, `GET /api/v1/members/:id/leave-summary`. Contratos de DTOs definidos |
+| **F1-Back Task 5 - UC-007**  | Endpoints de estados: `GET /api/v1/members/:id/available-transitions`, `GET /api/v1/members/:id/status-history`. Máquina de estados validando transiciones a VOLUNTARY_LEAVE, NONPAYMENT_LEAVE                                 |
+| **F1-Front Task 4 - UC-011** | Listado de socios existente con navegación a ficha del socio. Schemas de socio reutilizables                                                                                                                                   |
+| **F1-Front Task 1 - UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                                    |
 
 ### Checklist de verificación de dependencias
 
@@ -250,13 +250,13 @@ Crear en `web/src/features/membership/leave/schemas/`:
 Crear en `web/src/features/membership/leave/api/`:
 
 - **`member-leave.api.ts`**: Funciones API:
-  - `getLeaveSummary(memberId: string): Promise<LeaveSummary>` — parsea con `leaveSummarySchema`
-  - `processVoluntaryLeave(memberId: string, data: VoluntaryLeaveRequest): Promise<LeaveResponse>` — parsea con `leaveResponseSchema`
-  - `processNonpaymentLeave(memberId: string): Promise<LeaveResponse>` — parsea con `leaveResponseSchema`
-  - `getReinstatementSummary(memberId: string): Promise<ReinstatementSummary>` — parsea con `reinstatementSummarySchema`
-  - `reinstateMember(memberId: string, data: ReinstatementRequest): Promise<ReinstatementResponse>` — parsea con `reinstatementResponseSchema`
-  - `getStatusHistory(memberId: string): Promise<StatusHistory>` — parsea con `statusHistorySchema`
-  - `getAvailableTransitions(memberId: string): Promise<AvailableTransitions>` — parsea con `availableTransitionsSchema`
+  - `getLeaveSummary(memberId: string): Promise<LeaveSummary>` - parsea con `leaveSummarySchema`
+  - `processVoluntaryLeave(memberId: string, data: VoluntaryLeaveRequest): Promise<LeaveResponse>` - parsea con `leaveResponseSchema`
+  - `processNonpaymentLeave(memberId: string): Promise<LeaveResponse>` - parsea con `leaveResponseSchema`
+  - `getReinstatementSummary(memberId: string): Promise<ReinstatementSummary>` - parsea con `reinstatementSummarySchema`
+  - `reinstateMember(memberId: string, data: ReinstatementRequest): Promise<ReinstatementResponse>` - parsea con `reinstatementResponseSchema`
+  - `getStatusHistory(memberId: string): Promise<StatusHistory>` - parsea con `statusHistorySchema`
+  - `getAvailableTransitions(memberId: string): Promise<AvailableTransitions>` - parsea con `availableTransitionsSchema`
   - Si `ZodError` se produce, se reporta via `ErrorReporter.captureException()`
 
 ### Paso 3: Custom hooks con TanStack Query
@@ -385,9 +385,9 @@ Crear en `web/src/features/membership/leave/pages/`:
     - Si estado no permite baja → alerta roja "Este socio no puede darse de baja desde el estado actual" + mostrar transiciones disponibles
   - **Sección: Configuración de fecha efectiva**
     - Radio Group (Mantine Radio.Group) con opciones disponibles según estatutos:
-      - "Baja inmediata ([fecha])" — efectiva hoy
-      - "Baja a fin de ejercicio ([fecha])" — efectiva 31/12/YYYY
-      - "Baja tras preaviso de 30 días ([fecha])" — efectiva hoy + 30 días
+      - "Baja inmediata ([fecha])" - efectiva hoy
+      - "Baja a fin de ejercicio ([fecha])" - efectiva 31/12/YYYY
+      - "Baja tras preaviso de 30 días ([fecha])" - efectiva hoy + 30 días
     - Cada opción muestra la fecha efectiva calculada
     - Formato de fechas: largo "8 de marzo de 2026", compacto "08/03/2026" (dd/MM/yyyy). NUNCA usar formato anglosajón.
   - **Sección: Impacto financiero**

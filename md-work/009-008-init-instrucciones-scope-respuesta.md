@@ -1,28 +1,28 @@
-## Verificación de instalación — Scope `web`
+## Verificación de instalación - Scope `web`
 
 ### Instalados (7)
 
-* `vite`
-* `mantine-dev`
-* `zod-4`
-* `react-hook-form-zod`
-* `sentry-react-setup`
-* `openapi-to-typescript`
-* `vitest`
+- `vite`
+- `mantine-dev`
+- `zod-4`
+- `react-hook-form-zod`
+- `sentry-react-setup`
+- `openapi-to-typescript`
+- `vitest`
 
 ### No instalados (omitidos)
 
-* `vercel-react-best-practices`
-* `tanstack-query`
-* `accessibility-compliance`
-* `accessibility`
-* `wcag-audit-patterns`
-* `responsive-design`
-* `pwa-development`
-* `design-system-patterns`
-* `react-state-management`
-* `email-best-practices`
-* `associated-i18n`
+- `vercel-react-best-practices`
+- `tanstack-query`
+- `accessibility-compliance`
+- `accessibility`
+- `wcag-audit-patterns`
+- `responsive-design`
+- `pwa-development`
+- `design-system-patterns`
+- `react-state-management`
+- `email-best-practices`
+- `associated-i18n`
 
 ---
 
@@ -48,17 +48,17 @@ Se han añadido los 7 skills instalados en una nueva sección:
 
 Se omiten 11 skills del reporte por no estar instalados:
 
-* `vercel-react-best-practices`
-* `tanstack-query`
-* `accessibility-compliance`
-* `accessibility`
-* `wcag-audit-patterns`
-* `responsive-design`
-* `pwa-development`
-* `design-system-patterns`
-* `react-state-management`
-* `email-best-practices`
-* `associated-i18n`
+- `vercel-react-best-practices`
+- `tanstack-query`
+- `accessibility-compliance`
+- `accessibility`
+- `wcag-audit-patterns`
+- `responsive-design`
+- `pwa-development`
+- `design-system-patterns`
+- `react-state-management`
+- `email-best-practices`
+- `associated-i18n`
 
 ---
 
@@ -66,46 +66,39 @@ Se omiten 11 skills del reporte por no estar instalados:
 
 Total: **19 entradas**
 
-* 6 preexistentes (`doc-spec-*`)
-* 13 nuevas específicas del *scope* `web`
+- 6 preexistentes (`doc-spec-*`)
+- 13 nuevas específicas del _scope_ `web`
 
 ### Distribución
 
-* `vite` — 2 entradas
+- `vite` - 2 entradas
+  - Configuración inicial
+  - Debug / optimización de build
 
-  * Configuración inicial
-  * Debug / optimización de build
+- `mantine-dev` - 3 entradas
+  - Uso de componentes UI
 
-* `mantine-dev` — 3 entradas
+  - Theming y estilos
 
-  * Uso de componentes UI
-
-  * Theming y estilos
-
-  * Inputs y formularios
+  - Inputs y formularios
 
   > Justificación: Mantine es el único UI kit del proyecto y presenta tres patrones de uso claramente diferenciados.
 
-* `zod-4` — 2 entradas
+- `zod-4` - 2 entradas
+  - Creación de schemas
+  - Migración v3 → v4
 
-  * Creación de schemas
-  * Migración v3 → v4
+- `react-hook-form-zod` - 2 entradas
+  - Formularios básicos
+  - Patrones avanzados
 
-* `react-hook-form-zod` — 2 entradas
+- `sentry-react-setup` - 2 entradas
+  - Setup inicial
+  - Replay / tracing
 
-  * Formularios básicos
-  * Patrones avanzados
+- `openapi-to-typescript` - 1 entrada
+  - Generación y sincronización de tipos
 
-* `sentry-react-setup` — 2 entradas
-
-  * Setup inicial
-  * Replay / tracing
-
-* `openapi-to-typescript` — 1 entrada
-
-  * Generación y sincronización de tipos
-
-* `vitest` — 2 entradas
-
-  * Escritura de tests
-  * Configuración de cobertura
+- `vitest` - 2 entradas
+  - Escritura de tests
+  - Configuración de cobertura

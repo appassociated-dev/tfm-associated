@@ -22,7 +22,8 @@ COPY package.json package-lock.json ./
 COPY web/package.json ./web/
 
 # Instalar dependencias
-RUN npm ci --workspace=web
+# --ignore-scripts evita ejecutar husky prepare dentro de Docker
+RUN npm ci --workspace=web --ignore-scripts
 
 # Copiar codigo fuente del frontend
 COPY web/src ./web/src
@@ -32,8 +33,8 @@ COPY web/tsconfig.json web/tsconfig.node.json ./web/
 COPY web/vite.config.ts ./web/
 COPY web/postcss.config.cjs ./web/
 
-# Compilar TypeScript y generar bundle de produccion
-RUN cd web && npx tsc -b && npx vite build
+# Generar bundle de produccion (Vite usa esbuild, no necesita tsc)
+RUN cd web && npx vite build
 
 # ---- Etapa 2: Produccion ----
 FROM nginx:1.27-alpine AS production
@@ -48,9 +49,6 @@ COPY --from=build /app/web/dist /usr/share/nginx/html
 RUN apk add --no-cache curl
 
 EXPOSE 8080
-
-# Ejecutar como usuario no-root para seguridad
-USER nginx
 
 # Health check del contenedor
 HEALTHCHECK --interval=15s --timeout=5s --retries=3 --start-period=10s \

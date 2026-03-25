@@ -25,7 +25,7 @@ Ejecutadas las 5 fases SDD (propose, spec, design, tasks, apply) para resolver 9
 | Archivo                                                                       | Cambio                                                                                                    |
 | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | `web/src/shared/components/layout/app-shell.tsx`                              | Padding `md` → `lg`, iconos sidebar (@tabler/icons-react), NavItem con prop `icon`                        |
-| `web/postcss.config.cjs`                                                      | **NUEVO** — PostCSS config con postcss-preset-mantine y postcss-simple-vars                               |
+| `web/postcss.config.cjs`                                                      | **NUEVO** - PostCSS config con postcss-preset-mantine y postcss-simple-vars                               |
 | `web/index.html`                                                              | Script inline para `data-mantine-color-scheme="light"` (previene FOUC)                                    |
 | `web/src/shared/theme/associated-theme.ts`                                    | Comentario corregido: `forceColorScheme` en vez de `defaultColorScheme`                                   |
 | `web/src/features/membership/registration/pages/simple-registration.page.tsx` | Stepper icons (IconUser, IconCategory, IconCheck), useBlocker con Modal Mantine, descripciones con tildes |
@@ -69,7 +69,7 @@ Todos los tests existentes pasan. No se crearon tests nuevos (cambios cosmeticos
 
 | #    | Issue                    | Justificacion                                                                                                                                                                                                                             |
 | ---- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| P2-1 | i18n con react-i18next   | Requiere crear archivos de traduccion para TODA la app (todos los strings hardcodeados). Es un proyecto en si mismo que afecta 50+ archivos. No es viable como fix puntual — necesita su propio SDD dedicado con migracion progresiva.    |
+| P2-1 | i18n con react-i18next   | Requiere crear archivos de traduccion para TODA la app (todos los strings hardcodeados). Es un proyecto en si mismo que afecta 50+ archivos. No es viable como fix puntual - necesita su propio SDD dedicado con migracion progresiva.    |
 | P2-2 | ErrorReporter con Sentry | Requiere integracion completa de Sentry: DSN, configuracion de captura, filtros de PII (GDPR), session replay. Depende de cuenta Sentry configurada y decision de arquitectura sobre que capturar. Postponed para fase de observabilidad. |
 
 ## Notas tecnicas

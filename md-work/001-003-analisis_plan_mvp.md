@@ -15,11 +15,11 @@ Ambos ajustes mantienen la distribución 12/5/5 backend por fase y no alteran lo
 
 ### 1.1. División en fases con gradiente backend→frontend
 
-| Fase | Backend | Frontend | Ratio B/F |
-|------|---------|----------|-----------|
-| F1 (original) | 11 (69%) | 5 (31%) | 2.2:1 |
-| F2 (original) | 6 (43%) | 8 (57%) | 0.75:1 |
-| F3 (original) | 2 (33%) | 4 (67%) | 0.5:1 |
+| Fase          | Backend  | Frontend | Ratio B/F |
+| ------------- | -------- | -------- | --------- |
+| F1 (original) | 11 (69%) | 5 (31%)  | 2.2:1     |
+| F2 (original) | 6 (43%)  | 8 (57%)  | 0.75:1    |
+| F3 (original) | 2 (33%)  | 4 (67%)  | 0.5:1     |
 
 **Veredicto: buena estrategia.** Razones:
 
@@ -44,12 +44,12 @@ Es una selección coherente. No se han incluido UCs secundarios (comunicaciones,
 
 ### 1.3. Distribución por Bounded Context
 
-| BC | Backend | Frontend | Total |
-|----|---------|----------|-------|
-| BC-Identity | 3 | 2 | 5 |
-| BC-Membership | 6 | 5 | 11 |
-| BC-Treasury | 8 | 8 | 16 |
-| Transversal | 2 | 2 | 4 |
+| BC            | Backend | Frontend | Total |
+| ------------- | ------- | -------- | ----- |
+| BC-Identity   | 3       | 2        | 5     |
+| BC-Membership | 6       | 5        | 11    |
+| BC-Treasury   | 8       | 8        | 16    |
+| Transversal   | 2       | 2        | 4     |
 
 BC-Treasury concentra el 44% de las tareas. Esto refleja correctamente la complejidad del dominio financiero (planes, suscripciones, cargos, cobros, SEPA). No hay desbalance artificial.
 
@@ -89,68 +89,68 @@ UC-056 (Importación masiva) [independiente, crea socios]
 UC-064, UC-065 (Dashboard/Gráficos) [solo lectura, sin dependencias de escritura]
 ```
 
-### 2.1. Fase 1 — Análisis sobre el plan original
+### 2.1. Fase 1 - Análisis sobre el plan original
 
 **Backend (11 tareas originales):**
 
-| UC | Dependencias satisfechas en F1 | Estado |
-|----|-------------------------------|--------|
-| UC-001 | Ninguna necesaria | OK |
-| UC-002 | UC-001 ✓ | OK |
-| UC-006 | UC-008 ✓ | OK |
-| UC-008 | Ninguna necesaria | OK |
-| UC-011 | UC-008 ✓, UC-017 ✓, **UC-010 ✗** | **BLOQUEADO** |
-| UC-013 | **UC-007 ✗** (parcial) | Riesgo de retrabajo |
-| UC-017 | UC-008 ✓ | OK |
-| UC-018 | UC-011 ✓, UC-017 ✓ | OK |
-| UC-019 | UC-018 ✓, **UC-010 ✗** | **BLOQUEADO** |
-| UC-020 | Ninguna necesaria | OK |
-| UC-021 | UC-019 ✓, UC-020 ✓ | OK |
+| UC     | Dependencias satisfechas en F1   | Estado              |
+| ------ | -------------------------------- | ------------------- |
+| UC-001 | Ninguna necesaria                | OK                  |
+| UC-002 | UC-001 ✓                         | OK                  |
+| UC-006 | UC-008 ✓                         | OK                  |
+| UC-008 | Ninguna necesaria                | OK                  |
+| UC-011 | UC-008 ✓, UC-017 ✓, **UC-010 ✗** | **BLOQUEADO**       |
+| UC-013 | **UC-007 ✗** (parcial)           | Riesgo de retrabajo |
+| UC-017 | UC-008 ✓                         | OK                  |
+| UC-018 | UC-011 ✓, UC-017 ✓               | OK                  |
+| UC-019 | UC-018 ✓, **UC-010 ✗**           | **BLOQUEADO**       |
+| UC-020 | Ninguna necesaria                | OK                  |
+| UC-021 | UC-019 ✓, UC-020 ✓               | OK                  |
 
 **Frontend (5 tareas):**
 
-| UC | Backend disponible en F1 | Estado |
-|----|--------------------------|--------|
-| UC-002 | ✓ | OK |
+| UC     | Backend disponible en F1  | Estado       |
+| ------ | ------------------------- | ------------ |
+| UC-002 | ✓                         | OK           |
 | UC-011 | ✓ (si se resuelve UC-010) | Condicionado |
-| UC-013 | ✓ | OK |
-| UC-017 | ✓ | OK |
-| UC-018 | ✓ | OK |
+| UC-013 | ✓                         | OK           |
+| UC-017 | ✓                         | OK           |
+| UC-018 | ✓                         | OK           |
 
-### 2.2. Fase 2 — Análisis sobre el plan original
+### 2.2. Fase 2 - Análisis sobre el plan original
 
 **Backend (6 tareas originales):**
 
-| UC | Dependencias satisfechas | Estado |
-|----|--------------------------|--------|
-| UC-004 | UC-001 (F1) ✓ | OK |
-| UC-007 | Miembros existentes (F1) ✓ | OK |
-| UC-010 | Ninguna necesaria | OK |
-| UC-023 | Cargos generados (F1) ✓ | OK |
-| UC-024 | UC-023 ✓ (misma fase) | OK (orden interno) |
-| UC-056 | Ninguna necesaria | OK |
+| UC     | Dependencias satisfechas   | Estado             |
+| ------ | -------------------------- | ------------------ |
+| UC-004 | UC-001 (F1) ✓              | OK                 |
+| UC-007 | Miembros existentes (F1) ✓ | OK                 |
+| UC-010 | Ninguna necesaria          | OK                 |
+| UC-023 | Cargos generados (F1) ✓    | OK                 |
+| UC-024 | UC-023 ✓ (misma fase)      | OK (orden interno) |
+| UC-056 | Ninguna necesaria          | OK                 |
 
 **Frontend (8 tareas):**
 
-| UC | Backend disponible | Estado |
-|----|-------------------|--------|
-| UC-006 | F1 ✓ | OK |
-| UC-008 | F1 ✓ | OK |
-| UC-019 | F1 ✓ | OK |
-| UC-020 | F1 ✓ | OK |
-| UC-021 | F1 ✓ | OK |
-| UC-023 | F2 ✓ (orden interno) | OK |
-| UC-024 | F2 ✓ (orden interno) | OK |
-| UC-056 | F2 ✓ (orden interno) | OK |
+| UC     | Backend disponible   | Estado |
+| ------ | -------------------- | ------ |
+| UC-006 | F1 ✓                 | OK     |
+| UC-008 | F1 ✓                 | OK     |
+| UC-019 | F1 ✓                 | OK     |
+| UC-020 | F1 ✓                 | OK     |
+| UC-021 | F1 ✓                 | OK     |
+| UC-023 | F2 ✓ (orden interno) | OK     |
+| UC-024 | F2 ✓ (orden interno) | OK     |
+| UC-056 | F2 ✓ (orden interno) | OK     |
 
-### 2.3. Fase 3 — Análisis sobre el plan original
+### 2.3. Fase 3 - Análisis sobre el plan original
 
-| UC | Tipo | Dependencias satisfechas | Estado |
-|----|------|--------------------------|--------|
-| UC-001 | Front | Backend F1 ✓ | OK |
-| UC-010 | Front | Backend F2 ✓ | OK |
-| UC-064 | Back+Front | Solo lectura, datos acumulados | OK |
-| UC-065 | Back+Front | Solo lectura, datos históricos | OK |
+| UC     | Tipo       | Dependencias satisfechas       | Estado |
+| ------ | ---------- | ------------------------------ | ------ |
+| UC-001 | Front      | Backend F1 ✓                   | OK     |
+| UC-010 | Front      | Backend F2 ✓                   | OK     |
+| UC-064 | Back+Front | Solo lectura, datos acumulados | OK     |
+| UC-065 | Back+Front | Solo lectura, datos históricos | OK     |
 
 **Fase 3 no presenta problemas de dependencias.**
 
@@ -158,27 +158,30 @@ UC-064, UC-065 (Dashboard/Gráficos) [solo lectura, sin dependencias de escritur
 
 ## 3. Problemas detectados
 
-### 3.1. CRÍTICO — UC-010 (Gestión de ejercicios) debe estar en Fase 1 backend
+### 3.1. CRÍTICO - UC-010 (Gestión de ejercicios) debe estar en Fase 1 backend
 
 **Problema:** UC-010 está asignado a Fase 2 backend, pero dos UCs de Fase 1 dependen de él.
 
 **Evidencia directa de la especificación:**
 
-1. **UC-011 (Alta simple de socio)** — Precondiciones:
-   > *"Ejercicio activo abierto"*
+1. **UC-011 (Alta simple de socio)** - Precondiciones:
+
+   > _"Ejercicio activo abierto"_
    >
-   > FE-5: *"Sin ejercicio abierto → bloqueante"*
+   > FE-5: _"Sin ejercicio abierto → bloqueante"_
 
    Sin UC-010 implementado, no existe el concepto de ejercicio fiscal en el sistema. UC-011 no puede dar de alta socios porque la precondición "ejercicio activo abierto" no se cumple.
 
-2. **UC-019 (Generación masiva de cargos periódicos)** — Dependencia por evento:
-   > *El evento `FiscalYearOpened` activa la generación mensual de cargos en BC-Treasury.*
+2. **UC-019 (Generación masiva de cargos periódicos)** - Dependencia por evento:
+
+   > _El evento `FiscalYearOpened` activa la generación mensual de cargos en BC-Treasury._
 
    Sin UC-010, no se emite `FiscalYearOpened`, y el cron job de UC-019 no tiene contexto de ejercicio sobre el cual generar cargos.
 
 **Impacto:** Si UC-010 permanece en Fase 2, UC-011 y UC-019 no pueden funcionar de forma completa en Fase 1. Esto invalida gran parte del backend de Fase 1, ya que UC-018 (suscripciones) depende de UC-011, y UC-021 (cobros) depende de UC-019.
 
 **Cadena de bloqueo:**
+
 ```
 UC-010 ausente en F1
   └──▶ UC-011 bloqueado (no hay ejercicio abierto)
@@ -191,11 +194,11 @@ Es decir: **5 de los 11 backends de Fase 1 quedan comprometidos** por esta depen
 
 **Solución:** Mover UC-010 backend de Fase 2 a Fase 1.
 
-### 3.2. MODERADO — UC-007 (Estados del socio) y su relación con UC-013 (Baja)
+### 3.2. MODERADO - UC-007 (Estados del socio) y su relación con UC-013 (Baja)
 
 **Problema:** UC-013 (Baja de socio) está en Fase 1, pero UC-007 (Gestión de estados) está en Fase 2. UC-013 ejecuta transiciones de estado (ACTIVO → BAJA_VOLUNTARIA, ACTIVO → BAJA_DISCIPLINARIA, etc.) que están formalmente definidas en la máquina de estados de UC-007.
 
-**Matización:** UC-013 puede implementar las transiciones que necesita (las transiciones a estados terminales) sin requerir el sistema completo de UC-007. Lo que UC-013 necesita es *escribir* transiciones específicas; UC-007 define el *framework general* de transiciones, el historial (`StatusHistory`), las transiciones automáticas (por morosidad) y la consulta de timeline.
+**Matización:** UC-013 puede implementar las transiciones que necesita (las transiciones a estados terminales) sin requerir el sistema completo de UC-007. Lo que UC-013 necesita es _escribir_ transiciones específicas; UC-007 define el _framework general_ de transiciones, el historial (`StatusHistory`), las transiciones automáticas (por morosidad) y la consulta de timeline.
 
 **Riesgo:** Si UC-013 implementa las transiciones de estado de forma ad-hoc en Fase 1, habrá que refactorizar cuando UC-007 entre en Fase 2 para unificar el modelo de transiciones y el historial.
 
@@ -208,7 +211,7 @@ Es decir: **5 de los 11 backends de Fase 1 quedan comprometidos** por esta depen
   2. UC-024 (Devoluciones SEPA) también está en Fase 2 y se beneficia de tener UC-020 disponible en la misma fase para repercutir gastos bancarios.
   3. Los cargos manuales (derramas, cargos individuales) son operativa suplementaria; el flujo principal de tesorería (plan → suscripción → cargo periódico → cobro) está cubierto por UC-019.
 
-### 3.3. MENOR — UC-004 (Roles y permisos) en Fase 2
+### 3.3. MENOR - UC-004 (Roles y permisos) en Fase 2
 
 **Observación:** Múltiples UCs de Fase 1 tienen precondiciones de permisos específicos (`membership:members:create`, `membership:members:write`, `tesoreria:write`). Sin embargo, UC-001 (provisión de tenant) ya crea los roles predefinidos (Presidente, Secretario, Tesorero, Vocal, Socio) y el usuario administrador inicial.
 
@@ -222,117 +225,117 @@ Es decir: **5 de los 11 backends de Fase 1 quedan comprometidos** por esta depen
 
 ### Fase 1 (17 tareas: 12 backend + 5 frontend)
 
-| Código UC | Descripción | Bounded Context | Prioridad | F1 - Back | F1 - Front |
-|-----------|-------------|-----------------|-----------|-----------|------------|
-| UC-001 | Provisión de nuevo tenant | BC-Identidad | Must | SI | - |
-| UC-002 | Autenticación multi-tenant | BC-Identidad | Must | SI | SI |
-| UC-006 | Gestión de ficha de socio | BC-Membresía | Must | SI | - |
-| **UC-007** | **Gestión de estados del socio** | **BC-Membresía** | **Must** | **SI** | **-** |
-| UC-008 | Configuración de tipos de socio | BC-Membresía | Should | SI | - |
-| **UC-010** | **Gestión de ejercicios** | **BC-Membresía** | **Must** | **SI** | **-** |
-| UC-011 | Alta simple de socio | BC-Membresía | Must | SI | SI |
-| UC-013 | Baja de socio | BC-Membresía | Must | SI | SI |
-| UC-017 | Configuración de planes de cuota | BC-Tesorería | Must | SI | SI |
-| UC-018 | Gestión de suscripciones de cuota | BC-Tesorería | Must | SI | SI |
-| UC-019 | Generación masiva de cargos periódicos | BC-Tesorería | Must | SI | - |
-| UC-021 | Registro de cobros | BC-Tesorería | Must | SI | - |
+| Código UC  | Descripción                            | Bounded Context  | Prioridad | F1 - Back | F1 - Front |
+| ---------- | -------------------------------------- | ---------------- | --------- | --------- | ---------- |
+| UC-001     | Provisión de nuevo tenant              | BC-Identidad     | Must      | SI        | -          |
+| UC-002     | Autenticación multi-tenant             | BC-Identidad     | Must      | SI        | SI         |
+| UC-006     | Gestión de ficha de socio              | BC-Membresía     | Must      | SI        | -          |
+| **UC-007** | **Gestión de estados del socio**       | **BC-Membresía** | **Must**  | **SI**    | **-**      |
+| UC-008     | Configuración de tipos de socio        | BC-Membresía     | Should    | SI        | -          |
+| **UC-010** | **Gestión de ejercicios**              | **BC-Membresía** | **Must**  | **SI**    | **-**      |
+| UC-011     | Alta simple de socio                   | BC-Membresía     | Must      | SI        | SI         |
+| UC-013     | Baja de socio                          | BC-Membresía     | Must      | SI        | SI         |
+| UC-017     | Configuración de planes de cuota       | BC-Tesorería     | Must      | SI        | SI         |
+| UC-018     | Gestión de suscripciones de cuota      | BC-Tesorería     | Must      | SI        | SI         |
+| UC-019     | Generación masiva de cargos periódicos | BC-Tesorería     | Must      | SI        | -          |
+| UC-021     | Registro de cobros                     | BC-Tesorería     | Must      | SI        | -          |
 
 **Distribución: 12 backend (71%) / 5 frontend (29%)**
 
 ### Fase 2 (13 tareas: 5 backend + 8 frontend)
 
-| Código UC | Descripción | Bounded Context | Prioridad | F2 - Back | F2 - Front |
-|-----------|-------------|-----------------|-----------|-----------|------------|
-| UC-004 | Gestión de roles y permisos | BC-Identidad | Must | SI | - |
-| UC-006 | Gestión de ficha de socio | BC-Membresía | Must | - | SI |
-| UC-008 | Configuración de tipos de socio | BC-Membresía | Should | - | SI |
-| UC-019 | Generación masiva de cargos periódicos | BC-Tesorería | Must | - | SI |
-| **UC-020** | **Gestión de cargos manuales** | **BC-Tesorería** | **Must** | **SI** | **SI** |
-| UC-021 | Registro de cobros | BC-Tesorería | Must | - | SI |
-| UC-023 | Generación de remesas SEPA | BC-Tesorería | Must | SI | SI |
-| UC-024 | Gestión de devoluciones SEPA | BC-Tesorería | Must | SI | SI |
-| UC-056 | Importación masiva de socios | Transversal | Must | SI | SI |
+| Código UC  | Descripción                            | Bounded Context  | Prioridad | F2 - Back | F2 - Front |
+| ---------- | -------------------------------------- | ---------------- | --------- | --------- | ---------- |
+| UC-004     | Gestión de roles y permisos            | BC-Identidad     | Must      | SI        | -          |
+| UC-006     | Gestión de ficha de socio              | BC-Membresía     | Must      | -         | SI         |
+| UC-008     | Configuración de tipos de socio        | BC-Membresía     | Should    | -         | SI         |
+| UC-019     | Generación masiva de cargos periódicos | BC-Tesorería     | Must      | -         | SI         |
+| **UC-020** | **Gestión de cargos manuales**         | **BC-Tesorería** | **Must**  | **SI**    | **SI**     |
+| UC-021     | Registro de cobros                     | BC-Tesorería     | Must      | -         | SI         |
+| UC-023     | Generación de remesas SEPA             | BC-Tesorería     | Must      | SI        | SI         |
+| UC-024     | Gestión de devoluciones SEPA           | BC-Tesorería     | Must      | SI        | SI         |
+| UC-056     | Importación masiva de socios           | Transversal      | Must      | SI        | SI         |
 
 **Distribución: 5 backend (38%) / 8 frontend (62%)**
 
 ### Fase 3 (6 tareas: 2 backend + 4 frontend)
 
-| Código UC | Descripción | Bounded Context | Prioridad | F3 - Back | F3 - Front |
-|-----------|-------------|-----------------|-----------|-----------|------------|
-| UC-001 | Provisión de nuevo tenant | BC-Identidad | Must | - | SI |
-| UC-010 | Gestión de ejercicios | BC-Membresía | Must | - | SI |
-| UC-064 | Dashboard principal y KPIs | Transversal | Must | SI | SI |
-| UC-065 | Gráficos de evolución | Transversal | Should | SI | SI |
+| Código UC | Descripción                | Bounded Context | Prioridad | F3 - Back | F3 - Front |
+| --------- | -------------------------- | --------------- | --------- | --------- | ---------- |
+| UC-001    | Provisión de nuevo tenant  | BC-Identidad    | Must      | -         | SI         |
+| UC-010    | Gestión de ejercicios      | BC-Membresía    | Must      | -         | SI         |
+| UC-064    | Dashboard principal y KPIs | Transversal     | Must      | SI        | SI         |
+| UC-065    | Gráficos de evolución      | Transversal     | Should    | SI        | SI         |
 
 **Distribución: 2 backend (33%) / 4 frontend (67%)**
 
 ### Distribución final
 
-| Fase | Backend | Frontend | Total | Ratio B/F |
-|------|---------|----------|-------|-----------|
-| F1 | 12 (71%) | 5 (29%) | 17 | 2.4:1 |
-| F2 | 5 (38%) | 8 (62%) | 13 | 0.63:1 |
-| F3 | 2 (33%) | 4 (67%) | 6 | 0.5:1 |
-| **Total** | **19 (53%)** | **17 (47%)** | **36** | — |
+| Fase      | Backend      | Frontend     | Total  | Ratio B/F |
+| --------- | ------------ | ------------ | ------ | --------- |
+| F1        | 12 (71%)     | 5 (29%)      | 17     | 2.4:1     |
+| F2        | 5 (38%)      | 8 (62%)      | 13     | 0.63:1    |
+| F3        | 2 (33%)      | 4 (67%)      | 6      | 0.5:1     |
+| **Total** | **19 (53%)** | **17 (47%)** | **36** | -         |
 
 ### Resumen de cambios respecto al plan original
 
-| Cambio | Origen | Destino | Motivo |
-|--------|--------|---------|--------|
-| UC-010 backend | F2 | F1 | Crítico: UC-011 y UC-019 lo requieren como precondición |
-| UC-007 backend | F2 | F1 | Moderado: evita retrabajo en UC-013 y habilita `MemberStatusChanged` |
-| UC-020 backend | F1 | F2 | Compensación: operativa suplementaria sin bloqueos |
+| Cambio         | Origen | Destino | Motivo                                                               |
+| -------------- | ------ | ------- | -------------------------------------------------------------------- |
+| UC-010 backend | F2     | F1      | Crítico: UC-011 y UC-019 lo requieren como precondición              |
+| UC-007 backend | F2     | F1      | Moderado: evita retrabajo en UC-013 y habilita `MemberStatusChanged` |
+| UC-020 backend | F1     | F2      | Compensación: operativa suplementaria sin bloqueos                   |
 
 ---
 
 ## 5. Verificación de dependencias del plan definitivo
 
-### Fase 1 — Todas las dependencias resueltas
+### Fase 1 - Todas las dependencias resueltas
 
-| UC | Dependencias | Estado |
-|----|-------------|--------|
-| UC-001 | Ninguna | OK |
-| UC-002 | UC-001 ✓ | OK |
-| UC-006 | UC-008 ✓ | OK |
-| UC-007 | Miembros existentes (UC-011) ✓ | OK |
-| UC-008 | Ninguna | OK |
-| UC-010 | Ninguna | OK |
-| UC-011 | UC-008 ✓, UC-010 ✓, UC-017 ✓ | OK |
-| UC-013 | UC-007 ✓ | OK |
-| UC-017 | UC-008 ✓ | OK |
-| UC-018 | UC-011 ✓, UC-017 ✓ | OK |
-| UC-019 | UC-018 ✓, UC-010 ✓ | OK |
-| UC-021 | UC-019 ✓ | OK |
+| UC     | Dependencias                   | Estado |
+| ------ | ------------------------------ | ------ |
+| UC-001 | Ninguna                        | OK     |
+| UC-002 | UC-001 ✓                       | OK     |
+| UC-006 | UC-008 ✓                       | OK     |
+| UC-007 | Miembros existentes (UC-011) ✓ | OK     |
+| UC-008 | Ninguna                        | OK     |
+| UC-010 | Ninguna                        | OK     |
+| UC-011 | UC-008 ✓, UC-010 ✓, UC-017 ✓   | OK     |
+| UC-013 | UC-007 ✓                       | OK     |
+| UC-017 | UC-008 ✓                       | OK     |
+| UC-018 | UC-011 ✓, UC-017 ✓             | OK     |
+| UC-019 | UC-018 ✓, UC-010 ✓             | OK     |
+| UC-021 | UC-019 ✓                       | OK     |
 
 **Ningún bloqueo. Todas las dependencias se satisfacen dentro de la fase.**
 
-### Fase 2 — Todas las dependencias resueltas
+### Fase 2 - Todas las dependencias resueltas
 
-| UC | Dependencias | Estado |
-|----|-------------|--------|
-| UC-004 | UC-001 (F1) ✓ | OK |
-| UC-020 | Miembros existentes (F1) ✓ | OK |
-| UC-023 | Cargos generados (F1) ✓ | OK |
-| UC-024 | UC-023 ✓ (orden interno) | OK |
-| UC-056 | Ninguna | OK |
-| Frontends | APIs de F1 o F2 disponibles ✓ | OK |
+| UC        | Dependencias                  | Estado |
+| --------- | ----------------------------- | ------ |
+| UC-004    | UC-001 (F1) ✓                 | OK     |
+| UC-020    | Miembros existentes (F1) ✓    | OK     |
+| UC-023    | Cargos generados (F1) ✓       | OK     |
+| UC-024    | UC-023 ✓ (orden interno)      | OK     |
+| UC-056    | Ninguna                       | OK     |
+| Frontends | APIs de F1 o F2 disponibles ✓ | OK     |
 
 **Ningún bloqueo. UC-020 se integra sin fricciones junto a UC-024.**
 
-### Fase 3 — Sin cambios, sin bloqueos
+### Fase 3 - Sin cambios, sin bloqueos
 
-| UC | Dependencias | Estado |
-|----|-------------|--------|
-| UC-001 front | Backend F1 ✓ | OK |
-| UC-010 front | Backend F1 ✓ | OK |
-| UC-064 | Solo lectura, datos acumulados ✓ | OK |
-| UC-065 | Solo lectura, datos históricos ✓ | OK |
+| UC           | Dependencias                     | Estado |
+| ------------ | -------------------------------- | ------ |
+| UC-001 front | Backend F1 ✓                     | OK     |
+| UC-010 front | Backend F1 ✓                     | OK     |
+| UC-064       | Solo lectura, datos acumulados ✓ | OK     |
+| UC-065       | Solo lectura, datos históricos ✓ | OK     |
 
 ---
 
 ## 6. Orden de implementación sugerido dentro de cada fase
 
-### Fase 1 — Backend (orden por dependencias)
+### Fase 1 - Backend (orden por dependencias)
 
 ```
  1. UC-001  Provisión de tenant          [sin dependencias]
@@ -349,7 +352,7 @@ Es decir: **5 de los 11 backends de Fase 1 quedan comprometidos** por esta depen
 12. UC-021  Registro de cobros           [depende de UC-019]
 ```
 
-### Fase 1 — Frontend (orden por dependencias)
+### Fase 1 - Frontend (orden por dependencias)
 
 ```
 1. UC-002  Login / selector de tenant    [puede empezar en paralelo con backend]
@@ -359,7 +362,7 @@ Es decir: **5 de los 11 backends de Fase 1 quedan comprometidos** por esta depen
 5. UC-013  Pantalla de baja de socio     [API disponible desde paso 8]
 ```
 
-### Fase 2 — Backend
+### Fase 2 - Backend
 
 ```
 1. UC-004  Roles y permisos              [independiente]
@@ -369,7 +372,7 @@ Es decir: **5 de los 11 backends de Fase 1 quedan comprometidos** por esta depen
 5. UC-024  Devoluciones SEPA             [depende de UC-023]
 ```
 
-### Fase 2 — Frontend
+### Fase 2 - Frontend
 
 ```
 1. UC-006  Ficha de socio               [API de F1]

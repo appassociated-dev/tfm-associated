@@ -1,4 +1,4 @@
-# Task 3 — UC-064: Dashboard principal y KPIs (Frontend)
+# Task 3 - UC-064: Dashboard principal y KPIs (Frontend)
 
 ## Información general
 
@@ -38,12 +38,12 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F3-Back Task 1 — UC-064** | Endpoints REST: dashboard, dashboard/membership, dashboard/treasury, dashboard/alerts |
-| **F1-Front Task 1 — UC-002** | AuthProvider, usePermissions(), HttpClient |
-| **F3-Front Task 2 — UC-010** | `FiscalYearSelector` y contexto de ejercicio activo (para filtrar KPIs por período) |
-| **Fase 0 — Scaffold** | Proyecto React + Vite + Mantine, TanStack Query, Router |
+| Tarea                        | Artefacto necesario                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------- |
+| **F3-Back Task 1 - UC-064**  | Endpoints REST: dashboard, dashboard/membership, dashboard/treasury, dashboard/alerts |
+| **F1-Front Task 1 - UC-002** | AuthProvider, usePermissions(), HttpClient                                            |
+| **F3-Front Task 2 - UC-010** | `FiscalYearSelector` y contexto de ejercicio activo (para filtrar KPIs por período)   |
+| **Fase 0 - Scaffold**        | Proyecto React + Vite + Mantine, TanStack Query, Router                               |
 
 ### Checklist de verificación de dependencias
 
@@ -58,26 +58,26 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Página `/dashboard` | Landing page tras login, navegación principal |
-| Componente `KpiCard` | Reutilizable para mostrar métricas numéricas |
-| Componente `MemberDistributionChart` | Reutilizable en informes |
-| Hook `useDashboardKpis()` | Standalone |
-| Layout responsive de widgets | Base para UC-065 (gráficos) |
+| Artefacto                            | Consumido por                                 |
+| ------------------------------------ | --------------------------------------------- |
+| Página `/dashboard`                  | Landing page tras login, navegación principal |
+| Componente `KpiCard`                 | Reutilizable para mostrar métricas numéricas  |
+| Componente `MemberDistributionChart` | Reutilizable en informes                      |
+| Hook `useDashboardKpis()`            | Standalone                                    |
+| Layout responsive de widgets         | Base para UC-065 (gráficos)                   |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
-| `uc/uc-064.md` | Flujo: widgets por rol, KPIs, alertas, manejo de errores aislados, período personalizado |
-| `us/us-161.md` a `us/us-164.md` | Criterios por tipo de KPI: membresía, tesorería, alertas |
-| `bc/bc-membership.md` | Aggregate Member — estados, tipos (para distribución) |
-| `bc/bc-treasury.md` | Aggregates Charge, Payment — para KPIs económicos |
-| `rnft/rnft-017.md` | Performance: dashboard carga en <2s |
-| `rnft/rnft-019.md` | Caching de métricas agregadas |
+| `uc/uc-064.md`                                      | Flujo: widgets por rol, KPIs, alertas, manejo de errores aislados, período personalizado                                           |
+| `us/us-161.md` a `us/us-164.md`                     | Criterios por tipo de KPI: membresía, tesorería, alertas                                                                           |
+| `bc/bc-membership.md`                               | Aggregate Member - estados, tipos (para distribución)                                                                              |
+| `bc/bc-treasury.md`                                 | Aggregates Charge, Payment - para KPIs económicos                                                                                  |
+| `rnft/rnft-017.md`                                  | Performance: dashboard carga en <2s                                                                                                |
+| `rnft/rnft-019.md`                                  | Caching de métricas agregadas                                                                                                      |
 
 ## Puntos críticos
 

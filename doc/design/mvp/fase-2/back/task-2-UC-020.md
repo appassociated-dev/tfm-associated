@@ -1,4 +1,4 @@
-# Task 2 — UC-020: Gestión de cargos manuales (Backend)
+# Task 2 - UC-020: Gestión de cargos manuales (Backend)
 
 ## Información general
 
@@ -39,13 +39,13 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel, Bull Queue configurado |
-| **Fase 1 — UC-001 (Provisión de tenant)** | Tenant provisionado con BD aislada |
-| **Fase 1 — UC-011 (Alta simple de socio)** | Socios registrados con `MemberAccount` creada |
-| **Fase 1 — UC-019 (Cargos periódicos)** | Aggregate `MemberAccount` con entity `Charge` ya implementada |
-| **Fase 1 — UC-008 (Tipos de socio)** | `MemberType` configurados (para filtro por tipo en cargos masivos) |
+| Tarea                                      | Artefacto necesario                                                 |
+| ------------------------------------------ | ------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**                      | Estructura de módulos NestJS, Shared kernel, Bull Queue configurado |
+| **Fase 1 - UC-001 (Provisión de tenant)**  | Tenant provisionado con BD aislada                                  |
+| **Fase 1 - UC-011 (Alta simple de socio)** | Socios registrados con `MemberAccount` creada                       |
+| **Fase 1 - UC-019 (Cargos periódicos)**    | Aggregate `MemberAccount` con entity `Charge` ya implementada       |
+| **Fase 1 - UC-008 (Tipos de socio)**       | `MemberType` configurados (para filtro por tipo en cargos masivos)  |
 
 ### Checklist de verificación de dependencias
 
@@ -62,24 +62,24 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Endpoint `POST .../charges/manual` (cargo individual) | Frontend UC-020, testing manual |
-| Endpoint `POST .../charges/bulk` (cargo masivo) | Frontend UC-020 (pantalla de derramas) |
-| Endpoint `POST .../charges/penalty` (penalización) | UC-024 (devoluciones SEPA, para repercutir gastos) |
-| Cargos manuales en estado PENDING | UC-021 (registro de cobros), UC-023 (remesas SEPA) |
-| Evento `ChargeGenerated` con `isManual = true` | BC-Communication (notificaciones), auditoría |
+| Artefacto                                             | Consumido por                                      |
+| ----------------------------------------------------- | -------------------------------------------------- |
+| Endpoint `POST .../charges/manual` (cargo individual) | Frontend UC-020, testing manual                    |
+| Endpoint `POST .../charges/bulk` (cargo masivo)       | Frontend UC-020 (pantalla de derramas)             |
+| Endpoint `POST .../charges/penalty` (penalización)    | UC-024 (devoluciones SEPA, para repercutir gastos) |
+| Cargos manuales en estado PENDING                     | UC-021 (registro de cobros), UC-023 (remesas SEPA) |
+| Evento `ChargeGenerated` con `isManual = true`        | BC-Communication (notificaciones), auditoría       |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-020.md` | Flujo completo: cargo individual, cargo masivo, penalización SEPA |
-| `us/us-051.md` | Criterios de aceptación: creación de cargos manuales individuales y masivos |
-| `bc/bc-treasury.md` | Aggregates MemberAccount, Charge — estructura e invariantes. Domain Service ManualChargeGenerator |
-| `adr/adr-009.md` | Clean Architecture / Hexagonal: ports & adapters |
-| `adr/adr-008.md` | Outbox pattern para Domain Events |
-| `rnft/rnft-015.md` | Performance: creación masiva de 1000 cargos en <10 segundos |
+| Documento           | Contenido relevante                                                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| `uc/uc-020.md`      | Flujo completo: cargo individual, cargo masivo, penalización SEPA                                 |
+| `us/us-051.md`      | Criterios de aceptación: creación de cargos manuales individuales y masivos                       |
+| `bc/bc-treasury.md` | Aggregates MemberAccount, Charge - estructura e invariantes. Domain Service ManualChargeGenerator |
+| `adr/adr-009.md`    | Clean Architecture / Hexagonal: ports & adapters                                                  |
+| `adr/adr-008.md`    | Outbox pattern para Domain Events                                                                 |
+| `rnft/rnft-015.md`  | Performance: creación masiva de 1000 cargos en <10 segundos                                       |
 
 ## Puntos críticos
 
@@ -97,16 +97,16 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Timeout en cargos masivos con muchos destinatarios | Media | Alto | Bull Queue para >500 destinatarios. Timeout HTTP de 30s para lotes menores |
-| Rollback parcial en procesamiento por lotes | Baja | Alto | Transacciones por lote. Si falla un lote, rollback completo. Log detallado de cada lote |
-| Duplicación accidental de cargos manuales | Media | Medio | El sistema NO valida duplicados en cargos manuales (FE-5, por diseño). Documentar claramente que es responsabilidad del tesorero |
-| Cross-BC lento al consultar socios para cargo masivo | Baja | Medio | `MemberQueryPort` con consulta paginada. Caché de conteo de socios activos por tipo |
+| Riesgo                                               | Probabilidad | Impacto | Mitigación                                                                                                                       |
+| ---------------------------------------------------- | ------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Timeout en cargos masivos con muchos destinatarios   | Media        | Alto    | Bull Queue para >500 destinatarios. Timeout HTTP de 30s para lotes menores                                                       |
+| Rollback parcial en procesamiento por lotes          | Baja         | Alto    | Transacciones por lote. Si falla un lote, rollback completo. Log detallado de cada lote                                          |
+| Duplicación accidental de cargos manuales            | Media        | Medio   | El sistema NO valida duplicados en cargos manuales (FE-5, por diseño). Documentar claramente que es responsabilidad del tesorero |
+| Cross-BC lento al consultar socios para cargo masivo | Baja         | Medio   | `MemberQueryPort` con consulta paginada. Caché de conteo de socios activos por tipo                                              |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Domain Service ManualChargeGenerator
+### Paso 1: Capa de dominio - Domain Service ManualChargeGenerator
 
 Crear en `api/src/treasury/domain/services/manual-charge-generator.ts`:
 
@@ -120,7 +120,7 @@ Crear en `api/src/treasury/domain/services/manual-charge-generator.ts`:
     - Concepto pre-definido: "Gastos devolución SEPA"
     - `dueDate` = inmediato (fecha actual)
 
-### Paso 2: Capa de dominio — Value Objects y tipos
+### Paso 2: Capa de dominio - Value Objects y tipos
 
 Crear/ampliar en `api/src/treasury/domain/value-objects/`:
 
@@ -128,14 +128,14 @@ Crear/ampliar en `api/src/treasury/domain/value-objects/`:
 - **`BulkChargeFilter`**: Value Object con `targetType: 'ALL' | 'BY_MEMBER_TYPE' | 'CUSTOM'`, `memberTypeId?: string`, `customFilters?: { status?, minSeniority?, maxBalance? }`
 - **`BulkChargeResult`**: Value Object con `totalCreated: number`, `totalAmount: Money`, `errors: BulkChargeError[]`
 
-### Paso 3: Capa de dominio — Port para consulta de socios
+### Paso 3: Capa de dominio - Port para consulta de socios
 
 Ampliar en `api/src/treasury/domain/ports/member-query.port.ts`:
 
 - Añadir método `findActiveMembers(filter: BulkChargeFilter): Promise<{ memberId: string, memberAccountId: string }[]>`
 - Añadir método `countActiveMembers(filter: BulkChargeFilter): Promise<number>`
 
-### Paso 4: Capa de aplicación — Commands y DTOs
+### Paso 4: Capa de aplicación - Commands y DTOs
 
 Crear en `api/src/treasury/application/`:
 
@@ -151,7 +151,7 @@ Crear en `api/src/treasury/application/`:
   - `BulkChargePreviewDto`: response con `{ totalRecipients, totalAmount, recipients: PaginatedList }`
   - `BulkChargeResultDto`: response con `{ totalCreated, totalAmount, jobId? }`
 
-### Paso 5: Capa de aplicación — Handlers
+### Paso 5: Capa de aplicación - Handlers
 
 Crear en `api/src/treasury/application/commands/`:
 
@@ -190,7 +190,7 @@ Crear en `api/src/treasury/application/commands/`:
   3. Invocar `ManualChargeGenerator.createPenaltyCharge(...)`
   4. Persistir y publicar evento `ChargeGenerated` con metadata de penalización
 
-### Paso 6: Capa de infraestructura — Bull Queue Processor
+### Paso 6: Capa de infraestructura - Bull Queue Processor
 
 Crear en `api/src/treasury/infrastructure/jobs/`:
 
@@ -200,7 +200,7 @@ Crear en `api/src/treasury/infrastructure/jobs/`:
   - Actualiza progreso del job: `job.progress(processedCount / totalCount * 100)`
   - Al finalizar, emite resultado vía WebSocket o almacena en BD para consulta
 
-### Paso 7: Capa de infraestructura — Adapter de MemberQueryPort
+### Paso 7: Capa de infraestructura - Adapter de MemberQueryPort
 
 Ampliar en `api/src/treasury/infrastructure/adapters/`:
 
@@ -209,7 +209,7 @@ Ampliar en `api/src/treasury/infrastructure/adapters/`:
   - Aplica filtros: estado activo, tipo de socio, antigüedad, saldo pendiente
   - Retorna lista de `{ memberId, memberAccountId }`
 
-### Paso 8: Capa de infraestructura — Controller
+### Paso 8: Capa de infraestructura - Controller
 
 Crear en `api/src/treasury/infrastructure/controllers/`:
 
@@ -226,18 +226,21 @@ Crear en `api/src/treasury/infrastructure/controllers/`:
 ### Paso 9: Tests
 
 **Tests unitarios (dominio):**
+
 - `ManualChargeGenerator.createManualCharge()` con datos válidos → cargo creado con `isManual = true`
 - `ManualChargeGenerator.createManualCharge()` con importe 0 → error de validación
 - `ManualChargeGenerator.createPenaltyCharge()` → cargo vinculado a devolución
 - `BulkChargeFilter` → validación de filtros
 
 **Tests unitarios (aplicación):**
+
 - `CreateManualChargeHandler` con mock de repositorio → flujo completo
 - `CreateBulkChargesHandler` con mock de `MemberQueryPort` → procesamiento por lotes
 - `CreateBulkChargesHandler` con >500 destinatarios → delegación a Bull Queue
 - `PreviewBulkChargesHandler` → cálculo correcto de totales
 
 **Tests de integración:**
+
 - Creación de cargo manual individual, verificar estado PENDING en BD
 - Creación de cargo masivo para 100 socios, verificar todos los cargos creados
 - Preview de cargo masivo, verificar conteo y total correctos

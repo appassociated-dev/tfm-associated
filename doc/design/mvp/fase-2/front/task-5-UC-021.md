@@ -1,4 +1,4 @@
-# Task 5 — UC-021: Registro de cobros (Frontend)
+# Task 5 - UC-021: Registro de cobros (Frontend)
 
 ## Información general
 
@@ -38,30 +38,30 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F1-Back Task 12 — UC-021** | Endpoints REST: `POST /payments`, `GET /payments`, `GET /payments/:id`, `GET /payments/:id/receipt` (PDF), `POST /payments/:id/attachment` |
-| **F2-Front Task 1 — UC-006** | Componente `MemberSearchCombobox` |
-| **F2-Front Task 3 — UC-019** | Componentes `ChargeStatusBadge`, `ChargeDetailDrawer`, hooks `useCharges()` |
+| Tarea                        | Artefacto necesario                                                                                                                        |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **F1-Back Task 12 - UC-021** | Endpoints REST: `POST /payments`, `GET /payments`, `GET /payments/:id`, `GET /payments/:id/receipt` (PDF), `POST /payments/:id/attachment` |
+| **F2-Front Task 1 - UC-006** | Componente `MemberSearchCombobox`                                                                                                          |
+| **F2-Front Task 3 - UC-019** | Componentes `ChargeStatusBadge`, `ChargeDetailDrawer`, hooks `useCharges()`                                                                |
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Página `/treasury/payments` | Navegación de tesorería |
-| Asistente de registro de cobro | Standalone, reutilizable |
-| Hook `useRecordPayment()` | UC-024 (cobro tras devolución SEPA) |
-| Componente `PaymentMethodSelect` | Reutilizable |
+| Artefacto                        | Consumido por                       |
+| -------------------------------- | ----------------------------------- |
+| Página `/treasury/payments`      | Navegación de tesorería             |
+| Asistente de registro de cobro   | Standalone, reutilizable            |
+| Hook `useRecordPayment()`        | UC-024 (cobro tras devolución SEPA) |
+| Componente `PaymentMethodSelect` | Reutilizable                        |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
-| `uc/uc-021.md` | Flujo: cobro efectivo, transferencia, Bizum, pagos parciales, múltiples cargos, recibos |
-| `us/us-053.md` a `us/us-057.md` | Criterios por método de pago, estados, justificantes, recibos |
-| `bc/bc-treasury.md` | Entity Payment, PaymentMethod, PaymentStatus |
+| `uc/uc-021.md`                                      | Flujo: cobro efectivo, transferencia, Bizum, pagos parciales, múltiples cargos, recibos                                            |
+| `us/us-053.md` a `us/us-057.md`                     | Criterios por método de pago, estados, justificantes, recibos                                                                      |
+| `bc/bc-treasury.md`                                 | Entity Payment, PaymentMethod, PaymentStatus                                                                                       |
 
 ## Puntos críticos
 

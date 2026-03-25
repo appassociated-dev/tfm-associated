@@ -35,28 +35,28 @@ para implementar la infraestructura de internacionalizacion del frontend. Cumple
 los bounded contexts del proyecto, se migraron ~330 claves de traduccion en 29 componentes y 13 hooks,
 y se actualizo el test wrapper para soporte i18n.
 
-**Commit:** `7790156` — feat(web): implementar infraestructura i18n con react-i18next
+**Commit:** `7790156` - feat(web): implementar infraestructura i18n con react-i18next
 **Estadisticas:** 60 archivos, 1799 inserciones
 
 **SDD Fases:** Explore (#656) → Proposal (#657) → Design (#658) → Spec (#659) → Tasks (#660) → Apply (#661) → Verify (#662) → Archive (#675)
 
 **Infraestructura creada:**
 
-- `web/src/i18n/i18n.ts` — Configuracion central de i18next: 7 namespaces, lng:'es', fallbackLng:'es', useSuspense:false, escapeValue:false
-- `web/src/i18n/types.d.ts` — Module augmentation para type-safe keys con autocompletado IDE
+- `web/src/i18n/i18n.ts` - Configuracion central de i18next: 7 namespaces, lng:'es', fallbackLng:'es', useSuspense:false, escapeValue:false
+- `web/src/i18n/types.d.ts` - Module augmentation para type-safe keys con autocompletado IDE
 - 7 archivos JSON de traduccion en `web/src/i18n/locales/es/`:
-  - `common.json` (52 lineas) — textos compartidos
-  - `auth.json` (25 lineas) — autenticacion
-  - `membership.json` (280 lineas) — socios, bajas, alta
-  - `treasury.json` (328 lineas) — tesoreria, planes de cuota, suscripciones
-  - `dashboard.json` (10 lineas) — panel principal
-  - `errors.json` (15 lineas) — errores generales
-  - `validation.json` (8 lineas) — validaciones compartidas
+  - `common.json` (52 lineas) - textos compartidos
+  - `auth.json` (25 lineas) - autenticacion
+  - `membership.json` (280 lineas) - socios, bajas, alta
+  - `treasury.json` (328 lineas) - tesoreria, planes de cuota, suscripciones
+  - `dashboard.json` (10 lineas) - panel principal
+  - `errors.json` (15 lineas) - errores generales
+  - `validation.json` (8 lineas) - validaciones compartidas
 
 **Provider chain actualizada:**
 
-- `web/src/app/providers.tsx` — I18nextProvider insertado entre MantineProvider y DatesProvider
-- `web/src/main.tsx` — side-effect import de i18n antes del render
+- `web/src/app/providers.tsx` - I18nextProvider insertado entre MantineProvider y DatesProvider
+- `web/src/main.tsx` - side-effect import de i18n antes del render
 
 **Componentes migrados (29 archivos):**
 
@@ -75,7 +75,7 @@ y se actualizo el test wrapper para soporte i18n.
 
 **Test wrapper actualizado:**
 
-- `web/src/test/test-wrapper.tsx` — I18nextProvider con instancia real de i18n (no mock)
+- `web/src/test/test-wrapper.tsx` - I18nextProvider con instancia real de i18n (no mock)
 
 **Decisiones tecnicas (8 decisiones documentadas):**
 
@@ -84,7 +84,7 @@ y se actualizo el test wrapper para soporte i18n.
 - D3: Resources estaticos bundled (<10KB gzip para ~330 strings, cero latencia)
 - D4: Zod schemas → i18n.t() singleton (ejecutan fuera de React tree)
 - D5: Constant objects con labelKey, componente resuelve con t()
-- D6: Tests usan i18n real con JSONs cargados (no mock) — 729 assertions pasan sin cambios
+- D6: Tests usan i18n real con JSONs cargados (no mock) - 729 assertions pasan sin cambios
 - D7: Module augmentation TypeScript para type-safe keys
 - D8: I18nextProvider entre MantineProvider y DatesProvider
 
@@ -105,7 +105,7 @@ SDD complementario que migro los 31 strings hardcoded restantes que quedaban fue
 SDD i18n-infrastructure: 28 mensajes de validacion en 4 schemas Zod, 3 strings del ErrorBoundary,
 y 8 del validador DNI/NIE. Todos migrados al sistema i18n usando el patron singleton i18n.t().
 
-**Commit:** `bd8a64d` — fix(web): internacionalizar mensajes Zod, ErrorBoundary y utilidades
+**Commit:** `bd8a64d` - fix(web): internacionalizar mensajes Zod, ErrorBoundary y utilidades
 **Estadisticas:** 12 archivos, 144 inserciones, 47 eliminaciones
 
 **SDD Fases:** Explore (#663) → Proposal (#664) → Tasks (#666) → Apply (#665) → Verify (#667) → Archive (#670)
@@ -113,29 +113,29 @@ y 8 del validador DNI/NIE. Todos migrados al sistema i18n usando el patron singl
 
 **Archivos de schemas migrados:**
 
-- `web/src/features/auth/schemas/auth.schemas.ts` — 2 strings → `auth:login.validation.*`
-- `web/src/features/membership/registration/schemas/member-registration.schemas.ts` — 13 strings → `membership:registration.validation.*`
-- `web/src/features/membership/leave/schemas/member-leave.schemas.ts` — 2 strings → `membership:leave.validation.*`
-- `web/src/features/treasury/fee-plans/schemas/fee-plan.schemas.ts` — 11 strings → `treasury:feePlans.validation.*`
+- `web/src/features/auth/schemas/auth.schemas.ts` - 2 strings → `auth:login.validation.*`
+- `web/src/features/membership/registration/schemas/member-registration.schemas.ts` - 13 strings → `membership:registration.validation.*`
+- `web/src/features/membership/leave/schemas/member-leave.schemas.ts` - 2 strings → `membership:leave.validation.*`
+- `web/src/features/treasury/fee-plans/schemas/fee-plan.schemas.ts` - 11 strings → `treasury:feePlans.validation.*`
 
 **Componente UI migrado:**
 
-- `web/src/shared/observability/error-boundary.tsx` — 3 strings → `errors:boundary.*` (singleton, fuera del provider)
+- `web/src/shared/observability/error-boundary.tsx` - 3 strings → `errors:boundary.*` (singleton, fuera del provider)
 
 **Utilidad migrada:**
 
-- `web/src/features/membership/registration/utils/dni-validator.ts` — 8 strings → i18n singleton
+- `web/src/features/membership/registration/utils/dni-validator.ts` - 8 strings → i18n singleton
 
 **Infraestructura migrada:**
 
-- `web/src/main.tsx` — 3 strings (console.error, fallback rendering)
-- `web/src/shared/api/http-client.ts` — 1 string interno
+- `web/src/main.tsx` - 3 strings (console.error, fallback rendering)
+- `web/src/shared/api/http-client.ts` - 1 string interno
 
 **JSONs de traduccion actualizados:**
 
-- `web/src/i18n/locales/es/auth.json` — +2 claves login.validation.\*
-- `web/src/i18n/locales/es/membership.json` — +11 claves (registration.validation._ + leave.validation._)
-- `web/src/i18n/locales/es/treasury.json` — +11 claves feePlans.validation.\*
+- `web/src/i18n/locales/es/auth.json` - +2 claves login.validation.\*
+- `web/src/i18n/locales/es/membership.json` - +11 claves (registration.validation._ + leave.validation._)
+- `web/src/i18n/locales/es/treasury.json` - +11 claves feePlans.validation.\*
 
 **Decisiones tecnicas:**
 
@@ -153,15 +153,15 @@ Bugfix critico de tests de integracion (`member-crud.integration.spec.tsx`) dond
 se colgaban indefinidamente causando timeout de 6h en CI. Requirio 3 rondas de exploracion antes
 de identificar la causa raiz real, validando el enfoque iterativo del SDD (explore→apply→verify→re-explore).
 
-**Commit:** `ab55fda` — fix(web): resolver hang infinito en tests 4-12 de member-crud integration
+**Commit:** `ab55fda` - fix(web): resolver hang infinito en tests 4-12 de member-crud integration
 **Estadisticas:** 4 archivos, 149 inserciones, 52 eliminaciones
 
 **SDD Fases:** Explore R1 (#685) → Proposal (#688) → Tasks (#689) → Apply R1 (#696) → Explore R2 (#699) → Explore R3 + Apply final → Verify → Archive (#701)
 **Fases omitidas:** Spec y Design (bugfix de configuracion)
 
-**Causa raiz (definitiva — descubierta en ronda 3):**
+**Causa raiz (definitiva - descubierta en ronda 3):**
 
-**Problema principal — watch() sin argumentos:**
+**Problema principal - watch() sin argumentos:**
 En `personal-data-step.tsx`, `watch()` sin argumentos retornaba un NUEVO OBJETO en cada render
 (proxy de RHF). Esto causaba un loop infinito:
 
@@ -170,23 +170,23 @@ En `personal-data-step.tsx`, `watch()` sin argumentos retornaba un NUEVO OBJETO 
 3. setState en padre → re-render del hijo → `watch()` retorna OTRO nuevo objeto
 4. Vuelta al paso 1 → LOOP INFINITO
 
-**Problema amplificador — DateInput + Popover + floating-ui:**
+**Problema amplificador - DateInput + Popover + floating-ui:**
 Mantine DateInput abre un Popover con floating-ui `autoUpdate` que registra ResizeObserver + scroll
 
 - resize listeners. Cada re-render del loop infinito amplificaba la cascada en jsdom.
 
 **Cronologia de las 3 rondas:**
 
-- Ronda 1: Identifico dayjs customParseFormat no cargado en tests + falta DatesProvider — fixes aplicados pero tests seguian colgados
+- Ronda 1: Identifico dayjs customParseFormat no cargado en tests + falta DatesProvider - fixes aplicados pero tests seguian colgados
 - Ronda 2: Descubrio que DateInput + Popover + autoUpdate causa cascada de re-renders con user.type() caracter a caracter
 - Ronda 3: Identifico la VERDADERA causa raiz: watch() sin argumentos = loop infinito
 
 **Fixes aplicados:**
 
-- `web/src/features/membership/registration/components/personal-data-step.tsx` — Reemplazado `watch()` (sin args) por 9 llamadas individuales `watch('field')` que retornan primitivos referentially stable
-- `web/src/features/membership/__tests__/member-crud.integration.spec.tsx` — vi.mock de DateInput con simple `<input>`, fireEvent.change+blur para campo fecha, DatesProvider + env="test" en MantineProvider
-- `web/src/test/setup.ts` — dayjs customParseFormat + locale es
-- `web/src/test/test-wrapper.tsx` — DatesProvider + env="test" en MantineProvider
+- `web/src/features/membership/registration/components/personal-data-step.tsx` - Reemplazado `watch()` (sin args) por 9 llamadas individuales `watch('field')` que retornan primitivos referentially stable
+- `web/src/features/membership/__tests__/member-crud.integration.spec.tsx` - vi.mock de DateInput con simple `<input>`, fireEvent.change+blur para campo fecha, DatesProvider + env="test" en MantineProvider
+- `web/src/test/setup.ts` - dayjs customParseFormat + locale es
+- `web/src/test/test-wrapper.tsx` - DatesProvider + env="test" en MantineProvider
 
 **Resultados:** 12/12 tests pasan en 8.6 segundos, typecheck clean, lint clean (2 warnings aceptables)
 
@@ -232,7 +232,7 @@ Mantine DateInput abre un Popover con floating-ui `autoUpdate` que registra Resi
 
 ## Metricas de la Sesion
 
-- **Duracion total:** ~11 horas 49 minutos (01:43 — 13:32)
+- **Duracion total:** ~11 horas 49 minutos (01:43 - 13:32)
 - **Archivos modificados:** ~65 (60 i18n + 12 zod/errorboundary + 4 bugfix, con solapamientos)
 - **Archivos creados:** 9 (i18n config, types.d.ts, 7 JSONs de traduccion)
 - **Commits realizados:** 3
@@ -251,7 +251,7 @@ Mantine DateInput abre un Popover con floating-ui `autoUpdate` que registra Resi
 - SDD i18n-infrastructure: engram #656-#662, #675 (archive), #676 (state)
 - SDD i18n-zod-errorboundary: engram #663-#667, #670 (archive), #672 (state)
 - SDD fix-member-crud-tests-hang: engram #685, #688-#689, #696, #699, #701 (archive), #702 (state)
-- RNF-047: Idioma y Localizacion — Must Have MVP
+- RNF-047: Idioma y Localizacion - Must Have MVP
 
 ---
 

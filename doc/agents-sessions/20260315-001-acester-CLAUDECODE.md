@@ -27,10 +27,10 @@ Pruebas visuales del frontend implementado en la sesion anterior. Deteccion y co
 **Descripcion:**
 Al probar la UI sin backend, se detecto que los errores de login no mostraban notificaciones al usuario (solo console.log). Dos bugs combinados silenciaban las notificaciones.
 
-**Bug 1 — Interceptor secuestraba 401 de login:**
+**Bug 1 - Interceptor secuestraba 401 de login:**
 El response interceptor en http-client.ts solo excluia `/auth/refresh` del auto-refresh flow. Un 401 en `/auth/login` (credenciales incorrectas) activaba la logica de refresh, que fallaba y hacia `window.location.href = '/login'` sin propagar el error al catch del login page.
 
-**Bug 2 — extractHttpStatus buscaba formato incorrecto:**
+**Bug 2 - extractHttpStatus buscaba formato incorrecto:**
 La funcion en login.page.tsx buscaba `error.response.status` (formato Axios crudo), pero el interceptor transforma todos los errores a `ApiError` con `error.status` como propiedad directa.
 
 **Archivos modificados:**

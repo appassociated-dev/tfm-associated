@@ -1,4 +1,4 @@
-# Task 12 — UC-021: Registro de cobros (Backend)
+# Task 12 - UC-021: Registro de cobros (Backend)
 
 ## Información general
 
@@ -48,13 +48,13 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel, PrismaTenantService, Prisma schemas, Docker Compose con PostgreSQL |
-| **F1-Back Task 1 — UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados |
-| **F1-Back Task 2 — UC-002** | `JwtAuthGuard`, `PermissionsGuard`, autenticación operativa |
-| **F1-Back Task 10 — UC-018** | Aggregate `MemberAccount` con `FeeSubscription`, puerto `MemberQueryPort` |
-| **F1-Back Task 11 — UC-019** | Entity `Charge` dentro de MemberAccount, `ChargeRepository`, modelo `Charge` en schema Prisma, cargos generados en estado PENDING |
+| Tarea                        | Artefacto necesario                                                                                                               |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**        | Estructura de módulos NestJS, Shared kernel, PrismaTenantService, Prisma schemas, Docker Compose con PostgreSQL                   |
+| **F1-Back Task 1 - UC-001**  | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados                              |
+| **F1-Back Task 2 - UC-002**  | `JwtAuthGuard`, `PermissionsGuard`, autenticación operativa                                                                       |
+| **F1-Back Task 10 - UC-018** | Aggregate `MemberAccount` con `FeeSubscription`, puerto `MemberQueryPort`                                                         |
+| **F1-Back Task 11 - UC-019** | Entity `Charge` dentro de MemberAccount, `ChargeRepository`, modelo `Charge` en schema Prisma, cargos generados en estado PENDING |
 
 ### Checklist de verificación de dependencias
 
@@ -72,27 +72,27 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Entity `Payment` (dominio, dentro de MemberAccount) | Consultas de balance, reportes financieros |
-| Modelo `Payment` en schema tenant Prisma | Reportes, auditoría, consultas |
-| `CollectionService` (application) | Frontend UC-021 (Fase 2), testing manual |
-| Endpoints REST de cobros | Frontend UC-021 (Fase 2), testing manual |
-| Generación de recibos PDF | Consulta por socio/tesorero, impresión |
-| Evento `PaymentRecorded` | BC-Membership (actualizar estado morosidad si aplica), BC-Communication (enviar recibo por email) |
-| Evento `ReceiptGenerated` | BC-Documents (archivar recibo) |
+| Artefacto                                           | Consumido por                                                                                     |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Entity `Payment` (dominio, dentro de MemberAccount) | Consultas de balance, reportes financieros                                                        |
+| Modelo `Payment` en schema tenant Prisma            | Reportes, auditoría, consultas                                                                    |
+| `CollectionService` (application)                   | Frontend UC-021 (Fase 2), testing manual                                                          |
+| Endpoints REST de cobros                            | Frontend UC-021 (Fase 2), testing manual                                                          |
+| Generación de recibos PDF                           | Consulta por socio/tesorero, impresión                                                            |
+| Evento `PaymentRecorded`                            | BC-Membership (actualizar estado morosidad si aplica), BC-Communication (enviar recibo por email) |
+| Evento `ReceiptGenerated`                           | BC-Documents (archivar recibo)                                                                    |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-021.md` | Flujo completo: registro de cobro en efectivo, transferencia, Bizum, pagos parciales, cargo devuelto, recibo |
-| `us/us-053.md` | Criterios de aceptación Gherkin: registro de cobro en efectivo, transferencia, Bizum |
-| `us/us-054.md` | Criterios de aceptación Gherkin: gestión de estados de pago (parcial, devuelto → pagado) |
-| `us/us-055.md` | Criterios de aceptación Gherkin: información completa del cobro, trazabilidad |
-| `us/us-057.md` | Criterios de aceptación Gherkin: generación automática de recibos PDF |
-| `bc/bc-treasury.md` | Entity Payment — estructura, propiedades, PaymentMethod, PaymentStatus |
-| `bc/bc-treasury.md` | Aggregate MemberAccount — extensión con payments, balance |
+| Documento           | Contenido relevante                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `uc/uc-021.md`      | Flujo completo: registro de cobro en efectivo, transferencia, Bizum, pagos parciales, cargo devuelto, recibo |
+| `us/us-053.md`      | Criterios de aceptación Gherkin: registro de cobro en efectivo, transferencia, Bizum                         |
+| `us/us-054.md`      | Criterios de aceptación Gherkin: gestión de estados de pago (parcial, devuelto → pagado)                     |
+| `us/us-055.md`      | Criterios de aceptación Gherkin: información completa del cobro, trazabilidad                                |
+| `us/us-057.md`      | Criterios de aceptación Gherkin: generación automática de recibos PDF                                        |
+| `bc/bc-treasury.md` | Entity Payment - estructura, propiedades, PaymentMethod, PaymentStatus                                       |
+| `bc/bc-treasury.md` | Aggregate MemberAccount - extensión con payments, balance                                                    |
 
 ## Puntos críticos
 
@@ -108,17 +108,17 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Race condition: dos pagos simultáneos sobre el mismo cargo superan finalAmount | Baja | Alto | Verificar `remainingAmount` dentro de transacción con lock pesimista en el cargo. Rechazar si importe > remaining |
-| Duplicación de referencia de pago bajo concurrencia | Baja | Medio | Secuencia con lock para generar referencia. Constraint UNIQUE en BD |
-| Generación de PDF falla pero pago ya registrado | Baja | Medio | El pago es lo crítico; el recibo puede regenerarse después. Registrar warning si falla PDF. Endpoint `GET receipt` regenera si no existe |
-| Numeración de recibos con gaps tras rollbacks | Baja | Bajo | Aceptable para MVP. Los gaps no afectan la validez fiscal. Documentar política |
-| Rendimiento de generación de PDF con muchos pagos simultáneos | Baja | Bajo | Para MVP, generación síncrona es aceptable (<200ms). Async si necesario en Fase 2 |
+| Riesgo                                                                         | Probabilidad | Impacto | Mitigación                                                                                                                               |
+| ------------------------------------------------------------------------------ | ------------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Race condition: dos pagos simultáneos sobre el mismo cargo superan finalAmount | Baja         | Alto    | Verificar `remainingAmount` dentro de transacción con lock pesimista en el cargo. Rechazar si importe > remaining                        |
+| Duplicación de referencia de pago bajo concurrencia                            | Baja         | Medio   | Secuencia con lock para generar referencia. Constraint UNIQUE en BD                                                                      |
+| Generación de PDF falla pero pago ya registrado                                | Baja         | Medio   | El pago es lo crítico; el recibo puede regenerarse después. Registrar warning si falla PDF. Endpoint `GET receipt` regenera si no existe |
+| Numeración de recibos con gaps tras rollbacks                                  | Baja         | Bajo    | Aceptable para MVP. Los gaps no afectan la validez fiscal. Documentar política                                                           |
+| Rendimiento de generación de PDF con muchos pagos simultáneos                  | Baja         | Bajo    | Para MVP, generación síncrona es aceptable (<200ms). Async si necesario en Fase 2                                                        |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects
+### Paso 1: Capa de dominio - Value Objects
 
 Crear en `api/src/treasury/domain/value-objects/`:
 
@@ -132,7 +132,7 @@ Reutilizar de Tasks previas: `Money`, `MemberAccountId`, `ChargeId`
 
 Tests unitarios: generación de `PaymentReference` con distintos métodos (EF, TR, BZ, SEPA, TPV), generación de `ReceiptNumber`, formato correcto con padding.
 
-### Paso 2: Capa de dominio — Entity Payment
+### Paso 2: Capa de dominio - Entity Payment
 
 Crear en `api/src/treasury/domain/entities/payment.ts`:
 
@@ -156,7 +156,7 @@ Crear en `api/src/treasury/domain/entities/payment.ts`:
 
 Tests unitarios: creación de pago válido, rechazo con importe 0, rechazo con fecha futura.
 
-### Paso 3: Capa de dominio — Extensión del Aggregate MemberAccount
+### Paso 3: Capa de dominio - Extensión del Aggregate MemberAccount
 
 Extender en `api/src/treasury/domain/aggregates/member-account.ts`:
 
@@ -173,14 +173,14 @@ Extender en `api/src/treasury/domain/aggregates/member-account.ts`:
 
 Tests unitarios: pago completo de cargo, pago parcial, segundo pago parcial que completa, rechazo de sobre-pago, rechazo de pago sobre cargo ya pagado, balance calculado correctamente, multi-cargo con pagos vinculados.
 
-### Paso 4: Capa de dominio — Domain Events
+### Paso 4: Capa de dominio - Domain Events
 
 Crear en `api/src/treasury/domain/events/`:
 
 - **`PaymentRecordedEvent`**: Extiende `DomainEvent`. Payload: `{ paymentId: UUID, chargeId: UUID, memberAccountId: UUID, memberId: UUID, amount: number, paymentMethod: string, paymentDate: Date, paymentReference: string, chargeNewStatus: string }`
 - **`ReceiptGeneratedEvent`**: Extiende `DomainEvent`. Payload: `{ receiptId: UUID, paymentId: UUID, receiptNumber: string, issueDate: Date }`
 
-### Paso 5: Capa de dominio — Repository interfaces
+### Paso 5: Capa de dominio - Repository interfaces
 
 Crear/extender en `api/src/treasury/domain/repositories/`:
 
@@ -192,15 +192,17 @@ Crear/extender en `api/src/treasury/domain/repositories/`:
   - `getNextPaymentSequence(method: PaymentMethod, year: number): Promise<number>`
   - `getNextReceiptSequence(year: number): Promise<number>`
 
-### Paso 6: Capa de aplicación — Commands, Queries y DTOs
+### Paso 6: Capa de aplicación - Commands, Queries y DTOs
 
 Crear en `api/src/treasury/application/`:
 
 **Commands:**
+
 - **`RecordPaymentCommand`**: `{ memberAccountId, chargeId, amount, paymentMethod, paymentDate, notes }`
 - **`RecordMultiChargePaymentCommand`**: `{ memberAccountId, chargeIds: string[], paymentMethod, paymentDate, notes }`
 
 **Queries:**
+
 - **`GetPaymentsByAccountQuery`**: `{ memberAccountId }`
 - **`GetPendingChargesQuery`**: `{ memberAccountId }`
 - **`GetAccountBalanceQuery`**: `{ memberAccountId }`
@@ -208,6 +210,7 @@ Crear en `api/src/treasury/application/`:
 - **`SearchMembersForPaymentQuery`**: `{ query: string }`
 
 **DTOs:**
+
 - **`RecordPaymentDto`**: DTO de entrada: `@IsUUID()` chargeId, `@IsInt()` `@Min(1)` amount (centavos), `@IsEnum(PaymentMethod)` paymentMethod, `@IsDateString()` paymentDate, `@IsOptional()` `@IsString()` notes
 - **`RecordMultiChargePaymentDto`**: DTO de entrada: `@IsArray()` `@IsUUID({}, { each: true })` chargeIds, `@IsEnum(PaymentMethod)` paymentMethod, `@IsDateString()` paymentDate, `@IsOptional()` notes
 - **`PaymentResponseDto`**: DTO de salida: `id`, `chargeId`, `chargeDescription`, `amount` (centavos), `amountFormatted` (euros), `paymentMethod`, `paymentMethodLabel`, `paymentDate`, `paymentReference`, `receiptNumber`, `notes`, `registeredBy`, `status`, `createdAt`
@@ -215,7 +218,7 @@ Crear en `api/src/treasury/application/`:
 - **`AccountBalanceResponseDto`**: DTO de salida: `memberAccountId`, `memberId`, `memberName`, `memberNumber`, `totalPending` (centavos), `totalPendingFormatted`, `chargeCount`, `oldestDueDate`
 - **`MemberSearchResultDto`**: DTO de salida: `memberId`, `memberAccountId`, `memberNumber`, `name`, `surnames`, `dni`, `pendingBalance`, `pendingCharges`
 
-### Paso 7: Capa de aplicación — Handlers
+### Paso 7: Capa de aplicación - Handlers
 
 **`RecordPaymentHandler`:**
 
@@ -239,6 +242,7 @@ Crear en `api/src/treasury/application/`:
 8. Retornar `PaymentResponseDto`
 
 **En caso de fallo:**
+
 - Rollback automático de transacción Prisma
 - Reportar excepción vía `ErrorReporter.captureException()`
 
@@ -285,7 +289,7 @@ Crear en `api/src/treasury/application/`:
 3. Generar o recuperar PDF del recibo
 4. Retornar stream del PDF
 
-### Paso 8: Capa de infraestructura — Schema Prisma (tenant)
+### Paso 8: Capa de infraestructura - Schema Prisma (tenant)
 
 Extender `api/prisma/tenant/schema.prisma` con:
 
@@ -317,14 +321,14 @@ model Payment {
 
 Nota: `amount` almacena centavos (integer). `receipt_document` almacena el PDF como bytes (para MVP, evita dependencia de S3). `payment_reference` y `receipt_number` son UNIQUE por tenant (BD aislada). Agregar relación en modelo `Charge`: `payments Payment[]`. Agregar relación en modelo `MemberAccount`: `payments Payment[]`.
 
-### Paso 9: Capa de infraestructura — Repository (Prisma)
+### Paso 9: Capa de infraestructura - Repository (Prisma)
 
 Crear en `api/src/treasury/infrastructure/persistence/`:
 
 - **`PrismaPaymentRepository`**: Implementa `PaymentRepository` usando `PrismaTenantService.getClient(tenantId)`. Método `getNextPaymentSequence()` usa `SELECT COALESCE(MAX(CAST(SPLIT_PART(payment_reference, '-', 3) AS INT)), 0) + 1 FROM payments WHERE payment_reference LIKE '{METHOD}-{YEAR}-%'` con lock. Método `getNextReceiptSequence()` similar para recibos.
 - Mappers: `PaymentPrismaMapper.toDomain(prismaModel): Payment` y `toPersistence(entity): PrismaCreateInput`
 
-### Paso 10: Capa de infraestructura — Generador de recibos PDF
+### Paso 10: Capa de infraestructura - Generador de recibos PDF
 
 Crear en `api/src/treasury/infrastructure/services/receipt-generator.ts`:
 
@@ -340,19 +344,19 @@ Crear en `api/src/treasury/infrastructure/services/receipt-generator.ts`:
   - Usa `pdfkit` o `@react-pdf/renderer` (server-side)
   - Plantilla básica para MVP (sin logo personalizable, post-MVP)
 
-### Paso 11: Capa de infraestructura — Controller
+### Paso 11: Capa de infraestructura - Controller
 
 Crear en `api/src/treasury/infrastructure/controllers/payments.controller.ts`:
 
-| Endpoint | Método | Auth | Permiso | Body/Params | Response |
-|----------|--------|------|---------|-------------|----------|
-| `/api/v1/treasury/member-accounts/:accountId/payments` | POST | JWT | `treasury:payments:create` | `RecordPaymentDto` | 201 Created con `PaymentResponseDto` |
-| `/api/v1/treasury/member-accounts/:accountId/payments/multi` | POST | JWT | `treasury:payments:create` | `RecordMultiChargePaymentDto` | 201 Created con `PaymentResponseDto[]` |
-| `/api/v1/treasury/member-accounts/:accountId/payments` | GET | JWT | `treasury:payments:read` | Query: `?from=2025-01-01&to=2025-12-31` | 200 con `PaymentResponseDto[]` |
-| `/api/v1/treasury/member-accounts/:accountId/charges` | GET | JWT | `treasury:charges:read` | Query: `?status=PENDING` | 200 con `PendingChargeResponseDto[]` |
-| `/api/v1/treasury/member-accounts/:accountId/balance` | GET | JWT | `treasury:payments:read` | — | 200 con `AccountBalanceResponseDto` |
-| `/api/v1/treasury/payments/:id/receipt` | GET | JWT | `treasury:payments:read` | — | 200 con PDF (application/pdf) |
-| `/api/v1/treasury/search-members` | GET | JWT | `treasury:payments:read` | Query: `?q=garcia` | 200 con `MemberSearchResultDto[]` |
+| Endpoint                                                     | Método | Auth | Permiso                    | Body/Params                             | Response                               |
+| ------------------------------------------------------------ | ------ | ---- | -------------------------- | --------------------------------------- | -------------------------------------- |
+| `/api/v1/treasury/member-accounts/:accountId/payments`       | POST   | JWT  | `treasury:payments:create` | `RecordPaymentDto`                      | 201 Created con `PaymentResponseDto`   |
+| `/api/v1/treasury/member-accounts/:accountId/payments/multi` | POST   | JWT  | `treasury:payments:create` | `RecordMultiChargePaymentDto`           | 201 Created con `PaymentResponseDto[]` |
+| `/api/v1/treasury/member-accounts/:accountId/payments`       | GET    | JWT  | `treasury:payments:read`   | Query: `?from=2025-01-01&to=2025-12-31` | 200 con `PaymentResponseDto[]`         |
+| `/api/v1/treasury/member-accounts/:accountId/charges`        | GET    | JWT  | `treasury:charges:read`    | Query: `?status=PENDING`                | 200 con `PendingChargeResponseDto[]`   |
+| `/api/v1/treasury/member-accounts/:accountId/balance`        | GET    | JWT  | `treasury:payments:read`   | -                                       | 200 con `AccountBalanceResponseDto`    |
+| `/api/v1/treasury/payments/:id/receipt`                      | GET    | JWT  | `treasury:payments:read`   | -                                       | 200 con PDF (application/pdf)          |
+| `/api/v1/treasury/search-members`                            | GET    | JWT  | `treasury:payments:read`   | Query: `?q=garcia`                      | 200 con `MemberSearchResultDto[]`      |
 
 - Swagger decorators para documentación automática
 - Errores: 404 Not Found (cuenta/cargo/pago no encontrado), 409 Conflict (cargo ya pagado), 422 Unprocessable Entity (sobre-pago, fecha futura, cargo cancelado)
@@ -360,6 +364,7 @@ Crear en `api/src/treasury/infrastructure/controllers/payments.controller.ts`:
 ### Paso 12: Tests
 
 **Tests unitarios (dominio):**
+
 - `Payment.create()` con datos válidos → pago en estado CONFIRMED
 - `Payment.create()` con importe 0 → error
 - `Payment.create()` con fecha futura → error
@@ -380,6 +385,7 @@ Crear en `api/src/treasury/infrastructure/controllers/payments.controller.ts`:
   - Con pago parcial → balance correcto restando paidAmount
 
 **Tests unitarios (aplicación):**
+
 - `RecordPaymentHandler` con mocks:
   - Caso éxito: pago registrado, cargo actualizado, recibo generado, evento publicado
   - Caso cargo no encontrado: 404
@@ -400,6 +406,7 @@ Crear en `api/src/treasury/infrastructure/controllers/payments.controller.ts`:
   - Búsqueda por número de socio: retorna coincidencia exacta
 
 **Tests de integración:**
+
 - Registro de cobro completo contra BD real (Testcontainers):
   - Crear cargo PENDING → registrar pago → verificar cargo en PAID, Payment persistido
   - Verificar referencia generada (formato correcto, única)

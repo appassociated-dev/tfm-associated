@@ -1,4 +1,4 @@
-# Task 10 — UC-018: Gestión de suscripciones de cuota (Backend)
+# Task 10 - UC-018: Gestión de suscripciones de cuota (Backend)
 
 ## Información general
 
@@ -47,13 +47,13 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel, PrismaTenantService, Prisma schemas, Docker Compose con PostgreSQL |
-| **F1-Back Task 1 — UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados |
-| **F1-Back Task 2 — UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa |
-| **F1-Back Task 3 — UC-008** | Aggregate `MemberType` con descuento por tipo configurado |
-| **F1-Back Task 9 — UC-017** | Aggregate `FeePlan` operativo, vinculaciones `MemberTypeFeePlan` creadas, Value Object `Money`, puerto `MemberTypeQueryPort` |
+| Tarea                       | Artefacto necesario                                                                                                          |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**       | Estructura de módulos NestJS, Shared kernel, PrismaTenantService, Prisma schemas, Docker Compose con PostgreSQL              |
+| **F1-Back Task 1 - UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados                         |
+| **F1-Back Task 2 - UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa                           |
+| **F1-Back Task 3 - UC-008** | Aggregate `MemberType` con descuento por tipo configurado                                                                    |
+| **F1-Back Task 9 - UC-017** | Aggregate `FeePlan` operativo, vinculaciones `MemberTypeFeePlan` creadas, Value Object `Money`, puerto `MemberTypeQueryPort` |
 
 ### Checklist de verificación de dependencias
 
@@ -73,29 +73,29 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Aggregate `MemberAccount` (dominio) | UC-019 (generar cargos sobre la cuenta), UC-021 (registrar pagos en la cuenta) |
-| Entity `FeeSubscription` (dominio) | UC-019 (leer suscripción activa, plan, effectiveAmount, billingMonths) |
-| Modelo `MemberAccount` en schema tenant Prisma | UC-019, UC-021, todos los UCs de tesorería |
-| Modelo `FeeSubscription` en schema tenant Prisma | UC-019 (consultar suscripciones activas para generar cargos) |
-| Puerto `MemberQueryPort` | Reutilizable por UC-019, UC-021 para consultar estado del socio |
-| Endpoints REST de suscripciones | Frontend UC-018, testing manual |
-| Evento `SubscriptionCreated` | UC-019 (programar generación de cargos para nueva suscripción) |
-| Evento `SubscriptionClosed` | UC-019 (detener generación de cargos) |
+| Artefacto                                        | Consumido por                                                                  |
+| ------------------------------------------------ | ------------------------------------------------------------------------------ |
+| Aggregate `MemberAccount` (dominio)              | UC-019 (generar cargos sobre la cuenta), UC-021 (registrar pagos en la cuenta) |
+| Entity `FeeSubscription` (dominio)               | UC-019 (leer suscripción activa, plan, effectiveAmount, billingMonths)         |
+| Modelo `MemberAccount` en schema tenant Prisma   | UC-019, UC-021, todos los UCs de tesorería                                     |
+| Modelo `FeeSubscription` en schema tenant Prisma | UC-019 (consultar suscripciones activas para generar cargos)                   |
+| Puerto `MemberQueryPort`                         | Reutilizable por UC-019, UC-021 para consultar estado del socio                |
+| Endpoints REST de suscripciones                  | Frontend UC-018, testing manual                                                |
+| Evento `SubscriptionCreated`                     | UC-019 (programar generación de cargos para nueva suscripción)                 |
+| Evento `SubscriptionClosed`                      | UC-019 (detener generación de cargos)                                          |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-018.md` | Flujo completo de suscripciones: creación en alta, cambio de plan, descuentos, exenciones, histórico |
-| `us/us-045.md` | Criterios de aceptación Gherkin: selección de modalidad en alta, múltiples suscripciones, descuento personalizado |
-| `us/us-046.md` | Criterios de aceptación Gherkin: cambio de plan mensual a anual, histórico de cambios |
-| `us/us-049.md` | Criterios de aceptación Gherkin: descuento por tipo, descuento personalizado combinado, modificación en activa |
-| `us/us-050.md` | Criterios de aceptación Gherkin: exención total, temporal, parcial (descuento 100%) |
-| `us/us-052.md` | Criterios de aceptación Gherkin: visualización de histórico con detalle de suscripción |
-| `bc/bc-treasury.md` | Entity FeeSubscription — estructura, propiedades, invariantes, SubscriptionCancelReason |
-| `bc/bc-treasury.md` | Aggregate MemberAccount — estructura, entities (FeeSubscription, Charge, Payment) |
+| Documento           | Contenido relevante                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `uc/uc-018.md`      | Flujo completo de suscripciones: creación en alta, cambio de plan, descuentos, exenciones, histórico              |
+| `us/us-045.md`      | Criterios de aceptación Gherkin: selección de modalidad en alta, múltiples suscripciones, descuento personalizado |
+| `us/us-046.md`      | Criterios de aceptación Gherkin: cambio de plan mensual a anual, histórico de cambios                             |
+| `us/us-049.md`      | Criterios de aceptación Gherkin: descuento por tipo, descuento personalizado combinado, modificación en activa    |
+| `us/us-050.md`      | Criterios de aceptación Gherkin: exención total, temporal, parcial (descuento 100%)                               |
+| `us/us-052.md`      | Criterios de aceptación Gherkin: visualización de histórico con detalle de suscripción                            |
+| `bc/bc-treasury.md` | Entity FeeSubscription - estructura, propiedades, invariantes, SubscriptionCancelReason                           |
+| `bc/bc-treasury.md` | Aggregate MemberAccount - estructura, entities (FeeSubscription, Charge, Payment)                                 |
 
 ## Puntos críticos
 
@@ -111,16 +111,16 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Error de redondeo en descuento multiplicativo con centavos | Media | Alto | Redondear al centavo más cercano (`Math.round`). Tests con casos límite de redondeo (ej: 33.33%) |
-| Race condition al crear suscripción periódica (doble click) | Baja | Medio | Verificar unicidad en capa de aplicación + constraint parcial en BD (`WHERE leave_date IS NULL AND type = 'RECURRING'`) |
-| Cambio de plan con cargos pendientes genera inconsistencia | Media | Alto | Al cambiar plan, los cargos pendientes del plan anterior se conservan (deuda se arrastra). Documentar comportamiento en respuesta |
-| MemberAccount no existe al crear suscripción (alta parcial) | Baja | Alto | Crear MemberAccount automáticamente si no existe al crear primera suscripción. Usar `upsert` |
+| Riesgo                                                      | Probabilidad | Impacto | Mitigación                                                                                                                        |
+| ----------------------------------------------------------- | ------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Error de redondeo en descuento multiplicativo con centavos  | Media        | Alto    | Redondear al centavo más cercano (`Math.round`). Tests con casos límite de redondeo (ej: 33.33%)                                  |
+| Race condition al crear suscripción periódica (doble click) | Baja         | Medio   | Verificar unicidad en capa de aplicación + constraint parcial en BD (`WHERE leave_date IS NULL AND type = 'RECURRING'`)           |
+| Cambio de plan con cargos pendientes genera inconsistencia  | Media        | Alto    | Al cambiar plan, los cargos pendientes del plan anterior se conservan (deuda se arrastra). Documentar comportamiento en respuesta |
+| MemberAccount no existe al crear suscripción (alta parcial) | Baja         | Alto    | Crear MemberAccount automáticamente si no existe al crear primera suscripción. Usar `upsert`                                      |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects
+### Paso 1: Capa de dominio - Value Objects
 
 Crear en `api/src/treasury/domain/value-objects/`:
 
@@ -133,7 +133,7 @@ Reutilizar de Task 9: `Money`, `FeePlanId`
 
 Tests unitarios: `Discount.create()` con valores válidos, valores negativos, valores >= 1.0, `calculateEffectiveAmount()` con fórmula multiplicativa correcta vs. aditiva incorrecta, redondeo de centavos.
 
-### Paso 2: Capa de dominio — Entity FeeSubscription
+### Paso 2: Capa de dominio - Entity FeeSubscription
 
 Crear en `api/src/treasury/domain/entities/fee-subscription.ts`:
 
@@ -158,7 +158,7 @@ Crear en `api/src/treasury/domain/entities/fee-subscription.ts`:
 
 Tests unitarios: creación con descuento multiplicativo, cierre con motivo, verificación de isActive/isClosed, rechazo de cierre con fecha anterior a alta, actualización de descuento con recálculo.
 
-### Paso 3: Capa de dominio — Aggregate MemberAccount
+### Paso 3: Capa de dominio - Aggregate MemberAccount
 
 Crear en `api/src/treasury/domain/aggregates/member-account.ts`:
 
@@ -183,7 +183,7 @@ Crear en `api/src/treasury/domain/aggregates/member-account.ts`:
 
 Tests unitarios: creación de cuenta, añadir suscripción periódica, rechazo de segunda suscripción periódica activa, cambio de plan (cierre + nueva), añadir suscripción única (no afecta a la periódica), histórico ordenado, actualización de descuento.
 
-### Paso 4: Capa de dominio — Domain Events
+### Paso 4: Capa de dominio - Domain Events
 
 Crear en `api/src/treasury/domain/events/`:
 
@@ -191,7 +191,7 @@ Crear en `api/src/treasury/domain/events/`:
 - **`SubscriptionModifiedEvent`**: Extiende `DomainEvent`. Payload: `{ subscriptionId: UUID, modifiedFields: string[], modificationDate: Date }`
 - **`SubscriptionClosedEvent`**: Extiende `DomainEvent`. Payload: `{ subscriptionId: UUID, memberAccountId: UUID, cancelReason: string, leaveDate: Date }`
 
-### Paso 5: Capa de dominio — Puertos e interfaces
+### Paso 5: Capa de dominio - Puertos e interfaces
 
 Crear en `api/src/treasury/domain/ports/`:
 
@@ -207,21 +207,24 @@ Crear en `api/src/treasury/domain/repositories/`:
   - `findByMemberId(memberId: string): Promise<MemberAccount | null>`
   - `existsByMemberId(memberId: string): Promise<boolean>`
 
-### Paso 6: Capa de aplicación — Commands, Queries y DTOs
+### Paso 6: Capa de aplicación - Commands, Queries y DTOs
 
 Crear en `api/src/treasury/application/`:
 
 **Commands:**
+
 - **`CreateSubscriptionCommand`**: `{ memberAccountId, feePlanId, typeDiscount, personalDiscount, personalDiscountReason }`
 - **`ChangePlanCommand`**: `{ memberAccountId, currentSubscriptionId, newFeePlanId, effectiveDate, maintainDiscount }`
 - **`UpdateDiscountCommand`**: `{ memberAccountId, subscriptionId, newPersonalDiscount, reason, approvedBy }`
 - **`CloseSubscriptionCommand`**: `{ memberAccountId, subscriptionId, cancelReason }`
 
 **Queries:**
+
 - **`GetSubscriptionsQuery`**: `{ memberAccountId }`
 - **`GetActiveSubscriptionQuery`**: `{ memberAccountId }`
 
 **DTOs:**
+
 - **`CreateSubscriptionDto`**: DTO de entrada: `@IsUUID()` feePlanId, `@IsNumber()` `@Min(0)` `@Max(0.99)` typeDiscount, `@IsOptional()` `@IsNumber()` `@Min(0)` `@Max(0.99)` personalDiscount, `@IsOptional()` `@IsString()` personalDiscountReason
 - **`ChangePlanDto`**: DTO de entrada: `@IsUUID()` newFeePlanId, `@IsDateString()` effectiveDate, `@IsOptional()` `@IsBoolean()` maintainDiscount
 - **`UpdateDiscountDto`**: DTO de entrada: `@IsNumber()` `@Min(0)` `@Max(0.99)` newPersonalDiscount, `@IsNotEmpty()` reason, `@IsOptional()` approvedBy
@@ -229,7 +232,7 @@ Crear en `api/src/treasury/application/`:
 - **`SubscriptionResponseDto`**: DTO de salida: `id`, `feePlanId`, `feePlanName`, `feePlanCode`, `registrationDate`, `leaveDate`, `typeDiscount`, `personalDiscount`, `effectiveAmount` (centavos), `effectiveAmountFormatted` (euros), `cancelReason`, `isActive`
 - **`SubscriptionHistoryResponseDto`**: DTO de salida: `memberAccountId`, `memberId`, `activeSubscription: SubscriptionResponseDto | null`, `history: SubscriptionResponseDto[]`
 
-### Paso 7: Capa de aplicación — Handlers
+### Paso 7: Capa de aplicación - Handlers
 
 **`CreateSubscriptionHandler`:**
 
@@ -248,6 +251,7 @@ Crear en `api/src/treasury/application/`:
 9. Retornar `SubscriptionResponseDto`
 
 **En caso de fallo:**
+
 - Reportar excepción vía `ErrorReporter.captureException()` con contexto
 
 **`ChangePlanHandler`:**
@@ -281,7 +285,7 @@ Crear en `api/src/treasury/application/`:
 4. Publicar `SubscriptionClosed` via Outbox
 5. Retornar confirmación
 
-### Paso 8: Capa de infraestructura — Schema Prisma (tenant)
+### Paso 8: Capa de infraestructura - Schema Prisma (tenant)
 
 Extender `api/prisma/tenant/schema.prisma` con:
 
@@ -321,7 +325,7 @@ model FeeSubscription {
 
 Nota: `effective_amount` almacena centavos (integer). Los descuentos usan `Decimal(5,4)` para precisión (ej: 0.3000 = 30%). Agregar relación en modelo `FeePlan`: `subscriptions FeeSubscription[]`.
 
-### Paso 9: Capa de infraestructura — Repository (Prisma) y Puertos
+### Paso 9: Capa de infraestructura - Repository (Prisma) y Puertos
 
 Crear en `api/src/treasury/infrastructure/persistence/`:
 
@@ -332,18 +336,18 @@ Crear en `api/src/treasury/infrastructure/ports/`:
 
 - **`PrismaMemberQueryAdapter`**: Implementa `MemberQueryPort`. Consulta la tabla `members` de la BD del tenant via `PrismaTenantService`. NO importa repositorios de BC-Membership
 
-### Paso 10: Capa de infraestructura — Controller
+### Paso 10: Capa de infraestructura - Controller
 
 Crear en `api/src/treasury/infrastructure/controllers/subscriptions.controller.ts`:
 
-| Endpoint | Método | Auth | Permiso | Body/Params | Response |
-|----------|--------|------|---------|-------------|----------|
-| `/api/v1/treasury/member-accounts/:accountId/subscriptions` | POST | JWT | `treasury:subscriptions:create` | `CreateSubscriptionDto` | 201 Created con `SubscriptionResponseDto` |
-| `/api/v1/treasury/member-accounts/:accountId/subscriptions` | GET | JWT | `treasury:subscriptions:read` | — | 200 con `SubscriptionHistoryResponseDto` |
-| `/api/v1/treasury/member-accounts/:accountId/subscriptions/active` | GET | JWT | `treasury:subscriptions:read` | — | 200 con `SubscriptionResponseDto` o 404 |
-| `/api/v1/treasury/member-accounts/:accountId/subscriptions/:id/change-plan` | POST | JWT | `treasury:subscriptions:update` | `ChangePlanDto` | 200 con `{ closedSubscription, newSubscription }` |
-| `/api/v1/treasury/member-accounts/:accountId/subscriptions/:id/discount` | PATCH | JWT | `treasury:subscriptions:update` | `UpdateDiscountDto` | 200 con `SubscriptionResponseDto` |
-| `/api/v1/treasury/member-accounts/:accountId/subscriptions/:id/close` | POST | JWT | `treasury:subscriptions:update` | `CloseSubscriptionDto` | 200 con confirmación |
+| Endpoint                                                                    | Método | Auth | Permiso                         | Body/Params             | Response                                          |
+| --------------------------------------------------------------------------- | ------ | ---- | ------------------------------- | ----------------------- | ------------------------------------------------- |
+| `/api/v1/treasury/member-accounts/:accountId/subscriptions`                 | POST   | JWT  | `treasury:subscriptions:create` | `CreateSubscriptionDto` | 201 Created con `SubscriptionResponseDto`         |
+| `/api/v1/treasury/member-accounts/:accountId/subscriptions`                 | GET    | JWT  | `treasury:subscriptions:read`   | -                       | 200 con `SubscriptionHistoryResponseDto`          |
+| `/api/v1/treasury/member-accounts/:accountId/subscriptions/active`          | GET    | JWT  | `treasury:subscriptions:read`   | -                       | 200 con `SubscriptionResponseDto` o 404           |
+| `/api/v1/treasury/member-accounts/:accountId/subscriptions/:id/change-plan` | POST   | JWT  | `treasury:subscriptions:update` | `ChangePlanDto`         | 200 con `{ closedSubscription, newSubscription }` |
+| `/api/v1/treasury/member-accounts/:accountId/subscriptions/:id/discount`    | PATCH  | JWT  | `treasury:subscriptions:update` | `UpdateDiscountDto`     | 200 con `SubscriptionResponseDto`                 |
+| `/api/v1/treasury/member-accounts/:accountId/subscriptions/:id/close`       | POST   | JWT  | `treasury:subscriptions:update` | `CloseSubscriptionDto`  | 200 con confirmación                              |
 
 - Swagger decorators para documentación automática
 - Errores: 404 Not Found (cuenta o suscripción no encontrada), 422 Unprocessable Entity (descuento >= 100%, plan no vinculado a tipo, suscripción duplicada), 409 Conflict (ya existe suscripción periódica activa)
@@ -351,6 +355,7 @@ Crear en `api/src/treasury/infrastructure/controllers/subscriptions.controller.t
 ### Paso 11: Tests
 
 **Tests unitarios (dominio):**
+
 - `Discount.create()` con descuentos válidos → crea instancia
 - `Discount.create()` con descuento >= 1.0 → rechazado
 - `Discount.calculateEffectiveAmount()` con fórmula multiplicativa → `120€ * 0.70 * 0.90 = 75.60€` (7560 cents)
@@ -367,6 +372,7 @@ Crear en `api/src/treasury/infrastructure/controllers/subscriptions.controller.t
 - `MemberAccount.getSubscriptionHistory()` → todas ordenadas por fecha
 
 **Tests unitarios (aplicación):**
+
 - `CreateSubscriptionHandler` con mocks:
   - Caso éxito: suscripción creada con descuento multiplicativo correcto
   - Caso plan no encontrado: 404
@@ -384,6 +390,7 @@ Crear en `api/src/treasury/infrastructure/controllers/subscriptions.controller.t
   - Caso éxito con cada tipo de cancelReason
 
 **Tests de integración:**
+
 - CRUD completo contra BD real (Testcontainers):
   - Crear MemberAccount y añadir suscripción → verificar persistencia
   - Verificar cálculo de effectiveAmount almacenado en centavos
