@@ -25,10 +25,11 @@
 - [Stack tecnológico](#stack-tecnológico)
 - [Arquitectura](#arquitectura)
 - [Alcance del MVP](#alcance-del-mvp)
-- [Estructura del proyecto](#estructura-del-proyecto)
+- [Marca](#marca)
 - [Especificación](#especificación)
+- [Estructura del proyecto](#estructura-del-proyecto)
 - [Inicio rápido](#inicio-rápido)
-- [Decisiones arquitectónicas](#decisiones-arquitectónicas)
+- [Despliegue](#despliegue)
 - [Licencia](#licencia)
 
 ---
@@ -210,20 +211,13 @@ graph LR
 
 ---
 
-## Estructura del proyecto
+## Marca
 
-```
-Associated/
-├── api/                    # Backend - NestJS
-│   └── src/{bc}/           # Un módulo por Bounded Context
-├── web/                    # Frontend - React + Vite
-│   └── src/features/       # Módulos por funcionalidad
-├── e2e/                    # Tests E2E - Playwright
-├── spec/                   # Especificación completa del proyecto
-├── doc/                    # Documentación complementaria
-├── docker-compose.yml      # Entorno de desarrollo
-└── package.json            # Workspaces: api + web
-```
+Associated tiene una identidad de marca definida que informa las decisiones de producto, interfaz y comunicación. Cinco valores guían esas decisiones: cercanía al dominio, respeto por el tiempo del voluntario, accesibilidad sin condiciones, transparencia como estándar y continuidad por encima de las personas.
+
+La personalidad de marca es funcional, directa y discreta - el protagonista es la colectividad, no la herramienta. El tono tutea sin condescendencia, resuelve sin decorar y evita la jerga técnica cuando el lenguaje corriente basta.
+
+La definición completa de marca - propósito, posicionamiento, tono de voz, identidad visual y guías de producto para Mantine - se encuentra en [`doc/brand/`](doc/brand/README.md).
 
 ---
 
@@ -260,30 +254,74 @@ graph TD
     style UC fill:#7A939E,stroke:#708C99,color:#fff
 ```
 
+La especificación completa, con el detalle de cada documento y las matrices de trazabilidad, se encuentra en [`spec/`](spec/README.md).
+
+---
+
+## Estructura del proyecto
+
+```
+Associated/
+├── api/                    # Backend - NestJS
+│   └── src/{bc}/           # Un módulo por Bounded Context
+├── web/                    # Frontend - React + Vite
+│   └── src/features/       # Módulos por funcionalidad
+├── e2e/                    # Tests E2E - Playwright
+├── spec/                   # Especificación completa del proyecto
+├── doc/                    # Documentación complementaria
+├── docker-compose.yml      # Entorno de desarrollo
+└── package.json            # Workspaces: api + web
+```
+
 ---
 
 ## Inicio rápido
 
-Para instrucciones de instalación y configuración del entorno de desarrollo, consultar [SETUP.md](SETUP.md).
+```bash
+# Clonar y preparar
+git clone <repo-url> && cd tfm-associated
+cp .env.example .env && cp api/.env.example api/.env
+npm install
+
+# Levantar servicios y base de datos
+docker compose up -d
+npm run -w api prisma:generate
+npm run -w api prisma:migrate:main
+
+# Arrancar API y frontend
+npm run -w api start:dev   # http://localhost:3000
+npm run -w web dev         # http://localhost:5173
+```
+
+Para la configuración completa del entorno de desarrollo, variables de entorno, tests y troubleshooting, consultar [SETUP.md](SETUP.md).
 
 ---
 
-## Decisiones arquitectónicas
+## Despliegue
 
-| ADR     | Decisión                                           |
-| :------ | :------------------------------------------------- |
-| ADR-001 | Monolito Modular                                   |
-| ADR-002 | Multi-tenant con base de datos separada por tenant |
-| ADR-003 | Un módulo NestJS por Bounded Context               |
-| ADR-004 | CQRS con @nestjs/cqrs                              |
-| ADR-005 | PostgreSQL con Prisma ORM                          |
-| ADR-006 | Autenticación JWT + Passport                       |
-| ADR-007 | Autorización RBAC con Guards                       |
-| ADR-008 | Domain Events para comunicación inter-BC           |
-| ADR-009 | Clean Architecture por módulo                      |
-| ADR-010 | API RESTful                                        |
-| ADR-011 | MinIO (dev) / S3 (prod) para ficheros              |
-| ADR-012 | Vitest + Playwright para testing                   |
+Associated se despliega en un VPS (IONOS DCD, Ubuntu 24.04) mediante un flujo manual basado en scripts: build local de imágenes Docker multi-stage, push a GitHub Container Registry y pull en el VPS vía SSH. Las migraciones Prisma (main + tenants) se ejecutan automáticamente en cada despliegue mediante un contenedor one-shot. nginx en el host gestiona la terminación SSL, la redirección HTTP→HTTPS y las cabeceras de seguridad.
+
+```mermaid
+graph LR
+    A["Build local"] --> B["Push a GHCR"]
+    B --> C["Pull en VPS"]
+    C --> D["Migraciones"]
+    D --> E["Verificación"]
+
+    style A fill:#27343E,stroke:#1A2329,color:#fff
+    style B fill:#3D5E6C,stroke:#27343E,color:#fff
+    style C fill:#5B7682,stroke:#3D5E6C,color:#fff
+    style D fill:#7A939E,stroke:#708C99,color:#fff
+    style E fill:#8CA1AA,stroke:#7A939E,color:#fff
+```
+
+El flujo completo se ejecuta con un único comando:
+
+```bash
+./scripts/deploy.sh --tag v1.0.0
+```
+
+La documentación completa de despliegue se encuentra en [`doc/deploy/`](doc/deploy/README.md), organizada en 7 documentos que cubren arquitectura, artefactos, guía de primer despliegue, versionado, migraciones, troubleshooting y referencia de comandos.
 
 ---
 
