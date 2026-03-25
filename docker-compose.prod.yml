@@ -56,6 +56,12 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    cap_add:
+      - CHOWN
+      - FOWNER
+      - SETGID
+      - SETUID
+      - DAC_READ_SEARCH
     logging:
       driver: json-file
       options:
@@ -64,10 +70,9 @@ services:
 
   # --- Migraciones (one-shot: ejecuta y sale) ---
   migration:
-    build:
-      context: .
-      dockerfile: api/Dockerfile.prod
+    image: ghcr.io/appassociated-dev/associated-api:latest
     container_name: associated-prod-migration
+    user: root
     depends_on:
       postgres:
         condition: service_healthy
@@ -88,10 +93,6 @@ services:
         ./scripts/migrate-tenants.sh
         echo "[migration] Todas las migraciones completadas."
     restart: 'no'
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
     logging:
       driver: json-file
       options:
@@ -100,9 +101,6 @@ services:
 
   # --- API (NestJS) ---
   api:
-    build:
-      context: .
-      dockerfile: api/Dockerfile.prod
     image: ghcr.io/appassociated-dev/associated-api:latest
     container_name: associated-prod-api
     restart: unless-stopped
@@ -152,9 +150,6 @@ services:
 
   # --- Web (React SPA via nginx) ---
   web:
-    build:
-      context: .
-      dockerfile: web/Dockerfile.prod
     image: ghcr.io/appassociated-dev/associated-web:latest
     container_name: associated-prod-web
     restart: unless-stopped
@@ -181,6 +176,10 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
     logging:
       driver: json-file
       options:

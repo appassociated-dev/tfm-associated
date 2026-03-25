@@ -1,4 +1,4 @@
-# Task 1 — UC-064: Dashboard principal y KPIs (Backend)
+# Task 1 - UC-064: Dashboard principal y KPIs (Backend)
 
 ## Información general
 
@@ -38,11 +38,11 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 1 — Todos los backends** | Datos de socios, cargos, pagos, ejercicios disponibles en BD |
-| **Fase 2 — UC-020, UC-023, UC-024** | Datos de cargos manuales, remesas, devoluciones para KPIs completos |
-| **Fase 1 — UC-002** | Autenticación y claims JWT con permisos para filtrar widgets por rol |
+| Tarea                               | Artefacto necesario                                                  |
+| ----------------------------------- | -------------------------------------------------------------------- |
+| **Fase 1 - Todos los backends**     | Datos de socios, cargos, pagos, ejercicios disponibles en BD         |
+| **Fase 2 - UC-020, UC-023, UC-024** | Datos de cargos manuales, remesas, devoluciones para KPIs completos  |
+| **Fase 1 - UC-002**                 | Autenticación y claims JWT con permisos para filtrar widgets por rol |
 
 ### Checklist de verificación de dependencias
 
@@ -55,24 +55,24 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Endpoint `GET /dashboard/kpis` | Frontend UC-064 (dashboard) |
-| Endpoint `GET /dashboard/membership-stats` | Frontend UC-064 (widgets de membresía) |
-| Endpoint `GET /dashboard/treasury-stats` | Frontend UC-064 (widgets de tesorería) |
-| Endpoint `GET /dashboard/alerts` | Frontend UC-064 (widget de alertas) |
+| Artefacto                                        | Consumido por                                  |
+| ------------------------------------------------ | ---------------------------------------------- |
+| Endpoint `GET /dashboard/kpis`                   | Frontend UC-064 (dashboard)                    |
+| Endpoint `GET /dashboard/membership-stats`       | Frontend UC-064 (widgets de membresía)         |
+| Endpoint `GET /dashboard/treasury-stats`         | Frontend UC-064 (widgets de tesorería)         |
+| Endpoint `GET /dashboard/alerts`                 | Frontend UC-064 (widget de alertas)            |
 | Ports `MembershipStatsPort`, `TreasuryStatsPort` | UC-065 (gráficos, reutiliza ports de consulta) |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-064.md` | Flujo: widgets por rol, KPIs, alertas, manejo de errores aislados |
-| `us/us-161.md` a `us/us-164.md` | Criterios por tipo de KPI |
-| `bc/bc-membership.md` | Aggregate Member — estados, tipos, conteos |
-| `bc/bc-treasury.md` | Aggregates MemberAccount, Charge, Payment — saldos, recaudación, morosidad |
-| `rnft/rnft-017.md` | Performance: dashboard carga en <2s |
-| `rnft/rnft-019.md` | Caching de métricas agregadas |
+| Documento                       | Contenido relevante                                                        |
+| ------------------------------- | -------------------------------------------------------------------------- |
+| `uc/uc-064.md`                  | Flujo: widgets por rol, KPIs, alertas, manejo de errores aislados          |
+| `us/us-161.md` a `us/us-164.md` | Criterios por tipo de KPI                                                  |
+| `bc/bc-membership.md`           | Aggregate Member - estados, tipos, conteos                                 |
+| `bc/bc-treasury.md`             | Aggregates MemberAccount, Charge, Payment - saldos, recaudación, morosidad |
+| `rnft/rnft-017.md`              | Performance: dashboard carga en <2s                                        |
+| `rnft/rnft-019.md`              | Caching de métricas agregadas                                              |
 
 ## Puntos críticos
 
@@ -86,33 +86,33 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Queries lentas con muchos socios (>10k) | Media | Alto | Índices en columnas de agregación. Caché TTL 5min. Limitar período a ejercicio actual por defecto |
-| Datos inconsistentes entre BCs | Baja | Medio | Queries de solo lectura contra misma BD de tenant. Eventual consistency aceptable para dashboard |
-| Caché en memoria consume mucha RAM | Baja | Bajo | TTL corto (5min). Máximo 1 entrada por tenant. Evict automático |
+| Riesgo                                  | Probabilidad | Impacto | Mitigación                                                                                        |
+| --------------------------------------- | ------------ | ------- | ------------------------------------------------------------------------------------------------- |
+| Queries lentas con muchos socios (>10k) | Media        | Alto    | Índices en columnas de agregación. Caché TTL 5min. Limitar período a ejercicio actual por defecto |
+| Datos inconsistentes entre BCs          | Baja         | Medio   | Queries de solo lectura contra misma BD de tenant. Eventual consistency aceptable para dashboard  |
+| Caché en memoria consume mucha RAM      | Baja         | Bajo    | TTL corto (5min). Máximo 1 entrada por tenant. Evict automático                                   |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Ports de consulta estadística
+### Paso 1: Capa de dominio - Ports de consulta estadística
 
 Crear en `api/src/dashboard/domain/ports/`:
 
 - **`MembershipStatsPort`** (interfaz):
-  - `countByStatus(tenantId: string): Promise<Record<string, number>>` — {ACTIVE: 340, LEAVE_VOLUNTARY: 12, ...}
-  - `countByType(tenantId: string): Promise<Record<string, number>>` — {Numerario: 280, Honorario: 40, ...}
+  - `countByStatus(tenantId: string): Promise<Record<string, number>>` - {ACTIVE: 340, LEAVE_VOLUNTARY: 12, ...}
+  - `countByType(tenantId: string): Promise<Record<string, number>>` - {Numerario: 280, Honorario: 40, ...}
   - `countNewMembers(tenantId: string, fromDate: Date, toDate: Date): Promise<number>`
   - `countLeaves(tenantId: string, fromDate: Date, toDate: Date): Promise<number>`
   - `getTotalActive(tenantId: string): Promise<number>`
 
 - **`TreasuryStatsPort`** (interfaz):
-  - `getCollectionForPeriod(tenantId: string, fromDate: Date, toDate: Date): Promise<{ total: number, count: number }>` — en centavos
-  - `getPendingBalance(tenantId: string): Promise<number>` — saldo total pendiente en centavos
-  - `getDelinquencyRate(tenantId: string): Promise<number>` — porcentaje de socios con cargos vencidos
+  - `getCollectionForPeriod(tenantId: string, fromDate: Date, toDate: Date): Promise<{ total: number, count: number }>` - en centavos
+  - `getPendingBalance(tenantId: string): Promise<number>` - saldo total pendiente en centavos
+  - `getDelinquencyRate(tenantId: string): Promise<number>` - porcentaje de socios con cargos vencidos
   - `getPendingChargesCount(tenantId: string): Promise<number>`
-  - `getCollectionByMethod(tenantId: string, fromDate: Date, toDate: Date): Promise<Record<string, number>>` — distribución por método de pago
+  - `getCollectionByMethod(tenantId: string, fromDate: Date, toDate: Date): Promise<Record<string, number>>` - distribución por método de pago
 
-### Paso 2: Capa de dominio — Value Objects de respuesta
+### Paso 2: Capa de dominio - Value Objects de respuesta
 
 Crear en `api/src/dashboard/domain/value-objects/`:
 
@@ -121,7 +121,7 @@ Crear en `api/src/dashboard/domain/value-objects/`:
 - **`DashboardAlerts`**: `{ pendingActions: Alert[] }` donde `Alert = { type, message, severity, link }`
 - **`DashboardResponse`**: `{ membership?: MembershipKpis, treasury?: TreasuryKpis, alerts: DashboardAlerts, errors: ModuleError[], cachedAt: Date }`
 
-### Paso 3: Capa de aplicación — DashboardService
+### Paso 3: Capa de aplicación - DashboardService
 
 Crear en `api/src/dashboard/application/services/dashboard.service.ts`:
 
@@ -138,7 +138,7 @@ Crear en `api/src/dashboard/application/services/dashboard.service.ts`:
     7. Generar alertas: cargos vencidos >30 días, remesas en borrador, socios sin mandato SEPA
     8. Cachear resultado y retornar
 
-### Paso 4: Capa de infraestructura — Adapters de stats
+### Paso 4: Capa de infraestructura - Adapters de stats
 
 Crear en `api/src/dashboard/infrastructure/adapters/`:
 
@@ -154,7 +154,7 @@ Crear en `api/src/dashboard/infrastructure/adapters/`:
   - `getPendingBalance()` → `SELECT SUM(final_amount - paid_amount) FROM charges WHERE status IN ('PENDING', 'PARTIALLY_PAID')`
   - `getDelinquencyRate()` → `SELECT (delinquent_count::float / total_count) FROM ...`
 
-### Paso 5: Capa de infraestructura — Caché en memoria
+### Paso 5: Capa de infraestructura - Caché en memoria
 
 Crear en `api/src/dashboard/infrastructure/cache/`:
 
@@ -165,7 +165,7 @@ Crear en `api/src/dashboard/infrastructure/cache/`:
   - TTL por defecto: 5 minutos (300.000ms)
   - Limpieza automática de entradas expiradas cada 10 minutos
 
-### Paso 6: Capa de infraestructura — Controller
+### Paso 6: Capa de infraestructura - Controller
 
 Crear en `api/src/dashboard/infrastructure/controllers/`:
 
@@ -181,12 +181,14 @@ Crear en `api/src/dashboard/infrastructure/controllers/`:
 ### Paso 7: Tests
 
 **Tests unitarios (dominio/aplicación):**
+
 - `DashboardService.getKpis()` con permisos completos → retorna membership + treasury
 - `DashboardService.getKpis()` con solo permisos treasury → retorna solo treasury, membership nulo
 - `DashboardService.getKpis()` con fallo en treasury → retorna membership OK + error en treasury
 - Caché: segundo request retorna caché, tercer request tras TTL recalcula
 
 **Tests de integración:**
+
 - Dashboard con datos reales: verificar conteos correctos de socios, importes de recaudación
 - Dashboard con tenant vacío: verificar valores en 0, no errores
 - Dashboard con período personalizado: verificar filtrado correcto

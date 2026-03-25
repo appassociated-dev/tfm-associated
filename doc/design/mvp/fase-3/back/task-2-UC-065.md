@@ -1,4 +1,4 @@
-# Task 2 — UC-065: Gráficos de evolución (Backend)
+# Task 2 - UC-065: Gráficos de evolución (Backend)
 
 ## Información general
 
@@ -37,11 +37,11 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 3 — UC-064 (Dashboard)** | Ports `MembershipStatsPort`, `TreasuryStatsPort`, infraestructura de caché, `DashboardController` base |
-| **Fase 1 — Todos los backends** | Datos históricos de socios, cargos, pagos en BD |
-| **Fase 1 — UC-010 (Ejercicios)** | Aggregate `FiscalYear` con fechas de ejercicio para agrupar datos |
+| Tarea                            | Artefacto necesario                                                                                    |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Fase 3 - UC-064 (Dashboard)**  | Ports `MembershipStatsPort`, `TreasuryStatsPort`, infraestructura de caché, `DashboardController` base |
+| **Fase 1 - Todos los backends**  | Datos históricos de socios, cargos, pagos en BD                                                        |
+| **Fase 1 - UC-010 (Ejercicios)** | Aggregate `FiscalYear` con fechas de ejercicio para agrupar datos                                      |
 
 ### Checklist de verificación de dependencias
 
@@ -55,22 +55,22 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Endpoint `GET /dashboard/analytics/members-evolution` | Frontend UC-065 (gráfico de líneas) |
-| Endpoint `GET /dashboard/analytics/collection-monthly` | Frontend UC-065 (gráfico de barras) |
-| Endpoint `GET /dashboard/analytics/payment-distribution` | Frontend UC-065 (gráfico circular) |
-| Métodos ampliados en ports | Reutilizables para futuros informes |
+| Artefacto                                                | Consumido por                       |
+| -------------------------------------------------------- | ----------------------------------- |
+| Endpoint `GET /dashboard/analytics/members-evolution`    | Frontend UC-065 (gráfico de líneas) |
+| Endpoint `GET /dashboard/analytics/collection-monthly`   | Frontend UC-065 (gráfico de barras) |
+| Endpoint `GET /dashboard/analytics/payment-distribution` | Frontend UC-065 (gráfico circular)  |
+| Métodos ampliados en ports                               | Reutilizables para futuros informes |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-065.md` | Flujo: 3 gráficos principales, comparativa multi-ejercicio, filtrado por período |
-| `us/us-165.md` | Criterios: evolución de socios y recaudación |
-| `us/us-166.md` | Criterios: gráficos interactivos y exportación |
-| `rnft/rnft-018.md` | Gráficos interactivos responsivos |
-| `rnft/rnft-015.md` | Performance: p95 <500ms (cache hit <50ms) |
+| Documento          | Contenido relevante                                                              |
+| ------------------ | -------------------------------------------------------------------------------- |
+| `uc/uc-065.md`     | Flujo: 3 gráficos principales, comparativa multi-ejercicio, filtrado por período |
+| `us/us-165.md`     | Criterios: evolución de socios y recaudación                                     |
+| `us/us-166.md`     | Criterios: gráficos interactivos y exportación                                   |
+| `rnft/rnft-018.md` | Gráficos interactivos responsivos                                                |
+| `rnft/rnft-015.md` | Performance: p95 <500ms (cache hit <50ms)                                        |
 
 ## Puntos críticos
 
@@ -84,11 +84,11 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Queries de agregación temporal lentas con muchos datos | Media | Medio | Índices compuestos en (tenant_id, date). Caché TTL 5min. Limitar a 5 ejercicios |
-| Meses vacíos causan huecos en gráficos | Alta | Bajo | Backend rellena meses sin datos con 0. Genera serie completa desde inicio hasta fin del período |
-| Datos inconsistentes entre ejercicios (cambio de estructura) | Baja | Bajo | Normalizar por mes relativo al ejercicio, no por mes calendario |
+| Riesgo                                                       | Probabilidad | Impacto | Mitigación                                                                                      |
+| ------------------------------------------------------------ | ------------ | ------- | ----------------------------------------------------------------------------------------------- |
+| Queries de agregación temporal lentas con muchos datos       | Media        | Medio   | Índices compuestos en (tenant_id, date). Caché TTL 5min. Limitar a 5 ejercicios                 |
+| Meses vacíos causan huecos en gráficos                       | Alta         | Bajo    | Backend rellena meses sin datos con 0. Genera serie completa desde inicio hasta fin del período |
+| Datos inconsistentes entre ejercicios (cambio de estructura) | Baja         | Bajo    | Normalizar por mes relativo al ejercicio, no por mes calendario                                 |
 
 ## Plan de implementación
 
@@ -96,14 +96,14 @@ Antes de iniciar esta tarea, verificar que:
 
 Ampliar en `api/src/dashboard/domain/ports/`:
 
-- **`MembershipStatsPort`** — añadir:
-  - `getMemberEvolution(tenantId: string, fromDate: Date, toDate: Date): Promise<MonthlyDataPoint[]>` — serie de {month, year, newMembers, leaves, totalActive}
+- **`MembershipStatsPort`** - añadir:
+  - `getMemberEvolution(tenantId: string, fromDate: Date, toDate: Date): Promise<MonthlyDataPoint[]>` - serie de {month, year, newMembers, leaves, totalActive}
   - `getMemberEvolutionByFiscalYear(tenantId: string, fiscalYearIds: string[]): Promise<Record<string, MonthlyDataPoint[]>>`
 
-- **`TreasuryStatsPort`** — añadir:
-  - `getMonthlyCollection(tenantId: string, fromDate: Date, toDate: Date): Promise<MonthlyDataPoint[]>` — serie de {month, year, total, count}
+- **`TreasuryStatsPort`** - añadir:
+  - `getMonthlyCollection(tenantId: string, fromDate: Date, toDate: Date): Promise<MonthlyDataPoint[]>` - serie de {month, year, total, count}
   - `getMonthlyCollectionByFiscalYear(tenantId: string, fiscalYearIds: string[]): Promise<Record<string, MonthlyDataPoint[]>>`
-  - `getPaymentDistribution(tenantId: string, fromDate: Date, toDate: Date): Promise<Record<string, number>>` — por método de pago
+  - `getPaymentDistribution(tenantId: string, fromDate: Date, toDate: Date): Promise<Record<string, number>>` - por método de pago
 
 ### Paso 2: Value Objects de respuesta
 
@@ -140,11 +140,11 @@ Crear en `api/src/dashboard/application/services/dashboard-analytics.service.ts`
     3. Calcular porcentajes
     4. Cachear y retornar
 
-### Paso 4: Infraestructura — Adapters temporales
+### Paso 4: Infraestructura - Adapters temporales
 
 Ampliar adapters existentes (de UC-064):
 
-- **`PrismaMembershipStatsAdapter`** — añadir:
+- **`PrismaMembershipStatsAdapter`** - añadir:
   - `getMemberEvolution()` →
     ```sql
     SELECT EXTRACT(YEAR FROM registration_date) AS year,
@@ -158,7 +158,7 @@ Ampliar adapters existentes (de UC-064):
   - Query similar para bajas (leave_date)
   - Cálculo de total acumulativo en la capa de aplicación
 
-- **`PrismaTreasuryStatsAdapter`** — añadir:
+- **`PrismaTreasuryStatsAdapter`** - añadir:
   - `getMonthlyCollection()` →
     ```sql
     SELECT EXTRACT(YEAR FROM payment_date) AS year,
@@ -201,6 +201,7 @@ Ampliar `DashboardController` (de UC-064):
 ### Paso 7: Tests
 
 **Tests unitarios:**
+
 - `TimeSeriesFiller.fillMissingMonths()` con datos parciales → serie completa con ceros
 - `DashboardAnalyticsService.getMemberEvolution()` → series correctas de altas/bajas/total
 - `DashboardAnalyticsService.getCollectionMonthly()` con 2 ejercicios → series paralelas
@@ -208,6 +209,7 @@ Ampliar `DashboardController` (de UC-064):
 - Caché: segundo request retorna caché
 
 **Tests de integración:**
+
 - Evolución de socios con 12 meses de datos: verificar serie completa
 - Comparativa 2 ejercicios: verificar datos separados por ejercicio
 - Distribución de pagos: verificar agrupación por método

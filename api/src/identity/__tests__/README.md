@@ -1,4 +1,4 @@
-# Tests de integración — BC-Identity (UC-001)
+# Tests de integración - BC-Identity (UC-001)
 
 ## Requisitos previos
 

@@ -85,3 +85,18 @@ doc/brand/mockups/*
 
 # Archivos trash
 trash/
+
+# Ignore temporral
+
+doc/001_propuesta-associated.md
+doc/002_analisis-necesidades.md
+doc/export-sessions/
+doc/mvp-strategy-executive.md
+doc/mvp-strategy.md
+doc/prompt-auditoria-backend.md
+doc/prompt-auditoria-frontend.md
+doc/reports/error-build.md
+doc/reports/front-1/audit-motivo-desastre-front-1.md
+doc/reports/front-1/flujos-sdd-fix-desastre/
+doc/reports/migration-tenant.md
+doc/steps-first-deploy.md

@@ -52,7 +52,7 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 info()  { echo -e "${GREEN}[OK]${NC} $1"; }
-warn()  { echo -e "${YELLOW}[WARN]${NC} $1"; }
+warn()  { echo -e "${YELLOW}[WARN]${NC} $1" >&2; }
 fail()  { echo -e "${RED}[FAIL]${NC} $1"; exit 1; }
 title() { echo -e "\n${CYAN}${BOLD}=== $1 ===${NC}"; }
 
@@ -106,6 +106,10 @@ info "TENANT_CIF: ${TENANT_CIF}"
 # ─── Verificar dependencias ──────────────────────────────────────
 command -v curl >/dev/null 2>&1 || fail "curl no esta instalado"
 command -v jq >/dev/null 2>&1   || fail "jq no esta instalado (apt install jq / brew install jq)"
+
+# ─── Variables globales de estado HTTP ──
+LAST_HTTP_STATUS=""
+LAST_WAS_CONFLICT=false
 
 # ─── Funcion auxiliar para manejar respuestas HTTP con idempotencia ──
 # Ejecuta un curl POST y maneja conflictos (409) de forma graceful.

@@ -1,4 +1,4 @@
-# Task 1 — UC-001: Provisión de nuevo tenant (Backend)
+# Task 1 - UC-001: Provisión de nuevo tenant (Backend)
 
 ## Información general
 
@@ -31,7 +31,7 @@
 
 - UI de provisión (se implementa en Fase 3 frontend)
 - Envío de email de bienvenida (depende de BC-Communication, fuera del MVP core)
-- Configuración personalizada en provisión (FA-2: ejercicio fiscal, branding) — simplificado para MVP
+- Configuración personalizada en provisión (FA-2: ejercicio fiscal, branding) - simplificado para MVP
 - Límites de tenants por plan de suscripción
 - Portal superadmin completo
 
@@ -39,9 +39,9 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, PrismaMainService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
+| Tarea                 | Artefacto necesario                                                                                                                                                                                  |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold** | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, PrismaMainService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
 
 ### Checklist de verificación de dependencias
 
@@ -60,27 +60,27 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Aggregate `Tenant` (dominio) | UC-002 (lectura de tenants), UC-004 (roles por tenant) |
-| Aggregate `User` (dominio, parcial: creación del admin) | UC-002 (autenticación) |
-| Roles predefinidos con permisos insertados en BD | UC-002 (claims JWT), UC-004 (gestión de roles) |
-| Endpoint `POST /api/v1/tenants` | Fase 3 frontend UC-001, testing manual |
-| BD de tenant provisionada con schema migrado | Todos los UCs de BC-Membership y BC-Treasury |
-| Evento `TenantProvisioned` | Handlers de otros BCs (comunicación) |
-| Evento `UserCreated` | Handlers de auditoría |
+| Artefacto                                               | Consumido por                                          |
+| ------------------------------------------------------- | ------------------------------------------------------ |
+| Aggregate `Tenant` (dominio)                            | UC-002 (lectura de tenants), UC-004 (roles por tenant) |
+| Aggregate `User` (dominio, parcial: creación del admin) | UC-002 (autenticación)                                 |
+| Roles predefinidos con permisos insertados en BD        | UC-002 (claims JWT), UC-004 (gestión de roles)         |
+| Endpoint `POST /api/v1/tenants`                         | Fase 3 frontend UC-001, testing manual                 |
+| BD de tenant provisionada con schema migrado            | Todos los UCs de BC-Membership y BC-Treasury           |
+| Evento `TenantProvisioned`                              | Handlers de otros BCs (comunicación)                   |
+| Evento `UserCreated`                                    | Handlers de auditoría                                  |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-001.md` | Flujo completo, flujos alternativos, excepciones, eventos |
-| `us/us-001.md` | Criterios de aceptación Gherkin (3 escenarios) |
-| `bc/bc-identity.md` | Aggregates Tenant, User, Role — estructura y invariantes |
-| `adr/adr-002.md` | Estrategia multi-tenant por BD, usuario por tenant |
-| `rnf/rnf-004.md` | Criterios de aislamiento: BD independiente, usuario específico, sin WHERE tenant_id |
-| `rnft/rnft-004.md` | Implementación con Prisma: PrismaTenantService, SQL de creación de usuario |
-| `adr/adr-008.md` | Outbox pattern para Domain Events |
+| Documento           | Contenido relevante                                                                 |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| `uc/uc-001.md`      | Flujo completo, flujos alternativos, excepciones, eventos                           |
+| `us/us-001.md`      | Criterios de aceptación Gherkin (3 escenarios)                                      |
+| `bc/bc-identity.md` | Aggregates Tenant, User, Role - estructura y invariantes                            |
+| `adr/adr-002.md`    | Estrategia multi-tenant por BD, usuario por tenant                                  |
+| `rnf/rnf-004.md`    | Criterios de aislamiento: BD independiente, usuario específico, sin WHERE tenant_id |
+| `rnft/rnft-004.md`  | Implementación con Prisma: PrismaTenantService, SQL de creación de usuario          |
+| `adr/adr-008.md`    | Outbox pattern para Domain Events                                                   |
 
 ## Puntos críticos
 
@@ -96,16 +96,16 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| `prisma migrate deploy` falla sobre conexión dinámica | Media | Alto | Testear con Testcontainers creando BD temporal + aplicando migrations |
-| Rollback de creación de BD falla parcialmente | Baja | Alto | Implementar compensaciones idempotentes (IF EXISTS). Log detallado de cada paso |
-| Pool de conexiones se agota durante provisión | Baja | Medio | Usar conexión directa (no pooled) para operaciones DDL de provisión |
-| Permisos de roles incompletos para UCs futuros | Media | Bajo | Definir permisos para todos los UCs del MVP en el seed inicial; son extensibles |
+| Riesgo                                                | Probabilidad | Impacto | Mitigación                                                                      |
+| ----------------------------------------------------- | ------------ | ------- | ------------------------------------------------------------------------------- |
+| `prisma migrate deploy` falla sobre conexión dinámica | Media        | Alto    | Testear con Testcontainers creando BD temporal + aplicando migrations           |
+| Rollback de creación de BD falla parcialmente         | Baja         | Alto    | Implementar compensaciones idempotentes (IF EXISTS). Log detallado de cada paso |
+| Pool de conexiones se agota durante provisión         | Baja         | Medio   | Usar conexión directa (no pooled) para operaciones DDL de provisión             |
+| Permisos de roles incompletos para UCs futuros        | Media        | Bajo    | Definir permisos para todos los UCs del MVP en el seed inicial; son extensibles |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects
+### Paso 1: Capa de dominio - Value Objects
 
 Crear en `api/src/identity/domain/value-objects/`:
 
@@ -117,7 +117,7 @@ Crear en `api/src/identity/domain/value-objects/`:
 
 Tests unitarios: validación de CIF (válido, inválido, vacío), generación de Slug (con tildes, espacios, caracteres especiales).
 
-### Paso 2: Capa de dominio — Aggregate Tenant
+### Paso 2: Capa de dominio - Aggregate Tenant
 
 Crear en `api/src/identity/domain/aggregates/tenant.ts`:
 
@@ -131,14 +131,14 @@ Crear en `api/src/identity/domain/aggregates/tenant.ts`:
 
 Tests unitarios: creación de tenant válido, rechazo con CIF inválido, generación correcta de slug y databaseName, emisión de evento `TenantProvisioned`.
 
-### Paso 3: Capa de dominio — Domain Events
+### Paso 3: Capa de dominio - Domain Events
 
 Crear en `api/src/identity/domain/events/`:
 
 - **`TenantProvisionedEvent`**: Extiende `DomainEvent`. Payload: `{ tenantId, organizationName, organizationType, adminUserId, adminEmail, cif }`
 - **`UserCreatedEvent`**: Extiende `DomainEvent`. Payload: `{ userId, email, role, tenantId, createdAt }`
 
-### Paso 4: Capa de dominio — Repository interfaces
+### Paso 4: Capa de dominio - Repository interfaces
 
 Crear en `api/src/identity/domain/repositories/`:
 
@@ -149,7 +149,7 @@ Crear en `api/src/identity/domain/repositories/`:
   - `findBySlug(slug: Slug): Promise<Tenant | null>`
   - `existsByCif(cif: Cif): Promise<boolean>`
 
-### Paso 5: Capa de aplicación — Commands y DTOs
+### Paso 5: Capa de aplicación - Commands y DTOs
 
 Crear en `api/src/identity/application/`:
 
@@ -157,7 +157,7 @@ Crear en `api/src/identity/application/`:
 - **`ProvisionTenantDto`**: DTO de entrada (validación con `class-validator`): `@IsNotEmpty()`, `@IsEmail()`, `@MinLength(8)` para password, `@IsEnum(CollectivityType)`
 - **`TenantProvisionedResponseDto`**: DTO de salida: `tenantId`, `slug`, `adminUserId`
 
-### Paso 6: Capa de aplicación — TenantProvisioningService
+### Paso 6: Capa de aplicación - TenantProvisioningService
 
 Crear en `api/src/identity/application/commands/provision-tenant.handler.ts`:
 
@@ -183,19 +183,20 @@ Flujo del handler:
 9. Retornar `TenantProvisionedResponseDto`
 
 **En caso de fallo** en cualquier paso ≥ 3:
+
 - Compensación: `DROP DATABASE IF EXISTS associated_{tenantId}`
 - Compensación: `DROP USER IF EXISTS tenant_{tenantId}`
 - Compensación: `DELETE FROM tenants WHERE id = {tenantId}`
 - Reportar excepción vía `ErrorReporter.captureException()` con contexto del paso fallido y compensaciones ejecutadas
 
-### Paso 7: Capa de infraestructura — TenantRepository (Prisma)
+### Paso 7: Capa de infraestructura - TenantRepository (Prisma)
 
 Crear en `api/src/identity/infrastructure/persistence/`:
 
 - **`PrismaTenantRepository`**: Implementa `TenantRepository` usando `PrismaMainService`
 - Mappers: `TenantPrismaMapper.toDomain(prismaModel): Tenant` y `toPersistence(aggregate): PrismaCreateInput`
 
-### Paso 8: Capa de infraestructura — DatabaseProvisioningService
+### Paso 8: Capa de infraestructura - DatabaseProvisioningService
 
 Crear en `api/src/identity/infrastructure/services/`:
 
@@ -207,7 +208,7 @@ Crear en `api/src/identity/infrastructure/services/`:
   - `runMigrations(databaseUrl: string): Promise<void>`
   - `rollback(tenantId: string): Promise<void>`
 
-### Paso 9: Capa de infraestructura — Controller
+### Paso 9: Capa de infraestructura - Controller
 
 Crear en `api/src/identity/infrastructure/controllers/`:
 
@@ -221,18 +222,21 @@ Crear en `api/src/identity/infrastructure/controllers/`:
 ### Paso 10: Tests
 
 **Tests unitarios (dominio):**
+
 - `Tenant.create()` con datos válidos → Tenant creado + evento emitido
 - `Tenant.create()` con CIF inválido → error de validación
 - `Cif.create()` → validación de formato CIF español
 - `Slug.fromName()` → normalización correcta
 
 **Tests unitarios (aplicación):**
+
 - `ProvisionTenantHandler` con mock de `TenantRepository` y `DatabaseProvisioningService`
 - Caso éxito: flujo completo
 - Caso CIF duplicado: rechazo antes de crear BD
 - Caso fallo en BD: rollback ejecutado
 
 **Tests de integración:**
+
 - Provisión real contra PostgreSQL (Testcontainers)
 - Verificar que la BD de tenant se crea con el schema correcto
 - Verificar que el usuario PostgreSQL solo tiene acceso a su BD

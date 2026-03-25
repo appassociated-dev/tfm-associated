@@ -9,16 +9,16 @@
 
 ## Resumen de la Sesion
 
-Implementacion completa de Task 2 — UC-002: Autenticacion multi-tenant (Backend) en 3 batches incrementales, correccion de multiples errores de DI en NestJS (import type degradaba metadata), estabilizacion de tests de integracion, mejora de Swagger, e implementacion completa de Task 3 — UC-008: Gestion de tipos de socio (Backend) en 3 batches con TDD.
+Implementacion completa de Task 2 - UC-002: Autenticacion multi-tenant (Backend) en 3 batches incrementales, correccion de multiples errores de DI en NestJS (import type degradaba metadata), estabilizacion de tests de integracion, mejora de Swagger, e implementacion completa de Task 3 - UC-008: Gestion de tipos de socio (Backend) en 3 batches con TDD.
 
 ---
 
 ## Objetivos
 
-- [x] Implementar Task 2 — UC-002: Autenticacion multi-tenant (Backend)
+- [x] Implementar Task 2 - UC-002: Autenticacion multi-tenant (Backend)
 - [x] Corregir errores de DI en NestJS (UnknownDependenciesException)
 - [x] Estabilizar tests de integracion
-- [x] Implementar Task 3 — UC-008: Gestion de tipos de socio (Backend)
+- [x] Implementar Task 3 - UC-008: Gestion de tipos de socio (Backend)
 - [x] Corregir DI en PrismaMemberTypeRepository
 
 ---
@@ -32,11 +32,11 @@ Implementacion de Value Objects de auth (UserId, Email, PasswordHash, Password, 
 
 **Archivos creados:**
 
-- `api/src/identity/domain/value-objects/email.ts` — VO email con normalizacion
-- `api/src/identity/domain/value-objects/password-hash.ts` — VO hash
-- `api/src/identity/domain/value-objects/password.ts` — VO con validacion fuerza
-- `api/src/identity/domain/value-objects/user-id.ts` — Identifier
-- `api/src/identity/domain/value-objects/user-status.ts` — Enum
+- `api/src/identity/domain/value-objects/email.ts` - VO email con normalizacion
+- `api/src/identity/domain/value-objects/password-hash.ts` - VO hash
+- `api/src/identity/domain/value-objects/password.ts` - VO con validacion fuerza
+- `api/src/identity/domain/value-objects/user-id.ts` - Identifier
+- `api/src/identity/domain/value-objects/user-status.ts` - Enum
 - `api/src/identity/domain/events/user-authenticated.event.ts`
 - `api/src/identity/domain/events/authentication-failed.event.ts`
 - `api/src/identity/domain/events/user-blocked.event.ts`
@@ -57,7 +57,7 @@ Implementacion del aggregate User con logica de autenticacion, bloqueo temporal 
 
 **Archivos creados:**
 
-- `api/src/identity/domain/aggregates/user.ts` — Aggregate con auth/lockout
+- `api/src/identity/domain/aggregates/user.ts` - Aggregate con auth/lockout
 - `api/src/identity/application/commands/login.command.ts`
 - `api/src/identity/application/commands/refresh-token.command.ts`
 - `api/src/identity/application/commands/logout.command.ts`
@@ -87,18 +87,18 @@ Implementacion de servicios de infraestructura (Argon2PasswordHasher, JwtTokenSe
 - `api/src/identity/infrastructure/persistence/prisma-refresh-token.repository.ts`
 - `api/src/identity/infrastructure/persistence/prisma-tenant-membership.repository.ts`
 - `api/src/identity/infrastructure/persistence/prisma-user-profile.repository.ts`
-- `api/src/identity/infrastructure/controllers/auth.controller.ts` — 5 endpoints
+- `api/src/identity/infrastructure/controllers/auth.controller.ts` - 5 endpoints
 - `api/src/identity/infrastructure/decorators/public.decorator.ts`
 
 **Archivos modificados:**
 
-- `api/src/identity/identity.module.ts` — Wiring completo de providers, handlers, guards
-- `api/src/shared/infrastructure/guards/jwt-auth.guard.ts` — Bypass para @Public()
-- `api/src/shared/infrastructure/guards/permissions.guard.ts` — Manejo rutas publicas
+- `api/src/identity/identity.module.ts` - Wiring completo de providers, handlers, guards
+- `api/src/shared/infrastructure/guards/jwt-auth.guard.ts` - Bypass para @Public()
+- `api/src/shared/infrastructure/guards/permissions.guard.ts` - Manejo rutas publicas
 
 **Resultados:**
 
-- Commit `33fe4a1` — Repos de auth implementados
+- Commit `33fe4a1` - Repos de auth implementados
 - Tests unitarios de infra + smoke de integracion HTTP
 
 ---
@@ -110,11 +110,11 @@ Correccion de multiples errores `UnknownDependenciesException` causados por `imp
 
 **Archivos modificados:**
 
-- `api/src/identity/application/commands/provision-tenant.handler.ts` — Import de valor
-- `api/src/identity/infrastructure/services/database-provisioning.service.ts` — Import de valor
-- `api/src/identity/infrastructure/persistence/prisma-tenant.repository.ts` — Import de valor
-- `api/src/shared/infrastructure/guards/permissions.guard.ts` — Reflector import fix
-- `api/src/shared/infrastructure/guards/jwt-auth.guard.ts` — Reflector import fix
+- `api/src/identity/application/commands/provision-tenant.handler.ts` - Import de valor
+- `api/src/identity/infrastructure/services/database-provisioning.service.ts` - Import de valor
+- `api/src/identity/infrastructure/persistence/prisma-tenant.repository.ts` - Import de valor
+- `api/src/shared/infrastructure/guards/permissions.guard.ts` - Reflector import fix
+- `api/src/shared/infrastructure/guards/jwt-auth.guard.ts` - Reflector import fix
 
 **Decisiones tecnicas:**
 
@@ -123,7 +123,7 @@ Correccion de multiples errores `UnknownDependenciesException` causados por `imp
 
 **Resultados:**
 
-- Commit `a18e0ca` — DI corregida + Swagger mejorada
+- Commit `a18e0ca` - DI corregida + Swagger mejorada
 - Bootstrap Nest sin errores
 
 ---
@@ -135,7 +135,7 @@ Correccion de tests de integracion fallando por colisiones de datos (CIF duplica
 
 **Archivos modificados:**
 
-- `api/test/provision-tenant.integration.spec.ts` — CIF unico + seed dinamico
+- `api/test/provision-tenant.integration.spec.ts` - CIF unico + seed dinamico
 
 **Resultados:**
 
@@ -162,7 +162,7 @@ Implementacion de la capa de dominio de UC-008 con TDD: Value Objects (MemberTyp
 
 **Archivos modificados:**
 
-- `api/prisma/tenant/schema.prisma` — Modelo MemberType con autorrelacion de transiciones
+- `api/prisma/tenant/schema.prisma` - Modelo MemberType con autorrelacion de transiciones
 
 ---
 
@@ -180,7 +180,7 @@ Implementacion de comandos/queries/handlers CQRS (Create, Update, Deactivate, Ge
 
 **Archivos modificados:**
 
-- `api/src/membership/membership.module.ts` — Wiring de providers y handlers
+- `api/src/membership/membership.module.ts` - Wiring de providers y handlers
 
 ---
 
@@ -191,12 +191,12 @@ Creacion del controller MemberTypesController con endpoints CRUD, guardas JWT+RB
 
 **Archivos creados:**
 
-- `api/src/membership/infrastructure/controllers/member-types.controller.ts` — 7 endpoints
-- `api/test/member-types.controller.integration.spec.ts` — 9 tests
+- `api/src/membership/infrastructure/controllers/member-types.controller.ts` - 7 endpoints
+- `api/test/member-types.controller.integration.spec.ts` - 9 tests
 
 **Resultados:**
 
-- Commit `de11484` — UC-008 completo
+- Commit `de11484` - UC-008 completo
 
 ---
 
@@ -207,19 +207,19 @@ Correccion del mismo patron de `import type` en PrismaMemberTypeRepository que c
 
 **Archivos modificados:**
 
-- `api/src/membership/infrastructure/persistence/prisma-member-type.repository.ts` — Import de valor
+- `api/src/membership/infrastructure/persistence/prisma-member-type.repository.ts` - Import de valor
 
 **Resultados:**
 
-- Commit `410e6a6` — DI corregida
+- Commit `410e6a6` - DI corregida
 - Bootstrap completo de Membership + Identity sin errores
 
 ---
 
 ## Proximos Pasos
 
-- [ ] Task 4 — UC-010: Gestion de ejercicios fiscales
-- [ ] Task 5 — UC-007: Gestion de estados de socio
+- [ ] Task 4 - UC-010: Gestion de ejercicios fiscales
+- [ ] Task 5 - UC-007: Gestion de estados de socio
 - [ ] Homogeneizar imports de valor en todo el workspace para prevenir regresiones DI
 
 ---
@@ -228,9 +228,9 @@ Correccion del mismo patron de `import type` en PrismaMemberTypeRepository que c
 
 ### Lecciones Tecnicas
 
-- `import type` en providers NestJS ROMPE DI en runtime — usar siempre import de valor
+- `import type` en providers NestJS ROMPE DI en runtime - usar siempre import de valor
 - En Prisma v7, el tipado del cliente tenant puede no estar disponible en compilacion del repo; usar interfaz local + casting
-- Refresh token schema no persiste contexto tenant/rol — el refresh reconstruye desde membresías
+- Refresh token schema no persiste contexto tenant/rol - el refresh reconstruye desde membresías
 
 ### Problemas Encontrados
 

@@ -1,4 +1,4 @@
-# Task 3 — UC-008: Configuración de tipos de socio (Backend)
+# Task 3 - UC-008: Configuración de tipos de socio (Backend)
 
 ## Información general
 
@@ -40,17 +40,17 @@
 - Generación de cuotas por tipo (BC-Treasury)
 - UI de configuración de tipos (se implementa en task frontend UC-008)
 - Validación de requisitos federativos en alta de socio (se valida en UC-006 usando las reglas aquí configuradas)
-- Ejecución de transiciones automáticas por edad (se ejecuta en UC-010 — Apertura de ejercicio)
+- Ejecución de transiciones automáticas por edad (se ejecuta en UC-010 - Apertura de ejercicio)
 
 ## Dependencias
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
-| **F1-Back Task 1 — UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados |
-| **F1-Back Task 2 — UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT |
+| Tarea                       | Artefacto necesario                                                                                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**       | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
+| **F1-Back Task 1 - UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados                                                                              |
+| **F1-Back Task 2 - UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT                                          |
 
 ### Checklist de verificación de dependencias
 
@@ -70,26 +70,26 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Aggregate `MemberType` (dominio) | UC-006 (alta de socio: validar tipo), UC-010 (transiciones automáticas por edad), UC-011 (asignación de tipo en registro) |
-| Domain Service `MemberTypeRulesEvaluator` | UC-006 (validar requisitos de edad en alta), UC-010 (calcular transiciones), UC-007 (verificar derechos según tipo) |
-| Plantillas predefinidas por colectividad | UC-008 frontend (selector de plantillas) |
-| Modelo `MemberType` en schema tenant Prisma | Todos los UCs de BC-Membership que referencien tipos de socio |
-| Endpoints REST de tipos de socio | Frontend UC-008, testing manual |
-| Evento `MemberTypeCreated` | BC-Treasury (vincular planes de cuota) |
+| Artefacto                                   | Consumido por                                                                                                             |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Aggregate `MemberType` (dominio)            | UC-006 (alta de socio: validar tipo), UC-010 (transiciones automáticas por edad), UC-011 (asignación de tipo en registro) |
+| Domain Service `MemberTypeRulesEvaluator`   | UC-006 (validar requisitos de edad en alta), UC-010 (calcular transiciones), UC-007 (verificar derechos según tipo)       |
+| Plantillas predefinidas por colectividad    | UC-008 frontend (selector de plantillas)                                                                                  |
+| Modelo `MemberType` en schema tenant Prisma | Todos los UCs de BC-Membership que referencien tipos de socio                                                             |
+| Endpoints REST de tipos de socio            | Frontend UC-008, testing manual                                                                                           |
+| Evento `MemberTypeCreated`                  | BC-Treasury (vincular planes de cuota)                                                                                    |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-008.md` | Flujo completo, formularios por tipo de colectividad, motor de reglas, flujos alternativos y excepciones |
-| `us/us-015.md` | Tipos de socio para cofradías: Numerario, Honorario, Aspirante, MenorEdad; carencias de voto y elegibilidad |
-| `us/us-016.md` | Tipos de socio para peñas: Adulto, Juvenil, Infantil, Honor; transiciones automáticas por edad |
-| `us/us-017.md` | Tipos de socio para clubes deportivos: SocioClub, DeportistaFederado, SocioDeportista, Familiar; requisitos federativos |
-| `us/us-018.md` | Tipos de socio para asociaciones culturales: Ordinario, Fundador, Honorario, Protector; derechos diferenciados |
-| `us/us-019.md` | Motor de reglas por tipo: edad, voto, elegibilidad, carencia, transición automática; evaluación condicional |
-| `bc/bc-membership.md` | Aggregate MemberType — estructura, propiedades, invariantes, Value Objects (AgeRange, FeeConfiguration) |
+| Documento             | Contenido relevante                                                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `uc/uc-008.md`        | Flujo completo, formularios por tipo de colectividad, motor de reglas, flujos alternativos y excepciones                |
+| `us/us-015.md`        | Tipos de socio para cofradías: Numerario, Honorario, Aspirante, MenorEdad; carencias de voto y elegibilidad             |
+| `us/us-016.md`        | Tipos de socio para peñas: Adulto, Juvenil, Infantil, Honor; transiciones automáticas por edad                          |
+| `us/us-017.md`        | Tipos de socio para clubes deportivos: SocioClub, DeportistaFederado, SocioDeportista, Familiar; requisitos federativos |
+| `us/us-018.md`        | Tipos de socio para asociaciones culturales: Ordinario, Fundador, Honorario, Protector; derechos diferenciados          |
+| `us/us-019.md`        | Motor de reglas por tipo: edad, voto, elegibilidad, carencia, transición automática; evaluación condicional             |
+| `bc/bc-membership.md` | Aggregate MemberType - estructura, propiedades, invariantes, Value Objects (AgeRange, FeeConfiguration)                 |
 
 ## Puntos críticos
 
@@ -105,16 +105,16 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Schema JSON de `rulesConfig` evoluciona y rompe tipos existentes | Media | Alto | Versionar el schema JSON. Incluir campo `rulesVersion` para migración progresiva |
-| Plantillas predefinidas no cubren todos los casos reales | Media | Bajo | Permitir personalización completa; las plantillas son punto de partida, no obligatorias |
-| Solapamiento de rangos de edad entre tipos causa ambigüedad en transiciones | Baja | Medio | Advertencia (no bloqueo) al detectar solapamiento; documentar que la prioridad es por orden de creación |
-| Tipo inactivo referenciado como destino de transición automática | Baja | Medio | Validar en apertura de ejercicio (UC-010) que el tipo destino esté activo; emitir advertencia si no lo está |
+| Riesgo                                                                      | Probabilidad | Impacto | Mitigación                                                                                                  |
+| --------------------------------------------------------------------------- | ------------ | ------- | ----------------------------------------------------------------------------------------------------------- |
+| Schema JSON de `rulesConfig` evoluciona y rompe tipos existentes            | Media        | Alto    | Versionar el schema JSON. Incluir campo `rulesVersion` para migración progresiva                            |
+| Plantillas predefinidas no cubren todos los casos reales                    | Media        | Bajo    | Permitir personalización completa; las plantillas son punto de partida, no obligatorias                     |
+| Solapamiento de rangos de edad entre tipos causa ambigüedad en transiciones | Baja         | Medio   | Advertencia (no bloqueo) al detectar solapamiento; documentar que la prioridad es por orden de creación     |
+| Tipo inactivo referenciado como destino de transición automática            | Baja         | Medio   | Validar en apertura de ejercicio (UC-010) que el tipo destino esté activo; emitir advertencia si no lo está |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects
+### Paso 1: Capa de dominio - Value Objects
 
 Crear en `api/src/membership/domain/value-objects/`:
 
@@ -125,7 +125,7 @@ Crear en `api/src/membership/domain/value-objects/`:
 
 Tests unitarios: validación de `MemberTypeCode` (válido, inválido, vacío, demasiado largo), validación de `AgeRange` (rangos válidos, invertidos, negativos, parciales), validación de `RulesConfig` (schema correcto por tipo de colectividad, schema inválido).
 
-### Paso 2: Capa de dominio — Aggregate MemberType
+### Paso 2: Capa de dominio - Aggregate MemberType
 
 Crear en `api/src/membership/domain/aggregates/member-type.ts`:
 
@@ -160,13 +160,13 @@ Crear en `api/src/membership/domain/aggregates/member-type.ts`:
 
 Tests unitarios: creación de tipo válido, rechazo con código inválido, rechazo con rango de edad invertido, verificación de derechos de voto con/sin carencia, verificación de elegibilidad, desactivación, evaluación de rango de edad.
 
-### Paso 3: Capa de dominio — Domain Events
+### Paso 3: Capa de dominio - Domain Events
 
 Crear en `api/src/membership/domain/events/`:
 
 - **`MemberTypeCreatedEvent`**: Extiende `DomainEvent`. Payload: `{ memberTypeId: UUID, code: string, name: string, description: string, tenantId: UUID }`
 
-### Paso 4: Capa de dominio — Domain Service
+### Paso 4: Capa de dominio - Domain Service
 
 Crear en `api/src/membership/domain/services/`:
 
@@ -176,7 +176,7 @@ Crear en `api/src/membership/domain/services/`:
   - `evaluateOfficeEligibility(memberType: MemberType, registrationDate: Date): OfficeEligibilityResult`: evalúa elegibilidad para cargos
   - `calculatePendingTransitions(memberTypes: MemberType[], members: MemberSnapshot[]): PendingTransition[]`: dado un conjunto de tipos y socios, calcula qué transiciones automáticas deben ejecutarse (usado por UC-010)
 
-### Paso 5: Capa de dominio — Repository interfaces
+### Paso 5: Capa de dominio - Repository interfaces
 
 Crear en `api/src/membership/domain/repositories/`:
 
@@ -188,28 +188,31 @@ Crear en `api/src/membership/domain/repositories/`:
   - `existsByCode(code: MemberTypeCode): Promise<boolean>`
   - `existsAsTransitionTarget(id: MemberTypeId): Promise<boolean>`
 
-### Paso 6: Capa de aplicación — Commands, Queries y DTOs
+### Paso 6: Capa de aplicación - Commands, Queries y DTOs
 
 Crear en `api/src/membership/application/`:
 
 **Commands:**
+
 - **`CreateMemberTypeCommand`**: `{ code, name, description, ageRangeMin, ageRangeMax, votingRight, eligibleForOffice, minimumSeniorityForVoting, minimumSeniorityForOffice, automaticTransitionTargetId, rulesConfig }`
 - **`UpdateMemberTypeCommand`**: `{ memberTypeId, name, description, ageRangeMin, ageRangeMax, votingRight, eligibleForOffice, minimumSeniorityForVoting, minimumSeniorityForOffice, automaticTransitionTargetId, rulesConfig }`
 - **`DeactivateMemberTypeCommand`**: `{ memberTypeId }`
 - **`ImportTemplateCommand`**: `{ collectivityType }`
 
 **Queries:**
+
 - **`GetMemberTypeQuery`**: `{ memberTypeId }`
 - **`ListMemberTypesQuery`**: `{ active?: boolean }`
 - **`GetTemplatesQuery`**: `{ collectivityType }`
 
 **DTOs:**
+
 - **`CreateMemberTypeDto`**: DTO de entrada con validaciones `class-validator`: `@IsNotEmpty()` para code/name, `@IsOptional()` para ageRange, `@IsBoolean()` para votingRight/eligibleForOffice, `@IsInt()` `@Min(0)` para antigüedades
 - **`UpdateMemberTypeDto`**: DTO de entrada parcial (mismos campos que Create, todos opcionales excepto `memberTypeId`)
 - **`MemberTypeResponseDto`**: DTO de salida: `id`, `code`, `name`, `description`, `ageRange`, `votingRight`, `eligibleForOffice`, `minimumSeniorityForVoting`, `minimumSeniorityForOffice`, `automaticTransitionTargetId`, `active`, `createdAt`, `updatedAt`
 - **`MemberTypeTemplateDto`**: DTO de salida para plantillas: `collectivityType`, `templates: Array<{ code, name, description, ageRange, votingRight, eligibleForOffice, ... }>`
 
-### Paso 7: Capa de aplicación — Handlers
+### Paso 7: Capa de aplicación - Handlers
 
 **`CreateMemberTypeHandler`:**
 
@@ -222,6 +225,7 @@ Crear en `api/src/membership/application/`:
 7. Retornar `MemberTypeResponseDto`
 
 **En caso de fallo:**
+
 - Reportar excepción vía `ErrorReporter.captureException()` con contexto del paso fallido
 
 **`UpdateMemberTypeHandler`:**
@@ -254,7 +258,7 @@ Crear en `api/src/membership/application/`:
 2. Mapear a `MemberTypeResponseDto[]`
 3. Retornar lista
 
-### Paso 8: Capa de infraestructura — Schema Prisma (tenant)
+### Paso 8: Capa de infraestructura - Schema Prisma (tenant)
 
 Extender `api/prisma/tenant/schema.prisma` con:
 
@@ -283,7 +287,7 @@ model MemberType {
 }
 ```
 
-### Paso 9: Capa de infraestructura — Repository (Prisma)
+### Paso 9: Capa de infraestructura - Repository (Prisma)
 
 Crear en `api/src/membership/infrastructure/persistence/`:
 
@@ -291,7 +295,7 @@ Crear en `api/src/membership/infrastructure/persistence/`:
 - Mappers: `MemberTypePrismaMapper.toDomain(prismaModel): MemberType` y `toPersistence(aggregate): PrismaCreateInput`
 - La conexión se obtiene del tenant activo en el request (vía `PrismaTenantService`)
 
-### Paso 10: Capa de infraestructura — Plantillas predefinidas
+### Paso 10: Capa de infraestructura - Plantillas predefinidas
 
 Crear en `api/src/membership/infrastructure/data/`:
 
@@ -301,19 +305,19 @@ Crear en `api/src/membership/infrastructure/data/`:
   - **Club Deportivo:** SocioClub (voto), DeportistaFederado (licencia requerida, sin voto), SocioDeportista (licencia + voto), Familiar (sin voto)
   - **Asociación Cultural:** Ordinario (voto, actividades), Fundador (voto, actividades, distintivo), Honorario (actividades, sin voto), Protector (voto, actividades, mecenazgo)
 
-### Paso 11: Capa de infraestructura — Controller
+### Paso 11: Capa de infraestructura - Controller
 
 Crear en `api/src/membership/infrastructure/controllers/member-types.controller.ts`:
 
-| Endpoint | Método | Auth | Permiso | Body/Params | Response |
-|----------|--------|------|---------|-------------|----------|
-| `/api/v1/member-types` | POST | JWT | `membership:member-types:create` | `CreateMemberTypeDto` | 201 Created con `MemberTypeResponseDto` |
-| `/api/v1/member-types` | GET | JWT | `membership:member-types:read` | Query: `?active=true` | 200 con `MemberTypeResponseDto[]` |
-| `/api/v1/member-types/templates` | GET | JWT | `membership:member-types:read` | Query: `?collectivityType=COFRADIA` | 200 con `MemberTypeTemplateDto` |
-| `/api/v1/member-types/import-template` | POST | JWT | `membership:member-types:create` | `{ collectivityType }` | 201 Created con `MemberTypeResponseDto[]` |
-| `/api/v1/member-types/:id` | GET | JWT | `membership:member-types:read` | Param: `id` | 200 con `MemberTypeResponseDto` |
-| `/api/v1/member-types/:id` | PUT | JWT | `membership:member-types:update` | `UpdateMemberTypeDto` | 200 con `MemberTypeResponseDto` |
-| `/api/v1/member-types/:id/deactivate` | PATCH | JWT | `membership:member-types:update` | — | 200 confirmación |
+| Endpoint                               | Método | Auth | Permiso                          | Body/Params                         | Response                                  |
+| -------------------------------------- | ------ | ---- | -------------------------------- | ----------------------------------- | ----------------------------------------- |
+| `/api/v1/member-types`                 | POST   | JWT  | `membership:member-types:create` | `CreateMemberTypeDto`               | 201 Created con `MemberTypeResponseDto`   |
+| `/api/v1/member-types`                 | GET    | JWT  | `membership:member-types:read`   | Query: `?active=true`               | 200 con `MemberTypeResponseDto[]`         |
+| `/api/v1/member-types/templates`       | GET    | JWT  | `membership:member-types:read`   | Query: `?collectivityType=COFRADIA` | 200 con `MemberTypeTemplateDto`           |
+| `/api/v1/member-types/import-template` | POST   | JWT  | `membership:member-types:create` | `{ collectivityType }`              | 201 Created con `MemberTypeResponseDto[]` |
+| `/api/v1/member-types/:id`             | GET    | JWT  | `membership:member-types:read`   | Param: `id`                         | 200 con `MemberTypeResponseDto`           |
+| `/api/v1/member-types/:id`             | PUT    | JWT  | `membership:member-types:update` | `UpdateMemberTypeDto`               | 200 con `MemberTypeResponseDto`           |
+| `/api/v1/member-types/:id/deactivate`  | PATCH  | JWT  | `membership:member-types:update` | -                                   | 200 confirmación                          |
 
 - Swagger decorators para documentación automática
 - Errores: 409 Conflict (código duplicado), 404 Not Found (tipo no encontrado), 422 Unprocessable Entity (rangos inválidos, transición circular)
@@ -321,6 +325,7 @@ Crear en `api/src/membership/infrastructure/controllers/member-types.controller.
 ### Paso 12: Tests
 
 **Tests unitarios (dominio):**
+
 - `MemberType.create()` con datos válidos → tipo creado + evento emitido
 - `MemberType.create()` con código inválido → error de validación
 - `MemberType.create()` con rango de edad invertido → error de validación
@@ -335,6 +340,7 @@ Crear en `api/src/membership/infrastructure/controllers/member-types.controller.
 - `MemberTypeRulesEvaluator.calculatePendingTransitions()` → detección correcta de transiciones
 
 **Tests unitarios (aplicación):**
+
 - `CreateMemberTypeHandler` con mock de `MemberTypeRepository`:
   - Caso éxito: tipo creado con datos válidos
   - Caso código duplicado: rechazo con 409
@@ -350,6 +356,7 @@ Crear en `api/src/membership/infrastructure/controllers/member-types.controller.
   - Caso éxito: plantillas importadas para cada tipo de colectividad
 
 **Tests de integración:**
+
 - CRUD completo contra BD real (Testcontainers):
   - Crear tipo de socio → verificar persistencia correcta
   - Crear tipo con código duplicado → verificar rechazo

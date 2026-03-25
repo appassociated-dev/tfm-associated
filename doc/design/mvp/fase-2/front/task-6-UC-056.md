@@ -1,4 +1,4 @@
-# Task 6 — UC-056: Importación masiva de socios (Frontend)
+# Task 6 - UC-056: Importación masiva de socios (Frontend)
 
 ## Información general
 
@@ -13,11 +13,11 @@
 ### Incluido
 
 - Asistente de importación paso a paso (`/tools/import/members`) con 5 pasos: Subir → Mapear → Validar → Revisar → Importar
-- Paso 1 — Subida: Dropzone para archivos Excel/CSV con validación de formato y tamaño (max 10MB)
-- Paso 2 — Mapeo: interfaz de mapeo columna origen → campo destino con drag-and-drop o selects
-- Paso 3 — Validación: preview de datos con resaltado de errores por fila y columna
-- Paso 4 — Revisión: resumen de registros válidos, inválidos y duplicados con estrategia de duplicados (ignorar/sobrescribir/crear)
-- Paso 5 — Ejecución: barra de progreso, resultado final, descarga de informe de errores
+- Paso 1 - Subida: Dropzone para archivos Excel/CSV con validación de formato y tamaño (max 10MB)
+- Paso 2 - Mapeo: interfaz de mapeo columna origen → campo destino con drag-and-drop o selects
+- Paso 3 - Validación: preview de datos con resaltado de errores por fila y columna
+- Paso 4 - Revisión: resumen de registros válidos, inválidos y duplicados con estrategia de duplicados (ignorar/sobrescribir/crear)
+- Paso 5 - Ejecución: barra de progreso, resultado final, descarga de informe de errores
 - Plantillas de mapeo guardadas y reutilizables
 - Indicador de progreso para importaciones asíncronas (polling)
 - Descarga de informe de errores como Excel
@@ -36,27 +36,27 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F2-Back Task 3 — UC-056** | Endpoints REST: upload, mapping, validate, execute, status, errors, templates |
-| **F1-Front Task 1 — UC-002** | AuthProvider, usePermissions(), HttpClient |
+| Tarea                        | Artefacto necesario                                                           |
+| ---------------------------- | ----------------------------------------------------------------------------- |
+| **F2-Back Task 3 - UC-056**  | Endpoints REST: upload, mapping, validate, execute, status, errors, templates |
+| **F1-Front Task 1 - UC-002** | AuthProvider, usePermissions(), HttpClient                                    |
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Página `/tools/import/members` | Navegación de herramientas |
-| Componente `FileDropzone` reutilizable | Futuras importaciones |
-| Componente `ColumnMapper` reutilizable | Futuras importaciones |
+| Artefacto                              | Consumido por              |
+| -------------------------------------- | -------------------------- |
+| Página `/tools/import/members`         | Navegación de herramientas |
+| Componente `FileDropzone` reutilizable | Futuras importaciones      |
+| Componente `ColumnMapper` reutilizable | Futuras importaciones      |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
-| `uc/uc-056.md` | Flujo completo de importación: 5 pasos del wizard |
-| `us/us-148.md` a `us/us-151.md` | Criterios por paso: subida, mapeo, validación, ejecución |
+| `uc/uc-056.md`                                      | Flujo completo de importación: 5 pasos del wizard                                                                                  |
+| `us/us-148.md` a `us/us-151.md`                     | Criterios por paso: subida, mapeo, validación, ejecución                                                                           |
 
 ## Puntos críticos
 
@@ -89,11 +89,11 @@
 ### Paso 3: Componentes
 
 - **`ImportWizard.tsx`**: Stepper de 5 pasos con Mantine Stepper
-  - Paso 1: **`FileUploadStep.tsx`** — Dropzone con validación de formato/tamaño, muestra nombre y tamaño del archivo
-  - Paso 2: **`ColumnMappingStep.tsx`** — Tabla de mapeo: columna origen (texto) → select de campo destino. Campos obligatorios marcados. Opción de cargar plantilla guardada
-  - Paso 3: **`ValidationPreviewStep.tsx`** — Tabla de preview con 10 filas, celdas erróneas resaltadas (celdas con error usan `color="red"` con fondo `red.0`), contador de errores, resumen de duplicados
-  - Paso 4: **`ReviewStep.tsx`** — Resumen: válidos/inválidos/duplicados con radio de estrategia de duplicados. Opción "Importar solo válidos". Botón "Guardar plantilla" usa `color="brand"` (nunca `variant="gradient"`). Indicadores de estado usan `Badge` con `variant="light"` y `radius="sm"`
-  - Paso 5: **`ExecutionStep.tsx`** — Barra de progreso, resultado final, botón de descarga de informe de errores. Botón "Importar" usa `color="brand"` (nunca `variant="gradient"`)
+  - Paso 1: **`FileUploadStep.tsx`** - Dropzone con validación de formato/tamaño, muestra nombre y tamaño del archivo
+  - Paso 2: **`ColumnMappingStep.tsx`** - Tabla de mapeo: columna origen (texto) → select de campo destino. Campos obligatorios marcados. Opción de cargar plantilla guardada
+  - Paso 3: **`ValidationPreviewStep.tsx`** - Tabla de preview con 10 filas, celdas erróneas resaltadas (celdas con error usan `color="red"` con fondo `red.0`), contador de errores, resumen de duplicados
+  - Paso 4: **`ReviewStep.tsx`** - Resumen: válidos/inválidos/duplicados con radio de estrategia de duplicados. Opción "Importar solo válidos". Botón "Guardar plantilla" usa `color="brand"` (nunca `variant="gradient"`). Indicadores de estado usan `Badge` con `variant="light"` y `radius="sm"`
+  - Paso 5: **`ExecutionStep.tsx`** - Barra de progreso, resultado final, botón de descarga de informe de errores. Botón "Importar" usa `color="brand"` (nunca `variant="gradient"`)
 - **`FileDropzone.tsx`**: Componente Mantine Dropzone configurado para Excel/CSV, max 10MB. Iconos del dropzone usan `@tabler/icons-react` (ej: `IconUpload`, `IconFileSpreadsheet`)
 - **`ColumnMapper.tsx`**: Fila de mapeo: label columna origen + Select de campo destino
 - **`ValidationErrorsTable.tsx`**: Tabla con celdas erróneas resaltadas y tooltips. Celdas con error usan `color="red"` con fondo `red.0` para resaltar

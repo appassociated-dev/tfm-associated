@@ -1,4 +1,4 @@
-# Associated — Setup del proyecto
+# Associated - Setup del proyecto
 
 ## Requisitos previos
 
@@ -66,7 +66,7 @@ docker compose restart postgres
 | ------------- | ------------------------------- | ---------------------------- | ------------------------------- |
 | PostgreSQL 18 | `5432`                          | Base de datos                | `associated` / `associated_dev` |
 | MinIO         | `9000` (API) / `9001` (Console) | Almacenamiento S3-compatible | `associated` / `associated_dev` |
-| Mailpit       | `1025` (SMTP) / `8025` (UI)     | Mock de correo electrónico   | —                               |
+| Mailpit       | `1025` (SMTP) / `8025` (UI)     | Mock de correo electrónico   | -                               |
 
 ## URLs de interés
 
@@ -80,7 +80,7 @@ docker compose restart postgres
 
 ## Comandos del día a día
 
-### API (Backend — NestJS)
+### API (Backend - NestJS)
 
 ```bash
 # Arrancar en modo desarrollo (hot reload)
@@ -96,7 +96,7 @@ npm run -w api build
 npm run -w api start:prod
 ```
 
-### Frontend (Web — React + Vite)
+### Frontend (Web - React + Vite)
 
 ```bash
 # Arrancar en modo desarrollo
@@ -180,8 +180,8 @@ npm run test:cov
 
 El proyecto usa multi-tenant con dos schemas Prisma separados:
 
-- **main** (`api/prisma/main/`) — BD principal: tenants, users, roles, outbox
-- **tenant** (`api/prisma/tenant/`) — BD por tenant: members, member types, fiscal years, etc.
+- **main** (`api/prisma/main/`) - BD principal: tenants, users, roles, outbox
+- **tenant** (`api/prisma/tenant/`) - BD por tenant: members, member types, fiscal years, etc.
 
 ```bash
 # Generar clientes Prisma (ambos schemas)
@@ -221,11 +221,11 @@ npm run format:check
 
 ## Variables de entorno
 
-### Raíz (`.env`) — Docker Compose
+### Raíz (`.env`) - Docker Compose
 
 Controla los puertos y credenciales de los servicios Docker. Ver `.env.example` para referencia.
 
-### API (`api/.env`) — NestJS
+### API (`api/.env`) - NestJS
 
 | Variable                 | Descripción                | Valor por defecto                                                       |
 | ------------------------ | -------------------------- | ----------------------------------------------------------------------- |

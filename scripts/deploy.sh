@@ -94,8 +94,8 @@ if ! docker info &> /dev/null; then
   exit 1
 fi
 
-# Verificar autenticacion GHCR
-if ! docker login ghcr.io --get-login &> /dev/null 2>&1; then
+# Verificar autenticacion GHCR (compatible con versiones antiguas de Docker)
+if ! grep -q "ghcr.io" ~/.docker/config.json 2>/dev/null; then
   warn "No estas autenticado en GHCR. Ejecuta primero:"
   warn "  docker login ghcr.io -u TU_USUARIO -p TU_TOKEN"
   error "Autenticacion en GHCR requerida."

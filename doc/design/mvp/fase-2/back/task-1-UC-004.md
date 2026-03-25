@@ -1,4 +1,4 @@
-# Task 1 — UC-004: Gestión de roles y permisos (Backend)
+# Task 1 - UC-004: Gestión de roles y permisos (Backend)
 
 ## Información general
 
@@ -38,11 +38,11 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel, Guards base |
-| **Fase 1 — UC-001 (Provisión de tenant)** | Aggregate `Tenant`, roles predefinidos seedeados, User admin creado |
-| **Fase 1 — UC-002 (Autenticación)** | JWT con claims de permisos, Refresh Token mechanism, `AuthGuard` |
+| Tarea                                     | Artefacto necesario                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**                     | Estructura de módulos NestJS, Shared kernel, Guards base            |
+| **Fase 1 - UC-001 (Provisión de tenant)** | Aggregate `Tenant`, roles predefinidos seedeados, User admin creado |
+| **Fase 1 - UC-002 (Autenticación)**       | JWT con claims de permisos, Refresh Token mechanism, `AuthGuard`    |
 
 ### Checklist de verificación de dependencias
 
@@ -59,25 +59,25 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| CRUD completo de roles personalizados | Frontend de gestión de roles (fuera MVP) |
-| Endpoint de asignación de roles a usuarios | Frontend de administración de usuarios |
-| Guards de permisos granulares actualizados | Todos los endpoints protegidos del sistema |
-| Eventos `RoleAssigned`, `RoleCreated` | Auditoría, BC-Communication (notificación) |
-| Catálogo de permisos disponibles | Frontend para checklist de permisos en creación de rol |
+| Artefacto                                  | Consumido por                                          |
+| ------------------------------------------ | ------------------------------------------------------ |
+| CRUD completo de roles personalizados      | Frontend de gestión de roles (fuera MVP)               |
+| Endpoint de asignación de roles a usuarios | Frontend de administración de usuarios                 |
+| Guards de permisos granulares actualizados | Todos los endpoints protegidos del sistema             |
+| Eventos `RoleAssigned`, `RoleCreated`      | Auditoría, BC-Communication (notificación)             |
+| Catálogo de permisos disponibles           | Frontend para checklist de permisos en creación de rol |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-004.md` | Flujo completo: roles predefinidos, roles personalizados, asignación, clonación |
-| `us/us-004.md` | Criterios de aceptación: uso de roles predefinidos, asignación a usuarios |
-| `us/us-005.md` | Criterios de aceptación: creación de roles personalizados con permisos selectivos |
-| `bc/bc-identity.md` | Aggregates Role, User, TenantMembership — estructura e invariantes |
-| `adr/adr-007.md` | Formato de permisos `{module}:{resource}:{action}`, RBAC granular |
-| `adr/adr-006.md` | JWT con Refresh Tokens, claims de permisos |
-| `adr/adr-001.md` | Monolito modular, guards por módulo |
+| Documento           | Contenido relevante                                                               |
+| ------------------- | --------------------------------------------------------------------------------- |
+| `uc/uc-004.md`      | Flujo completo: roles predefinidos, roles personalizados, asignación, clonación   |
+| `us/us-004.md`      | Criterios de aceptación: uso de roles predefinidos, asignación a usuarios         |
+| `us/us-005.md`      | Criterios de aceptación: creación de roles personalizados con permisos selectivos |
+| `bc/bc-identity.md` | Aggregates Role, User, TenantMembership - estructura e invariantes                |
+| `adr/adr-007.md`    | Formato de permisos `{module}:{resource}:{action}`, RBAC granular                 |
+| `adr/adr-006.md`    | JWT con Refresh Tokens, claims de permisos                                        |
+| `adr/adr-001.md`    | Monolito modular, guards por módulo                                               |
 
 ## Puntos críticos
 
@@ -93,16 +93,16 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Permisos del JWT desactualizados tras cambio de rol | Alta | Alto | Invalidar Refresh Token del usuario inmediatamente. El frontend debe detectar 401 y redirigir a login |
-| Catálogo de permisos incompleto | Media | Medio | Generar catálogo a partir de los decorators `@RequirePermissions()` existentes. Mantener lista centralizada |
-| Roles huérfanos tras eliminación | Baja | Medio | Validación estricta: bloquear eliminación si hay usuarios asignados. Soft-delete preferible |
-| Escalación de privilegios por rol personalizado | Baja | Alto | El Presidente es el único que puede crear/modificar roles. Validar que permisos asignados no excedan los del propio creador |
+| Riesgo                                              | Probabilidad | Impacto | Mitigación                                                                                                                  |
+| --------------------------------------------------- | ------------ | ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Permisos del JWT desactualizados tras cambio de rol | Alta         | Alto    | Invalidar Refresh Token del usuario inmediatamente. El frontend debe detectar 401 y redirigir a login                       |
+| Catálogo de permisos incompleto                     | Media        | Medio   | Generar catálogo a partir de los decorators `@RequirePermissions()` existentes. Mantener lista centralizada                 |
+| Roles huérfanos tras eliminación                    | Baja         | Medio   | Validación estricta: bloquear eliminación si hay usuarios asignados. Soft-delete preferible                                 |
+| Escalación de privilegios por rol personalizado     | Baja         | Alto    | El Presidente es el único que puede crear/modificar roles. Validar que permisos asignados no excedan los del propio creador |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Ampliación del Aggregate Role
+### Paso 1: Capa de dominio - Ampliación del Aggregate Role
 
 Ampliar en `api/src/identity/domain/aggregates/role.ts`:
 
@@ -116,7 +116,7 @@ Ampliar en `api/src/identity/domain/aggregates/role.ts`:
 
 Tests unitarios: creación de rol personalizado, intento de modificar rol de sistema (debe fallar), clonación, validación de formato de permisos.
 
-### Paso 2: Capa de dominio — Domain Events
+### Paso 2: Capa de dominio - Domain Events
 
 Crear en `api/src/identity/domain/events/`:
 
@@ -125,20 +125,20 @@ Crear en `api/src/identity/domain/events/`:
 - **`RoleModifiedEvent`**: Payload: `{ roleId, tenantId, modifiedFields[], modifiedBy }`
 - **`RoleDeletedEvent`**: Payload: `{ roleId, tenantId, roleName, deletedBy }`
 
-### Paso 3: Capa de dominio — Repository interfaces
+### Paso 3: Capa de dominio - Repository interfaces
 
 Ampliar en `api/src/identity/domain/repositories/`:
 
 - **`RoleRepository`** (interfaz):
   - `save(role: Role): Promise<void>`
   - `findById(id: RoleId): Promise<Role | null>`
-  - `findByTenantId(tenantId: TenantId): Promise<Role[]>` — devuelve roles de sistema + personalizados del tenant
+  - `findByTenantId(tenantId: TenantId): Promise<Role[]>` - devuelve roles de sistema + personalizados del tenant
   - `findByCode(tenantId: TenantId, code: string): Promise<Role | null>`
   - `existsByName(tenantId: TenantId, name: string): Promise<boolean>`
   - `delete(id: RoleId): Promise<void>`
   - `countUsersWithRole(roleId: RoleId): Promise<number>`
 
-### Paso 4: Capa de aplicación — Commands y Queries
+### Paso 4: Capa de aplicación - Commands y Queries
 
 Crear en `api/src/identity/application/`:
 
@@ -159,7 +159,7 @@ Crear en `api/src/identity/application/`:
   - `RoleResponseDto`: `{ id, name, description, permissions[], isSystem, usersCount }`
   - `PermissionCatalogDto`: `{ modules: [{ name, permissions: [{ code, description }] }] }`
 
-### Paso 5: Capa de aplicación — Handlers
+### Paso 5: Capa de aplicación - Handlers
 
 Crear en `api/src/identity/application/commands/`:
 
@@ -186,7 +186,7 @@ Crear en `api/src/identity/application/commands/`:
   3. Eliminar rol (soft-delete: marcar `active = false`)
   4. Publicar `RoleDeletedEvent`
 
-### Paso 6: Capa de infraestructura — Repository Prisma
+### Paso 6: Capa de infraestructura - Repository Prisma
 
 Crear en `api/src/identity/infrastructure/persistence/`:
 
@@ -194,7 +194,7 @@ Crear en `api/src/identity/infrastructure/persistence/`:
 - Mappers: `RolePrismaMapper.toDomain(prismaModel): Role` y `toPersistence(aggregate): PrismaCreateInput`
 - Incluir la relación `role_permissions` en las consultas
 
-### Paso 7: Capa de infraestructura — Controller
+### Paso 7: Capa de infraestructura - Controller
 
 Crear en `api/src/identity/infrastructure/controllers/`:
 
@@ -211,7 +211,7 @@ Crear en `api/src/identity/infrastructure/controllers/`:
   - Swagger decorators para documentación automática
   - Responses: 200/201 OK, 403 Forbidden, 404 Not Found, 409 Conflict (nombre duplicado)
 
-### Paso 8: Capa de infraestructura — Token invalidation
+### Paso 8: Capa de infraestructura - Token invalidation
 
 Ampliar en `api/src/identity/infrastructure/services/`:
 
@@ -224,12 +224,14 @@ Ampliar en `api/src/identity/infrastructure/services/`:
 ### Paso 9: Tests
 
 **Tests unitarios (dominio):**
+
 - `Role.createCustom()` con datos válidos → rol creado + evento emitido
 - `Role.updatePermissions()` en rol de sistema → error de invariante
 - `Role.clone()` → nuevo rol con mismos permisos, `is_system = false`
 - `Permission.create()` → validación de formato `module:resource:action`
 
 **Tests unitarios (aplicación):**
+
 - `CreateCustomRoleHandler` con mock de `RoleRepository`
 - Caso éxito: rol creado con permisos válidos
 - Caso nombre duplicado: rechazo con error 409
@@ -237,6 +239,7 @@ Ampliar en `api/src/identity/infrastructure/services/`:
 - `DeleteRoleHandler`: bloqueo si tiene usuarios asignados
 
 **Tests de integración:**
+
 - Creación de rol personalizado, asignación a usuario, verificación de permisos en JWT regenerado
 - Intento de modificar rol de sistema → rechazo
 - Eliminación de rol sin usuarios → OK

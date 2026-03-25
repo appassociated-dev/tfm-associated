@@ -1,4 +1,4 @@
-# Task 3 — UC-056: Importación masiva de socios (Backend)
+# Task 3 - UC-056: Importación masiva de socios (Backend)
 
 ## Información general
 
@@ -43,13 +43,13 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel, Bull Queue, MinIO/S3 para almacenamiento de archivos |
-| **Fase 1 — UC-001 (Provisión de tenant)** | Tenant provisionado con BD aislada |
-| **Fase 1 — UC-008 (Tipos de socio)** | `MemberType` configurados (para asignar tipo a socios importados) |
-| **Fase 1 — UC-011 (Alta simple de socio)** | Aggregate `Member` con Value Objects (PersonalData, ContactData, IdentityDocument, BankDetails) |
-| **Fase 1 — UC-010 (Gestión de ejercicios)** | Ejercicio fiscal abierto (precondición para alta de socios) |
+| Tarea                                       | Artefacto necesario                                                                               |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**                       | Estructura de módulos NestJS, Shared kernel, Bull Queue, MinIO/S3 para almacenamiento de archivos |
+| **Fase 1 - UC-001 (Provisión de tenant)**   | Tenant provisionado con BD aislada                                                                |
+| **Fase 1 - UC-008 (Tipos de socio)**        | `MemberType` configurados (para asignar tipo a socios importados)                                 |
+| **Fase 1 - UC-011 (Alta simple de socio)**  | Aggregate `Member` con Value Objects (PersonalData, ContactData, IdentityDocument, BankDetails)   |
+| **Fase 1 - UC-010 (Gestión de ejercicios)** | Ejercicio fiscal abierto (precondición para alta de socios)                                       |
 
 ### Checklist de verificación de dependencias
 
@@ -66,27 +66,27 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Endpoint de upload y análisis | Frontend UC-056 (paso 1 del wizard) |
-| Endpoint de mapeo de columnas | Frontend UC-056 (paso 2 del wizard) |
-| Endpoint de validación/preview | Frontend UC-056 (paso 3 del wizard) |
-| Endpoint de ejecución | Frontend UC-056 (paso 4 del wizard) |
-| Socios creados en BD | Todos los UCs de BC-Membership y BC-Treasury |
-| Plantillas de mapeo guardadas | Futuras importaciones del mismo tenant |
-| Informe de errores | Frontend para descarga por el usuario |
+| Artefacto                      | Consumido por                                |
+| ------------------------------ | -------------------------------------------- |
+| Endpoint de upload y análisis  | Frontend UC-056 (paso 1 del wizard)          |
+| Endpoint de mapeo de columnas  | Frontend UC-056 (paso 2 del wizard)          |
+| Endpoint de validación/preview | Frontend UC-056 (paso 3 del wizard)          |
+| Endpoint de ejecución          | Frontend UC-056 (paso 4 del wizard)          |
+| Socios creados en BD           | Todos los UCs de BC-Membership y BC-Treasury |
+| Plantillas de mapeo guardadas  | Futuras importaciones del mismo tenant       |
+| Informe de errores             | Frontend para descarga por el usuario        |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-056.md` | Flujo completo: subida, mapeo, validación, ejecución, gestión de duplicados |
-| `us/us-148.md` | Subida y análisis de estructura del archivo |
-| `us/us-149.md` | Mapeo flexible de columnas |
-| `us/us-150.md` | Validación exhaustiva con preview |
-| `us/us-151.md` | Ejecución con rollback y auditoría |
-| `bc/bc-membership.md` | Aggregate Member — estructura, Value Objects, invariantes |
-| `adr/adr-002.md` | Multi-tenant por BD: la importación opera sobre la BD del tenant |
+| Documento             | Contenido relevante                                                         |
+| --------------------- | --------------------------------------------------------------------------- |
+| `uc/uc-056.md`        | Flujo completo: subida, mapeo, validación, ejecución, gestión de duplicados |
+| `us/us-148.md`        | Subida y análisis de estructura del archivo                                 |
+| `us/us-149.md`        | Mapeo flexible de columnas                                                  |
+| `us/us-150.md`        | Validación exhaustiva con preview                                           |
+| `us/us-151.md`        | Ejecución con rollback y auditoría                                          |
+| `bc/bc-membership.md` | Aggregate Member - estructura, Value Objects, invariantes                   |
+| `adr/adr-002.md`      | Multi-tenant por BD: la importación opera sobre la BD del tenant            |
 
 ## Puntos críticos
 
@@ -104,17 +104,17 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Archivo con codificación no detectada | Media | Medio | Usar `chardet` para detección automática. Fallback a UTF-8 con warning |
-| Timeout en importaciones de >5000 registros | Media | Alto | Bull Queue para >500 registros. Timeout del job: 5 minutos |
-| Datos inconsistentes en archivo (formatos mixtos) | Alta | Medio | Validación exhaustiva con informe detallado de errores por fila y columna |
-| Archivo con macros maliciosas (Excel) | Baja | Alto | Usar solo lectura de datos con `xlsx` (SheetJS), que no ejecuta macros. Validar extensión |
-| Socios importados sin MemberAccount ni suscripción | Media | Bajo | Documentar que la importación solo crea el Member. La asignación de planes es un paso posterior |
+| Riesgo                                             | Probabilidad | Impacto | Mitigación                                                                                      |
+| -------------------------------------------------- | ------------ | ------- | ----------------------------------------------------------------------------------------------- |
+| Archivo con codificación no detectada              | Media        | Medio   | Usar `chardet` para detección automática. Fallback a UTF-8 con warning                          |
+| Timeout en importaciones de >5000 registros        | Media        | Alto    | Bull Queue para >500 registros. Timeout del job: 5 minutos                                      |
+| Datos inconsistentes en archivo (formatos mixtos)  | Alta         | Medio   | Validación exhaustiva con informe detallado de errores por fila y columna                       |
+| Archivo con macros maliciosas (Excel)              | Baja         | Alto    | Usar solo lectura de datos con `xlsx` (SheetJS), que no ejecuta macros. Validar extensión       |
+| Socios importados sin MemberAccount ni suscripción | Media        | Bajo    | Documentar que la importación solo crea el Member. La asignación de planes es un paso posterior |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects de importación
+### Paso 1: Capa de dominio - Value Objects de importación
 
 Crear en `api/src/imports/domain/value-objects/`:
 
@@ -124,25 +124,25 @@ Crear en `api/src/imports/domain/value-objects/`:
 - **`ImportResult`**: Value Object con `totalProcessed: number`, `totalCreated: number`, `totalUpdated: number`, `totalSkipped: number`, `totalErrors: number`, `errors: ImportError[]`
 - **`ImportError`**: Value Object con `row: number`, `column: string`, `value: string`, `errorMessage: string`
 
-### Paso 2: Capa de dominio — Import entity y estados
+### Paso 2: Capa de dominio - Import entity y estados
 
 Crear en `api/src/imports/domain/entities/`:
 
 - **`Import`**: Entity que representa una operación de importación en progreso
   - `id: ImportId` (UUID)
   - `tenantId: string`
-  - `status: ImportStatus` — enum: `UPLOADED`, `MAPPED`, `VALIDATED`, `EXECUTING`, `COMPLETED`, `FAILED`
+  - `status: ImportStatus` - enum: `UPLOADED`, `MAPPED`, `VALIDATED`, `EXECUTING`, `COMPLETED`, `FAILED`
   - `file: ImportFile`
   - `mapping?: ImportMapping`
   - `validationResult?: ImportResult` (resultado del preview)
   - `executionResult?: ImportResult` (resultado final)
-  - `detectedColumns: string[]` — columnas detectadas en el archivo
-  - `sampleRows: Record<string, string>[]` — primeras 10 filas para preview
+  - `detectedColumns: string[]` - columnas detectadas en el archivo
+  - `sampleRows: Record<string, string>[]` - primeras 10 filas para preview
   - `createdBy: string`
   - `createdAt: Date`
   - Transiciones de estado: UPLOADED → MAPPED → VALIDATED → EXECUTING → COMPLETED/FAILED
 
-### Paso 3: Capa de dominio — Domain Services
+### Paso 3: Capa de dominio - Domain Services
 
 Crear en `api/src/imports/domain/services/`:
 
@@ -172,7 +172,7 @@ Crear en `api/src/imports/domain/services/`:
   - Si >5% de errores en un lote: rollback completo (modo "todo o nada")
   - Retorna resultado final
 
-### Paso 4: Capa de dominio — Plantillas de mapeo
+### Paso 4: Capa de dominio - Plantillas de mapeo
 
 Crear en `api/src/imports/domain/entities/`:
 
@@ -180,7 +180,7 @@ Crear en `api/src/imports/domain/entities/`:
   - `id: string`, `tenantId: string`, `name: string`, `mapping: ImportMapping`, `createdAt: Date`
   - Persistida en tabla `import_mapping_templates`
 
-### Paso 5: Capa de aplicación — Commands y DTOs
+### Paso 5: Capa de aplicación - Commands y DTOs
 
 Crear en `api/src/imports/application/`:
 
@@ -198,7 +198,7 @@ Crear en `api/src/imports/application/`:
   - `ImportExecutionResultDto`: `{ totalCreated, totalUpdated, totalSkipped, totalErrors, jobId? }`
   - `ImportErrorReportDto`: descargable como Excel con errores por fila
 
-### Paso 6: Capa de aplicación — Handlers
+### Paso 6: Capa de aplicación - Handlers
 
 Crear en `api/src/imports/application/commands/`:
 
@@ -233,7 +233,7 @@ Crear en `api/src/imports/application/commands/`:
   8. Reportar errores vía `ErrorReporter.captureException()` si hay fallos
   9. Retornar `ImportExecutionResultDto`
 
-### Paso 7: Capa de infraestructura — File storage y parsers
+### Paso 7: Capa de infraestructura - File storage y parsers
 
 Crear en `api/src/imports/infrastructure/`:
 
@@ -252,7 +252,7 @@ Crear en `api/src/imports/infrastructure/`:
   - Detección automática de separador (`,`, `;`, `\t`)
   - Detección de codificación con `chardet`
 
-### Paso 8: Capa de infraestructura — Controller
+### Paso 8: Capa de infraestructura - Controller
 
 Crear en `api/src/imports/infrastructure/controllers/`:
 
@@ -269,7 +269,7 @@ Crear en `api/src/imports/infrastructure/controllers/`:
   - Upload con `@UseInterceptors(FileInterceptor('file'))` de Multer
   - Swagger decorators, max file size 10MB
 
-### Paso 9: Capa de infraestructura — Bull Queue Processor
+### Paso 9: Capa de infraestructura - Bull Queue Processor
 
 Crear en `api/src/imports/infrastructure/jobs/`:
 
@@ -283,6 +283,7 @@ Crear en `api/src/imports/infrastructure/jobs/`:
 ### Paso 10: Tests
 
 **Tests unitarios (dominio):**
+
 - `FileAnalyzer.analyze()` con archivo Excel válido → columnas y sample detectados
 - `FileAnalyzer.analyze()` con CSV separado por `;` → detección correcta de separador
 - `ImportValidator.validate()` con datos válidos → 0 errores
@@ -291,12 +292,14 @@ Crear en `api/src/imports/infrastructure/jobs/`:
 - `ImportExecutor.execute()` con datos válidos → socios creados
 
 **Tests unitarios (aplicación):**
+
 - `UploadImportFileHandler` → análisis correcto del archivo
 - `ValidateImportHandler` → validación completa con errores detallados
 - `ExecuteImportHandler` con <500 registros → ejecución síncrona
 - `ExecuteImportHandler` con >500 registros → delegación a Bull Queue
 
 **Tests de integración:**
+
 - Subida de archivo Excel, mapeo, validación y ejecución de 100 socios
 - Verificar que los 100 socios están creados en la BD con datos correctos
 - Importación con duplicados: verificar estrategia skip, overwrite

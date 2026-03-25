@@ -1,4 +1,4 @@
-# Task 8 — UC-024: Gestión de devoluciones SEPA (Frontend)
+# Task 8 - UC-024: Gestión de devoluciones SEPA (Frontend)
 
 ## Información general
 
@@ -36,32 +36,32 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F2-Back Task 5 — UC-024** | Endpoints REST: returns, retry, return-report |
-| **F2-Front Task 7 — UC-023** | Página de detalle de remesa, hooks de remesa |
-| **F2-Front Task 4 — UC-020** | Formulario de cargo manual (para penalización integrada) |
-| **F2-Front Task 3 — UC-019** | Componente `ChargeStatusBadge` |
+| Tarea                        | Artefacto necesario                                      |
+| ---------------------------- | -------------------------------------------------------- |
+| **F2-Back Task 5 - UC-024**  | Endpoints REST: returns, retry, return-report            |
+| **F2-Front Task 7 - UC-023** | Página de detalle de remesa, hooks de remesa             |
+| **F2-Front Task 4 - UC-020** | Formulario de cargo manual (para penalización integrada) |
+| **F2-Front Task 3 - UC-019** | Componente `ChargeStatusBadge`                           |
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Sección de devoluciones en detalle de remesa | UC-023 frontend |
-| Componente `ReturnCodeSelect` reutilizable | Standalone |
-| Hook `useRecordReturn()`, `useScheduleRetry()` | Standalone |
-| Componente `ReturnReportDownload` | Standalone |
+| Artefacto                                      | Consumido por   |
+| ---------------------------------------------- | --------------- |
+| Sección de devoluciones en detalle de remesa   | UC-023 frontend |
+| Componente `ReturnCodeSelect` reutilizable     | Standalone      |
+| Hook `useRecordReturn()`, `useScheduleRetry()` | Standalone      |
+| Componente `ReturnReportDownload`              | Standalone      |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
-| `uc/uc-024.md` | Flujo: registro manual, clasificación por código (Tabla 9), reintento, informe |
-| `us/us-066.md` | Criterios: registro de devolución, clasificación, reintento |
-| `us/us-067.md` | Criterios: gastos bancarios, informe |
-| `bc/bc-treasury.md` | Entity SepaDebit con returnReason/returnDate, eventos |
+| `uc/uc-024.md`                                      | Flujo: registro manual, clasificación por código (Tabla 9), reintento, informe                                                     |
+| `us/us-066.md`                                      | Criterios: registro de devolución, clasificación, reintento                                                                        |
+| `us/us-067.md`                                      | Criterios: gastos bancarios, informe                                                                                               |
+| `bc/bc-treasury.md`                                 | Entity SepaDebit con returnReason/returnDate, eventos                                                                              |
 
 ## Puntos críticos
 

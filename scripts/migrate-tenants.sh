@@ -30,7 +30,10 @@ fi
 # --- Consultar todas las bases de datos de tenant ---
 echo "[INFO] Consultando tenants desde la base de datos principal..."
 
-TENANT_DBS=$(psql "${DATABASE_MAIN_URL}" \
+# Limpiar ?schema=public de la URL — psql no entiende ese parametro
+PSQL_URL=$(echo "${DATABASE_MAIN_URL}" | sed 's|\?.*$||')
+
+TENANT_DBS=$(psql "${PSQL_URL}" \
   --tuples-only \
   --no-align \
   --command="SELECT database_name FROM tenants" 2>&1) || {

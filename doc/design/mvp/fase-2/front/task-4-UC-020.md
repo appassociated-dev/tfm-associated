@@ -1,4 +1,4 @@
-# Task 4 — UC-020: Gestión de cargos manuales (Frontend)
+# Task 4 - UC-020: Gestión de cargos manuales (Frontend)
 
 ## Información general
 
@@ -35,30 +35,30 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F2-Back Task 2 — UC-020** | Endpoints REST: `POST /charges/manual`, `POST /charges/bulk/preview`, `POST /charges/bulk`, `GET /charges/bulk/jobs/:jobId` |
-| **F2-Front Task 1 — UC-006** | Componente `MemberSearchCombobox` |
-| **F2-Front Task 2 — UC-008** | Componente `MemberTypeSelect` para filtro por tipo de socio |
-| **F2-Front Task 3 — UC-019** | Componentes `ChargeStatusBadge`, `ChargeDetailDrawer` |
+| Tarea                        | Artefacto necesario                                                                                                         |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **F2-Back Task 2 - UC-020**  | Endpoints REST: `POST /charges/manual`, `POST /charges/bulk/preview`, `POST /charges/bulk`, `GET /charges/bulk/jobs/:jobId` |
+| **F2-Front Task 1 - UC-006** | Componente `MemberSearchCombobox`                                                                                           |
+| **F2-Front Task 2 - UC-008** | Componente `MemberTypeSelect` para filtro por tipo de socio                                                                 |
+| **F2-Front Task 3 - UC-019** | Componentes `ChargeStatusBadge`, `ChargeDetailDrawer`                                                                       |
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Página `/treasury/charges/manual` | Navegación de tesorería |
+| Artefacto                                   | Consumido por                                   |
+| ------------------------------------------- | ----------------------------------------------- |
+| Página `/treasury/charges/manual`           | Navegación de tesorería                         |
 | Formulario de cargo individual reutilizable | UC-024 (cargo de penalización desde devolución) |
-| Asistente de cargo masivo | Standalone |
+| Asistente de cargo masivo                   | Standalone                                      |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
-| `uc/uc-020.md` | Flujo: cargo individual, cargo masivo (derrama), cargo de penalización |
-| `us/us-051.md` | Criterios: cargos manuales individuales y masivos |
-| `bc/bc-treasury.md` | Entity Charge con isManual, Domain Service ManualChargeGenerator |
+| `uc/uc-020.md`                                      | Flujo: cargo individual, cargo masivo (derrama), cargo de penalización                                                             |
+| `us/us-051.md`                                      | Criterios: cargos manuales individuales y masivos                                                                                  |
+| `bc/bc-treasury.md`                                 | Entity Charge con isManual, Domain Service ManualChargeGenerator                                                                   |
 
 ## Puntos críticos
 
@@ -96,9 +96,9 @@
 
 - **`ManualChargeForm.tsx`**: Formulario de cargo individual con `MemberSearchCombobox`, inputs de concepto/importe/vencimiento
 - **`BulkChargeWizard.tsx`**: Stepper de 3 pasos con Mantine Stepper
-  - Paso 1: `BulkChargeTargetStep` — selección de destinatarios (radio: todos/por tipo/personalizado)
-  - Paso 2: `BulkChargeDataStep` — concepto, importe, vencimiento, referencia de aprobación
-  - Paso 3: `BulkChargePreviewStep` — preview con conteo y total, botón confirmar
+  - Paso 1: `BulkChargeTargetStep` - selección de destinatarios (radio: todos/por tipo/personalizado)
+  - Paso 2: `BulkChargeDataStep` - concepto, importe, vencimiento, referencia de aprobación
+  - Paso 3: `BulkChargePreviewStep` - preview con conteo y total, botón confirmar
 - **`BulkChargeProgressModal.tsx`**: Modal con barra de progreso para jobs asíncronos
 
 ### Paso 4: Página principal

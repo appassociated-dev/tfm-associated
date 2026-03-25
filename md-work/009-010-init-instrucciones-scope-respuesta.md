@@ -1,12 +1,12 @@
-## Verificación de instalación — Scope `e2e`
+## Verificación de instalación - Scope `e2e`
 
 ### Instalados (3/3)
 
-* `playwright-skill`
-* `e2e-testing-patterns`
-* `webapp-testing`
+- `playwright-skill`
+- `e2e-testing-patterns`
+- `webapp-testing`
 
-Cobertura completa del *scope*.
+Cobertura completa del _scope_.
 
 ---
 
@@ -28,22 +28,19 @@ Se han añadido los 3 skills en la nueva sección:
 
 Total: **12 entradas**
 
-* 6 preexistentes (`doc-spec-*`)
-* 6 nuevas (2 por skill)
+- 6 preexistentes (`doc-spec-*`)
+- 6 nuevas (2 por skill)
 
 ### Distribución
 
-* `playwright-skill`
+- `playwright-skill`
+  - Escritura de tests de flujos de caso de uso.
+  - Implementación y mantenimiento de Page Object Models (POM).
 
-  * Escritura de tests de flujos de caso de uso.
-  * Implementación y mantenimiento de Page Object Models (POM).
+- `e2e-testing-patterns`
+  - Diseño de estrategia de suite E2E.
+  - Depuración de tests inestables (_flaky tests_).
 
-* `e2e-testing-patterns`
-
-  * Diseño de estrategia de suite E2E.
-  * Depuración de tests inestables (*flaky tests*).
-
-* `webapp-testing`
-
-  * Verificación interactiva de UI durante desarrollo.
-  * Captura de evidencias (screenshots, logs) para debugging.
+- `webapp-testing`
+  - Verificación interactiva de UI durante desarrollo.
+  - Captura de evidencias (screenshots, logs) para debugging.

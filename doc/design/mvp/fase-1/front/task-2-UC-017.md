@@ -1,4 +1,4 @@
-# Task 2 — UC-017: Configuración de planes de cuota (Frontend)
+# Task 2 - UC-017: Configuración de planes de cuota (Frontend)
 
 ## Información general
 
@@ -37,9 +37,9 @@
 
 | Tarea                        | Artefacto necesario                                                                                                                                                                                                                                                                                       |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **F1-Back Task 9 — UC-017**  | Endpoints REST operativos: `POST /api/v1/fee-plans`, `GET /api/v1/fee-plans`, `GET /api/v1/fee-plans/:id`, `PUT /api/v1/fee-plans/:id`, `PATCH /api/v1/fee-plans/:id/deactivate`, `POST /api/v1/fee-plans/:id/link-member-types`, `GET /api/v1/member-types` (para vincular). Contratos de DTOs definidos |
-| **F1-Back Task 3 — UC-008**  | Endpoint `GET /api/v1/member-types` operativo para obtener tipos de socio disponibles al vincular planes                                                                                                                                                                                                  |
-| **F1-Front Task 1 — UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                                                                                                               |
+| **F1-Back Task 9 - UC-017**  | Endpoints REST operativos: `POST /api/v1/fee-plans`, `GET /api/v1/fee-plans`, `GET /api/v1/fee-plans/:id`, `PUT /api/v1/fee-plans/:id`, `PATCH /api/v1/fee-plans/:id/deactivate`, `POST /api/v1/fee-plans/:id/link-member-types`, `GET /api/v1/member-types` (para vincular). Contratos de DTOs definidos |
+| **F1-Back Task 3 - UC-008**  | Endpoint `GET /api/v1/member-types` operativo para obtener tipos de socio disponibles al vincular planes                                                                                                                                                                                                  |
+| **F1-Front Task 1 - UC-002** | `AuthProvider`, `useAuth()`, `usePermissions()`, `ProtectedRoute`, `AppShell` con sidebar, HttpClient con interceptors de auth, `ErrorReporter` configurado                                                                                                                                               |
 
 ### Checklist de verificación de dependencias
 
@@ -62,10 +62,10 @@ Antes de iniciar esta tarea, verificar que:
 
 | Artefacto                                                      | Consumido por                                                            |
 | -------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Schemas Zod de planes de cuota (`schemas/fee-plan.schemas.ts`) | F1-Front Task 3 (UC-018 — suscripciones necesita datos de planes)        |
-| Hook `useFeePlans()` y `useFeePlan(id)`                        | F1-Front Task 3 (UC-018 — selector de plan al crear suscripción)         |
+| Schemas Zod de planes de cuota (`schemas/fee-plan.schemas.ts`) | F1-Front Task 3 (UC-018 - suscripciones necesita datos de planes)        |
+| Hook `useFeePlans()` y `useFeePlan(id)`                        | F1-Front Task 3 (UC-018 - selector de plan al crear suscripción)         |
 | Página de listado y gestión de planes                          | Navegación desde sidebar de Tesorería                                    |
-| Servicio API `fee-plan.api.ts`                                 | F1-Front Task 3 (UC-018 — consulta de planes vinculados a tipo de socio) |
+| Servicio API `fee-plan.api.ts`                                 | F1-Front Task 3 (UC-018 - consulta de planes vinculados a tipo de socio) |
 
 ## Referencia de especificación
 
@@ -235,15 +235,15 @@ Crear en `web/src/features/treasury/fee-plans/schemas/`:
 Crear en `web/src/features/treasury/fee-plans/api/`:
 
 - **`fee-plan.api.ts`**: Funciones que encapsulan llamadas al backend. Cada función parsea la respuesta con el schema Zod correspondiente:
-  - `getFeePlans(params?: { active?: boolean }): Promise<FeePlan[]>` — parsea con `z.array(feePlanSchema).parse(response.data.data)`
-  - `getFeePlan(id: string): Promise<FeePlanDetail>` — parsea con `feePlanDetailSchema.parse(response.data.data)`
-  - `createFeePlan(data: CreateFeePlanInput): Promise<FeePlan>` — parsea con `feePlanSchema.parse(response.data.data)`
-  - `updateFeePlan(id: string, data: UpdateFeePlanInput): Promise<FeePlan>` — parsea con `feePlanSchema.parse(response.data.data)`
+  - `getFeePlans(params?: { active?: boolean }): Promise<FeePlan[]>` - parsea con `z.array(feePlanSchema).parse(response.data.data)`
+  - `getFeePlan(id: string): Promise<FeePlanDetail>` - parsea con `feePlanDetailSchema.parse(response.data.data)`
+  - `createFeePlan(data: CreateFeePlanInput): Promise<FeePlan>` - parsea con `feePlanSchema.parse(response.data.data)`
+  - `updateFeePlan(id: string, data: UpdateFeePlanInput): Promise<FeePlan>` - parsea con `feePlanSchema.parse(response.data.data)`
   - `deactivateFeePlan(id: string): Promise<void>`
   - `linkMemberTypes(planId: string, links: LinkMemberTypeInput[]): Promise<void>`
-  - `getMemberTypes(): Promise<MemberTypeOption[]>` — parsea con `z.array(memberTypeOptionSchema).parse(response.data.data)`
-  - `getTemplates(collectivityType: string): Promise<FeePlanTemplate>` — parsea con `feePlanTemplateSchema.parse(response.data.data)`
-  - `importTemplate(collectivityType: string): Promise<FeePlan[]>` — parsea con `z.array(feePlanSchema).parse(response.data.data)`
+  - `getMemberTypes(): Promise<MemberTypeOption[]>` - parsea con `z.array(memberTypeOptionSchema).parse(response.data.data)`
+  - `getTemplates(collectivityType: string): Promise<FeePlanTemplate>` - parsea con `feePlanTemplateSchema.parse(response.data.data)`
+  - `importTemplate(collectivityType: string): Promise<FeePlan[]>` - parsea con `z.array(feePlanSchema).parse(response.data.data)`
   - Si `ZodError` se produce, se reporta via `ErrorReporter.captureException()` con el detalle de los campos que no coinciden
 
 ### Paso 3: Custom hooks con TanStack Query
@@ -380,7 +380,7 @@ Crear en `web/src/features/treasury/fee-plans/components/`:
     - Checkbox (seleccionar/deseleccionar vinculación)
     - Código del tipo
     - Nombre del tipo
-    - Es Default (radio button, mutuamente exclusivo — solo uno puede ser default)
+    - Es Default (radio button, mutuamente exclusivo - solo uno puede ser default)
     - Orden (NumberInput, para prioridad en UI de alta)
   - Validación: solo un default por tipo de socio
   - Advertencia (`color="yellow"`) si un tipo ya tiene otro plan como default: "El tipo 'Adulto' ya tiene 'Anual' como plan por defecto. Se reemplazará"

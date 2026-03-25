@@ -1,4 +1,4 @@
-# Task 1 — UC-001: Provisión de nuevo tenant (Frontend)
+# Task 1 - UC-001: Provisión de nuevo tenant (Frontend)
 
 ## Información general
 
@@ -25,7 +25,7 @@
 
 ### Excluido
 
-- Configuración personalizada durante provisión (FA-2: ejercicio fiscal, branding) — el tenant se crea con defaults
+- Configuración personalizada durante provisión (FA-2: ejercicio fiscal, branding) - el tenant se crea con defaults
 - Gestión avanzada de tenants (suspender, eliminar, migrar)
 - Envío del email de bienvenida desde frontend (lo hace el backend automáticamente)
 - Dashboard de superadmin con métricas de tenants
@@ -34,11 +34,11 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Proyecto React + Vite + Mantine, HttpClient, TanStack Query, Router, Zod |
-| **F1-Back Task 1 — UC-001** | Endpoint `POST /api/v1/tenants` con flujo completo de provisión |
-| **F1-Front Task 1 — UC-002** | AuthProvider (el superadmin usa autenticación estándar con permisos especiales) |
+| Tarea                        | Artefacto necesario                                                             |
+| ---------------------------- | ------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**        | Proyecto React + Vite + Mantine, HttpClient, TanStack Query, Router, Zod        |
+| **F1-Back Task 1 - UC-001**  | Endpoint `POST /api/v1/tenants` con flujo completo de provisión                 |
+| **F1-Front Task 1 - UC-002** | AuthProvider (el superadmin usa autenticación estándar con permisos especiales) |
 
 ### Checklist de verificación de dependencias
 
@@ -51,23 +51,23 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Página `/admin/tenants/new` | Panel de superadmin |
-| Página `/admin/tenants` | Panel de superadmin |
+| Artefacto                             | Consumido por                                                   |
+| ------------------------------------- | --------------------------------------------------------------- |
+| Página `/admin/tenants/new`           | Panel de superadmin                                             |
+| Página `/admin/tenants`               | Panel de superadmin                                             |
 | Componente `CollectivityTypeSelector` | Reutilizable si se necesita selector de tipo en otros contextos |
-| Hook `useProvisionTenant()` | Standalone |
+| Hook `useProvisionTenant()`           | Standalone                                                      |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
-| `uc/uc-001.md` | Flujo completo de provisión: datos, validaciones, seed, resultado |
-| `us/us-001.md` | Criterios de aceptación: BD aislada, roles seedeados, admin funcional |
-| `bc/bc-identity.md` | Aggregate Tenant — DatosEntidad, ConfiguracionTenant, CollectivityType |
-| `adr/adr-002.md` | Multi-tenant por BD: cada provisión crea una BD independiente |
+| `uc/uc-001.md`                                      | Flujo completo de provisión: datos, validaciones, seed, resultado                                                                  |
+| `us/us-001.md`                                      | Criterios de aceptación: BD aislada, roles seedeados, admin funcional                                                              |
+| `bc/bc-identity.md`                                 | Aggregate Tenant - DatosEntidad, ConfiguracionTenant, CollectivityType                                                             |
+| `adr/adr-002.md`                                    | Multi-tenant por BD: cada provisión crea una BD independiente                                                                      |
 
 ## Puntos críticos
 
@@ -124,8 +124,8 @@ Crear en `web/src/features/admin/components/`:
 
 Crear en `web/src/features/admin/pages/`:
 
-- **`TenantsListPage.tsx`**: `/admin/tenants` — tabla de tenants con nombre, tipo, estado, fecha
-- **`ProvisionTenantPage.tsx`**: `/admin/tenants/new` — formulario + progress + resultado
+- **`TenantsListPage.tsx`**: `/admin/tenants` - tabla de tenants con nombre, tipo, estado, fecha
+- **`ProvisionTenantPage.tsx`**: `/admin/tenants/new` - formulario + progress + resultado
 
 ### Paso 5: Tests
 

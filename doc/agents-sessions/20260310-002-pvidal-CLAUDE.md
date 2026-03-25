@@ -15,10 +15,10 @@ Implementacion de 4 tasks de Fase 1 backend: Task 4 (UC-010 ejercicios fiscales)
 
 ## Objetivos
 
-- [x] Implementar Task 4 — UC-010: Gestion de ejercicios fiscales (Backend)
-- [x] Implementar Task 5 — UC-007: Gestion de estados de socio (Backend)
-- [x] Implementar Task 7 — UC-011: Proceso de alta simplificado en 3 pasos (Backend)
-- [x] Implementar Task 8 — UC-013: Baja y reingreso de socios (Backend)
+- [x] Implementar Task 4 - UC-010: Gestion de ejercicios fiscales (Backend)
+- [x] Implementar Task 5 - UC-007: Gestion de estados de socio (Backend)
+- [x] Implementar Task 7 - UC-011: Proceso de alta simplificado en 3 pasos (Backend)
+- [x] Implementar Task 8 - UC-013: Baja y reingreso de socios (Backend)
 
 ---
 
@@ -31,10 +31,10 @@ Implementacion completa del caso de uso UC-010 para gestion de ejercicios fiscal
 
 **Archivos creados:**
 
-- `api/src/membership/domain/aggregates/fiscal-year.ts` — Aggregate con invariantes de fechas y cierre
-- `api/src/membership/domain/value-objects/fiscal-year-id.ts` — Identifier
-- `api/src/membership/domain/value-objects/fiscal-year-status.ts` — OPEN/CLOSED
-- `api/src/membership/domain/value-objects/date-range.ts` — VO con validacion start < end
+- `api/src/membership/domain/aggregates/fiscal-year.ts` - Aggregate con invariantes de fechas y cierre
+- `api/src/membership/domain/value-objects/fiscal-year-id.ts` - Identifier
+- `api/src/membership/domain/value-objects/fiscal-year-status.ts` - OPEN/CLOSED
+- `api/src/membership/domain/value-objects/date-range.ts` - VO con validacion start < end
 - Comandos, queries, handlers y DTOs en `api/src/membership/application/`
 - `api/src/membership/infrastructure/persistence/prisma-fiscal-year.repository.ts`
 - `api/src/membership/infrastructure/controllers/fiscal-years.controller.ts`
@@ -42,7 +42,7 @@ Implementacion completa del caso de uso UC-010 para gestion de ejercicios fiscal
 
 **Resultados:**
 
-- Commit `2a0418b` — UC-010 completo
+- Commit `2a0418b` - UC-010 completo
 - Tests en verde
 
 ---
@@ -54,9 +54,9 @@ Implementacion del caso de uso UC-007 para gestion del ciclo de vida de estados 
 
 **Archivos creados:**
 
-- `api/src/membership/domain/value-objects/member-status.ts` — Enum con transiciones validas
-- `api/src/membership/domain/value-objects/status-transition.ts` — VO con motivo y timestamp
-- `api/src/membership/domain/events/member-status-changed.event.ts` — Evento de dominio
+- `api/src/membership/domain/value-objects/member-status.ts` - Enum con transiciones validas
+- `api/src/membership/domain/value-objects/status-transition.ts` - VO con motivo y timestamp
+- `api/src/membership/domain/events/member-status-changed.event.ts` - Evento de dominio
 - Comandos ChangeStatus, queries GetStatusHistory/GetAvailableTransitions
 - Handlers CQRS con validacion de transiciones y registro en historial
 - Controller REST para operaciones de estado
@@ -64,13 +64,13 @@ Implementacion del caso de uso UC-007 para gestion del ciclo de vida de estados 
 
 **Archivos modificados:**
 
-- `api/src/membership/domain/aggregates/member.ts` — Metodos changeStatus() y getStatusHistory()
-- `api/prisma/tenant/schema.prisma` — Modelo StatusHistory
-- `api/src/membership/membership.module.ts` — Wiring de nuevos handlers
+- `api/src/membership/domain/aggregates/member.ts` - Metodos changeStatus() y getStatusHistory()
+- `api/prisma/tenant/schema.prisma` - Modelo StatusHistory
+- `api/src/membership/membership.module.ts` - Wiring de nuevos handlers
 
 **Resultados:**
 
-- Commit `111f65a` — UC-007 completo
+- Commit `111f65a` - UC-007 completo
 - Maquina de estados validada con tests
 
 ---
@@ -90,7 +90,7 @@ Implementacion del proceso de alta simplificado en 3 pasos para BC-Membership. F
 
 **Resultados:**
 
-- Commit `cc5625d` — UC-011 completo
+- Commit `cc5625d` - UC-011 completo
 - Flujo de 3 pasos validado end-to-end
 
 ---
@@ -111,22 +111,22 @@ Implementacion del caso de uso UC-013 para baja voluntaria, baja disciplinaria y
 
 **Archivos modificados:**
 
-- `api/src/membership/domain/aggregates/member.ts` — Metodos leave(), expel(), reinstate()
-- `api/src/membership/membership.module.ts` — Nuevos handlers registrados
+- `api/src/membership/domain/aggregates/member.ts` - Metodos leave(), expel(), reinstate()
+- `api/src/membership/membership.module.ts` - Nuevos handlers registrados
 
 **Resultados:**
 
-- Commit `84d9912` — UC-013 completo
+- Commit `84d9912` - UC-013 completo
 - Logica de reingreso con conservacion de numero de socio
 
 ---
 
 ## Proximos Pasos
 
-- [ ] Task 9 — UC-017: Gestion de planes de cuota
-- [ ] Task 10 — UC-018: Gestion de suscripciones
-- [ ] Task 11 — UC-019: Generacion masiva de cargos
-- [ ] Task 12 — UC-021: Registro de cobros
+- [ ] Task 9 - UC-017: Gestion de planes de cuota
+- [ ] Task 10 - UC-018: Gestion de suscripciones
+- [ ] Task 11 - UC-019: Generacion masiva de cargos
+- [ ] Task 12 - UC-021: Registro de cobros
 
 ---
 

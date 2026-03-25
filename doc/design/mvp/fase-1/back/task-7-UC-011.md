@@ -1,4 +1,4 @@
-# Task 7 — UC-011: Alta simple de socio (Backend)
+# Task 7 - UC-011: Alta simple de socio (Backend)
 
 ## Información general
 
@@ -28,7 +28,7 @@
 
 ### Excluido
 
-- Ficha completa del socio con IBAN, campos personalizados (UC-006 — F1-Back Task 6, ya implementada)
+- Ficha completa del socio con IBAN, campos personalizados (UC-006 - F1-Back Task 6, ya implementada)
 - Portal del socio para pago online (UC-025, post-MVP)
 - Envío de email de bienvenida (BC-Communication, consumidor del evento `MemberRegistered`)
 - Generación de carnet digital (post-MVP)
@@ -39,14 +39,14 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL |
-| **F1-Back Task 1 — UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados, `CollectivityType` del tenant disponible |
-| **F1-Back Task 2 — UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT |
-| **F1-Back Task 3 — UC-008** | Aggregate `MemberType` operativo con tipos configurados, `MemberTypeRulesEvaluator` para validar rango de edad |
-| **F1-Back Task 4 — UC-010** | Aggregate `FiscalYear` operativo, ejercicio abierto disponible para contextualizar alta |
-| **F1-Back Task 6 — UC-006** | Aggregate `Member` completo con ficha (PersonalData, ContactData, IdentityDocument, BankDetails, CustomFields), `MemberRepository` con `findByIdentityDocument`, `existsByEmail`, `getNextMemberNumber`, modelo Prisma `Member` completo |
+| Tarea                       | Artefacto necesario                                                                                                                                                                                                                      |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**       | Estructura de módulos NestJS, Shared kernel (AggregateRoot, Entity, ValueObject, DomainEvent), PrismaTenantService, Prisma schemas (main + tenant), Docker Compose con PostgreSQL                                                        |
+| **F1-Back Task 1 - UC-001** | Tenant provisionado con BD aislada, schema tenant migrado, roles predefinidos con permisos seedeados, `CollectivityType` del tenant disponible                                                                                           |
+| **F1-Back Task 2 - UC-002** | `JwtAuthGuard`, `PermissionsGuard`, `@RequirePermissions()`, JWT Strategy, autenticación operativa, `TenantMiddleware` integrado con JWT                                                                                                 |
+| **F1-Back Task 3 - UC-008** | Aggregate `MemberType` operativo con tipos configurados, `MemberTypeRulesEvaluator` para validar rango de edad                                                                                                                           |
+| **F1-Back Task 4 - UC-010** | Aggregate `FiscalYear` operativo, ejercicio abierto disponible para contextualizar alta                                                                                                                                                  |
+| **F1-Back Task 6 - UC-006** | Aggregate `Member` completo con ficha (PersonalData, ContactData, IdentityDocument, BankDetails, CustomFields), `MemberRepository` con `findByIdentityDocument`, `existsByEmail`, `getNextMemberNumber`, modelo Prisma `Member` completo |
 
 ### Checklist de verificación de dependencias
 
@@ -68,23 +68,23 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| `MemberRegistrationService` (application) | Frontend UC-011, endpoint de alta |
-| Endpoint `POST /api/v1/members/simple-registration` | Frontend UC-011 |
-| Endpoint `GET /api/v1/members/check-dni/:dni` | Frontend UC-011 (validación debounced) |
-| Evento `MemberRegistered` | BC-Treasury (crear MemberAccount, vincular cargo), BC-Communication (email bienvenida) |
+| Artefacto                                           | Consumido por                                                                          |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `MemberRegistrationService` (application)           | Frontend UC-011, endpoint de alta                                                      |
+| Endpoint `POST /api/v1/members/simple-registration` | Frontend UC-011                                                                        |
+| Endpoint `GET /api/v1/members/check-dni/:dni`       | Frontend UC-011 (validación debounced)                                                 |
+| Evento `MemberRegistered`                           | BC-Treasury (crear MemberAccount, vincular cargo), BC-Communication (email bienvenida) |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-011.md` | Flujo completo del wizard de 3 pasos, validaciones, cargo de inscripción, suscripción UNICA, evento MemberRegistered |
-| `us/us-028.md` | Criterios de aceptación Gherkin: alta simple en 3 pasos, alta con pago inmediato |
-| `bc/bc-membership.md` | Aggregate Member, MemberRegistrationService, reglas de validación de alta |
-| `bc/bc-treasury.md` | Entity FeeSubscription (plan UNICA, cierre automático), Entity Charge (cargo de inscripción) |
-| `adr/adr-002.md` | Multi-tenant por BD aislada, acceso via PrismaTenantService |
-| `adr/adr-008.md` | Outbox pattern para Domain Events |
+| Documento             | Contenido relevante                                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `uc/uc-011.md`        | Flujo completo del wizard de 3 pasos, validaciones, cargo de inscripción, suscripción UNICA, evento MemberRegistered |
+| `us/us-028.md`        | Criterios de aceptación Gherkin: alta simple en 3 pasos, alta con pago inmediato                                     |
+| `bc/bc-membership.md` | Aggregate Member, MemberRegistrationService, reglas de validación de alta                                            |
+| `bc/bc-treasury.md`   | Entity FeeSubscription (plan UNICA, cierre automático), Entity Charge (cargo de inscripción)                         |
+| `adr/adr-002.md`      | Multi-tenant por BD aislada, acceso via PrismaTenantService                                                          |
+| `adr/adr-008.md`      | Outbox pattern para Domain Events                                                                                    |
 
 ## Puntos críticos
 
@@ -100,17 +100,17 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Transacción cross-BC excede timeout en BD grande | Baja | Alto | Transacción ligera: solo INSERTs (no queries pesadas). Timeout configurado a 5 segundos. Índices en DNI y email |
-| Race condition en asignación de número de socio (2 altas simultáneas) | Baja | Medio | Lock en `getNextMemberNumber()` ya implementado en Task 6. Verificar que funciona bajo concurrencia |
-| FeePlan UNICA no existe al momento del alta | Baja | Alto | Verificación de precondición antes de iniciar. Error descriptivo con link a configuración de planes |
-| Error parcial: Member creado pero suscripción/cargo falla | Baja | Crítico | Transacción atómica. Si falla cualquier INSERT, rollback completo. No se crea Member sin su cargo de inscripción |
-| Descuento por tipo mal aplicado al cargo de inscripción | Media | Medio | El cargo UNICA usa `effectiveAmount` precalculado con descuento del tipo de socio. Tests específicos con descuentos |
+| Riesgo                                                                | Probabilidad | Impacto | Mitigación                                                                                                          |
+| --------------------------------------------------------------------- | ------------ | ------- | ------------------------------------------------------------------------------------------------------------------- |
+| Transacción cross-BC excede timeout en BD grande                      | Baja         | Alto    | Transacción ligera: solo INSERTs (no queries pesadas). Timeout configurado a 5 segundos. Índices en DNI y email     |
+| Race condition en asignación de número de socio (2 altas simultáneas) | Baja         | Medio   | Lock en `getNextMemberNumber()` ya implementado en Task 6. Verificar que funciona bajo concurrencia                 |
+| FeePlan UNICA no existe al momento del alta                           | Baja         | Alto    | Verificación de precondición antes de iniciar. Error descriptivo con link a configuración de planes                 |
+| Error parcial: Member creado pero suscripción/cargo falla             | Baja         | Crítico | Transacción atómica. Si falla cualquier INSERT, rollback completo. No se crea Member sin su cargo de inscripción    |
+| Descuento por tipo mal aplicado al cargo de inscripción               | Media        | Medio   | El cargo UNICA usa `effectiveAmount` precalculado con descuento del tipo de socio. Tests específicos con descuentos |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Domain Service MemberRegistrationService (interfaz)
+### Paso 1: Capa de dominio - Domain Service MemberRegistrationService (interfaz)
 
 Crear en `api/src/membership/domain/services/`:
 
@@ -120,12 +120,13 @@ Crear en `api/src/membership/domain/services/`:
   - `validatePreconditions(tenantId: string): Promise<PreconditionResult>`
 
 Tipos:
+
 - **`SimpleRegistrationRequest`**: `{ name, surnames, birthDate, documentType, documentNumber, email, phone, address, postalCode, city, memberTypeId }`
 - **`SimpleRegistrationResult`**: `{ memberId, memberNumber, status, memberTypeName, registrationDate, registrationCharge: { chargeId, amount, description, status } }`
 - **`DniCheckResult`**: `{ exists: boolean, memberName?: string, memberNumber?: string }`
 - **`PreconditionResult`**: `{ hasFiscalYear: boolean, hasMemberTypes: boolean, hasRegistrationPlan: boolean, errors: string[] }`
 
-### Paso 2: Capa de dominio — Ports cross-BC
+### Paso 2: Capa de dominio - Ports cross-BC
 
 Crear en `api/src/membership/domain/ports/`:
 
@@ -134,23 +135,27 @@ Crear en `api/src/membership/domain/ports/`:
   - `findRegistrationPlan(tenantId: string): Promise<RegistrationPlanInfo | null>`
 
 Tipos:
+
 - **`RegistrationChargeResult`**: `{ memberAccountId, subscriptionId, chargeId, chargeAmount, chargeDescription }`
 - **`RegistrationPlanInfo`**: `{ feePlanId, code, name, amount, typeDiscount?: number }`
 
 Este port permite que BC-Membership orqueste la creación de artefactos de tesorería sin importar repositorios de BC-Treasury directamente.
 
-### Paso 3: Capa de aplicación — Commands, Queries y DTOs
+### Paso 3: Capa de aplicación - Commands, Queries y DTOs
 
 Crear en `api/src/membership/application/`:
 
 **Commands:**
+
 - **`SimpleRegistrationCommand`**: `{ name, surnames, birthDate, documentType, documentNumber, email, phone, address, postalCode, city, memberTypeId }`
 
 **Queries:**
+
 - **`CheckDniQuery`**: `{ documentType, documentNumber }`
 - **`ValidatePreconditionsQuery`**: `{ tenantId }`
 
 **DTOs:**
+
 - **`SimpleRegistrationDto`**: DTO de entrada con validaciones `class-validator`:
   - `@IsNotEmpty()` para name, surnames, documentNumber, email
   - `@IsDateString()` para birthDate
@@ -162,15 +167,15 @@ Crear en `api/src/membership/application/`:
 - **`DniCheckResponseDto`**: DTO de salida: `exists`, `memberName`, `memberNumber`
 - **`PreconditionsResponseDto`**: DTO de salida: `hasFiscalYear`, `hasMemberTypes`, `hasRegistrationPlan`, `errors`
 
-### Paso 4: Capa de aplicación — Handlers
+### Paso 4: Capa de aplicación - Handlers
 
 **`SimpleRegistrationHandler`:**
 
 1. Verificar precondiciones:
    a. Existe ejercicio activo abierto (FE-5)
-      - Si no → error 412 "No hay ejercicio abierto. Abra el ejercicio actual primero"
-   b. Existe plan de inscripción tipo UNICA activo (FE-4)
-      - Si no → error 412 "Debe configurar un plan de cuota de inscripción"
+   - Si no → error 412 "No hay ejercicio abierto. Abra el ejercicio actual primero"
+     b. Existe plan de inscripción tipo UNICA activo (FE-4)
+   - Si no → error 412 "Debe configurar un plan de cuota de inscripción"
 2. Validar que el DNI no existe en el tenant (`memberRepository.existsByIdentityDocument(document)`)
    - Si existe → error 409 "Ya existe un socio con DNI {number}: {name} (nº {memberNumber}). ¿Es una reactivación?" (FE-1)
 3. Validar que el email no está en uso
@@ -183,15 +188,16 @@ Crear en `api/src/membership/application/`:
    b. Crear Aggregate `Member` via `Member.register(props)` con estado ACTIVE
    c. Guardar Member via `memberRepository.save(member)` (incluye StatusHistory)
    d. Crear artefactos de BC-Treasury via `registrationChargePort.createRegistrationArtifacts()`:
-      - Crear `MemberAccount` (si no existe)
-      - Crear `FeeSubscription` con plan UNICA
-      - Crear `Charge` con importe del plan (con descuento por tipo si aplica)
-      - Cerrar suscripción inmediatamente con `cancelReason = ONE_TIME_COMPLETED`
-   e. Registrar evento `MemberRegistered` en Outbox
-   f. Commit de transacción
+   - Crear `MemberAccount` (si no existe)
+   - Crear `FeeSubscription` con plan UNICA
+   - Crear `Charge` con importe del plan (con descuento por tipo si aplica)
+   - Cerrar suscripción inmediatamente con `cancelReason = ONE_TIME_COMPLETED`
+     e. Registrar evento `MemberRegistered` en Outbox
+     f. Commit de transacción
 7. Retornar `SimpleRegistrationResponseDto`
 
 **En caso de fallo:**
+
 - Rollback automático de transacción Prisma
 - Reportar excepción vía `ErrorReporter.captureException()` con contexto del paso fallido
 
@@ -210,7 +216,7 @@ Crear en `api/src/membership/application/`:
 3. Verificar plan de inscripción: consultar `FeePlan` tipo UNICA activo
 4. Retornar resultado con cada precondición y lista de errores descriptivos
 
-### Paso 5: Capa de infraestructura — Port Adapter para BC-Treasury
+### Paso 5: Capa de infraestructura - Port Adapter para BC-Treasury
 
 Crear en `api/src/membership/infrastructure/ports/`:
 
@@ -226,15 +232,15 @@ Crear en `api/src/membership/infrastructure/ports/`:
   - `findRegistrationPlan()`: Consulta `FeePlan` tipo UNICA activo en BD del tenant via `PrismaTenantService`
   - **NO importa repositorios de BC-Treasury.** Usa `PrismaTenantService.getClient(tenantId)` directamente para las queries
 
-### Paso 6: Capa de infraestructura — Controller
+### Paso 6: Capa de infraestructura - Controller
 
 Crear en `api/src/membership/infrastructure/controllers/registration.controller.ts`:
 
-| Endpoint | Método | Auth | Permiso | Body/Params | Response |
-|----------|--------|------|---------|-------------|----------|
-| `/api/v1/members/simple-registration` | POST | JWT | `membership:members:create` | `SimpleRegistrationDto` | 201 Created con `SimpleRegistrationResponseDto` |
-| `/api/v1/members/check-dni/:dni` | GET | JWT | `membership:members:read` | Param: `dni` | 200 con `DniCheckResponseDto` |
-| `/api/v1/members/preconditions` | GET | JWT | `membership:members:create` | — | 200 con `PreconditionsResponseDto` |
+| Endpoint                              | Método | Auth | Permiso                     | Body/Params             | Response                                        |
+| ------------------------------------- | ------ | ---- | --------------------------- | ----------------------- | ----------------------------------------------- |
+| `/api/v1/members/simple-registration` | POST   | JWT  | `membership:members:create` | `SimpleRegistrationDto` | 201 Created con `SimpleRegistrationResponseDto` |
+| `/api/v1/members/check-dni/:dni`      | GET    | JWT  | `membership:members:read`   | Param: `dni`            | 200 con `DniCheckResponseDto`                   |
+| `/api/v1/members/preconditions`       | GET    | JWT  | `membership:members:create` | -                       | 200 con `PreconditionsResponseDto`              |
 
 - Swagger decorators para documentación automática
 - Errores: 409 Conflict (DNI duplicado), 412 Precondition Failed (sin ejercicio/sin plan), 422 Unprocessable Entity (edad incompatible, DNI inválido)
@@ -242,9 +248,11 @@ Crear en `api/src/membership/infrastructure/controllers/registration.controller.
 ### Paso 7: Tests
 
 **Tests unitarios (dominio):**
+
 - `MemberRegistrationService` (interfaz mockeable para tests de integración)
 
 **Tests unitarios (aplicación):**
+
 - `SimpleRegistrationHandler` con mocks de `MemberRepository`, `MemberTypeRepository`, `FiscalYearRepository`, `RegistrationChargePort`:
   - Caso éxito: socio creado con número asignado, cargo de inscripción generado, suscripción cerrada con `ONE_TIME_COMPLETED`, evento `MemberRegistered` publicado
   - Caso DNI duplicado: rechazo con 409 y datos del socio existente
@@ -264,6 +272,7 @@ Crear en `api/src/membership/infrastructure/controllers/registration.controller.
   - Caso sin plan UNICA: retorna error específico
 
 **Tests de integración:**
+
 - Alta simple completa contra BD real (Testcontainers):
   - Crear socio con datos completos → verificar Member persistido con estado ACTIVE
   - Verificar MemberAccount creado en BD

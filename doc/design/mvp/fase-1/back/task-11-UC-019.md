@@ -1,4 +1,4 @@
-# Task 11 — UC-019: Generación masiva de cargos periódicos (Backend)
+# Task 11 - UC-019: Generación masiva de cargos periódicos (Backend)
 
 ## Información general
 
@@ -16,9 +16,9 @@
 
 - Entity `Charge` dentro del Aggregate `MemberAccount` con Value Objects (`Money`, `ChargeStatus`, `ChargeDescription`)
 - Application Service `ChargeGenerationService` con flujos: generación mensual automática, generación retroactiva manual, prorrateo en altas a mitad de ejercicio
-- Proceso mensual automático via `@nestjs/schedule` (cron job día 1 a las 02:00 AM) — US-047
+- Proceso mensual automático via `@nestjs/schedule` (cron job día 1 a las 02:00 AM) - US-047
 - Evaluación de `billingMonths` del plan: solo genera cargo si el mes actual está en la lista
-- Prevención de duplicados: constraint UNIQUE `(subscription_id, billing_month, billing_year)` — FE-4
+- Prevención de duplicados: constraint UNIQUE `(subscription_id, billing_month, billing_year)` - FE-4
 - Prorrateo automático para altas a mitad de ejercicio (US-048): solo meses >= mes de alta
 - Prorrateo de plan anual: cálculo proporcional `(annualAmount / 12) * remainingMonths`
 - Puerto `FiscalYearQueryPort` para consultar ejercicio activo de BC-Membership
@@ -45,14 +45,14 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **Fase 0 — Scaffold** | Estructura de módulos NestJS, Shared kernel, PrismaTenantService, Prisma schemas, Docker Compose con PostgreSQL, `@nestjs/schedule` configurado |
-| **F1-Back Task 1 — UC-001** | Tenant provisionado con BD aislada, schema tenant migrado |
-| **F1-Back Task 2 — UC-002** | `JwtAuthGuard`, `PermissionsGuard`, autenticación operativa |
-| **F1-Back Task 4 — UC-010** | Aggregate `FiscalYear` operativo, ejercicio abierto para contextualizar cargos, evento `FiscalYearOpened` |
-| **F1-Back Task 9 — UC-017** | Aggregate `FeePlan` con `billingMonths` y `amount`, Value Object `Money` |
-| **F1-Back Task 10 — UC-018** | Aggregate `MemberAccount` con Entity `FeeSubscription`, suscripciones activas creadas, `MemberQueryPort` |
+| Tarea                        | Artefacto necesario                                                                                                                             |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Fase 0 - Scaffold**        | Estructura de módulos NestJS, Shared kernel, PrismaTenantService, Prisma schemas, Docker Compose con PostgreSQL, `@nestjs/schedule` configurado |
+| **F1-Back Task 1 - UC-001**  | Tenant provisionado con BD aislada, schema tenant migrado                                                                                       |
+| **F1-Back Task 2 - UC-002**  | `JwtAuthGuard`, `PermissionsGuard`, autenticación operativa                                                                                     |
+| **F1-Back Task 4 - UC-010**  | Aggregate `FiscalYear` operativo, ejercicio abierto para contextualizar cargos, evento `FiscalYearOpened`                                       |
+| **F1-Back Task 9 - UC-017**  | Aggregate `FeePlan` con `billingMonths` y `amount`, Value Object `Money`                                                                        |
+| **F1-Back Task 10 - UC-018** | Aggregate `MemberAccount` con Entity `FeeSubscription`, suscripciones activas creadas, `MemberQueryPort`                                        |
 
 ### Checklist de verificación de dependencias
 
@@ -71,28 +71,28 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
+| Artefacto                                          | Consumido por                                                                  |
+| -------------------------------------------------- | ------------------------------------------------------------------------------ |
 | Entity `Charge` (dominio, dentro de MemberAccount) | UC-021 (registrar pagos sobre cargos), UC-023 (incluir cargos en remesas SEPA) |
-| Modelo `Charge` en schema tenant Prisma | UC-021, UC-023, UC-024, todos los UCs de cobros |
-| Domain Service `ProrataCalculator` | Reutilizable en UC-018 para estimar cargos al cambiar plan |
-| Cron job `ChargeGenerationCron` | Ejecución automática mensual, endpoint manual para retroactivos |
-| Puerto `FiscalYearQueryPort` | Reutilizable por UC-021 para contextualizar pagos dentro del ejercicio |
-| Endpoints REST de cargos | Frontend UC-019 (Fase 2), testing manual |
-| Evento `ChargeGenerated` | BC-Communication (aviso de cargo al socio) |
-| Evento `MonthlyGenerationCompleted` | Auditoría, alertas al tesorero |
+| Modelo `Charge` en schema tenant Prisma            | UC-021, UC-023, UC-024, todos los UCs de cobros                                |
+| Domain Service `ProrataCalculator`                 | Reutilizable en UC-018 para estimar cargos al cambiar plan                     |
+| Cron job `ChargeGenerationCron`                    | Ejecución automática mensual, endpoint manual para retroactivos                |
+| Puerto `FiscalYearQueryPort`                       | Reutilizable por UC-021 para contextualizar pagos dentro del ejercicio         |
+| Endpoints REST de cargos                           | Frontend UC-019 (Fase 2), testing manual                                       |
+| Evento `ChargeGenerated`                           | BC-Communication (aviso de cargo al socio)                                     |
+| Evento `MonthlyGenerationCompleted`                | Auditoría, alertas al tesorero                                                 |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `uc/uc-019.md` | Flujo completo de generación masiva, prorrateo, prevención de duplicados, ejecución manual retroactiva |
-| `us/us-047.md` | Criterios de aceptación Gherkin: proceso mensual, prevención duplicados, generación retroactiva |
-| `us/us-048.md` | Criterios de aceptación Gherkin: prorrateo para altas a mitad de ejercicio (mensual, trimestral, anual) |
-| `bc/bc-treasury.md` | Entity Charge — estructura, propiedades, invariantes, ChargeStatus, relación con suscripción |
-| `bc/bc-treasury.md` | Domain Service ChargeGenerator, ProrataCalculator |
-| `adr/adr-002.md` | Multi-tenant por BD aislada: cada cron procesa cada tenant |
-| `adr/adr-008.md` | Outbox pattern para Domain Events |
+| Documento           | Contenido relevante                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| `uc/uc-019.md`      | Flujo completo de generación masiva, prorrateo, prevención de duplicados, ejecución manual retroactiva  |
+| `us/us-047.md`      | Criterios de aceptación Gherkin: proceso mensual, prevención duplicados, generación retroactiva         |
+| `us/us-048.md`      | Criterios de aceptación Gherkin: prorrateo para altas a mitad de ejercicio (mensual, trimestral, anual) |
+| `bc/bc-treasury.md` | Entity Charge - estructura, propiedades, invariantes, ChargeStatus, relación con suscripción            |
+| `bc/bc-treasury.md` | Domain Service ChargeGenerator, ProrataCalculator                                                       |
+| `adr/adr-002.md`    | Multi-tenant por BD aislada: cada cron procesa cada tenant                                              |
+| `adr/adr-008.md`    | Outbox pattern para Domain Events                                                                       |
 
 ## Puntos críticos
 
@@ -108,17 +108,17 @@ Antes de iniciar esta tarea, verificar que:
 
 ## Riesgos
 
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|-------------|---------|------------|
-| Cron job ejecuta simultáneamente para mismo tenant (overlap) | Baja | Alto | Usar lock distribuido o flag `is_processing` en tabla de tenants. Timeout de 5 minutos para el lock |
-| Suscripción sin plan activo (plan desactivado después de crear suscripción) | Baja | Medio | Verificar que el plan está activo antes de generar. Si inactivo, skip + warning en log (FE-1) |
-| Error en generación masiva con >5% fallos descartar lote completo | Baja | Alto | Rollback del lote. Alerta al tesorero. Permitir corrección manual y reintento (FE-2) |
-| Cálculo de prorrateo con redondeo genera diferencias acumuladas | Media | Bajo | Redondear al centavo más cercano. Documentar política de redondeo. El último cargo absorbe la diferencia |
-| Proceso nocturno excede timeout (>5 min) en tenant grande | Baja | Medio | Configurar timeout a 5 minutos. Si excede, registrar progreso y completar en siguiente ejecución |
+| Riesgo                                                                      | Probabilidad | Impacto | Mitigación                                                                                               |
+| --------------------------------------------------------------------------- | ------------ | ------- | -------------------------------------------------------------------------------------------------------- |
+| Cron job ejecuta simultáneamente para mismo tenant (overlap)                | Baja         | Alto    | Usar lock distribuido o flag `is_processing` en tabla de tenants. Timeout de 5 minutos para el lock      |
+| Suscripción sin plan activo (plan desactivado después de crear suscripción) | Baja         | Medio   | Verificar que el plan está activo antes de generar. Si inactivo, skip + warning en log (FE-1)            |
+| Error en generación masiva con >5% fallos descartar lote completo           | Baja         | Alto    | Rollback del lote. Alerta al tesorero. Permitir corrección manual y reintento (FE-2)                     |
+| Cálculo de prorrateo con redondeo genera diferencias acumuladas             | Media        | Bajo    | Redondear al centavo más cercano. Documentar política de redondeo. El último cargo absorbe la diferencia |
+| Proceso nocturno excede timeout (>5 min) en tenant grande                   | Baja         | Medio   | Configurar timeout a 5 minutos. Si excede, registrar progreso y completar en siguiente ejecución         |
 
 ## Plan de implementación
 
-### Paso 1: Capa de dominio — Value Objects
+### Paso 1: Capa de dominio - Value Objects
 
 Crear en `api/src/treasury/domain/value-objects/`:
 
@@ -130,7 +130,7 @@ Reutilizar de Tasks previas: `Money`, `SubscriptionId`, `FeePlanId`, `MemberAcco
 
 Tests unitarios: enumeración completa de `ChargeStatus`, creación de `ChargeDescription` válida.
 
-### Paso 2: Capa de dominio — Entity Charge
+### Paso 2: Capa de dominio - Entity Charge
 
 Crear en `api/src/treasury/domain/entities/charge.ts`:
 
@@ -164,7 +164,7 @@ Crear en `api/src/treasury/domain/entities/charge.ts`:
 
 Tests unitarios: creación de cargo válido, registro de pago parcial, registro de pago completo, cálculo de remaining, cancelación, validación de invariantes.
 
-### Paso 3: Capa de dominio — Domain Service ProrataCalculator
+### Paso 3: Capa de dominio - Domain Service ProrataCalculator
 
 Crear en `api/src/treasury/domain/services/prorata-calculator.ts`:
 
@@ -180,7 +180,7 @@ Crear en `api/src/treasury/domain/services/prorata-calculator.ts`:
 
 Tests unitarios: prorrateo mensual (alta julio → 6 cargos), prorrateo trimestral (alta julio → meses [7,10]), prorrateo anual inmediato (alta julio, mes cobro [2] ya pasado → cargo prorrateado 6/12), ningún cargo si mes no aplica.
 
-### Paso 4: Capa de dominio — Domain Service ChargeGenerator
+### Paso 4: Capa de dominio - Domain Service ChargeGenerator
 
 Crear en `api/src/treasury/domain/services/charge-generator.ts`:
 
@@ -196,14 +196,14 @@ Crear en `api/src/treasury/domain/services/charge-generator.ts`:
 
 Tests unitarios: generación para mes que aplica, skip para mes que no aplica, skip para duplicado, error para suscripción sin plan activo, resultado con contadores correctos.
 
-### Paso 5: Capa de dominio — Domain Events
+### Paso 5: Capa de dominio - Domain Events
 
 Crear en `api/src/treasury/domain/events/`:
 
 - **`ChargeGeneratedEvent`**: Extiende `DomainEvent`. Payload: `{ chargeId: UUID, memberAccountId: UUID, memberId: UUID, subscriptionId: UUID, amount: number, billingMonth: number, billingYear: number, dueDate: Date }`
 - **`MonthlyGenerationCompletedEvent`**: Extiende `DomainEvent`. Payload: `{ tenantId: UUID, month: number, year: number, totalSubscriptions: number, chargesGenerated: number, totalAmount: number, duplicatesSkipped: number, errorsCount: number, durationMs: number }`
 
-### Paso 6: Capa de dominio — Puertos e interfaces
+### Paso 6: Capa de dominio - Puertos e interfaces
 
 Crear en `api/src/treasury/domain/ports/`:
 
@@ -220,24 +220,27 @@ Extender `api/src/treasury/domain/repositories/` (del repositorio de MemberAccou
   - `findByMemberAccountId(memberAccountId: MemberAccountId): Promise<Charge[]>`
   - `findPendingByMemberAccountId(memberAccountId: MemberAccountId): Promise<Charge[]>`
 
-### Paso 7: Capa de aplicación — Commands, Queries y DTOs
+### Paso 7: Capa de aplicación - Commands, Queries y DTOs
 
 Crear en `api/src/treasury/application/`:
 
 **Commands:**
+
 - **`GenerateMonthlyChargesCommand`**: `{ month: number, year: number, tenantId?: string }` (tenantId opcional, si no se indica procesa todos)
 - **`GenerateSubscriptionChargesCommand`**: `{ memberAccountId, subscriptionId }` (genera cargos prorrateados para nueva suscripción)
 
 **Queries:**
+
 - **`GetGenerationLogQuery`**: `{ month?: number, year?: number }`
 - **`GetChargesByAccountQuery`**: `{ memberAccountId }`
 
 **DTOs:**
+
 - **`GenerateMonthlyChargesDto`**: DTO de entrada: `@IsInt()` `@Min(1)` `@Max(12)` month, `@IsInt()` `@Min(2020)` year
 - **`GenerationResultDto`**: DTO de salida: `tenantId`, `month`, `year`, `subscriptionsEvaluated`, `chargesGenerated`, `totalAmount` (centavos), `totalAmountFormatted` (euros), `duplicatesSkipped`, `errorsCount`, `errors: Array<{ subscriptionId, error }>`, `durationMs`
 - **`ChargeResponseDto`**: DTO de salida: `id`, `subscriptionId`, `description`, `baseAmount`, `finalAmount`, `finalAmountFormatted`, `billingMonth`, `billingYear`, `issueDate`, `dueDate`, `status`, `paidAmount`, `isProrated`, `isManual`
 
-### Paso 8: Capa de aplicación — Handlers
+### Paso 8: Capa de aplicación - Handlers
 
 **`GenerateMonthlyChargesHandler`:**
 
@@ -245,23 +248,24 @@ Crear en `api/src/treasury/application/`:
 2. Para cada tenant:
    a. Obtener cliente Prisma via `PrismaTenantService.getClient(tenantId)`
    b. Verificar que existe ejercicio abierto via `FiscalYearQueryPort.findActive(tenantId)`
-      - Si no hay ejercicio abierto → skip tenant con warning
-   c. Obtener todas las suscripciones activas con sus planes
-   d. Filtrar socios en estado activo via `MemberQueryPort` (excluir SUSPENDED y PENDING_PAYMENT — FA-5)
-   e. Obtener cargos existentes para el mes/año (para prevenir duplicados)
-   f. Ejecutar `ChargeGenerator.generateForMonth()` en batches de 100
-   g. Para cada batch:
-      - Crear transacción Prisma
-      - Insertar cargos via `ChargeRepository.saveMany()`
-      - Registrar eventos `ChargeGenerated` en Outbox
-      - Commit de transacción
-      - Si error en batch: registrar error, continuar con siguiente batch
-   h. Registrar resultado en log de auditoría
-   i. Publicar `MonthlyGenerationCompleted`
+   - Si no hay ejercicio abierto → skip tenant con warning
+     c. Obtener todas las suscripciones activas con sus planes
+     d. Filtrar socios en estado activo via `MemberQueryPort` (excluir SUSPENDED y PENDING_PAYMENT - FA-5)
+     e. Obtener cargos existentes para el mes/año (para prevenir duplicados)
+     f. Ejecutar `ChargeGenerator.generateForMonth()` en batches de 100
+     g. Para cada batch:
+   - Crear transacción Prisma
+   - Insertar cargos via `ChargeRepository.saveMany()`
+   - Registrar eventos `ChargeGenerated` en Outbox
+   - Commit de transacción
+   - Si error en batch: registrar error, continuar con siguiente batch
+     h. Registrar resultado en log de auditoría
+     i. Publicar `MonthlyGenerationCompleted`
 3. Si errores > 5% del total → enviar alerta (FE-2)
 4. Retornar `GenerationResultDto` con resumen
 
 **En caso de fallo:**
+
 - Rollback del batch actual (automático por Prisma)
 - Continuar con siguiente batch
 - Reportar excepciones vía `ErrorReporter.captureException()` con contexto (tenantId, batch, subscriptionIds)
@@ -279,7 +283,7 @@ Crear en `api/src/treasury/application/`:
 7. Publicar `ChargeGenerated` por cada cargo via Outbox
 8. Retornar lista de cargos generados
 
-### Paso 9: Capa de infraestructura — Schema Prisma (tenant)
+### Paso 9: Capa de infraestructura - Schema Prisma (tenant)
 
 Extender `api/prisma/tenant/schema.prisma` con:
 
@@ -314,7 +318,7 @@ model Charge {
 
 Nota: `base_amount`, `final_amount` y `paid_amount` almacenan centavos (integer). El constraint UNIQUE `(subscription_id, billing_month, billing_year)` previene duplicados. Agregar relación en modelo `FeeSubscription`: `charges Charge[]`.
 
-### Paso 10: Capa de infraestructura — Repository (Prisma)
+### Paso 10: Capa de infraestructura - Repository (Prisma)
 
 Crear en `api/src/treasury/infrastructure/persistence/`:
 
@@ -327,7 +331,7 @@ Crear en `api/src/treasury/infrastructure/ports/`:
 
 - **`PrismaFiscalYearQueryAdapter`**: Implementa `FiscalYearQueryPort`. Consulta la tabla `fiscal_years` de la BD del tenant via `PrismaTenantService`. NO importa repositorios de BC-Membership
 
-### Paso 11: Capa de infraestructura — Cron Job
+### Paso 11: Capa de infraestructura - Cron Job
 
 Crear en `api/src/treasury/infrastructure/cron/charge-generation.cron.ts`:
 
@@ -339,16 +343,16 @@ Crear en `api/src/treasury/infrastructure/cron/charge-generation.cron.ts`:
   - Si proceso > 2 minutos → log warning
   - Si proceso falla → log error + `ErrorReporter.captureException()`
 
-### Paso 12: Capa de infraestructura — Controller
+### Paso 12: Capa de infraestructura - Controller
 
 Crear en `api/src/treasury/infrastructure/controllers/charges.controller.ts`:
 
-| Endpoint | Método | Auth | Permiso | Body/Params | Response |
-|----------|--------|------|---------|-------------|----------|
-| `/api/v1/treasury/charges/generate-monthly` | POST | JWT | `treasury:charges:create` | `GenerateMonthlyChargesDto` | 200 con `GenerationResultDto` |
-| `/api/v1/treasury/charges/generation-log` | GET | JWT | `treasury:charges:read` | Query: `?month=4&year=2025` | 200 con log de generaciones |
-| `/api/v1/treasury/member-accounts/:accountId/charges` | GET | JWT | `treasury:charges:read` | Param: `accountId`, Query: `?status=PENDING` | 200 con `ChargeResponseDto[]` |
-| `/api/v1/treasury/member-accounts/:accountId/charges/generate-subscription` | POST | JWT | `treasury:charges:create` | `{ subscriptionId }` | 201 Created con `ChargeResponseDto[]` |
+| Endpoint                                                                    | Método | Auth | Permiso                   | Body/Params                                  | Response                              |
+| --------------------------------------------------------------------------- | ------ | ---- | ------------------------- | -------------------------------------------- | ------------------------------------- |
+| `/api/v1/treasury/charges/generate-monthly`                                 | POST   | JWT  | `treasury:charges:create` | `GenerateMonthlyChargesDto`                  | 200 con `GenerationResultDto`         |
+| `/api/v1/treasury/charges/generation-log`                                   | GET    | JWT  | `treasury:charges:read`   | Query: `?month=4&year=2025`                  | 200 con log de generaciones           |
+| `/api/v1/treasury/member-accounts/:accountId/charges`                       | GET    | JWT  | `treasury:charges:read`   | Param: `accountId`, Query: `?status=PENDING` | 200 con `ChargeResponseDto[]`         |
+| `/api/v1/treasury/member-accounts/:accountId/charges/generate-subscription` | POST   | JWT  | `treasury:charges:create` | `{ subscriptionId }`                         | 201 Created con `ChargeResponseDto[]` |
 
 - Swagger decorators para documentación automática
 - Errores: 404 Not Found (cuenta no encontrada), 422 Unprocessable Entity (sin ejercicio abierto), 409 Conflict (cargos ya generados para el periodo)
@@ -356,6 +360,7 @@ Crear en `api/src/treasury/infrastructure/controllers/charges.controller.ts`:
 ### Paso 13: Tests
 
 **Tests unitarios (dominio):**
+
 - `Charge.create()` con datos válidos → cargo en estado PENDING
 - `Charge.create()` con finalAmount <= 0 → error
 - `Charge.create()` con dueDate < issueDate → error
@@ -375,6 +380,7 @@ Crear en `api/src/treasury/infrastructure/controllers/charges.controller.ts`:
   - Suscripción sin plan activo → error registrado
 
 **Tests unitarios (aplicación):**
+
 - `GenerateMonthlyChargesHandler` con mocks:
   - Caso éxito: 3 suscripciones, 2 generan cargo (mes aplica), 1 skip → resultado correcto
   - Caso duplicados: cargos ya existentes → skip sin error
@@ -387,6 +393,7 @@ Crear en `api/src/treasury/infrastructure/controllers/charges.controller.ts`:
   - Caso cargos ya existentes → no duplica
 
 **Tests de integración:**
+
 - Generación masiva contra BD real (Testcontainers):
   - Crear 5 suscripciones con distintos planes → generar cargos para mes 4 → verificar que solo se generan para planes que incluyen mes 4
   - Ejecutar generación 2 veces para mismo mes → verificar 0 duplicados (constraint UNIQUE)

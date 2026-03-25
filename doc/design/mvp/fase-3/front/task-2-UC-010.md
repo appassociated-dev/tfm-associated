@@ -1,4 +1,4 @@
-# Task 2 — UC-010: Gestión de ejercicios (Frontend)
+# Task 2 - UC-010: Gestión de ejercicios (Frontend)
 
 ## Información general
 
@@ -28,7 +28,7 @@
 
 ### Excluido
 
-- Cálculo de fecha de ejercicio cofrade (Domingo de Resurrección) — lo calcula el backend
+- Cálculo de fecha de ejercicio cofrade (Domingo de Resurrección) - lo calcula el backend
 - Visualización/descarga de la memoria de ejercicio generada (depende de BC-Documents, fuera del MVP)
 - Modificación de ejercicio cerrado (bloqueado por backend)
 - Gestión de eventos y actas dentro del ejercicio (BC-Events y BC-Documents fuera del MVP)
@@ -37,11 +37,11 @@
 
 ### Tareas previas requeridas
 
-| Tarea | Artefacto necesario |
-|-------|-------------------|
-| **F1-Back Task 4 — UC-010** | Endpoints REST: fiscal-years CRUD, open, close, compare, pre-close-validations |
-| **F1-Front Task 1 — UC-002** | AuthProvider, usePermissions(), HttpClient |
-| **Fase 0 — Scaffold** | Proyecto React + Vite + Mantine, TanStack Query, Router, Zod |
+| Tarea                        | Artefacto necesario                                                            |
+| ---------------------------- | ------------------------------------------------------------------------------ |
+| **F1-Back Task 4 - UC-010**  | Endpoints REST: fiscal-years CRUD, open, close, compare, pre-close-validations |
+| **F1-Front Task 1 - UC-002** | AuthProvider, usePermissions(), HttpClient                                     |
+| **Fase 0 - Scaffold**        | Proyecto React + Vite + Mantine, TanStack Query, Router, Zod                   |
 
 ### Checklist de verificación de dependencias
 
@@ -56,23 +56,23 @@ Antes de iniciar esta tarea, verificar que:
 
 ### Artefactos producidos
 
-| Artefacto | Consumido por |
-|-----------|---------------|
-| Página `/settings/fiscal-years` | Navegación de configuración |
-| Página `/settings/fiscal-years/:id` | Navegación interna |
-| Componente `FiscalYearSelector` | Layout global (selector de contexto de ejercicio) |
-| Componente `FiscalYearTypeConfigurator` | Reutilizable en otros contextos de configuración |
+| Artefacto                                        | Consumido por                                             |
+| ------------------------------------------------ | --------------------------------------------------------- |
+| Página `/settings/fiscal-years`                  | Navegación de configuración                               |
+| Página `/settings/fiscal-years/:id`              | Navegación interna                                        |
+| Componente `FiscalYearSelector`                  | Layout global (selector de contexto de ejercicio)         |
+| Componente `FiscalYearTypeConfigurator`          | Reutilizable en otros contextos de configuración          |
 | Hook `useFiscalYears()`, `useActiveFiscalYear()` | UC-064, UC-065 (dashboard necesita contexto de ejercicio) |
 
 ## Referencia de especificación
 
-| Documento | Contenido relevante |
-|-----------|-------------------|
-| `doc/brand/001-associated-brand-foundation.md` | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición |
+| Documento                                           | Contenido relevante                                                                                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `doc/brand/001-associated-brand-foundation.md`      | Fundamentos de marca, paleta de colores, tipografía, iconografía, tono de voz y principios de composición                          |
 | `doc/brand/002-associated-ui-product-guidelines.md` | Guía de implementación UI/UX con Mantine 8.x: theme tokens, default props de componentes, layout, formateo de datos y brand assets |
-| `uc/uc-010.md` | Flujo completo: configurador, apertura con arrastre, cierre con validaciones, comparativas |
-| `us/us-023.md` a `us/us-027.md` | Criterios: concepto de ejercicio, apertura, cierre, comparativas, transiciones |
-| `bc/bc-membership.md` | Aggregate FiscalYear — estados (PREPARACION, ABIERTO, CERRADO), tipo de ejercicio |
+| `uc/uc-010.md`                                      | Flujo completo: configurador, apertura con arrastre, cierre con validaciones, comparativas                                         |
+| `us/us-023.md` a `us/us-027.md`                     | Criterios: concepto de ejercicio, apertura, cierre, comparativas, transiciones                                                     |
+| `bc/bc-membership.md`                               | Aggregate FiscalYear - estados (PREPARACION, ABIERTO, CERRADO), tipo de ejercicio                                                  |
 
 ## Puntos críticos
 
@@ -130,8 +130,8 @@ Crear en `web/src/features/settings/components/`:
   - Lista detallada de transiciones: "Juan García: Juvenil → Adulto (cumple 35 años)"
   - Botones: "Confirmar apertura" / "Cancelar"
 - **`CloseFiscalYearWizard.tsx`**: Stepper de 2 pasos
-  - Paso 1: `PreCloseValidationsPanel` — resultado de validaciones con icono por cada una
-  - Paso 2: Confirmación — resumen del ejercicio + checkbox de forzar cierre si hay advertencias + botón "Cerrar ejercicio"
+  - Paso 1: `PreCloseValidationsPanel` - resultado de validaciones con icono por cada una
+  - Paso 2: Confirmación - resumen del ejercicio + checkbox de forzar cierre si hay advertencias + botón "Cerrar ejercicio"
 - **`PreCloseValidationsPanel.tsx`**: Panel con lista de validaciones
   - Cada validación: icono (✓ verde / ⚠️ amarillo), nombre, descripción, estado
   - Resumen: "2 de 3 validaciones superadas"

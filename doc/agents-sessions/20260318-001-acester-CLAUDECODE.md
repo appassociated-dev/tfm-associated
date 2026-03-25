@@ -51,15 +51,15 @@ mantine-dev, zod-4, react-hook-form-zod, auth-implementation-patterns) y consult
 
 **Resultado consolidado:**
 
-- 6 bugs CRITICOS (P0) — bloquean uso completo de la aplicacion
-- 12 issues ALTOS (P1) — funcionalidad incompleta o rota
-- 18 issues MEDIOS (P2) — afectan UX/calidad
-- 12 issues BAJOS (P3) — cosmeticos/tecnicos menores
+- 6 bugs CRITICOS (P0) - bloquean uso completo de la aplicacion
+- 12 issues ALTOS (P1) - funcionalidad incompleta o rota
+- 18 issues MEDIOS (P2) - afectan UX/calidad
+- 12 issues BAJOS (P3) - cosmeticos/tecnicos menores
 
 **Bugs criticos encontrados:**
 
-1. `hasPermission` no soporta wildcards — sidebar solo muestra Dashboard
-2. Race condition — permisos vacios tras login (async sin await)
+1. `hasPermission` no soporta wildcards - sidebar solo muestra Dashboard
+2. Race condition - permisos vacios tras login (async sin await)
 3. Formatos incompatibles backend/frontend para permisos
 4. Route param mismatch `:id` vs `memberId` en 3 paginas de leave
 5. NAV_ITEMS apuntan a rutas inexistentes (/members, /treasury, /settings)
@@ -67,7 +67,7 @@ mantine-dev, zod-4, react-hook-form-zod, auth-implementation-patterns) y consult
 
 **Archivos generados:**
 
-- `doc/reports/frontend-fase1-audit.md` — Informe completo con 6 secciones
+- `doc/reports/frontend-fase1-audit.md` - Informe completo con 6 secciones
 - Engram: 7 observaciones (1 consolidada + 6 por task)
 
 **Estrategia propuesta:** 5 flujos SDD ordenados por dependencia:
@@ -93,7 +93,7 @@ Ambos artefactos persistidos en engram (proposal, spec, design, tasks, state).
 **Descripcion:**
 Lanzados 2 subagentes en paralelo para implementar los fixes P0.
 
-**SDD-1 Apply — Resultados:**
+**SDD-1 Apply - Resultados:**
 
 - `use-permissions.ts`: `matchPermission()` portado del backend con wildcards (`*`, `bc:*`)
 - `auth.provider.tsx`: `applyLoginResponse` ahora async con `await getCurrentUser()`
@@ -102,7 +102,7 @@ Lanzados 2 subagentes en paralelo para implementar los fixes P0.
 - `use-permissions.spec.ts`: 31 tests nuevos cubriendo todos los SYSTEM_ROLES
 - Tests: 34/34 passing
 
-**SDD-2 Apply — Resultados:**
+**SDD-2 Apply - Resultados:**
 
 - `router.tsx`: 3 rutas corregidas `:id` → `:memberId`
 - 4 paginas: breadcrumbs anadidos (voluntary-leave, nonpayment-leave, reinstatement, subscriptions)
@@ -132,17 +132,17 @@ El usuario verifico manualmente los fixes de SDD-1/SDD-2 y reporto 4 problemas q
 
 **Problemas encontrados y fixes:**
 
-1. **Sidebar desaparecia al re-login:** `applyLoginResponse` tenia un `await` faltante en `login()` — el sidebar aparecia brevemente y desaparecia porque los permisos no se cargaban antes de renderizar
-2. **"Error al cargar planes" en Planes de Cuota:** Las URLs de API de tesoreria no incluian el prefijo `/treasury/` — peticiones iban a rutas inexistentes
+1. **Sidebar desaparecia al re-login:** `applyLoginResponse` tenia un `await` faltante en `login()` - el sidebar aparecia brevemente y desaparecia porque los permisos no se cargaban antes de renderizar
+2. **"Error al cargar planes" en Planes de Cuota:** Las URLs de API de tesoreria no incluian el prefijo `/treasury/` - peticiones iban a rutas inexistentes
 3. **Sub-ruta incorrecta en importar plantilla:** `templates/import` corregido a `import-template`
 4. **Test auth.schemas.spec.ts roto:** El test esperaba formato nested pero el schema devolvia formato flat tras cambios de SDD-1
 
 **Archivos modificados:**
 
-- `web/src/features/auth/context/auth.provider.tsx` — await en login() linea 191
-- `web/src/features/treasury/fee-plans/api/fee-plan.api.ts` — prefijo `/treasury/` en URLs
-- `web/src/features/treasury/subscriptions/api/subscription.api.ts` — prefijo `/treasury/` en URLs
-- `web/src/features/auth/schemas/auth.schemas.spec.ts` — correccion formato nested vs flat
+- `web/src/features/auth/context/auth.provider.tsx` - await en login() linea 191
+- `web/src/features/treasury/fee-plans/api/fee-plan.api.ts` - prefijo `/treasury/` en URLs
+- `web/src/features/treasury/subscriptions/api/subscription.api.ts` - prefijo `/treasury/` en URLs
+- `web/src/features/auth/schemas/auth.schemas.spec.ts` - correccion formato nested vs flat
 
 ### 01:51 - Fix race condition token stale (re-login 401)
 
@@ -162,7 +162,7 @@ Anadido `accessTokenRef` (useRef sincronico) para que el interceptor siempre lea
 
 **Archivos modificados:**
 
-- `web/src/features/auth/context/auth.provider.tsx` — accessTokenRef + sincronizacion en 4 metodos
+- `web/src/features/auth/context/auth.provider.tsx` - accessTokenRef + sincronizacion en 4 metodos
 
 ### 02:00 - Fixes de bugs reportados por usuario (Fee Plans + Registration)
 
@@ -171,37 +171,37 @@ Subagente lanzado para corregir 5 bugs reportados durante testing manual.
 
 **Resultados por bug:**
 
-1. **Registration "Siguiente" deshabilitado** — FIXED: `onValidChange` faltaba en dependency array del `useEffect` en personal-data-step, impidiendo que el boton se habilitara
-2. **Fee plan codigo con guiones rechazado** — FIXED: regex cambiada de `/^[a-zA-Z0-9_]+$/` a `/^[a-zA-Z0-9_-]+$/` para permitir guiones
-3. **ONE_TIME fee plans fallan al crear** — FIXED: `@IsOptional()` anadido en campo `frequency` de DTOs backend (no aplica a planes ONE_TIME) + `useRef` anti-loop en frontend para evitar re-renders infinitos
-4. **Meses sin restriccion por periodicidad** — No es bug: la spec dice que los meses son "orientativos", el backend no valida coherencia
-5. **Sin posibilidad de reactivar plan inactivo** — Requiere endpoint nuevo, pospuesto a SDD-3/siguiente iteracion
+1. **Registration "Siguiente" deshabilitado** - FIXED: `onValidChange` faltaba en dependency array del `useEffect` en personal-data-step, impidiendo que el boton se habilitara
+2. **Fee plan codigo con guiones rechazado** - FIXED: regex cambiada de `/^[a-zA-Z0-9_]+$/` a `/^[a-zA-Z0-9_-]+$/` para permitir guiones
+3. **ONE_TIME fee plans fallan al crear** - FIXED: `@IsOptional()` anadido en campo `frequency` de DTOs backend (no aplica a planes ONE_TIME) + `useRef` anti-loop en frontend para evitar re-renders infinitos
+4. **Meses sin restriccion por periodicidad** - No es bug: la spec dice que los meses son "orientativos", el backend no valida coherencia
+5. **Sin posibilidad de reactivar plan inactivo** - Requiere endpoint nuevo, pospuesto a SDD-3/siguiente iteracion
 
 **Archivos modificados:**
 
-- `web/src/features/membership/registration/components/personal-data-step.tsx` — fix useEffect deps
-- `web/src/features/treasury/fee-plans/components/fee-plan-form.tsx` — regex + useRef anti-loop
-- `api/src/treasury/infrastructure/http/dto/create-fee-plan.dto.ts` — @IsOptional() en frequency
-- `api/src/treasury/infrastructure/http/dto/update-fee-plan.dto.ts` — @IsOptional() en frequency
-- `api/src/treasury/infrastructure/http/fee-plans.controller.ts` — ajustes validacion
+- `web/src/features/membership/registration/components/personal-data-step.tsx` - fix useEffect deps
+- `web/src/features/treasury/fee-plans/components/fee-plan-form.tsx` - regex + useRef anti-loop
+- `api/src/treasury/infrastructure/http/dto/create-fee-plan.dto.ts` - @IsOptional() en frequency
+- `api/src/treasury/infrastructure/http/dto/update-fee-plan.dto.ts` - @IsOptional() en frequency
+- `api/src/treasury/infrastructure/http/fee-plans.controller.ts` - ajustes validacion
 
 ### 02:22 - Logout 401 + loop infinito en wizard
 
 **Descripcion:**
 Dos bugs criticos descubiertos durante testing continuo del usuario.
 
-**Bug 1 — Logout 401:**
+**Bug 1 - Logout 401:**
 `clearAuthState()` borraba el token ANTES de llamar al endpoint `/auth/logout` del API. Al invertir el orden (primero llamar API, luego borrar token), el request incluye el JWT y el backend puede invalidar la sesion correctamente.
 
-**Bug 2 — Loop infinito en Nuevo Socio:**
+**Bug 2 - Loop infinito en Nuevo Socio:**
 Al agregar `onValidChange` al array de dependencias del useEffect (fix de las 02:00), se creo un loop infinito: `handleStep0ValidChange` era una funcion regular que se recreaba en cada render → useEffect detectaba nueva referencia → setState → re-render → nueva funcion → useEffect → ...
 
 **Solucion:** Envolver los callbacks del wizard con `useCallback` para estabilizar las referencias y romper el ciclo.
 
 **Archivos modificados:**
 
-- `web/src/features/auth/context/auth.provider.tsx` — orden de clearAuthState (API antes de borrar token)
-- `web/src/features/membership/registration/pages/simple-registration.page.tsx` — useCallback en handlers del wizard
+- `web/src/features/auth/context/auth.provider.tsx` - orden de clearAuthState (API antes de borrar token)
+- `web/src/features/membership/registration/pages/simple-registration.page.tsx` - useCallback en handlers del wizard
 
 ### 02:35 - Fix check-dni + activacion de planes
 
@@ -221,16 +221,16 @@ Implementacion completa del flujo de activacion de planes de cuota:
 
 **Archivos modificados:**
 
-- `web/src/features/membership/registration/api/registration.api.ts` — getDocumentType() + fix URL
-- `web/src/features/membership/registration/schemas/member-registration.schemas.ts` — nullish()
-- `api/src/treasury/domain/aggregates/fee-plan.ts` — metodo activate()
-- `api/src/treasury/application/commands/activate-fee-plan.command.ts` — nuevo command
-- `api/src/treasury/application/commands/activate-fee-plan.handler.ts` — nuevo handler
-- `api/src/treasury/infrastructure/http/fee-plans.controller.ts` — PATCH :id/activate
-- `api/src/treasury/treasury.module.ts` — registro handler
-- `web/src/features/treasury/fee-plans/api/fee-plan.api.ts` — endpoint activacion
-- `web/src/features/treasury/fee-plans/hooks/use-activate-fee-plan.ts` — nuevo hook
-- `web/src/features/treasury/fee-plans/pages/fee-plans-list.page.tsx` — boton Activar
+- `web/src/features/membership/registration/api/registration.api.ts` - getDocumentType() + fix URL
+- `web/src/features/membership/registration/schemas/member-registration.schemas.ts` - nullish()
+- `api/src/treasury/domain/aggregates/fee-plan.ts` - metodo activate()
+- `api/src/treasury/application/commands/activate-fee-plan.command.ts` - nuevo command
+- `api/src/treasury/application/commands/activate-fee-plan.handler.ts` - nuevo handler
+- `api/src/treasury/infrastructure/http/fee-plans.controller.ts` - PATCH :id/activate
+- `api/src/treasury/treasury.module.ts` - registro handler
+- `web/src/features/treasury/fee-plans/api/fee-plan.api.ts` - endpoint activacion
+- `web/src/features/treasury/fee-plans/hooks/use-activate-fee-plan.ts` - nuevo hook
+- `web/src/features/treasury/fee-plans/pages/fee-plans-list.page.tsx` - boton Activar
 
 ### 02:46 - Fix payload de alta simple
 
@@ -241,7 +241,7 @@ El frontend enviaba campos con nombres incorrectos en el payload de alta de soci
 
 **Archivos modificados:**
 
-- `web/src/features/membership/registration/api/registration.api.ts` — transformacion de payload
+- `web/src/features/membership/registration/api/registration.api.ts` - transformacion de payload
 
 ### 02:51 - Fix Charge.create campo description
 
@@ -250,20 +250,20 @@ Error 500 al completar alta de socio. El adapter `prisma-registration-charge.ada
 
 **Solucion:** Renombrado `concept` a `description` en la llamada a `charge.create()`.
 
-**Descubrimiento critico — Atomicidad en registration:**
+**Descubrimiento critico - Atomicidad en registration:**
 Durante la investigacion se descubrio que `memberRepository.save()` se ejecuta FUERA de la `$transaction` de Prisma. Si falla la creacion de artefactos de tesoreria (MemberAccount, FeeSubscription, Charge), el Member queda persistido sin rollback → socios huerfanos. Documentado en engram como deuda tecnica critica (`debt/registration-atomicity`).
 
 **Archivos modificados:**
 
-- `api/src/membership/infrastructure/persistence/prisma-registration-charge.adapter.ts` — concept → description
+- `api/src/membership/infrastructure/persistence/prisma-registration-charge.adapter.ts` - concept → description
 
 ### 03:00 - SDD-3 y SDD-4 lanzados en paralelo
 
 **Descripcion:**
 Dos subagentes ejecutando flow completo SDD (propose → spec → design → tasks → apply) en paralelo:
 
-- **SDD-3 (fix/forms-and-validation):** 9 issues P1 identificados — DateInput Mantine, precondiciones FE-4/FE-5, atomicidad transaccional, P2002 error handling, email check frontend, schema condicional RECURRING, importe inscripcion, ExemptionModal, FeePlanForm
-- **SDD-4 (fix/uncabled-features):** 6 issues P1 — LinkMemberTypesModal, DeactivateModal count, Cancelar Baja, PDF generacion, workflow alert morosidad, DNI en leave pages
+- **SDD-3 (fix/forms-and-validation):** 9 issues P1 identificados - DateInput Mantine, precondiciones FE-4/FE-5, atomicidad transaccional, P2002 error handling, email check frontend, schema condicional RECURRING, importe inscripcion, ExemptionModal, FeePlanForm
+- **SDD-4 (fix/uncabled-features):** 6 issues P1 - LinkMemberTypesModal, DeactivateModal count, Cancelar Baja, PDF generacion, workflow alert morosidad, DNI en leave pages
 
 ### 03:15 - SDD-4 completado (fix/uncabled-features)
 
@@ -287,7 +287,7 @@ Resultados del subagente SDD-4: 3/6 FIXED, 1 POSTPONED, 2 BLOCKED.
 
 **Archivos generados:**
 
-- `doc/reports/sdd4-uncabled-features-report.md` — Informe completo
+- `doc/reports/sdd4-uncabled-features-report.md` - Informe completo
 
 ### 03:30 - SDD-3 completado (fix/forms-and-validation)
 
@@ -313,7 +313,7 @@ Resultados del subagente SDD-3: 7/9 FIXED, 2 POSTPONED.
 
 **Archivos generados:**
 
-- `doc/reports/sdd3-forms-validation-report.md` — Informe completo
+- `doc/reports/sdd3-forms-validation-report.md` - Informe completo
 
 ### 03:43 - SDD-5 lanzado (fix/cross-cutting-quality)
 
@@ -348,9 +348,9 @@ Resultados del subagente SDD-5: 9/9 FIXED, 2 POSTPONED.
 
 **Archivos generados:**
 
-- `doc/reports/sdd5-cross-cutting-quality-report.md` — Informe completo
+- `doc/reports/sdd5-cross-cutting-quality-report.md` - Informe completo
 
-### 12:00 - Ronda 4 de testing manual — bugs reportados por usuario
+### 12:00 - Ronda 4 de testing manual - bugs reportados por usuario
 
 **Descripcion:**
 El usuario verifico manualmente los fixes de SDD-3/4/5 y reporto multiples issues nuevos agrupados por area.
@@ -360,7 +360,7 @@ El usuario verifico manualmente los fixes de SDD-3/4/5 y reporto multiples issue
 - Error TypeScript en `prisma-member.repository.ts`: uso incorrecto de wrapper `String()`
 - Issues transversales: dark theme no detectado por la app, loading button descentrado en formularios
 - Sidebar: textos e iconos invisibles en ciertas condiciones, hover pierde texto visible, toggle de colapso mal ubicado
-- Nuevo Socio crash: `MantineProvider not found` — `@mantine/dates` requeria `DatesProvider` no configurado
+- Nuevo Socio crash: `MantineProvider not found` - `@mantine/dates` requeria `DatesProvider` no configurado
 - Backend UUID error: ruta `/preconditions` conflictaba con `:id` por orden de declaracion en controller
 - Fee Plans: importe 0 permitido (deberia ser minimo 0.01€), codigo con 1 caracter aceptado (minimo 2), toast de confirmacion excesivamente largo, vinculaciones de tipos de socio no persisten
 
@@ -371,8 +371,8 @@ Subagente lanzado para corregir los bugs bloqueantes reportados en la ronda 4.
 
 **Resultados:**
 
-- `DatesProvider` anadido en `providers.tsx` — resuelve crash de `@mantine/dates` con `MantineProvider not found`
-- Controller order fix en `membership.module.ts` — ruta `/preconditions` declarada antes de `:id` para evitar conflicto UUID
+- `DatesProvider` anadido en `providers.tsx` - resuelve crash de `@mantine/dates` con `MantineProvider not found`
+- Controller order fix en `membership.module.ts` - ruta `/preconditions` declarada antes de `:id` para evitar conflicto UUID
 - Importe minimo 0.01€ en validacion de fee plans (antes permitia 0)
 - Codigo minimo 2 caracteres en fee plans (antes permitia 1)
 - Toast `autoClose` reducido a 4000ms en 5 hooks de notificaciones
@@ -448,12 +448,12 @@ En dark mode, los bordes del sidebar no se adaptaban al tema oscuro, mostrando l
 Unificacion de bordes con `var(--mantine-color-default-border)` en `.navbar` + cambio del icono toggle a `var(--mantine-color-text)`. No resolvio el problema visual.
 
 **Intento 2 (exitoso):**
-Eliminacion del borde explicito de `.navbar` — Mantine ya aplica el suyo semanticamente segun el theme. Eliminacion del color hardcodeado del `Divider` de secciones, dejando que herede el color semantico de Mantine.
+Eliminacion del borde explicito de `.navbar` - Mantine ya aplica el suyo semanticamente segun el theme. Eliminacion del color hardcodeado del `Divider` de secciones, dejando que herede el color semantico de Mantine.
 
 **Archivos modificados:**
 
-- `web/src/shared/components/layout/app-shell.module.css` — eliminado borde explicito de .navbar
-- `web/src/shared/components/layout/app-shell.tsx` — eliminado color hardcodeado del Divider
+- `web/src/shared/components/layout/app-shell.module.css` - eliminado borde explicito de .navbar
+- `web/src/shared/components/layout/app-shell.tsx` - eliminado color hardcodeado del Divider
 
 ### 23:30 - Fix login logo dark mode
 
@@ -465,7 +465,7 @@ Anadido `useComputedColorScheme` de Mantine para detectar el tema activo y swape
 
 **Archivos modificados:**
 
-- `web/src/features/auth/pages/login.page.tsx` — useComputedColorScheme + logo condicional
+- `web/src/features/auth/pages/login.page.tsx` - useComputedColorScheme + logo condicional
 
 ### 23:30 - Fix filtro "Mostrar inactivos" en planes de cuota
 
@@ -480,31 +480,31 @@ Schema de respuesta cambiado a `min(0)` para aceptar planes con importe 0. El sc
 
 **Archivos modificados:**
 
-- `web/src/features/treasury/fee-plans/schemas/fee-plan.schemas.ts` — min(0) en response schema
-- `web/src/features/treasury/fee-plans/schemas/fee-plan.schemas.spec.ts` — tests actualizados
-- `web/src/features/treasury/fee-plans/api/fee-plan.api.ts` — ajustes de parseo
-- `web/src/features/treasury/fee-plans/pages/fee-plans-list.page.tsx` — manejo de error visible
+- `web/src/features/treasury/fee-plans/schemas/fee-plan.schemas.ts` - min(0) en response schema
+- `web/src/features/treasury/fee-plans/schemas/fee-plan.schemas.spec.ts` - tests actualizados
+- `web/src/features/treasury/fee-plans/api/fee-plan.api.ts` - ajustes de parseo
+- `web/src/features/treasury/fee-plans/pages/fee-plans-list.page.tsx` - manejo de error visible
 
 ### 00:00 (19 marzo) - Fix "Ver vinculaciones" no persistia
 
 **Descripcion:**
 Al vincular tipos de socio a un plan de cuota, la vinculacion se guardaba pero al volver a abrir el modal aparecia vacio. Tres bugs en backend.
 
-**Bug 1 — GetFeePlanHandler no devolvia linkedMemberTypes:**
+**Bug 1 - GetFeePlanHandler no devolvia linkedMemberTypes:**
 El campo `linkedMemberTypes` no existia en el DTO de respuesta y el handler no consultaba el repositorio de vinculaciones. El frontend nunca recibia los datos.
 
-**Bug 2 — LinkMemberTypesHandler sin semantica de reemplazo:**
+**Bug 2 - LinkMemberTypesHandler sin semantica de reemplazo:**
 El handler solo agregaba links nuevos pero no borraba los anteriores. Al enviar una lista actualizada (ej: quitar un tipo), los viejos permanecian.
 
-**Bug 3 — DTO rechazaba arrays vacios:**
+**Bug 3 - DTO rechazaba arrays vacios:**
 `@ArrayMinSize(1)` en el DTO impedia enviar un array vacio para desvincular todos los tipos de socio de un plan.
 
 **Archivos modificados:**
 
-- `api/src/treasury/infrastructure/http/dto/fee-plan-response.dto.ts` — campo linkedMemberTypes anadido
-- `api/src/treasury/application/queries/get-fee-plan.handler.ts` — consulta repositorio de vinculaciones
-- `api/src/treasury/application/commands/link-member-types.handler.ts` — semantica de reemplazo (delete + insert)
-- `api/src/treasury/infrastructure/http/dto/link-member-types.dto.ts` — @ArrayMinSize(0)
+- `api/src/treasury/infrastructure/http/dto/fee-plan-response.dto.ts` - campo linkedMemberTypes anadido
+- `api/src/treasury/application/queries/get-fee-plan.handler.ts` - consulta repositorio de vinculaciones
+- `api/src/treasury/application/commands/link-member-types.handler.ts` - semantica de reemplazo (delete + insert)
+- `api/src/treasury/infrastructure/http/dto/link-member-types.dto.ts` - @ArrayMinSize(0)
 - Tests asociados actualizados
 
 ### 00:30 (19 marzo) - Fix precondiciones de alta no bloqueaban
@@ -512,17 +512,17 @@ El handler solo agregaba links nuevos pero no borraba los anteriores. Al enviar 
 **Descripcion:**
 El wizard de alta de socio no mostraba errores cuando las precondiciones fallaban (ej: no hay plan ONE_TIME configurado). El usuario veia el formulario como si todo estuviera bien.
 
-**Bug 1 — Backend 500 en validate-preconditions.handler.ts:**
+**Bug 1 - Backend 500 en validate-preconditions.handler.ts:**
 El handler no llamaba `setTenantId()` en `registrationChargePort` antes de buscar el plan ONE_TIME → error 500 al intentar acceder a la base de datos del tenant.
 
-**Bug 2 — Frontend no manejaba isError:**
+**Bug 2 - Frontend no manejaba isError:**
 El hook de precondiciones devolvia `isError` pero el componente `simple-registration.page.tsx` no lo evaluaba → el wizard se renderizaba como si las precondiciones pasaran.
 
 **Archivos modificados:**
 
-- `api/src/membership/application/commands/validate-preconditions.handler.ts` — setTenantId() antes de consulta
-- `api/src/membership/application/commands/validate-preconditions.handler.spec.ts` — test actualizado
-- `web/src/features/membership/registration/pages/simple-registration.page.tsx` — manejo de isError con mensaje al usuario
+- `api/src/membership/application/commands/validate-preconditions.handler.ts` - setTenantId() antes de consulta
+- `api/src/membership/application/commands/validate-preconditions.handler.spec.ts` - test actualizado
+- `web/src/features/membership/registration/pages/simple-registration.page.tsx` - manejo de isError con mensaje al usuario
 
 ### 01:00 (19 marzo) - Fix schemas Leave pages (Zod vs backend)
 
@@ -531,12 +531,12 @@ Los schemas Zod de `leaveSummarySchema` y `reinstatementSummarySchema` estaban e
 
 **Archivos modificados:**
 
-- `web/src/features/membership/leave/schemas/member-leave.schemas.ts` — schemas alineados con respuesta real del backend
-- `web/src/features/membership/leave/schemas/member-leave.schemas.spec.ts` — tests actualizados
-- `web/src/features/membership/leave/pages/voluntary-leave.page.tsx` — adaptado a nuevos schemas
-- `web/src/features/membership/leave/pages/nonpayment-leave.page.tsx` — adaptado a nuevos schemas
-- `web/src/features/membership/leave/pages/reinstatement.page.tsx` — adaptado a nuevos schemas
-- `web/src/features/membership/leave/pages/voluntary-leave.page.spec.tsx` — tests actualizados
+- `web/src/features/membership/leave/schemas/member-leave.schemas.ts` - schemas alineados con respuesta real del backend
+- `web/src/features/membership/leave/schemas/member-leave.schemas.spec.ts` - tests actualizados
+- `web/src/features/membership/leave/pages/voluntary-leave.page.tsx` - adaptado a nuevos schemas
+- `web/src/features/membership/leave/pages/nonpayment-leave.page.tsx` - adaptado a nuevos schemas
+- `web/src/features/membership/leave/pages/reinstatement.page.tsx` - adaptado a nuevos schemas
+- `web/src/features/membership/leave/pages/voluntary-leave.page.spec.tsx` - tests actualizados
 
 ### 02:30 (19 marzo) - Verificacion punto 6 (Visual/Calidad)
 
@@ -545,8 +545,8 @@ El usuario verifico manualmente los 3 items del punto 6 de la checklist de verif
 
 **Resultados:**
 
-1. **Padding del contenido principal (24px):** OK — se ve correcto visualmente
-2. **Tildes corregidas:** OK — no se encontraron textos sin acentos
+1. **Padding del contenido principal (24px):** OK - se ve correcto visualmente
+2. **Tildes corregidas:** OK - no se encontraron textos sin acentos
 3. **FOUC (Flash of Unstyled Content):** No hay FOUC real. El flash blanco al hacer F5 es el comportamiento nativo del navegador (fondo blanco entre descarga y primer paint), NO un flash del tema light. No requiere accion.
 
 **Conclusion:** Los 6 puntos de verificacion estan COMPLETOS:
@@ -563,42 +563,42 @@ El usuario verifico manualmente los 3 items del punto 6 de la checklist de verif
 **Descripcion:**
 Lanzados 3 subagentes en paralelo para resolver 5 issues pendientes del punto 5 (Leave pages).
 
-**Agente A — DNI backend + /reinstate:**
+**Agente A - DNI backend + /reinstate:**
 
 - Backend: anadido campo `memberDni` en DTOs de leave-summary y reinstatement-summary + handlers actualizados para incluirlo
 - Frontend: `/reinstate` para socios ACTIVE ahora muestra alerta amarilla "Rehabilitacion no disponible" en vez de error generico
 
 Archivos backend:
 
-- `api/src/membership/infrastructure/http/dto/leave-summary-response.dto.ts` — campo memberDni
-- `api/src/membership/infrastructure/http/dto/reinstatement-summary-response.dto.ts` — campo memberDni
-- `api/src/membership/application/queries/leave-summary.handler.ts` — incluye memberDni en respuesta
-- `api/src/membership/application/queries/reinstatement-summary.handler.ts` — incluye memberDni en respuesta
+- `api/src/membership/infrastructure/http/dto/leave-summary-response.dto.ts` - campo memberDni
+- `api/src/membership/infrastructure/http/dto/reinstatement-summary-response.dto.ts` - campo memberDni
+- `api/src/membership/application/queries/leave-summary.handler.ts` - incluye memberDni en respuesta
+- `api/src/membership/application/queries/reinstatement-summary.handler.ts` - incluye memberDni en respuesta
 - Tests de handlers actualizados
 
 Archivos frontend:
 
-- `web/src/features/membership/leave/pages/reinstatement.page.tsx` — alerta para socios ACTIVE
-- `web/src/features/membership/leave/pages/reinstatement.page.spec.tsx` — tests actualizados
-- `web/src/features/membership/leave/hooks/use-reinstatement-summary.ts` — adaptado
+- `web/src/features/membership/leave/pages/reinstatement.page.tsx` - alerta para socios ACTIVE
+- `web/src/features/membership/leave/pages/reinstatement.page.spec.tsx` - tests actualizados
+- `web/src/features/membership/leave/hooks/use-reinstatement-summary.ts` - adaptado
 
-**Agente B — Nonpayment-leave botones:**
+**Agente B - Nonpayment-leave botones:**
 
 - "Ejecutar Baja por Impago" ahora disabled con tooltip cuando workflow incompleto
 - "Generar Certificado PDF" y "Cancelar Baja - Regularizacion" cambiados a `variant="outline" color="brand"` con onClick que muestra notificacion "No disponible" (disabled no era visible en dark mode)
 
 Archivos:
 
-- `web/src/features/membership/leave/pages/nonpayment-leave.page.tsx` — botones redesenados
+- `web/src/features/membership/leave/pages/nonpayment-leave.page.tsx` - botones redesenados
 
-**Agente C — Loading spinner transversal:**
+**Agente C - Loading spinner transversal:**
 
 - Fix global en theme: `Button.extend()` con `loaderProps: { type: 'dots' }` + `minWidth: 100px`
 - Aplica a todos los 12+ botones con loading en la app
 
 Archivos:
 
-- `web/src/shared/theme/associated-theme.ts` — Button.extend() global
+- `web/src/shared/theme/associated-theme.ts` - Button.extend() global
 
 ---
 
@@ -606,10 +606,10 @@ Archivos:
 
 - [x] Ejecutar SDD-1: fix/permissions-and-navigation (P0 bloqueante)
 - [x] Ejecutar SDD-2: fix/route-params-and-accessibility (P0 bloqueante)
-- [x] Ejecutar SDD-3: fix/forms-and-validation (P1) — 7/9 FIXED, 2 POSTPONED
-- [x] Ejecutar SDD-4: fix/uncabled-features (P1) — 3/6 FIXED, 1 POSTPONED, 2 BLOCKED
-- [x] Ejecutar SDD-5: fix/cross-cutting-quality (P2/P3) — 9/9 FIXED, 2 POSTPONED
-- [x] Ronda 4 testing manual — corregir bugs reportados por usuario
+- [x] Ejecutar SDD-3: fix/forms-and-validation (P1) - 7/9 FIXED, 2 POSTPONED
+- [x] Ejecutar SDD-4: fix/uncabled-features (P1) - 3/6 FIXED, 1 POSTPONED, 2 BLOCKED
+- [x] Ejecutar SDD-5: fix/cross-cutting-quality (P2/P3) - 9/9 FIXED, 2 POSTPONED
+- [x] Ronda 4 testing manual - corregir bugs reportados por usuario
 - [x] Fix bloqueantes: DatesProvider, controller order, validaciones
 - [x] Sidebar redesign (colapsable, logo en header, visibilidad)
 - [x] Fix versiones Mantine (instancias duplicadas @mantine/core)
@@ -622,8 +622,8 @@ Archivos:
 - [x] Fix filtro "Mostrar inactivos" (schema Zod)
 - [x] Fix "Ver vinculaciones" no persistia (3 bugs backend)
 - [x] Fix precondiciones de alta no bloqueaban
-- [x] Verificacion usuario: punto 5 (Leave pages — schemas Zod, DNI backend, botones, spinner)
-- [x] Verificacion usuario: punto 6 (Visual/Calidad — padding OK, tildes OK, FOUC es comportamiento nativo del navegador)
+- [x] Verificacion usuario: punto 5 (Leave pages - schemas Zod, DNI backend, botones, spinner)
+- [x] Verificacion usuario: punto 6 (Visual/Calidad - padding OK, tildes OK, FOUC es comportamiento nativo del navegador)
 - [ ] Commit de todos los cambios pendientes
 - [ ] Re-ejecutar checklist completo de 549 items
 
@@ -631,7 +631,7 @@ Archivos:
 
 ## Notas y Aprendizajes
 
-### Deuda tecnica critica — RESUELTA en SDD-3
+### Deuda tecnica critica - RESUELTA en SDD-3
 
 Las 3 deudas tecnicas criticas descubiertas a las 02:51 fueron resueltas por el subagente SDD-3 (03:30):
 
@@ -685,7 +685,7 @@ Las 3 deudas tecnicas criticas descubiertas a las 02:51 fueron resueltas por el 
 
 ## Metricas de la Sesion
 
-- **Duracion total:** ~25 horas 42 minutos (00:49 del 18 — 02:31 del 19, con pausas intermedias)
+- **Duracion total:** ~25 horas 42 minutos (00:49 del 18 - 02:31 del 19, con pausas intermedias)
 - **Archivos modificados:** ~85
 - **Archivos creados:** ~20 (commands, handlers, hooks, reportes, configs, componentes)
 - **Commits realizados:** 0 (cambios pendientes de commit)

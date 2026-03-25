@@ -15,10 +15,10 @@ Implementacion de las 4 tasks restantes de Fase 1 backend en BC-Treasury: Task 9
 
 ## Objetivos
 
-- [x] Implementar Task 9 — UC-017: Gestion de planes de cuota
-- [x] Implementar Task 10 — UC-018: Gestion de suscripciones de cuota
-- [x] Implementar Task 11 — UC-019: Generacion masiva de cargos periodicos
-- [x] Implementar Task 12 — UC-021: Registro de cobros
+- [x] Implementar Task 9 - UC-017: Gestion de planes de cuota
+- [x] Implementar Task 10 - UC-018: Gestion de suscripciones de cuota
+- [x] Implementar Task 11 - UC-019: Generacion masiva de cargos periodicos
+- [x] Implementar Task 12 - UC-021: Registro de cobros
 - [x] Verificar Fase 1 backend completa (sdd-verify)
 - [x] Corregir bloqueadores UC-001 y UC-021
 - [x] Aprobar estado como commit-ready
@@ -34,10 +34,10 @@ Implementacion completa del modelo de dominio FeePlan en BC-Treasury con DDD + C
 
 **Archivos creados:**
 
-- `api/src/treasury/domain/aggregates/fee-plan.ts` — Aggregate con periodos y montos
-- `api/src/treasury/domain/value-objects/amount.ts` — Money en centavos (integer)
-- `api/src/treasury/domain/value-objects/periodicity.ts` — MONTHLY/QUARTERLY/ANNUAL
-- `api/src/treasury/domain/value-objects/fee-plan-status.ts` — ACTIVE/INACTIVE
+- `api/src/treasury/domain/aggregates/fee-plan.ts` - Aggregate con periodos y montos
+- `api/src/treasury/domain/value-objects/amount.ts` - Money en centavos (integer)
+- `api/src/treasury/domain/value-objects/periodicity.ts` - MONTHLY/QUARTERLY/ANNUAL
+- `api/src/treasury/domain/value-objects/fee-plan-status.ts` - ACTIVE/INACTIVE
 - Comandos, queries, handlers, DTOs en `api/src/treasury/application/`
 - `api/src/treasury/infrastructure/persistence/prisma-fee-plan.repository.ts`
 - `api/src/treasury/infrastructure/controllers/fee-plans.controller.ts`
@@ -45,7 +45,7 @@ Implementacion completa del modelo de dominio FeePlan en BC-Treasury con DDD + C
 
 **Resultados:**
 
-- Commit `57fee8c` — UC-017 completo
+- Commit `57fee8c` - UC-017 completo
 
 ---
 
@@ -56,10 +56,10 @@ Implementacion de MemberAccount aggregate y FeeSubscription entity con descuento
 
 **Archivos creados:**
 
-- `api/src/treasury/domain/aggregates/member-account.ts` — Aggregate Root con suscripciones
-- `api/src/treasury/domain/entities/fee-subscription.ts` — Entity con discount
-- `api/src/treasury/domain/value-objects/discount.ts` — VO multiplicativo
-- `api/src/treasury/infrastructure/controllers/subscriptions.controller.ts` — 6 endpoints
+- `api/src/treasury/domain/aggregates/member-account.ts` - Aggregate Root con suscripciones
+- `api/src/treasury/domain/entities/fee-subscription.ts` - Entity con discount
+- `api/src/treasury/domain/value-objects/discount.ts` - VO multiplicativo
+- `api/src/treasury/infrastructure/controllers/subscriptions.controller.ts` - 6 endpoints
 - Tests unitarios y de integracion
 
 **Decisiones tecnicas:**
@@ -70,7 +70,7 @@ Implementacion de MemberAccount aggregate y FeeSubscription entity con descuento
 
 **Resultados:**
 
-- Commit `f50e322` — UC-018 completo
+- Commit `f50e322` - UC-018 completo
 - 145 tests en verde
 
 ---
@@ -82,7 +82,7 @@ Implementacion de la generacion masiva de cargos periodicos para un ejercicio fi
 
 **Archivos creados:**
 
-- `api/src/treasury/domain/entities/charge.ts` — Entity con estado PENDING/PAID/CANCELLED
+- `api/src/treasury/domain/entities/charge.ts` - Entity con estado PENDING/PAID/CANCELLED
 - `api/src/treasury/application/commands/generate-charges.command.ts`
 - `api/src/treasury/application/commands/generate-charges.handler.ts`
 - `api/src/treasury/infrastructure/persistence/prisma-charge.repository.ts`
@@ -91,7 +91,7 @@ Implementacion de la generacion masiva de cargos periodicos para un ejercicio fi
 
 **Resultados:**
 
-- Commit `1dff260` — UC-019 completo
+- Commit `1dff260` - UC-019 completo
 
 ---
 
@@ -102,7 +102,7 @@ Implementacion del registro de cobros (pagos) contra cargos pendientes, con gene
 
 **Archivos creados:**
 
-- `api/src/treasury/domain/entities/payment.ts` — Entity con referencia y metodo
+- `api/src/treasury/domain/entities/payment.ts` - Entity con referencia y metodo
 - `api/src/treasury/domain/events/receipt-generated.event.ts`
 - `api/src/treasury/application/commands/register-payment.command.ts`
 - `api/src/treasury/application/commands/register-payment.handler.ts`
@@ -114,7 +114,7 @@ Implementacion del registro de cobros (pagos) contra cargos pendientes, con gene
 
 **Resultados:**
 
-- Commit `b6f8a2b` — UC-021 completo
+- Commit `b6f8a2b` - UC-021 completo
 
 ---
 
@@ -154,17 +154,17 @@ Correccion de los bloqueadores criticos detectados en la verificacion.
 
 **Archivos modificados:**
 
-- `api/src/identity/application/commands/provision-tenant.handler.ts` — Orden correcto
-- `api/src/identity/infrastructure/services/database-provisioning.service.ts` — Transaccion
-- `api/src/identity/__tests__/tenant-provisioning.integration-spec.ts` — Fixtures
-- `api/src/treasury/infrastructure/persistence/prisma-member-account.repository.ts` — Hidratacion completa
-- `api/src/treasury/infrastructure/persistence/member-account-prisma.mapper.ts` — Mapeo charges/payments
-- `api/src/treasury/application/commands/register-payment.handler.ts` — Emision de evento
-- `api/vitest.config.ts` — Scope de cobertura ajustado
+- `api/src/identity/application/commands/provision-tenant.handler.ts` - Orden correcto
+- `api/src/identity/infrastructure/services/database-provisioning.service.ts` - Transaccion
+- `api/src/identity/__tests__/tenant-provisioning.integration-spec.ts` - Fixtures
+- `api/src/treasury/infrastructure/persistence/prisma-member-account.repository.ts` - Hidratacion completa
+- `api/src/treasury/infrastructure/persistence/member-account-prisma.mapper.ts` - Mapeo charges/payments
+- `api/src/treasury/application/commands/register-payment.handler.ts` - Emision de evento
+- `api/vitest.config.ts` - Scope de cobertura ajustado
 
 **Resultados:**
 
-- Commit `ed7d2a1` — Fixes de provisionado y pagos
+- Commit `ed7d2a1` - Fixes de provisionado y pagos
 - Unit, integration, build y coverage OK
 - Verificacion final: PASS WITH WARNINGS (no bloqueantes)
 
@@ -194,7 +194,7 @@ Re-ejecucion completa de la bateria de verificacion tras los fixes. Todos los co
 
 ### Lecciones Tecnicas
 
-- Descuentos multiplicativos: `effectiveAmount = baseAmount * (1 - typeDiscount) * (1 - personalDiscount)` — NUNCA aditivos
+- Descuentos multiplicativos: `effectiveAmount = baseAmount * (1 - typeDiscount) * (1 - personalDiscount)` - NUNCA aditivos
 - Money en centavos (integer) para evitar floating point en JS
 - El gate de cobertura debe centrarse en logica manual/riesgosa, excluyendo generado/infra glue
 
