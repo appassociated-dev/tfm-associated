@@ -1,15 +1,26 @@
-# 07 - Referencia rapida de comandos
+# 7. Referencia rápida de comandos
 
-_[← 6. Troubleshooting](06-troubleshooting.md) | [↑ Indice](README-DEPLOY.md)_
+<table>
+  <tr>
+    <td width="45%">
+      ← Anterior<br/>
+      <a href="06-troubleshooting.md">6. Troubleshooting</a>
+    </td>
+    <td width="10%" align="center">
+      <a href="README.md">↑</a>
+    </td>
+    <td width="45%"></td>
+  </tr>
+</table>
 
 ---
 
-Referencia completa de todos los comandos utiles para la gestion del despliegue de Associated. Todos los comandos estan listos para copiar y pegar.
+Referencia completa de todos los comandos útiles para la gestión del despliegue de Associated. Todos los comandos están listos para copiar y pegar.
 
 ## Tabla de contenidos
 
 - [Docker Compose](#docker-compose)
-- [Gestion de contenedores](#gestion-de-contenedores)
+- [Gestión de contenedores](#gestión-de-contenedores)
 - [Base de datos](#base-de-datos)
 - [Migraciones](#migraciones)
 - [nginx](#nginx)
@@ -29,13 +40,13 @@ Todos los comandos de Docker Compose se ejecutan desde `/opt/associated/` en el 
 # Levantar todos los servicios en background
 ssh vps-associated "cd /opt/associated && docker compose up -d"
 
-# Levantar un servicio especifico
+# Levantar un servicio específico
 ssh vps-associated "cd /opt/associated && docker compose up -d api"
 
-# Parar todos los servicios (sin eliminar volumenes)
+# Parar todos los servicios (sin eliminar volúmenes)
 ssh vps-associated "cd /opt/associated && docker compose down"
 
-# Parar todos los servicios Y eliminar volumenes (DESTRUCTIVO)
+# Parar todos los servicios Y eliminar volúmenes (DESTRUCTIVO)
 ssh vps-associated "cd /opt/associated && docker compose down -v"
 
 # Reiniciar un servicio
@@ -47,10 +58,10 @@ ssh vps-associated "cd /opt/associated && docker compose restart"
 # Ver logs en tiempo real de un servicio
 ssh vps-associated "cd /opt/associated && docker compose logs -f api"
 
-# Ver logs de los ultimos 5 minutos
+# Ver logs de los últimos 5 minutos
 ssh vps-associated "cd /opt/associated && docker compose logs --since 5m api"
 
-# Ver ultimas N lineas de logs
+# Ver últimas N líneas de logs
 ssh vps-associated "cd /opt/associated && docker compose logs --tail 50 api"
 
 # Ver logs de todos los servicios con timestamps
@@ -62,10 +73,10 @@ ssh vps-associated "cd /opt/associated && docker compose ps"
 # Ver estado con formato detallado
 ssh vps-associated "cd /opt/associated && docker compose ps -a --format 'table {{.Name}}\t{{.Status}}\t{{.Ports}}'"
 
-# Descargar imagenes actualizadas desde GHCR
+# Descargar imágenes actualizadas desde GHCR
 ssh vps-associated "cd /opt/associated && docker compose pull"
 
-# Descargar imagen de un servicio especifico
+# Descargar imagen de un servicio específico
 ssh vps-associated "cd /opt/associated && docker compose pull api"
 
 # Ejecutar un comando dentro de un contenedor corriendo
@@ -74,19 +85,19 @@ ssh vps-associated "cd /opt/associated && docker compose exec api sh"
 # Ejecutar un comando one-shot (crea contenedor temporal)
 ssh vps-associated "cd /opt/associated && docker compose run --rm api node -e 'console.log(\"OK\")'"
 
-# Forzar recreacion de contenedores sin cambiar imagenes
+# Forzar recreación de contenedores sin cambiar imágenes
 ssh vps-associated "cd /opt/associated && docker compose up -d --force-recreate"
 
-# Actualizar y recrear solo los servicios con imagenes nuevas
+# Actualizar y recrear solo los servicios con imágenes nuevas
 ssh vps-associated "cd /opt/associated && docker compose pull && docker compose up -d"
 ```
 
 ---
 
-## Gestion de contenedores
+## Gestión de contenedores
 
 ```bash
-# Inspeccionar configuracion completa de un contenedor
+# Inspeccionar configuración completa de un contenedor
 ssh vps-associated "docker inspect \$(docker compose -f /opt/associated/docker-compose.yml ps -q api)"
 
 # Ver variables de entorno de un contenedor
@@ -104,13 +115,13 @@ ssh vps-associated "cd /opt/associated && docker compose top api"
 # Ver procesos de todos los contenedores
 ssh vps-associated "cd /opt/associated && docker compose top"
 
-# Limpiar imagenes sin usar (no elimina las en uso)
+# Limpiar imágenes sin usar (no elimina las en uso)
 ssh vps-associated "docker image prune -f"
 
-# Limpiar TODO lo que no este en uso (imagenes, redes, volumenes huerfanos)
+# Limpiar TODO lo que no esté en uso (imágenes, redes, volúmenes huérfanos)
 ssh vps-associated "docker system prune -f"
 
-# Limpiar incluyendo imagenes no referenciadas
+# Limpiar incluyendo imágenes no referenciadas
 ssh vps-associated "docker system prune -a -f"
 
 # Ver espacio usado por Docker
@@ -130,13 +141,13 @@ ssh vps-associated "docker cp /tmp/fix.js \$(docker compose -f /opt/associated/d
 
 ## Base de datos
 
-### Conexion directa
+### Conexión directa
 
 ```bash
 # Conectar a la base principal
 ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -d associated_main"
 
-# Conectar a la base de un tenant especifico
+# Conectar a la base de un tenant específico
 ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -d associated_tenant_mi_asociacion"
 
 # Ejecutar un query sin entrar al shell interactivo
@@ -150,10 +161,12 @@ ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -
 ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -c '\l'"
 
 # Listar bases de datos de tenants
-ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -c \"SELECT datname FROM pg_database WHERE datname LIKE 'associated_tenant_%' ORDER BY datname;\""
+ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin \
+  -c \"SELECT datname FROM pg_database WHERE datname LIKE 'associated_tenant_%' ORDER BY datname;\""
 
-# Listar tenants con su informacion
-ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -d associated_main -c 'SELECT id, slug, \"databaseName\", status, \"createdAt\" FROM \"Tenant\" ORDER BY \"createdAt\";'"
+# Listar tenants con su información
+ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -d associated_main \
+  -c 'SELECT id, slug, \"databaseName\", status, \"createdAt\" FROM \"Tenant\" ORDER BY \"createdAt\";'"
 
 # Listar tablas de una base de datos
 ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -d associated_main -c '\dt'"
@@ -165,32 +178,40 @@ ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -
 ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -c '\du'"
 
 # Ver conexiones activas
-ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -c 'SELECT datname, usename, client_addr, state FROM pg_stat_activity WHERE datname IS NOT NULL;'"
+ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin \
+  -c 'SELECT datname, usename, client_addr, state FROM pg_stat_activity WHERE datname IS NOT NULL;'"
 
-# Ver tamano de las bases de datos
-ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -c 'SELECT datname, pg_size_pretty(pg_database_size(datname)) as size FROM pg_database WHERE datname NOT IN ('\''template0'\'', '\''template1'\'') ORDER BY pg_database_size(datname) DESC;'"
+# Ver tamaño de las bases de datos
+ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin \
+  -c 'SELECT datname, pg_size_pretty(pg_database_size(datname)) as size FROM pg_database WHERE datname NOT IN ('\''template0'\'', '\''template1'\'') ORDER BY pg_database_size(datname) DESC;'"
 ```
 
 ### Backup y restore
 
 ```bash
 # Backup de la base principal
-ssh vps-associated "cd /opt/associated && docker compose exec db pg_dump -U admin associated_main > /opt/associated/backups/main_\$(date +%Y%m%d_%H%M%S).sql"
+ssh vps-associated "cd /opt/associated && docker compose exec db \
+  pg_dump -U admin associated_main > /opt/associated/backups/main_\$(date +%Y%m%d_%H%M%S).sql"
 
 # Backup de un tenant
-ssh vps-associated "cd /opt/associated && docker compose exec db pg_dump -U admin associated_tenant_mi_asociacion > /opt/associated/backups/tenant_mi_asociacion_\$(date +%Y%m%d_%H%M%S).sql"
+ssh vps-associated "cd /opt/associated && docker compose exec db \
+  pg_dump -U admin associated_tenant_mi_asociacion > /opt/associated/backups/tenant_mi_asociacion_\$(date +%Y%m%d_%H%M%S).sql"
 
 # Backup de TODAS las bases de datos
-ssh vps-associated "cd /opt/associated && docker compose exec db pg_dumpall -U admin > /opt/associated/backups/full_\$(date +%Y%m%d_%H%M%S).sql"
+ssh vps-associated "cd /opt/associated && docker compose exec db \
+  pg_dumpall -U admin > /opt/associated/backups/full_\$(date +%Y%m%d_%H%M%S).sql"
 
 # Backup comprimido
-ssh vps-associated "cd /opt/associated && docker compose exec db pg_dump -U admin -Fc associated_main > /opt/associated/backups/main_\$(date +%Y%m%d_%H%M%S).dump"
+ssh vps-associated "cd /opt/associated && docker compose exec db \
+  pg_dump -U admin -Fc associated_main > /opt/associated/backups/main_\$(date +%Y%m%d_%H%M%S).dump"
 
 # Restore de la base principal (desde SQL plano)
-ssh vps-associated "cd /opt/associated && docker compose exec -T db psql -U admin -d associated_main < /opt/associated/backups/main_20240115_120000.sql"
+ssh vps-associated "cd /opt/associated && docker compose exec -T db \
+  psql -U admin -d associated_main < /opt/associated/backups/main_20240115_120000.sql"
 
 # Restore desde formato custom
-ssh vps-associated "cd /opt/associated && docker compose exec -T db pg_restore -U admin -d associated_main /opt/associated/backups/main_20240115_120000.dump"
+ssh vps-associated "cd /opt/associated && docker compose exec -T db \
+  pg_restore -U admin -d associated_main /opt/associated/backups/main_20240115_120000.dump"
 
 # Descargar un backup al equipo local
 scp vps-associated:/opt/associated/backups/main_20240115_120000.sql ./backups/
@@ -204,17 +225,21 @@ scp vps-associated:/opt/associated/backups/main_20240115_120000.sql ./backups/
 # Ejecutar migraciones de la base principal
 ssh vps-associated "cd /opt/associated && docker compose run --rm migration"
 
-# Ver estado de las migraciones (cuales estan aplicadas)
-ssh vps-associated "cd /opt/associated && docker compose run --rm migration npx prisma migrate status --schema=prisma/schema/main.prisma"
+# Ver estado de las migraciones (cuáles están aplicadas)
+ssh vps-associated "cd /opt/associated && docker compose run --rm migration \
+  npx prisma migrate status --schema=prisma/schema/main.prisma"
 
 # Ejecutar migraciones de tenants (todos)
-ssh vps-associated "cd /opt/associated && docker compose run --rm migration npx prisma migrate deploy --schema=prisma/schema/tenant.prisma"
+ssh vps-associated "cd /opt/associated && docker compose run --rm migration \
+  npx prisma migrate deploy --schema=prisma/schema/tenant.prisma"
 
 # Ver el historial de migraciones aplicadas
-ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -d associated_main -c 'SELECT * FROM \"_prisma_migrations\" ORDER BY \"finished_at\" DESC LIMIT 10;'"
+ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -d associated_main \
+  -c 'SELECT * FROM \"_prisma_migrations\" ORDER BY \"finished_at\" DESC LIMIT 10;'"
 
-# Verificar que las migraciones estan al dia (comparar con el schema)
-ssh vps-associated "cd /opt/associated && docker compose run --rm migration npx prisma migrate diff --from-schema-datasource=prisma/schema/main.prisma --to-schema-datamodel=prisma/schema/main.prisma"
+# Verificar que las migraciones están al día (comparar con el schema)
+ssh vps-associated "cd /opt/associated && docker compose run --rm migration \
+  npx prisma migrate diff --from-schema-datasource=prisma/schema/main.prisma --to-schema-datamodel=prisma/schema/main.prisma"
 ```
 
 ---
@@ -222,10 +247,10 @@ ssh vps-associated "cd /opt/associated && docker compose run --rm migration npx 
 ## nginx
 
 ```bash
-# Testear la configuracion (SIEMPRE antes de reload)
+# Testear la configuración (SIEMPRE antes de reload)
 ssh vps-associated "sudo nginx -t"
 
-# Recargar configuracion sin downtime
+# Recargar configuración sin downtime
 ssh vps-associated "sudo systemctl reload nginx"
 
 # Reiniciar nginx completamente
@@ -234,10 +259,10 @@ ssh vps-associated "sudo systemctl restart nginx"
 # Ver estado del servicio
 ssh vps-associated "sudo systemctl status nginx"
 
-# Ver version instalada
+# Ver versión instalada
 ssh vps-associated "nginx -v"
 
-# Ver la configuracion compilada completa
+# Ver la configuración compilada completa
 ssh vps-associated "sudo nginx -T"
 
 # Ver logs de acceso en tiempo real
@@ -253,7 +278,7 @@ ssh vps-associated "sudo tail -f /var/log/nginx/associated.error.log"
 # Listar vhosts habilitados
 ssh vps-associated "ls -la /etc/nginx/sites-enabled/"
 
-# Editar la configuracion del vhost
+# Editar la configuración del vhost
 ssh vps-associated "sudo nano /etc/nginx/sites-available/associated.conf"
 
 # Habilitar un vhost
@@ -286,10 +311,10 @@ ssh vps-associated "top -b -n 1 | head -20"
 # Uso de recursos por contenedor Docker (snapshot)
 ssh vps-associated "docker stats --no-stream --format 'table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}'"
 
-# Espacio usado por imagenes Docker
+# Espacio usado por imágenes Docker
 ssh vps-associated "docker images --format 'table {{.Repository}}\t{{.Tag}}\t{{.Size}}' | sort -k3 -h"
 
-# Espacio usado por volumenes Docker
+# Espacio usado por volúmenes Docker
 ssh vps-associated "docker volume ls --format 'table {{.Name}}\t{{.Driver}}'"
 
 # Uptime del servidor
@@ -313,7 +338,7 @@ ssh vps-associated "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}
 # Loguearse a GHCR (como usuario deploy en el VPS)
 ssh vps-associated "echo 'ghp_TU_TOKEN' | docker login ghcr.io -u appassociated-dev --password-stdin"
 
-# Verificar autenticacion
+# Verificar autenticación
 ssh vps-associated "docker pull ghcr.io/appassociated-dev/associated-api:latest && echo 'AUTH OK'"
 
 # Descargar imagen de la API
@@ -322,17 +347,17 @@ ssh vps-associated "docker pull ghcr.io/appassociated-dev/associated-api:latest"
 # Descargar imagen del web
 ssh vps-associated "docker pull ghcr.io/appassociated-dev/associated-web:latest"
 
-# Descargar una version especifica (tag)
+# Descargar una versión específica (tag)
 ssh vps-associated "docker pull ghcr.io/appassociated-dev/associated-api:v1.2.3"
 
-# Ver imagenes locales del proyecto
+# Ver imágenes locales del proyecto
 ssh vps-associated "docker images | grep associated"
 
-# Subir imagen (desde maquina de desarrollo o CI)
+# Subir imagen (desde máquina de desarrollo o CI)
 docker push ghcr.io/appassociated-dev/associated-api:latest
 docker push ghcr.io/appassociated-dev/associated-web:latest
 
-# Subir con tag de version
+# Subir con tag de versión
 docker tag ghcr.io/appassociated-dev/associated-api:latest ghcr.io/appassociated-dev/associated-api:v1.2.3
 docker push ghcr.io/appassociated-dev/associated-api:v1.2.3
 
@@ -340,7 +365,7 @@ docker push ghcr.io/appassociated-dev/associated-api:v1.2.3
 gh api user/packages/container/associated-api/versions --jq '.[].metadata.container.tags[]'
 gh api user/packages/container/associated-web/versions --jq '.[].metadata.container.tags[]'
 
-# Eliminar imagenes viejas localmente
+# Eliminar imágenes viejas localmente
 ssh vps-associated "docker images | grep associated | grep -v latest | awk '{print \$3}' | xargs -r docker rmi"
 ```
 
@@ -365,18 +390,18 @@ scp vps-associated:/opt/associated/.env ./env-backup
 # Copiar un directorio completo al VPS
 scp -r ./scripts/ vps-associated:/opt/associated/scripts/
 
-# Crear un tunel SSH para acceder a PostgreSQL localmente
+# Crear un túnel SSH para acceder a PostgreSQL localmente
 ssh -L 5433:127.0.0.1:5432 vps-associated
 # Luego conectar con: psql -h 127.0.0.1 -p 5433 -U admin -d associated_main
 
-# Crear un tunel SSH para acceder a la API localmente
+# Crear un túnel SSH para acceder a la API localmente
 ssh -L 3001:127.0.0.1:3000 vps-associated
 # Luego acceder a: http://localhost:3001
 
 # Verificar conectividad SSH
 ssh -v vps-associated "echo OK"
 
-# Ver la configuracion SSH que se esta usando
+# Ver la configuración SSH que se está usando
 ssh -G vps-associated
 ```
 
@@ -385,7 +410,7 @@ ssh -G vps-associated
 ## Seed
 
 ```bash
-# Ejecutar seed de produccion (datos iniciales)
+# Ejecutar seed de producción (datos iniciales)
 ssh vps-associated "cd /opt/associated && docker compose run --rm seed"
 
 # Ejecutar seed con datos de ejemplo
@@ -394,15 +419,17 @@ ssh vps-associated "cd /opt/associated && docker compose run --rm -e SEED_MODE=d
 # Ejecutar el script de seed manualmente
 ssh vps-associated "cd /opt/associated && docker compose exec api node dist/seed/main.js"
 
-# Verificar que el seed se ejecuto correctamente
-ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -d associated_main -c 'SELECT COUNT(*) as tenants FROM \"Tenant\"; SELECT COUNT(*) as users FROM \"User\";'"
+# Verificar que el seed se ejecutó correctamente
+ssh vps-associated "cd /opt/associated && docker compose exec db psql -U admin -d associated_main \
+  -c 'SELECT COUNT(*) as tenants FROM \"Tenant\"; SELECT COUNT(*) as users FROM \"User\";'"
 ```
 
 ---
 
 ## Emergencias
 
-> **ATENCION:** Los comandos de esta seccion son potencialmente destructivos. Verificar dos veces antes de ejecutar.
+> [!CAUTION]
+> Los comandos de esta sección son potencialmente destructivos. Verificar dos veces antes de ejecutar.
 
 ### Forzar reinicio de todos los servicios
 
@@ -419,27 +446,28 @@ EOF
 
 ### Reset nuclear (eliminar todo y empezar de cero)
 
+> [!CAUTION]
 > **ESTO ELIMINA TODOS LOS DATOS.** Solo usar si realmente se necesita empezar desde cero.
 
 ```bash
 ssh vps-associated << 'EOF'
 cd /opt/associated
 
-echo "=== ATENCION: RESET NUCLEAR ==="
-echo "Esto eliminara TODOS los datos, volumenes e imagenes."
+echo "=== ATENCIÓN: RESET NUCLEAR ==="
+echo "Esto eliminará TODOS los datos, volúmenes e imágenes."
 echo "Presiona Ctrl+C en 5 segundos para cancelar..."
 sleep 5
 
-# Parar todo y eliminar volumenes
+# Parar todo y eliminar volúmenes
 docker compose down -v
 
-# Eliminar imagenes del proyecto
+# Eliminar imágenes del proyecto
 docker images | grep associated | awk '{print $3}' | xargs -r docker rmi -f
 
 # Limpiar cache de Docker
 docker system prune -f
 
-# Descargar imagenes frescas
+# Descargar imágenes frescas
 docker compose pull
 
 # Levantar la base de datos primero
@@ -466,21 +494,17 @@ EOF
 ssh vps-associated << 'EOF'
 cd /opt/associated
 
-# Verificar que tags estan disponibles localmente
+# Verificar qué tags están disponibles localmente
 docker images | grep associated
 
-# Cambiar a una version especifica en docker-compose.yml
-# (editar manualmente la imagen)
-# image: ghcr.io/appassociated-dev/associated-api:v1.2.2
-
-# O hacer pull de una version especifica y retaggear
+# Hacer pull de una versión específica y retaggear
 docker pull ghcr.io/appassociated-dev/associated-api:v1.2.2
 docker tag ghcr.io/appassociated-dev/associated-api:v1.2.2 ghcr.io/appassociated-dev/associated-api:latest
 
 docker pull ghcr.io/appassociated-dev/associated-web:v1.2.2
 docker tag ghcr.io/appassociated-dev/associated-web:v1.2.2 ghcr.io/appassociated-dev/associated-web:latest
 
-# Recrear contenedores con las imagenes "viejas"
+# Recrear contenedores con las imágenes "viejas"
 docker compose up -d --force-recreate api web
 
 echo "Rollback completado. Verificando..."
@@ -498,7 +522,7 @@ df -h /
 echo "=== Espacio usado por Docker ==="
 docker system df
 
-echo "=== Limpiando imagenes no utilizadas ==="
+echo "=== Limpiando imágenes no utilizadas ==="
 docker image prune -a -f
 
 echo "=== Limpiando build cache ==="
@@ -507,14 +531,14 @@ docker builder prune -f
 echo "=== Limpiando logs de contenedores ==="
 sudo truncate -s 0 /var/lib/docker/containers/*/*-json.log
 
-echo "=== Espacio despues de limpieza ==="
+echo "=== Espacio después de limpieza ==="
 df -h /
 EOF
 ```
 
-### Verificacion rapida post-despliegue
+### Verificación rápida post-despliegue
 
-Comando unico para verificar que todo esta funcionando despues de un despliegue:
+Comando único para verificar que todo está funcionando después de un despliegue:
 
 ```bash
 ssh vps-associated << 'EOF'
@@ -553,4 +577,15 @@ EOF
 
 ---
 
-_[← 6. Troubleshooting](06-troubleshooting.md) | [↑ Indice](README-DEPLOY.md)_
+<table>
+  <tr>
+    <td width="45%">
+      ← Anterior<br/>
+      <a href="06-troubleshooting.md">6. Troubleshooting</a>
+    </td>
+    <td width="10%" align="center">
+      <a href="README.md">↑</a>
+    </td>
+    <td width="45%"></td>
+  </tr>
+</table>

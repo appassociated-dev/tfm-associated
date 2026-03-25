@@ -1,67 +1,75 @@
-# 04 - Deploy de nueva versión
+# 4. Deploy de nueva versión
 
-_[← 3. Guia de Primer Despliegue](./03-initial-deploy.md) | [↑ Índice](./README-DEPLOY.md) | [5. Guía de migraciones →](./05-migration-guide.md)_
+<table>
+  <tr>
+    <td width="45%">
+      ← Anterior<br/>
+      <a href="03-initial-deploy.md">3. Guía de Primer Despliegue</a>
+    </td>
+    <td width="10%" align="center">
+      <a href="README.md">↑</a>
+    </td>
+    <td width="45%" align="right">
+      Siguiente →<br/>
+      <a href="05-migration-guide.md">5. Guía de migraciones</a>
+    </td>
+  </tr>
+</table>
 
 ---
 
 Guía para desplegar una nueva versión de Associated después de cambios en el código. Cubre el flujo completo, deploys parciales (solo API o solo Web) y rollback.
 
+## Tabla de contenidos
+
+- [Flujo completo](#1-flujo-completo)
+- [Paso a paso](#2-paso-a-paso)
+- [Deploy solo API](#3-deploy-solo-api)
+- [Deploy solo Web](#4-deploy-solo-web)
+- [Rollback](#5-rollback)
+- [Checklist de deploy](#checklist-de-deploy)
+
 ---
 
 ## 1. Flujo completo
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                    FLUJO DE DEPLOY                               │
-│                                                                  │
-│  Máquina local                               VPS                 │
-│  ─────────────                          ──────────────           │
-│                                                                  │
-│  1. git checkout main                                            │
-│     git pull origin main                                         │
-│           │                                                      │
-│  2. scripts/deploy.sh --tag vX.Y.Z                               │
-│           │                                                      │
-│           ├─► docker build (api + web)                           │
-│           │                                                      │
-│           ├─► docker push → GHCR ────────────────────┐           │
-│           │                                          │           │
-│           └─► ssh vps-associated ───────────────────►│           │
-│                                          docker pull │           │
-│                                          docker down │           │
-│                                          docker up   │           │
-│                                                │     │           │
-│                                    ┌───────────┘     │           │
-│                                    │                 │           │
-│                              migration (one-shot)    │           │
-│                                    │                 │           │
-│                              ┌─────┴─────┐           │           │
-│                              │ postgres  │           │           │
-│                              │ (healthy) │           │           │
-│                              └───────────┘           │           │
-│                                    │                 │           │
-│                              ┌─────┴─────┐   ┌───────┴──┐        │
-│                              │    api    │   │   web    │        │
-│                              │ (healthy) │   │ (healthy)│        │
-│                              └───────────┘   └──────────┘        │
-│                                                                  │
-│  3. Verificar health checks                                      │
-│  4. Verificar desde el navegador                                 │
-└──────────────────────────────────────────────────────────────────┘
+```mermaid
+sequenceDiagram
+    box Máquina local
+        participant DEV as Developer
+    end
+    box Remoto
+        participant GHCR as GHCR
+        participant VPS as VPS
+    end
+
+    DEV->>DEV: 1. git checkout main && git pull
+    DEV->>DEV: 2. scripts/deploy.sh --tag vX.Y.Z
+    DEV->>GHCR: docker build (api + web)
+    DEV->>GHCR: docker push
+    DEV->>VPS: ssh → docker pull + down + up -d
+
+    Note over VPS: postgres (healthy)
+    Note over VPS: migration (one-shot)
+    Note over VPS: api (healthy)
+    Note over VPS: web (healthy)
+
+    DEV->>VPS: 3. Verificar health checks
+    DEV->>DEV: 4. Verificar desde el navegador
 ```
 
 ---
 
 ## 2. Paso a paso
 
-### 2.1. Asegurar que el código está en `main`
+### 2.1 Asegurar que el código está en `main`
 
 ```bash
 git checkout main
 git pull origin main
 ```
 
-Verificá que los tests pasan y el lint está limpio:
+Verificar que los tests pasan y el lint está limpio:
 
 ```bash
 npm run lint
@@ -69,7 +77,7 @@ npm run -w api test:unit
 npm run -w web test
 ```
 
-### 2.2. Ejecutar deploy completo
+### 2.2 Ejecutar deploy completo
 
 Desde la raíz del repositorio, en tu máquina local:
 
@@ -86,17 +94,18 @@ VPS_HOST=vps-associated VPS_USER=deploy bash scripts/deploy.sh --tag v0.2.0
 El script ejecuta 4 pasos:
 
 | Paso | Acción                                                                      |
-| ---- | --------------------------------------------------------------------------- |
+| :--: | :-------------------------------------------------------------------------- |
 | 1/4  | Construye imágenes Docker (`api` + `web`) con el tag indicado               |
 | 2/4  | Sube las imágenes a GHCR (`ghcr.io/appassociated-dev/associated-{api,web}`) |
 | 3/4  | Se conecta al VPS por SSH, hace `pull` + `down` + `up -d`                   |
 | 4/4  | Verifica health checks post-deploy                                          |
 
-> **Nota**: El script también taggea como `latest` automáticamente cuando usás un tag específico.
+> [!NOTE]
+> El script también taggea como `latest` automáticamente cuando usas un tag específico.
 
-### 2.3. Si solo cambiaron archivos de compose/scripts
+### 2.3 Si solo cambiaron archivos de compose/scripts
 
-Si además del código cambiaron `docker-compose.prod.yml`, scripts, o `init.sql`, copiá los archivos actualizados al VPS **antes** de ejecutar el deploy:
+Si además del código cambiaron `docker-compose.prod.yml`, scripts, o `init.sql`, copia los archivos actualizados al VPS **antes** de ejecutar el deploy:
 
 ```bash
 # Copiar compose actualizado
@@ -110,9 +119,9 @@ ssh vps-associated "chmod +x /opt/associated/scripts/*.sh"
 scp docker/postgres/init.sql vps-associated:/opt/associated/docker/postgres/
 ```
 
-Luego ejecutá el deploy normalmente.
+Luego ejecutar el deploy normalmente.
 
-### 2.4. Verificar el deploy
+### 2.4 Verificar el deploy
 
 ```bash
 # Estado de contenedores
@@ -131,7 +140,7 @@ curl -I https://associated.ipgsoft.com/
 
 Cuando solo cambió el backend (código en `api/`):
 
-### 3.1. Construir y subir solo la imagen API
+### 3.1 Construir y subir solo la imagen API
 
 ```bash
 # Construir
@@ -143,7 +152,7 @@ docker push ghcr.io/appassociated-dev/associated-api:v<VERSION>
 docker push ghcr.io/appassociated-dev/associated-api:latest
 ```
 
-### 3.2. Actualizar solo el servicio API en el VPS
+### 3.2 Actualizar solo el servicio API en el VPS
 
 ```bash
 ssh vps-associated bash -s << 'EOF'
@@ -153,9 +162,9 @@ docker compose -f docker-compose.prod.yml up -d api
 EOF
 ```
 
-### 3.3. Si hay migraciones pendientes
+### 3.3 Si hay migraciones pendientes
 
-Ejecutá el contenedor de migración antes de reiniciar la API:
+Ejecutar el contenedor de migración antes de reiniciar la API:
 
 ```bash
 ssh vps-associated bash -s << 'EOF'
@@ -166,7 +175,7 @@ docker compose -f docker-compose.prod.yml up -d api
 EOF
 ```
 
-### 3.4. Verificar
+### 3.4 Verificar
 
 ```bash
 curl -s https://associated.ipgsoft.com/api/v1/health | jq .
@@ -178,7 +187,7 @@ curl -s https://associated.ipgsoft.com/api/v1/health | jq .
 
 Cuando solo cambió el frontend (código en `web/`):
 
-### 4.1. Construir y subir solo la imagen Web
+### 4.1 Construir y subir solo la imagen Web
 
 ```bash
 # Construir
@@ -190,7 +199,7 @@ docker push ghcr.io/appassociated-dev/associated-web:v<VERSION>
 docker push ghcr.io/appassociated-dev/associated-web:latest
 ```
 
-### 4.2. Actualizar solo el servicio Web en el VPS
+### 4.2 Actualizar solo el servicio Web en el VPS
 
 ```bash
 ssh vps-associated bash -s << 'EOF'
@@ -200,14 +209,15 @@ docker compose -f docker-compose.prod.yml up -d web
 EOF
 ```
 
-### 4.3. Verificar
+### 4.3 Verificar
 
 ```bash
 curl -I https://associated.ipgsoft.com/
 # Esperado: HTTP/2 200
 ```
 
-> **Nota**: Si los usuarios tienen la SPA cacheada, van a necesitar hacer un hard refresh (Ctrl+Shift+R) para ver los cambios. Los assets con hash de Vite (en `/assets/`) se invalidan automáticamente.
+> [!NOTE]
+> Si los usuarios tienen la SPA cacheada, van a necesitar hacer un hard refresh (Ctrl+Shift+R) para ver los cambios. Los assets con hash de Vite (en `/assets/`) se invalidan automáticamente.
 
 ---
 
@@ -215,9 +225,7 @@ curl -I https://associated.ipgsoft.com/
 
 El rollback consiste en volver a una versión anterior usando el tag de imagen Docker.
 
-### 5.1. Identificar la versión a restaurar
-
-Revisá los tags disponibles en GHCR:
+### 5.1 Identificar la versión a restaurar
 
 ```bash
 # Listar tags de la imagen API
@@ -228,7 +236,7 @@ gh api /orgs/appassociated-dev/packages/container/associated-api/versions \
   --jq '.[].metadata.container.tags[]' | sort -V
 ```
 
-### 5.2. Ejecutar rollback completo
+### 5.2 Rollback completo
 
 ```bash
 ssh vps-associated bash -s << 'ROLLBACK'
@@ -254,7 +262,7 @@ docker compose -f docker-compose.prod.yml ps
 ROLLBACK
 ```
 
-### 5.3. Rollback solo API
+### 5.3 Rollback solo API
 
 ```bash
 ssh vps-associated bash -s << 'ROLLBACK'
@@ -265,7 +273,7 @@ docker compose -f docker-compose.prod.yml up -d api
 ROLLBACK
 ```
 
-### 5.4. Rollback solo Web
+### 5.4 Rollback solo Web
 
 ```bash
 ssh vps-associated bash -s << 'ROLLBACK'
@@ -276,20 +284,21 @@ docker compose -f docker-compose.prod.yml up -d web
 ROLLBACK
 ```
 
-### 5.5. Consideraciones sobre migraciones en rollback
+### 5.5 Consideraciones sobre migraciones en rollback
 
-> **Atención**: Si la versión nueva incluía migraciones de base de datos que ya se ejecutaron, el rollback del código **no revierte las migraciones**. Prisma no tiene un mecanismo automático de rollback de migraciones.
+> [!IMPORTANT]
+> Si la versión nueva incluía migraciones de base de datos que ya se ejecutaron, el rollback del código **no revierte las migraciones**. Prisma no tiene un mecanismo automático de rollback de migraciones.
 >
-> Si necesitás revertir una migración:
+> Si necesitas revertir una migración:
 >
-> 1. Creá una nueva migración que deshaga los cambios (enfoque recomendado)
-> 2. O restaurá un backup de la base de datos (ver [06 - Troubleshooting](./06-troubleshooting.md))
+> 1. Crear una nueva migración que deshaga los cambios (enfoque recomendado)
+> 2. O restaurar un backup de la base de datos (ver [06 - Troubleshooting](06-troubleshooting.md))
 
 ---
 
 ## Checklist de deploy
 
-Usá esta lista antes de cada deploy a producción:
+Usar esta lista antes de cada deploy a producción:
 
 - [ ] Código mergeado a `main`
 - [ ] Tests unitarios pasan (`npm run -w api test:unit`, `npm run -w web test`)
@@ -303,4 +312,18 @@ Usá esta lista antes de cada deploy a producción:
 
 ---
 
-_[← 3. Guia de Primer Despliegue](./03-initial-deploy.md) | [↑ Índice](./README-DEPLOY.md) | [5. Guía de migraciones →](./05-migration-guide.md)_
+<table>
+  <tr>
+    <td width="45%">
+      ← Anterior<br/>
+      <a href="03-initial-deploy.md">3. Guía de Primer Despliegue</a>
+    </td>
+    <td width="10%" align="center">
+      <a href="README.md">↑</a>
+    </td>
+    <td width="45%" align="right">
+      Siguiente →<br/>
+      <a href="05-migration-guide.md">5. Guía de migraciones</a>
+    </td>
+  </tr>
+</table>
