@@ -1,20 +1,10 @@
 # 2. Artefactos Generados
 
-<table>
-  <tr>
-    <td width="45%">
-      ← Anterior<br/>
-      <a href="01-architecture.md">1. Arquitectura de Despliegue</a>
-    </td>
-    <td width="10%" align="center">
-      <a href="README.md">↑</a>
-    </td>
-    <td width="45%" align="right">
-      Siguiente →<br/>
-      <a href="03-initial-deploy.md">3. Guía de Primer Despliegue</a>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="01-architecture.md">← 1. Arquitectura de Despliegue</a> · 
+  <a href="README.md">↑ Índice</a> · 
+  <a href="03-initial-deploy.md">3. Guía de Primer Despliegue →</a>
+</p>
 
 ---
 
@@ -685,18 +675,8 @@ const prismaConfigPath = resolve(
 
 ---
 
-<table>
-  <tr>
-    <td width="45%">
-      ← Anterior<br/>
-      <a href="01-architecture.md">1. Arquitectura de Despliegue</a>
-    </td>
-    <td width="10%" align="center">
-      <a href="README.md">↑</a>
-    </td>
-    <td width="45%" align="right">
-      Siguiente →<br/>
-      <a href="03-initial-deploy.md">3. Guía de Primer Despliegue</a>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="01-architecture.md">← 1. Arquitectura de Despliegue</a> · 
+  <a href="README.md">↑ Índice</a> · 
+  <a href="03-initial-deploy.md">3. Guía de Primer Despliegue →</a>
+</p>

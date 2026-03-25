@@ -1,9 +1,9 @@
 # 3. Guía de Primer Despliegue
 
 <p align="center">
-  <a href="02-artifacts.md">← Artefactos Generados</a> · 
+  <a href="02-artifacts.md">← 2. Artefactos Generados</a> · 
   <a href="README.md">↑ Índice</a> · 
-  <a href="04-new-version-deploy.md">Deploy de nueva versión →</a>
+  <a href="04-new-version-deploy.md">4. Deploy de nueva versión →</a>
 </p>
 
 ---
@@ -539,18 +539,8 @@ Las migraciones se ejecutan automáticamente en cada despliegue (contenedor one-
 
 ---
 
-<table>
-  <tr>
-    <td width="45%">
-      ← Anterior<br/>
-      <a href="02-artifacts.md">2. Artefactos Generados</a>
-    </td>
-    <td width="10%" align="center">
-      <a href="README.md">↑</a>
-    </td>
-    <td width="45%" align="right">
-      Siguiente →<br/>
-      <a href="04-new-version-deploy.md">4. Deploy de nueva versión</a>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="02-artifacts.md">← 2. Artefactos Generados</a> · 
+  <a href="README.md">↑ Índice</a> · 
+  <a href="04-new-version-deploy.md">4. Deploy de nueva versión →</a>
+</p>

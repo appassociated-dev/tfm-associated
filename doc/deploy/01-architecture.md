@@ -1,20 +1,9 @@
 # 1. Arquitectura de Despliegue
 
-<table>
-  <tr>
-    <td width="45%">
-      ← Anterior<br/>
-      <a href="README.md">Índice</a>
-    </td>
-    <td width="10%" align="center">
-      <a href="README.md">↑</a>
-    </td>
-    <td width="45%" align="right">
-      Siguiente →<br/>
-      <a href="02-artifacts.md">2. Artefactos Generados</a>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="README.md">← Índice</a> · 
+  <a href="02-artifacts.md">2. Artefactos Generados →</a>
+</p>
 
 ---
 
@@ -280,18 +269,7 @@ Total máximo: ~2,3 GB de los 8 GB disponibles en el VPS, dejando margen para el
 
 ---
 
-<table>
-  <tr>
-    <td width="45%">
-      ← Anterior<br/>
-      <a href="README.md">Índice</a>
-    </td>
-    <td width="10%" align="center">
-      <a href="README.md">↑</a>
-    </td>
-    <td width="45%" align="right">
-      Siguiente →<br/>
-      <a href="02-artifacts.md">2. Artefactos Generados</a>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="README.md">← Índice</a> · 
+  <a href="02-artifacts.md">2. Artefactos Generados →</a>
+</p>

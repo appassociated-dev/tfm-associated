@@ -1,20 +1,10 @@
 # 6. Troubleshooting
 
-<table>
-  <tr>
-    <td width="45%">
-      ← Anterior<br/>
-      <a href="05-migration-guide.md">5. Guía de migraciones</a>
-    </td>
-    <td width="10%" align="center">
-      <a href="README.md">↑</a>
-    </td>
-    <td width="45%" align="right">
-      Siguiente →<br/>
-      <a href="07-commands-reference.md">7. Referencia rápida de comandos</a>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="05-migration-guide.md">← 5. Guía de migraciones</a> · 
+  <a href="README.md">↑ Índice</a> · 
+  <a href="07-commands-reference.md">7. Referencia rápida de comandos →</a>
+</p>
 
 ---
 
@@ -671,18 +661,8 @@ ssh vps-associated "docker stats --no-stream"
 
 ---
 
-<table>
-  <tr>
-    <td width="45%">
-      ← Anterior<br/>
-      <a href="05-migration-guide.md">5. Guía de migraciones</a>
-    </td>
-    <td width="10%" align="center">
-      <a href="README.md">↑</a>
-    </td>
-    <td width="45%" align="right">
-      Siguiente →<br/>
-      <a href="07-commands-reference.md">7. Referencia rápida de comandos</a>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="05-migration-guide.md">← 5. Guía de migraciones</a> · 
+  <a href="README.md">↑ Índice</a> · 
+  <a href="07-commands-reference.md">7. Referencia rápida de comandos →</a>
+</p>

@@ -166,13 +166,6 @@ openssl rand -base64 32
 
 ---
 
-<table>
-  <tr>
-    <td width="45%"></td>
-    <td width="10%"></td>
-    <td width="45%" align="right">
-      Siguiente →<br/>
-      <a href="01-architecture.md">1. Arquitectura de Despliegue</a>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <a href="01-architecture.md">1. Arquitectura de Despliegue →</a>
+</p>

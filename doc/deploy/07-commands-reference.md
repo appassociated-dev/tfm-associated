@@ -1,17 +1,9 @@
 # 7. Referencia rápida de comandos
 
-<table>
-  <tr>
-    <td width="45%">
-      ← Anterior<br/>
-      <a href="06-troubleshooting.md">6. Troubleshooting</a>
-    </td>
-    <td width="10%" align="center">
-      <a href="README.md">↑</a>
-    </td>
-    <td width="45%"></td>
-  </tr>
-</table>
+<p align="center">
+  <a href="06-troubleshooting.md">← 6. Troubleshooting</a> · 
+  <a href="README.md">↑ Índice</a>
+</p>
 
 ---
 
@@ -577,15 +569,7 @@ EOF
 
 ---
 
-<table>
-  <tr>
-    <td width="45%">
-      ← Anterior<br/>
-      <a href="06-troubleshooting.md">6. Troubleshooting</a>
-    </td>
-    <td width="10%" align="center">
-      <a href="README.md">↑</a>
-    </td>
-    <td width="45%"></td>
-  </tr>
-</table>
+<p align="center">
+  <a href="06-troubleshooting.md">← 6. Troubleshooting</a> · 
+  <a href="README.md">↑ Índice</a>
+</p>
