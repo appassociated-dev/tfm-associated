@@ -555,7 +555,7 @@ curl -sf http://127.0.0.1:8080/ > /dev/null && echo "OK" || echo "FAIL"
 
 echo ""
 echo "=== SSL externo ==="
-curl -sf https://associated.ipgsoft.com/api/health && echo " OK" || echo " FAIL"
+curl -sf https://domain-deploy.com/api/health && echo " OK" || echo " FAIL"
 
 echo ""
 echo "=== Disco ==="

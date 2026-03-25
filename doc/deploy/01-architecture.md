@@ -53,7 +53,7 @@ graph TB
 
 **Rutas API** (`/api/*`):
 
-1. El navegador solicita `https://associated.ipgsoft.com/api/v1/members`
+1. El navegador solicita `https://domain-deploy.com/api/v1/members`
 2. nginx del host recibe en puerto 443, termina SSL
 3. Detecta prefijo `/api/` y hace `proxy_pass` a `127.0.0.1:3000`
 4. El contenedor `api` procesa la petición con NestJS

@@ -7,7 +7,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18--alpine-4169E1)
 ![GHCR](https://img.shields.io/badge/GHCR-Registry-181717)
 
-> **Dominio**: associated.ipgsoft.com
+> **Dominio**: domain-deploy.com
 > **Repositorio**: [appassociated-dev/tfm-associated](https://github.com/appassociated-dev/tfm-associated)
 > **Registry**: `ghcr.io/appassociated-dev/associated-{api,web}`
 
@@ -66,13 +66,13 @@ El flujo completo se ejecuta con un único comando:
 
 ### URLs
 
-| Servicio                | URL                                            |
-| :---------------------- | :--------------------------------------------- |
-| Aplicación (HTTPS)      | `https://associated.ipgsoft.com`               |
-| API (a través de nginx) | `https://associated.ipgsoft.com/api/v1/`       |
-| Health check API        | `https://associated.ipgsoft.com/api/v1/health` |
-| GHCR API                | `ghcr.io/appassociated-dev/associated-api`     |
-| GHCR Web                | `ghcr.io/appassociated-dev/associated-web`     |
+| Servicio                | URL                                        |
+| :---------------------- | :----------------------------------------- |
+| Aplicación (HTTPS)      | `https://domain-deploy.com`                |
+| API (a través de nginx) | `https://domain-deploy.com/api/v1/`        |
+| Health check API        | `https://domain-deploy.com/api/v1/health`  |
+| GHCR API                | `ghcr.io/appassociated-dev/associated-api` |
+| GHCR Web                | `ghcr.io/appassociated-dev/associated-web` |
 
 ### Acceso al VPS
 
@@ -125,7 +125,7 @@ curl http://127.0.0.1:8080/healthz
 ./scripts/verify-deploy.sh --check 6.3   # Solo aislamiento de puertos
 
 # --- Seed de datos ---
-API_URL=https://associated.ipgsoft.com/api \
+API_URL=https://domain-deploy.com/api \
 SUPERADMIN_API_KEY=xxx \
 ADMIN_EMAIL=admin@example.com \
 ADMIN_PASSWORD=xxx \

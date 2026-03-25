@@ -439,7 +439,7 @@ ssh vps-associated "sudo nginx -t && sudo systemctl reload nginx"
 
 ### 20. 404 Not Found desde nginx
 
-**Síntoma**: Al acceder a `https://associated.ipgsoft.com` se recibe un error 404 Not Found.
+**Síntoma**: Al acceder a `https://domain-deploy.com` se recibe un error 404 Not Found.
 
 **Causa A - vhost no habilitado**:
 
@@ -577,12 +577,12 @@ ssh vps-associated "sudo certbot renew --nginx"
 
 ```bash
 # Verificar permisos actuales
-ssh vps-associated "sudo ls -la /etc/letsencrypt/live/associated.ipgsoft.com/"
+ssh vps-associated "sudo ls -la /etc/letsencrypt/live/domain-deploy.com/"
 
 # Corregir permisos
 ssh vps-associated << 'EOF'
-sudo chmod 600 /etc/letsencrypt/live/associated.ipgsoft.com/privkey.pem
-sudo chmod 644 /etc/letsencrypt/live/associated.ipgsoft.com/fullchain.pem
+sudo chmod 600 /etc/letsencrypt/live/domain-deploy.com/privkey.pem
+sudo chmod 644 /etc/letsencrypt/live/domain-deploy.com/fullchain.pem
 sudo chmod 755 /etc/letsencrypt/live/
 sudo chmod 755 /etc/letsencrypt/archive/
 EOF

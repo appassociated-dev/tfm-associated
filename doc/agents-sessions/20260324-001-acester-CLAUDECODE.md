@@ -23,7 +23,7 @@ documentacion exhaustiva de deploy (8 archivos, ~3780 lineas) y se corrigieron e
 - [x] Resolver problemas de build y configuracion encontrados durante el despliegue
 - [x] Generar documentacion completa de deploy
 - [x] Corregir errores de CI pipeline (tsc, eslint, prisma generate, e2e)
-- [x] Verificar deploy funcional en https://associated.ipgsoft.com
+- [x] Verificar deploy funcional en https://domain-deploy.com
 
 ---
 
@@ -45,7 +45,7 @@ health checks, scripts de deploy/migracion/seed, y configuracion nginx con SSL.
 **Decisiones tecnicas de arquitectura:**
 
 - **GHCR para imagenes Docker:** Registro privado integrado con GitHub, sin coste adicional para repos privados. Alternativa descartada: docker save/load (no escalable, sin versionado).
-- **nginx en host (no en Docker):** El dominio associated.ipgsoft.com apunta directamente al VPS. nginx en host gestiona SSL con Let's Encrypt y hace reverse proxy a los contenedores. Alternativa descartada: nginx en Docker (complejidad innecesaria para un unico dominio).
+- **nginx en host (no en Docker):** El dominio domain-deploy.com apunta directamente al VPS. nginx en host gestiona SSL con Let's Encrypt y hace reverse proxy a los contenedores. Alternativa descartada: nginx en Docker (complejidad innecesaria para un unico dominio).
 - **Multi-stage builds:** API (build -> production), Web (build -> nginx). Imagenes finales sin devDependencies ni source code.
 - **Base de datos en Docker con volumen persistente:** PostgreSQL 18 con volume `postgres_data`. Alternativa descartada: managed DB (coste innecesario para MVP).
 - **Migracion de tenant DBs con script dedicado:** `scripts/migrate-tenants.sh` descubre tenants en la DB central y ejecuta `prisma migrate deploy` para cada uno.
@@ -228,7 +228,7 @@ y referencia de comandos. Ademas, se guardaron 20 decisiones/fixes en engram baj
 
 ### Decisiones Arquitectonicas
 
-- **VPS IONOS DCD con nginx en host:** Dominio propio (associated.ipgsoft.com), SSL con Let's Encrypt, nginx como reverse proxy directo al puerto de los contenedores. Sin overhead de Traefik/Caddy para un unico dominio.
+- **VPS IONOS DCD con nginx en host:** Dominio propio (domain-deploy.com), SSL con Let's Encrypt, nginx como reverse proxy directo al puerto de los contenedores. Sin overhead de Traefik/Caddy para un unico dominio.
 - **GHCR como container registry:** Integracion nativa con GitHub, sin configuracion adicional. PAT con scope `read:packages` para el VPS.
 - **Tenant DB migration strategy:** Script dedicado que descubre tenants en DB central y ejecuta migraciones secuencialmente. No automatizado en CI por riesgo de downtime en migraciones destructivas.
 - **Health endpoint con Terminus:** `/api/health` expone estado de la DB y del servicio. Usado por docker-compose `healthcheck` y por `verify-deploy.sh`.
@@ -263,7 +263,7 @@ y referencia de comandos. Ademas, se guardaron 20 decisiones/fixes en engram baj
 - Commits: `400cfa3`, `0f4dd70`, `f20f227`, `2b0ad18`, `a1cd85c`, `71ff191`, `c20f0da`
 - Branch: mvp/frontend-fase1
 - SDD production-docker-deploy: engram #704-#711
-- Deploy URL: https://associated.ipgsoft.com
+- Deploy URL: https://domain-deploy.com
 - VPS: IONOS DCD (Ubuntu 24.04, 4 cores, 8GB RAM, 240GB SSD)
 - Documentacion: doc/deploy/README-DEPLOY.md (indice completo)
 

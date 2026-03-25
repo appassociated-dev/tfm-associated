@@ -164,12 +164,12 @@ sudo chmod 644 /etc/ssl/associated/fullchain.pem
 sudo apt install certbot python3-certbot-nginx -y
 
 # Obtener certificado (nginx debe estar corriendo con el vhost básico)
-sudo certbot --nginx -d associated.ipgsoft.com
+sudo certbot --nginx -d domain-deploy.com
 
-# Los certificados se generan en /etc/letsencrypt/live/associated.ipgsoft.com/
+# Los certificados se generan en /etc/letsencrypt/live/domain-deploy.com/
 # Crear symlinks al directorio esperado por la configuración:
-sudo ln -sf /etc/letsencrypt/live/associated.ipgsoft.com/fullchain.pem /etc/ssl/associated/fullchain.pem
-sudo ln -sf /etc/letsencrypt/live/associated.ipgsoft.com/privkey.pem /etc/ssl/associated/privkey.pem
+sudo ln -sf /etc/letsencrypt/live/domain-deploy.com/fullchain.pem /etc/ssl/associated/fullchain.pem
+sudo ln -sf /etc/letsencrypt/live/domain-deploy.com/privkey.pem /etc/ssl/associated/privkey.pem
 ```
 
 ---
@@ -189,7 +189,7 @@ sudo mv /tmp/associated.conf /etc/nginx/sites-available/associated.conf
 ### 3.2 Reemplazar el dominio placeholder
 
 ```bash
-sudo sed -i 's/${DOMAIN}/associated.ipgsoft.com/g' /etc/nginx/sites-available/associated.conf
+sudo sed -i 's/${DOMAIN}/domain-deploy.com/g' /etc/nginx/sites-available/associated.conf
 ```
 
 ### 3.3 Activar el vhost
@@ -264,7 +264,7 @@ openssl rand -base64 32
 
 ```env
 NODE_ENV=production
-DOMAIN=associated.ipgsoft.com
+DOMAIN=domain-deploy.com
 
 POSTGRES_USER=associated
 POSTGRES_PASSWORD=a3f8b2c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3
@@ -369,7 +369,7 @@ curl http://127.0.0.1:8080/healthz
 # Esperado: ok
 
 # HTTPS (desde fuera del VPS)
-curl -I https://associated.ipgsoft.com/api/v1/health
+curl -I https://domain-deploy.com/api/v1/health
 # Esperado: HTTP/2 200
 ```
 
@@ -398,7 +398,7 @@ nc -zv <IP_VPS> 443
 Desde la máquina local (o desde cualquier máquina con acceso HTTPS al VPS):
 
 ```bash
-API_URL=https://associated.ipgsoft.com/api \
+API_URL=https://domain-deploy.com/api \
 SUPERADMIN_API_KEY=<valor_del_env> \
 ADMIN_EMAIL=admin@miasociacion.es \
 ADMIN_PASSWORD='UnPasswordSeguro123!' \
@@ -437,9 +437,9 @@ export VPS_USER=deploy
 
 ### Checklist manual adicional
 
-- [ ] `https://associated.ipgsoft.com` carga la SPA correctamente
-- [ ] `http://associated.ipgsoft.com` redirige a HTTPS (301)
-- [ ] `https://associated.ipgsoft.com/api/v1/health` responde 200
+- [ ] `https://domain-deploy.com` carga la SPA correctamente
+- [ ] `http://domain-deploy.com` redirige a HTTPS (301)
+- [ ] `https://domain-deploy.com/api/v1/health` responde 200
 - [ ] Login con las credenciales del seed funciona
 - [ ] Los puertos 5432 y 3000 NO son accesibles externamente
 - [ ] Los logs no muestran errores críticos: `docker compose -f docker-compose.prod.yml logs --tail=50`
@@ -483,7 +483,7 @@ Causa común: los contenedores no están corriendo o no están healthy.
 ### SPA carga pero no conecta con la API
 
 ```bash
-curl -I https://associated.ipgsoft.com/api/v1/health
+curl -I https://domain-deploy.com/api/v1/health
 ```
 
 Si devuelve 404: nginx no tiene la ruta `/api/` configurada. Si devuelve 502: la API no está corriendo. Si devuelve 200: la API funciona, el problema es CORS o la URL en el frontend.

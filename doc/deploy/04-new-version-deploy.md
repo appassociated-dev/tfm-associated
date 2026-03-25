@@ -118,10 +118,10 @@ Luego ejecutar el deploy normalmente.
 ssh vps-associated "cd /opt/associated && docker compose -f docker-compose.prod.yml ps"
 
 # Health API
-curl -s https://associated.ipgsoft.com/api/v1/health | jq .
+curl -s https://domain-deploy.com/api/v1/health | jq .
 
 # Health Web
-curl -I https://associated.ipgsoft.com/
+curl -I https://domain-deploy.com/
 ```
 
 ---
@@ -168,7 +168,7 @@ EOF
 ### 3.4 Verificar
 
 ```bash
-curl -s https://associated.ipgsoft.com/api/v1/health | jq .
+curl -s https://domain-deploy.com/api/v1/health | jq .
 ```
 
 ---
@@ -202,7 +202,7 @@ EOF
 ### 4.3 Verificar
 
 ```bash
-curl -I https://associated.ipgsoft.com/
+curl -I https://domain-deploy.com/
 # Esperado: HTTP/2 200
 ```
 
