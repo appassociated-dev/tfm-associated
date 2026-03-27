@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Genera head-adrs.md a partir de 006_adrs.md.
+Genera head-inventario-de-endpoints.md a partir de 013_inventario-de-endpoints.md.
 
-Contenido: metadatos + índice + sección de Trazabilidad General.
+Contenido: metadatos + índice + sección de Trazabilidad.
 """
 
 import sys
@@ -14,12 +14,12 @@ from lib_parser import (
     extract_trailing_sections, write_fragment, join_head_parts,
 )
 
-SPEC_FILE = '006_adrs.md'
-OUTPUT_FILE = 'head-adrs.md'
+SPEC_FILE = '013_inventario-de-endpoints.md'
+OUTPUT_FILE = 'head-inventario-de-endpoints.md'
 
 # secciones finales a incluir en el head
 TRAILING_MARKERS = [
-    r'^## Trazabilidad General',
+    r'^## 9\. Trazabilidad',
 ]
 
 
@@ -36,10 +36,11 @@ def generate(spec_dir: Path, output_dir: Path) -> str:
     for section_text in trailing.values():
         parts.append(section_text)
 
+    # guía de navegación hacia los fragmentos EP
     parts.append(
         '## Navegación\n\n'
-        'Cada ADR se encuentra en `adr/adr-{xxx}.md`.\n'
-        'Ejemplo: `references/adr/adr-001.md` para ADR-001.'
+        'Cada endpoint se encuentra en `ep/ep-{nnn}.md`.\n'
+        'Ejemplo: `references/ep/ep-001.md` para EP-001.'
     )
 
     write_fragment(output_dir / OUTPUT_FILE, join_head_parts(parts))

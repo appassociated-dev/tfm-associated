@@ -5,7 +5,7 @@ validate_references.py - Validación post-generación de references/.
 Comprueba:
 1. Todos los códigos de spec/ tienen su fragmento en references/.
 2. No hay archivos huérfanos (fragmentos sin correspondencia en spec/).
-3. Existen los 8 head-*.md esperados.
+3. Existen los 10 head-*.md esperados.
 4. Cada subdirectorio tiene al menos 1 archivo.
 5. No hay archivos con nombres que violen lowercase kebab-case.
 """
@@ -15,12 +15,12 @@ import sys
 from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPTS_DIR.parent.parent.parent.parent
+PROJECT_ROOT = SCRIPTS_DIR.parent.parent.parent
 SPEC_DIR = PROJECT_ROOT / 'spec'
 REFERENCES_DIR = SCRIPTS_DIR.parent.parent / 'doc-spec-manager' / 'references'
 
 sys.path.insert(0, str(SCRIPTS_DIR))
-from lib_parser import read_spec_file, _build_code_fence_mask
+from lib_parser import read_spec_file, _build_code_fence_mask, ExclusionConfig
 
 # --- definición de validaciones por tipo ---
 # Cada entrada: (spec_file, subdir, regex_para_encontrar_códigos_en_spec, código->filename)
@@ -94,7 +94,35 @@ ENTITY_TYPES = [
         'code_pattern': r'^### (UC-\d+):',
         'code_to_filename': lambda c: c.lower() + '.md',
     },
+    {
+        'name': 'ENT',
+        'spec_file': '012_modelo-de-datos.md',
+        'subdir': 'ent',
+        'code_pattern': r'^### (ENT-\d+):',
+        'code_to_filename': lambda c: c.lower() + '.md',
+    },
+    {
+        'name': 'EP',
+        'spec_file': '013_inventario-de-endpoints.md',
+        'subdir': 'ep',
+        'code_pattern': r'^### (EP-\d+):',
+        'code_to_filename': lambda c: c.lower() + '.md',
+    },
 ]
+
+# mapeo: spec_file → head-*.md correspondiente (para filtrado por exclusiones)
+SPEC_TO_HEAD = {
+    '003_requisitos-funcionales.md': 'head-requisitos-funcionales.md',
+    '004_rnf-base.md':               'head-requisitos-no-funcionales.md',
+    '005_modelo-dominio.md':         'head-modelo-dominio.md',
+    '006_adrs.md':                   'head-adrs.md',
+    '007_stack.md':                  'head-stack.md',
+    '008_rnf-tecnicos.md':           'head-requisitos-no-funcionales-tech.md',
+    '009_user-stories.md':           'head-user-stories.md',
+    '010_casos-uso.md':              'head-use-cases.md',
+    '012_modelo-de-datos.md':        'head-modelo-de-datos.md',
+    '013_inventario-de-endpoints.md': 'head-inventario-de-endpoints.md',
+}
 
 EXPECTED_HEAD_FILES = [
     'head-requisitos-funcionales.md',
@@ -105,6 +133,8 @@ EXPECTED_HEAD_FILES = [
     'head-requisitos-no-funcionales-tech.md',
     'head-user-stories.md',
     'head-use-cases.md',
+    'head-modelo-de-datos.md',
+    'head-inventario-de-endpoints.md',
 ]
 
 
@@ -125,14 +155,38 @@ def _find_codes_in_spec(spec_path: Path, pattern: str) -> list[str]:
     return codes
 
 
-def validate() -> tuple[int, int]:
-    """Ejecuta todas las validaciones. Retorna (errores, warnings)."""
+def validate(exclusion_config: ExclusionConfig | None = None) -> tuple[int, int]:
+    """Ejecuta todas las validaciones. Retorna (errores, warnings).
+
+    exclusion_config: configuración de exclusiones cargada por generate_all.py.
+    Si es None (ejecución standalone), se asume sin exclusiones (backward compatible).
+    """
     errors = 0
     warnings = 0
 
+    # conjuntos de archivos excluidos (vacíos si no hay config)
+    excluded_copy_specs = exclusion_config.copy_files if exclusion_config else frozenset()
+    excluded_atom_specs = exclusion_config.atom_files if exclusion_config else frozenset()
+
+    # head files a verificar: omitir los mapeados a spec files en copy_files
+    excluded_heads = {
+        head
+        for spec_file, head in SPEC_TO_HEAD.items()
+        if spec_file in excluded_copy_specs
+    }
+    active_head_files = [hf for hf in EXPECTED_HEAD_FILES if hf not in excluded_heads]
+
+    # entity types a verificar: omitir los mapeados a spec files en atom_files
+    active_entity_types = [
+        entity for entity in ENTITY_TYPES
+        if entity['spec_file'] not in excluded_atom_specs
+    ]
+
     # 1. Validar head-*.md
     print("\n[1] Verificando head-*.md...")
-    for hf in EXPECTED_HEAD_FILES:
+    if excluded_heads:
+        print(f"  (omitidos por exclusión: {', '.join(sorted(excluded_heads))})")
+    for hf in active_head_files:
         path = REFERENCES_DIR / hf
         if not path.exists():
             print(f"  ERROR: falta {hf}")
@@ -145,9 +199,12 @@ def validate() -> tuple[int, int]:
 
     # 2. Validar fragmentos por tipo
     print("\n[2] Verificando fragmentos por tipo...")
+    if len(active_entity_types) < len(ENTITY_TYPES):
+        skipped = [e['name'] for e in ENTITY_TYPES if e not in active_entity_types]
+        print(f"  (omitidos por exclusión: {', '.join(skipped)})")
     total_fragments = 0
 
-    for entity in ENTITY_TYPES:
+    for entity in active_entity_types:
         name = entity['name']
         subdir = REFERENCES_DIR / entity['subdir']
         actual_files = set(f.name for f in subdir.glob('*.md')) if subdir.exists() else set()

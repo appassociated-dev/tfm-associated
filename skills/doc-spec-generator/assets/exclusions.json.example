@@ -1,0 +1,20 @@
+[
+  {
+    "file": "ejemplo-excluido-total.md",
+    "exclude-atom": true,
+    "exclude-copy": true,
+    "_comment": "Archivo completamente ignorado por el pipeline, como si no existiera en spec/"
+  },
+  {
+    "file": "ejemplo-copiado-sin-atomizar.md",
+    "exclude-atom": true,
+    "exclude-copy": false,
+    "_comment": "No se atomiza (no genera fragmentos), pero se copia tal cual a references/"
+  },
+  {
+    "file": "ejemplo-procesado-normal.md",
+    "exclude-atom": false,
+    "exclude-copy": false,
+    "_comment": "Comportamiento normal: se atomiza y se copia. Equivale a no listarlo."
+  }
+]

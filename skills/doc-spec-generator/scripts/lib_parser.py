@@ -7,8 +7,10 @@ Utilidades para:
 - Dividir documentos en secciones por patrones de heading
 - Sanitizar nombres de archivo (lowercase kebab-case)
 - Escribir fragmentos de forma segura
+- Cargar configuración de exclusiones (exclusions.json)
 """
 
+import json
 import re
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -385,3 +387,68 @@ def join_head_parts(parts: list[str]) -> str:
 def count_items_by_pattern(text: str, pattern: str) -> int:
     """Cuenta las ocurrencias de un patrón (flags MULTILINE)."""
     return len(re.findall(pattern, text, re.MULTILINE))
+
+
+# ---------------------------------------------------------------------------
+# Configuración de exclusiones
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class ExclusionConfig:
+    """Archivos excluidos de la pipeline de generación.
+
+    atom_files: archivos cuya extracción (atomización) se omite.
+    copy_files: archivos completamente excluidos (ni atom ni head ni validación).
+
+    Invariante: copy_files ⊆ atom_files (exclude-copy implica exclude-atom).
+    """
+    atom_files: frozenset[str] = frozenset()   # excluidos de extracción (atomización)
+    copy_files: frozenset[str] = frozenset()   # excluidos completamente (ni atom ni head)
+
+
+def load_exclusion_config(assets_dir: Path) -> ExclusionConfig:
+    """
+    Carga assets_dir/exclusions.json y retorna un ExclusionConfig.
+
+    Si el archivo no existe retorna config vacía (sin exclusiones), preservando
+    la compatibilidad hacia atrás con la pipeline sin exclusiones.
+
+    Normalización: exclude-copy:true → archivo agregado a AMBOS sets
+    (atom_files y copy_files), independientemente del valor de exclude-atom.
+    """
+    config_path = assets_dir / 'exclusions.json'
+
+    # archivo ausente → sin exclusiones (backward compatible)
+    if not config_path.exists():
+        return ExclusionConfig()
+
+    try:
+        entries = json.loads(config_path.read_text(encoding='utf-8'))
+    except (json.JSONDecodeError, OSError):
+        # archivo malformado o ilegible → sin exclusiones, no romper pipeline
+        return ExclusionConfig()
+
+    atom_files: set[str] = set()
+    copy_files: set[str] = set()
+
+    for entry in entries:
+        filename = entry.get('file', '')
+        if not filename:
+            continue
+
+        exclude_copy = bool(entry.get('exclude-copy', False))
+        exclude_atom = bool(entry.get('exclude-atom', False))
+
+        if exclude_copy:
+            # excluir completamente → agrega a ambos sets (normalización)
+            copy_files.add(filename)
+            atom_files.add(filename)
+        elif exclude_atom:
+            # excluir sólo atomización → agrega sólo a atom_files
+            atom_files.add(filename)
+        # ambos false → procesamiento normal, no agregar nada
+
+    return ExclusionConfig(
+        atom_files=frozenset(atom_files),
+        copy_files=frozenset(copy_files),
+    )
