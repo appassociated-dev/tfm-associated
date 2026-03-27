@@ -31,14 +31,14 @@ Este documento concreta los RNFs agnósticos definidos en KB-004 con las tecnolo
 
 ### 1.1 Stack de Referencia
 
-| Capa | Tecnología | Versión |
-|------|------------|---------|
-| Backend | NestJS + TypeScript | 11.x / 5.9.x |
-| Frontend | React + Mantine | 19.x / 8.x |
-| Base de Datos | PostgreSQL + Prisma | 18.x / 7.x |
-| Testing | Vitest + Playwright | 4.x / 1.58.x |
-| Observabilidad | Sentry | 10.x |
-| CI/CD | GitHub Actions | - |
+| Capa           | Tecnología          | Versión      |
+| -------------- | ------------------- | ------------ |
+| Backend        | NestJS + TypeScript | 11.x / 5.9.x |
+| Frontend       | React + Mantine     | 19.x / 8.x   |
+| Base de Datos  | PostgreSQL + Prisma | 18.x / 7.x   |
+| Testing        | Vitest + Playwright | 4.x / 1.58.x |
+| Observabilidad | Sentry              | 10.x         |
+| CI/CD          | GitHub Actions      | -            |
 
 ---
 
@@ -57,9 +57,9 @@ Este documento concreta los RNFs agnósticos definidos en KB-004 con las tecnolo
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({
         secret: config.get('JWT_SECRET'),
-        signOptions: { 
-          expiresIn: '15m',  // Access token corto
-          algorithm: 'HS256'
+        signOptions: {
+          expiresIn: '15m', // Access token corto
+          algorithm: 'HS256',
         },
       }),
     }),
@@ -71,10 +71,10 @@ export class AuthModule {}
 
 **Configuración de tokens:**
 
-| Token | Duración | Almacenamiento | Renovación |
-|-------|----------|----------------|------------|
-| Access Token | 15 minutos | Memory (frontend) | Automática con refresh |
-| Refresh Token | 7 días | HttpOnly Cookie | En login |
+| Token         | Duración   | Almacenamiento    | Renovación             |
+| ------------- | ---------- | ----------------- | ---------------------- |
+| Access Token  | 15 minutos | Memory (frontend) | Automática con refresh |
+| Refresh Token | 7 días     | HttpOnly Cookie   | En login               |
 
 **Política de contraseñas (class-validator):**
 
@@ -90,11 +90,12 @@ password: string;
 
 ```typescript
 // Configuración
-MAX_FAILED_ATTEMPTS = 5
-LOCKOUT_DURATION_MINUTES = 15
+MAX_FAILED_ATTEMPTS = 5;
+LOCKOUT_DURATION_MINUTES = 15;
 ```
 
 **Verificación:**
+
 - Test E2E: Login con credenciales válidas/inválidas
 - Test: Bloqueo tras 5 intentos fallidos
 - Auditoría: Revisar tokens generados tienen claims correctos
@@ -122,13 +123,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload) {
     // Verificar sesión activa en DB
     const session = await this.prisma.session.findFirst({
-      where: { 
+      where: {
         userId: payload.sub,
         isActive: true,
-        expiresAt: { gt: new Date() }
-      }
+        expiresAt: { gt: new Date() },
+      },
     });
-    
+
     if (!session) throw new UnauthorizedException();
     return { userId: payload.sub, tenantId: payload.tenantId };
   }
@@ -137,11 +138,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
 **Configuración de expiración:**
 
-| Parámetro | Valor | Variable de entorno |
-|-----------|-------|---------------------|
-| Inactividad | 30 min | `SESSION_IDLE_TIMEOUT` |
-| Absoluta | 24 horas | `SESSION_ABSOLUTE_TIMEOUT` |
-| Refresh token | 7 días | `REFRESH_TOKEN_EXPIRES` |
+| Parámetro     | Valor    | Variable de entorno        |
+| ------------- | -------- | -------------------------- |
+| Inactividad   | 30 min   | `SESSION_IDLE_TIMEOUT`     |
+| Absoluta      | 24 horas | `SESSION_ABSOLUTE_TIMEOUT` |
+| Refresh token | 7 días   | `REFRESH_TOKEN_EXPIRES`    |
 
 **Refresh Token en Cookie HttpOnly:**
 
@@ -151,14 +152,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 async refresh(@Req() req: Request, @Res() res: Response) {
   const refreshToken = req.cookies['refresh_token'];
   const tokens = await this.authService.refreshTokens(refreshToken);
-  
+
   res.cookie('refresh_token', tokens.refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
   });
-  
+
   return res.json({ accessToken: tokens.accessToken });
 }
 ```
@@ -181,15 +182,16 @@ export const RequirePermissions = (...permissions: Permission[]) =>
 export class PermissionsGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredPermissions = this.reflector.get<Permission[]>(
-      'permissions', context.getHandler()
+      'permissions',
+      context.getHandler(),
     );
-    
+
     if (!requiredPermissions) return true;
-    
+
     const { user } = context.switchToHttp().getRequest();
     const userPermissions = await this.getPermissions(user);
-    
-    return requiredPermissions.every(p => userPermissions.includes(p));
+
+    return requiredPermissions.every((p) => userPermissions.includes(p));
   }
 }
 ```
@@ -230,13 +232,13 @@ Ejemplos:
 
 **Roles predefinidos por tenant:**
 
-| Rol | Permisos |
-|-----|----------|
-| `admin` | Todos (`*:*:*`) |
-| `treasurer` | `treasury:*:*`, `membership:members:read` |
-| `secretary` | `membership:*:*`, `communication:*:*` |
+| Rol            | Permisos                                  |
+| -------------- | ----------------------------------------- |
+| `admin`        | Todos (`*:*:*`)                           |
+| `treasurer`    | `treasury:*:*`, `membership:members:read` |
+| `secretary`    | `membership:*:*`, `communication:*:*`     |
 | `board_member` | `*:*:read`, `events:registrations:create` |
-| `member` | Portal socio únicamente |
+| `member`       | Portal socio únicamente                   |
 
 ---
 
@@ -256,8 +258,8 @@ export class PrismaTenantService {
     if (!this.clients.has(tenantId)) {
       const client = new PrismaClient({
         datasources: {
-          db: { url: this.getTenantDatabaseUrl(tenantId) }
-        }
+          db: { url: this.getTenantDatabaseUrl(tenantId) },
+        },
       });
       this.clients.set(tenantId, client);
     }
@@ -279,11 +281,11 @@ export class PrismaTenantService {
 export class TenantMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const tenantId = req.headers['x-tenant-id'] as string;
-    
+
     if (!tenantId) {
       throw new BadRequestException('X-Tenant-Id header required');
     }
-    
+
     req['tenantId'] = tenantId;
     next();
   }
@@ -303,6 +305,7 @@ GRANT CONNECT ON DATABASE associated_abc123 TO tenant_abc123;
 ```
 
 **Métricas:**
+
 - Conexiones por tenant monitorizadas en Sentry
 - Pool máximo por tenant: 10 conexiones
 
@@ -321,18 +324,20 @@ async function bootstrap() {
     key: fs.readFileSync('./secrets/private-key.pem'),
     cert: fs.readFileSync('./secrets/certificate.pem'),
   };
-  
+
   const app = await NestFactory.create(AppModule, { httpsOptions });
-  
+
   // Forzar HTTPS
-  app.use(helmet({
-    hsts: {
-      maxAge: 31536000, // 1 año
-      includeSubDomains: true,
-      preload: true,
-    },
-  }));
-  
+  app.use(
+    helmet({
+      hsts: {
+        maxAge: 31536000, // 1 año
+        includeSubDomains: true,
+        preload: true,
+      },
+    }),
+  );
+
   await app.listen(443);
 }
 ```
@@ -341,20 +346,23 @@ async function bootstrap() {
 
 ```typescript
 // app.module.ts
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
     },
-  },
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-}));
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  }),
+);
 ```
 
 **Verificación:**
+
 - SSL Labs: Grado A mínimo
 - Headers verificados con securityheaders.com
 
@@ -410,11 +418,11 @@ encrypt(text: string): { encrypted: string; iv: string; tag: string } {
 
 **Datos cifrados:**
 
-| Campo | Método | Propósito |
-|-------|--------|-----------|
-| Contraseña | Argon2 (default params) | Hash irreversible |
-| IBAN | AES-256-GCM | Cifrado reversible |
-| DNI | AES-256-GCM | Cifrado reversible |
+| Campo      | Método                  | Propósito          |
+| ---------- | ----------------------- | ------------------ |
+| Contraseña | Argon2 (default params) | Hash irreversible  |
+| IBAN       | AES-256-GCM             | Cifrado reversible |
+| DNI        | AES-256-GCM             | Cifrado reversible |
 
 ---
 
@@ -428,13 +436,11 @@ encrypt(text: string): { encrypted: string; iv: string; tag: string } {
 // prisma-audit.middleware.ts
 prisma.$use(async (params, next) => {
   const result = await next(params);
-  
+
   const auditableModels = ['Member', 'MemberAccount', 'Transaction', 'User'];
   const auditableActions = ['create', 'update', 'delete'];
-  
-  if (auditableModels.includes(params.model) && 
-      auditableActions.includes(params.action)) {
-    
+
+  if (auditableModels.includes(params.model) && auditableActions.includes(params.action)) {
     await prisma.auditLog.create({
       data: {
         userId: context.userId,
@@ -447,10 +453,10 @@ prisma.$use(async (params, next) => {
         ipAddress: context.ip,
         userAgent: context.userAgent,
         timestamp: new Date(),
-      }
+      },
     });
   }
-  
+
   return result;
 });
 ```
@@ -470,7 +476,7 @@ model AuditLog {
   ipAddress  String
   userAgent  String?
   timestamp  DateTime @default(now())
-  
+
   @@index([tenantId, timestamp])
   @@index([model, recordId])
 }
@@ -490,42 +496,46 @@ model AuditLog {
 // main.ts
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Rate limiting
-  app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // máximo 100 requests por ventana
-    message: 'Too many requests',
-  }));
-  
+  app.use(
+    rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutos
+      max: 100, // máximo 100 requests por ventana
+      message: 'Too many requests',
+    }),
+  );
+
   // CORS configurado
   app.enableCors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   });
-  
+
   // Helmet para headers de seguridad
   app.use(helmet());
-  
+
   // Validación global
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,        // Strip propiedades no definidas
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Strip propiedades no definidas
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 }
 ```
 
 **Protecciones implementadas:**
 
-| Ataque | Protección | Implementación |
-|--------|------------|----------------|
-| SQL Injection | Queries parametrizadas | Prisma (por defecto) |
-| XSS | Sanitización | class-transformer + CSP headers |
-| CSRF | SameSite cookies | Cookie config: `sameSite: 'strict'` |
-| Rate limiting | Throttling | @nestjs/throttler |
-| Clickjacking | X-Frame-Options | Helmet: `DENY` |
+| Ataque        | Protección             | Implementación                      |
+| ------------- | ---------------------- | ----------------------------------- |
+| SQL Injection | Queries parametrizadas | Prisma (por defecto)                |
+| XSS           | Sanitización           | class-transformer + CSP headers     |
+| CSRF          | SameSite cookies       | Cookie config: `sameSite: 'strict'` |
+| Rate limiting | Throttling             | @nestjs/throttler                   |
+| Clickjacking  | X-Frame-Options        | Helmet: `DENY`                      |
 
 ---
 
@@ -552,22 +562,19 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 500, // KB
   },
-  plugins: [
-    react(),
-    compression({ algorithm: 'brotli' }),
-  ],
+  plugins: [react(), compression({ algorithm: 'brotli' })],
 });
 ```
 
 **Métricas objetivo (Lighthouse):**
 
-| Métrica | Objetivo | Herramienta |
-|---------|----------|-------------|
-| FCP (First Contentful Paint) | < 1.8s | Lighthouse |
-| LCP (Largest Contentful Paint) | < 2.5s | Lighthouse |
-| TTI (Time to Interactive) | < 3.8s | Lighthouse |
-| CLS (Cumulative Layout Shift) | < 0.1 | Lighthouse |
-| Bundle size (gzip) | < 200KB inicial | `vite-bundle-analyzer` |
+| Métrica                        | Objetivo        | Herramienta            |
+| ------------------------------ | --------------- | ---------------------- |
+| FCP (First Contentful Paint)   | < 1.8s          | Lighthouse             |
+| LCP (Largest Contentful Paint) | < 2.5s          | Lighthouse             |
+| TTI (Time to Interactive)      | < 3.8s          | Lighthouse             |
+| CLS (Cumulative Layout Shift)  | < 0.1           | Lighthouse             |
+| Bundle size (gzip)             | < 200KB inicial | `vite-bundle-analyzer` |
 
 **Lazy loading de rutas:**
 
@@ -593,12 +600,12 @@ const TreasuryPage = lazy(() => import('./pages/Treasury'));
 
 **Métricas objetivo:**
 
-| Operación | p95 | p99 | Medición |
-|-----------|-----|-----|----------|
-| GET simple | < 100ms | < 200ms | Sentry Performance |
-| GET con joins | < 200ms | < 400ms | Sentry Performance |
-| POST/PUT | < 300ms | < 600ms | Sentry Performance |
-| Operaciones complejas | < 3s | < 5s | Sentry Performance |
+| Operación             | p95     | p99     | Medición           |
+| --------------------- | ------- | ------- | ------------------ |
+| GET simple            | < 100ms | < 200ms | Sentry Performance |
+| GET con joins         | < 200ms | < 400ms | Sentry Performance |
+| POST/PUT              | < 300ms | < 600ms | Sentry Performance |
+| Operaciones complejas | < 3s    | < 5s    | Sentry Performance |
 
 **Interceptor de logging de tiempos:**
 
@@ -609,16 +616,16 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const now = Date.now();
     const request = context.switchToHttp().getRequest();
-    
+
     return next.handle().pipe(
       tap(() => {
         const responseTime = Date.now() - now;
-        
+
         // Log a Sentry si supera umbral
         if (responseTime > 500) {
           Sentry.captureMessage(`Slow API: ${request.url}`, {
             level: 'warning',
-            extra: { responseTime, method: request.method }
+            extra: { responseTime, method: request.method },
           });
         }
       }),
@@ -632,9 +639,7 @@ export class LoggingInterceptor implements NestInterceptor {
 ```typescript
 // prisma.service.ts
 const prisma = new PrismaClient({
-  log: process.env.NODE_ENV === 'development' 
-    ? ['query', 'warn', 'error'] 
-    : ['error'],
+  log: process.env.NODE_ENV === 'development' ? ['query', 'warn', 'error'] : ['error'],
 });
 
 // Queries optimizadas con select específico
@@ -663,19 +668,19 @@ const members = await prisma.member.findMany({
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: `${DATABASE_URL}?connection_limit=10&pool_timeout=10`
-    }
-  }
+      url: `${DATABASE_URL}?connection_limit=10&pool_timeout=10`,
+    },
+  },
 });
 ```
 
 **Parámetros de pool:**
 
-| Parámetro | Valor | Justificación |
-|-----------|-------|---------------|
-| `connection_limit` | 10 por tenant | Evita saturación |
-| `pool_timeout` | 10s | Falla rápido si no hay conexiones |
-| Total conexiones | ~100 (10 tenants) | Límite PostgreSQL default: 100 |
+| Parámetro          | Valor             | Justificación                     |
+| ------------------ | ----------------- | --------------------------------- |
+| `connection_limit` | 10 por tenant     | Evita saturación                  |
+| `pool_timeout`     | 10s               | Falla rápido si no hay conexiones |
+| Total conexiones   | ~100 (10 tenants) | Límite PostgreSQL default: 100    |
 
 **Métricas de concurrencia:**
 
@@ -725,12 +730,12 @@ async generateRemittance(memberIds: string[]): Promise<SepaRemittance> {
 
 **Tiempos objetivo:**
 
-| Operación | Volumen | Tiempo máximo |
-|-----------|---------|---------------|
-| Remesa SEPA | 500 members | < 30s |
-| Importación CSV | 500 registros | < 60s |
-| Generación cuotas | 500 members | < 30s |
-| Exportación Excel | 1000 registros | < 15s |
+| Operación         | Volumen        | Tiempo máximo |
+| ----------------- | -------------- | ------------- |
+| Remesa SEPA       | 500 members    | < 30s         |
+| Importación CSV   | 500 registros  | < 60s         |
+| Generación cuotas | 500 members    | < 30s         |
+| Exportación Excel | 1000 registros | < 15s         |
 
 **Procesamiento asíncrono con Bull (para operaciones > 30s):**
 
@@ -798,12 +803,12 @@ async searchByName(tenantId: string, query: string): Promise<Member[]> {
 
 **Métricas:**
 
-| Búsqueda | Tiempo objetivo |
-|----------|-----------------|
-| Por DNI (exacta) | < 50ms |
-| Por nombre (fuzzy) | < 300ms |
-| Listado paginado | < 200ms |
-| Filtros combinados | < 500ms |
+| Búsqueda           | Tiempo objetivo |
+| ------------------ | --------------- |
+| Por DNI (exacta)   | < 50ms          |
+| Por nombre (fuzzy) | < 300ms         |
+| Listado paginado   | < 200ms         |
+| Filtros combinados | < 500ms         |
 
 ---
 
@@ -818,8 +823,8 @@ async searchByName(tenantId: string, query: string): Promise<Member[]> {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,     // 5 minutos
-      gcTime: 30 * 60 * 1000,       // 30 minutos (antes cacheTime)
+      staleTime: 5 * 60 * 1000, // 5 minutos
+      gcTime: 30 * 60 * 1000, // 30 minutos (antes cacheTime)
       refetchOnWindowFocus: false,
       retry: 1,
     },
@@ -829,12 +834,12 @@ export const queryClient = new QueryClient({
 
 **Estrategias de caché por tipo de dato:**
 
-| Dato | staleTime | gcTime | Invalidación |
-|------|-----------|--------|--------------|
-| Listado members | 5 min | 30 min | Mutation |
-| Detalle member | 10 min | 60 min | Mutation |
-| Tipos de cuota | 1 hora | 24 horas | Manual |
-| Configuración tenant | 1 hora | 24 horas | Manual |
+| Dato                 | staleTime | gcTime   | Invalidación |
+| -------------------- | --------- | -------- | ------------ |
+| Listado members      | 5 min     | 30 min   | Mutation     |
+| Detalle member       | 10 min    | 60 min   | Mutation     |
+| Tipos de cuota       | 1 hora    | 24 horas | Manual       |
+| Configuración tenant | 1 hora    | 24 horas | Manual       |
 
 **Prefetching para navegación:**
 
@@ -931,6 +936,7 @@ export class HealthController {
 ```
 
 **Monitorización:**
+
 - Endpoint `/health` verificado cada 30s
 - Alertas en Sentry si health check falla 3 veces consecutivas
 - Objetivo: 99.5% disponibilidad mensual
@@ -967,11 +973,11 @@ find $BACKUP_DIR -mtime +7 -delete
 
 **Política de retención:**
 
-| Tipo | Frecuencia | Retención |
-|------|------------|-----------|
-| Diario | 00:00 UTC | 30 días |
-| Semanal | Domingo | 12 semanas |
-| Mensual | Día 1 | 12 meses |
+| Tipo    | Frecuencia | Retención  |
+| ------- | ---------- | ---------- |
+| Diario  | 00:00 UTC  | 30 días    |
+| Semanal | Domingo    | 12 semanas |
+| Mensual | Día 1      | 12 meses   |
 
 **Verificación:** Test de restauración trimestral documentado.
 
@@ -992,9 +998,7 @@ Sentry.init({
   environment: process.env.NODE_ENV,
   tracesSampleRate: 1.0,
   profilesSampleRate: 1.0,
-  integrations: [
-    Sentry.prismaIntegration(),
-  ],
+  integrations: [Sentry.prismaIntegration()],
   beforeSend(event) {
     // Sanitizar datos sensibles
     if (event.request?.data) {
@@ -1036,11 +1040,11 @@ Sentry.init({
 
 **Alertas configuradas:**
 
-| Condición | Acción |
-|-----------|--------|
-| Error rate > 1% | Notificación Slack |
-| Error crítico (500) | Email inmediato |
-| Latencia p95 > 2s | Warning en dashboard |
+| Condición           | Acción               |
+| ------------------- | -------------------- |
+| Error rate > 1%     | Notificación Slack   |
+| Error crítico (500) | Email inmediato      |
+| Latencia p95 > 2s   | Warning en dashboard |
 
 ---
 
@@ -1056,11 +1060,11 @@ Sentry.init({
 // theme.ts
 const theme = createTheme({
   breakpoints: {
-    xs: '30em',   // 480px
-    sm: '48em',   // 768px
-    md: '64em',   // 1024px
-    lg: '74em',   // 1184px
-    xl: '90em',   // 1440px
+    xs: '30em', // 480px
+    sm: '48em', // 768px
+    md: '64em', // 1024px
+    lg: '74em', // 1184px
+    xl: '90em', // 1440px
   },
 });
 ```
@@ -1073,7 +1077,7 @@ import { useMediaQuery } from '@mantine/hooks';
 
 const Layout = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  
+
   return (
     <AppShell
       navbar={{ width: isMobile ? 0 : 250, breakpoint: 'sm' }}
@@ -1095,6 +1099,7 @@ const Layout = () => {
 **RNF Base:** RNF-046 (Accesibilidad)
 
 **Mantine incluye accesibilidad por defecto:**
+
 - Focus visible en todos los elementos interactivos
 - Roles ARIA correctos
 - Labels asociados a inputs
@@ -1117,6 +1122,7 @@ const theme = createTheme({
 ```
 
 **Verificación:**
+
 - axe-core en tests E2E
 - Lighthouse Accessibility > 90
 
@@ -1165,12 +1171,12 @@ export default defineConfig({
 
 **Funcionalidad offline:**
 
-| Recurso | Estrategia | Descripción |
-|---------|------------|-------------|
-| Shell de app | CacheFirst | Siempre disponible |
-| API datos | NetworkFirst | Fallback a caché |
-| Imágenes | CacheFirst | Reducir tráfico |
-| Carnet digital | CacheFirst | Disponible offline |
+| Recurso        | Estrategia   | Descripción        |
+| -------------- | ------------ | ------------------ |
+| Shell de app   | CacheFirst   | Siempre disponible |
+| API datos      | NetworkFirst | Fallback a caché   |
+| Imágenes       | CacheFirst   | Reducir tráfico    |
+| Carnet digital | CacheFirst   | Disponible offline |
 
 ---
 
@@ -1220,6 +1226,8 @@ export class MembersController {
 npx openapi-typescript http://localhost:3000/api-json -o ./src/api/types.ts
 ```
 
+**Inventario de Endpoints:** El inventario formal de endpoints del sistema se define en `spec/013_inventario-de-endpoints.md` bajo el formato EP-NNN. Cada endpoint EP referencia el caso de uso (UC) que lo origina y las entidades (ENT) que expone. La especificación OpenAPI generada por `@nestjs/swagger` DEBE ser consistente con este inventario.
+
 ---
 
 ### 6.2 RNFT-058: Testing con Vitest
@@ -1267,7 +1275,7 @@ export default defineConfig({
   uses: codecov/codecov-action@v4
   with:
     fail_ci_if_error: true
-    
+
 - name: Check coverage thresholds
   run: |
     COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
@@ -1279,11 +1287,11 @@ export default defineConfig({
 
 **Métricas CI:**
 
-| Métrica | Umbral Global | Umbral Diff |
-|---------|---------------|-------------|
-| Line coverage | ≥ 80% | ≥ 85% |
-| Branch coverage | ≥ 70% | ≥ 75% |
-| Tests pasando | 100% | 100% |
+| Métrica         | Umbral Global | Umbral Diff |
+| --------------- | ------------- | ----------- |
+| Line coverage   | ≥ 80%         | ≥ 85%       |
+| Branch coverage | ≥ 70%         | ≥ 75%       |
+| Tests pasando   | 100%          | 100%        |
 
 ---
 
@@ -1300,15 +1308,13 @@ import { PostgreSqlContainer } from '@testcontainers/postgresql';
 let container: StartedPostgreSqlContainer;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer('postgres:18-alpine')
-    .withDatabase('test_db')
-    .start();
-  
+  container = await new PostgreSqlContainer('postgres:18-alpine').withDatabase('test_db').start();
+
   process.env.DATABASE_URL = container.getConnectionUri();
-  
+
   // Ejecutar migraciones
-  execSync('npx prisma migrate deploy', { 
-    env: { ...process.env, DATABASE_URL: container.getConnectionUri() }
+  execSync('npx prisma migrate deploy', {
+    env: { ...process.env, DATABASE_URL: container.getConnectionUri() },
   });
 }, 60000);
 
@@ -1402,6 +1408,7 @@ test('Member registration complete', async ({ page }) => {
 ```
 
 **Flujos críticos cubiertos:**
+
 - Login/logout
 - Alta de member
 - Registro de pago
@@ -1420,25 +1427,29 @@ test('Member registration complete', async ({ page }) => {
 @Injectable()
 export class AppLogger implements LoggerService {
   log(message: string, context?: string) {
-    console.log(JSON.stringify({
-      level: 'info',
-      message,
-      context,
-      timestamp: new Date().toISOString(),
-      correlationId: AsyncLocalStorage.getStore()?.correlationId,
-    }));
+    console.log(
+      JSON.stringify({
+        level: 'info',
+        message,
+        context,
+        timestamp: new Date().toISOString(),
+        correlationId: AsyncLocalStorage.getStore()?.correlationId,
+      }),
+    );
   }
 
   error(message: string, trace?: string, context?: string) {
-    console.error(JSON.stringify({
-      level: 'error',
-      message,
-      trace,
-      context,
-      timestamp: new Date().toISOString(),
-      correlationId: AsyncLocalStorage.getStore()?.correlationId,
-    }));
-    
+    console.error(
+      JSON.stringify({
+        level: 'error',
+        message,
+        trace,
+        context,
+        timestamp: new Date().toISOString(),
+        correlationId: AsyncLocalStorage.getStore()?.correlationId,
+      }),
+    );
+
     // También a Sentry
     Sentry.captureMessage(message, { level: 'error', extra: { trace } });
   }
@@ -1453,7 +1464,7 @@ export class AppLogger implements LoggerService {
 export class CorrelationMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const correlationId = req.headers['x-correlation-id'] || uuidv4();
-    
+
     asyncLocalStorage.run({ correlationId }, () => {
       res.setHeader('x-correlation-id', correlationId);
       next();
@@ -1463,6 +1474,7 @@ export class CorrelationMiddleware implements NestMiddleware {
 ```
 
 **Datos NO logueados:**
+
 - Contraseñas
 - Tokens JWT
 - DNI completo (solo últimos 4 dígitos)
@@ -1501,6 +1513,7 @@ prisma/
 ```
 
 **Reglas:**
+
 - Migraciones siempre forward-only
 - Backup antes de migraciones destructivas
 - Migraciones probadas en staging antes de producción
@@ -1512,48 +1525,48 @@ prisma/
 
 ### 7.1 RNF Base → RNF Técnico
 
-| RNF Base | RNF Técnico | Tecnología |
-|----------|-------------|------------|
-| RNF-001 | RNFT-001 | NestJS + Passport + JWT |
-| RNF-002 | RNFT-002 | JWT + Refresh Tokens |
-| RNF-003 | RNFT-003 | NestJS Guards + RBAC |
-| RNF-004 | RNFT-004 | Prisma + PostgreSQL multi-DB |
-| RNF-005 | RNFT-005 | Helmet + TLS |
-| RNF-006 | RNFT-006 | Argon2 + AES-256 |
-| RNF-007 | RNFT-007 | Prisma Middleware |
-| RNF-008 | RNFT-008 | Helmet + ValidationPipe |
-| RNF-015 | RNFT-015 | Vite + React + Lighthouse |
-| RNF-016 | RNFT-016 | NestJS + Sentry Performance |
-| RNF-017 | RNFT-017 | Prisma Connection Pool |
-| RNF-018 | RNFT-018 | Prisma Batch + Bull |
-| RNF-019 | RNFT-019 | PostgreSQL + pg_trgm |
-| RNF-021 | RNFT-021 | React Query |
-| RNF-037 | RNFT-037 | NestJS Health Checks |
-| RNF-038 | RNFT-038 | pg_dump + S3 |
-| RNF-042 | RNFT-042 | Sentry |
-| RNF-045 | RNFT-045 | Mantine Responsive |
-| RNF-046 | RNFT-046 | Mantine + axe-core |
-| RNF-050 | RNFT-050 | Mantine Skeleton |
-| RNF-056 | RNFT-056 | Vite PWA + Workbox |
-| RNF-057 | RNFT-057 | @nestjs/swagger |
-| RNF-058 | RNFT-058 | Vitest + Codecov |
-| RNF-059 | RNFT-059 | Testcontainers |
-| RNF-060 | RNFT-060 | Playwright |
-| RNF-061 | RNFT-061 | NestJS Logger + Sentry |
-| RNF-066 | RNFT-066 | Prisma Migrate |
+| RNF Base | RNF Técnico | Tecnología                   |
+| -------- | ----------- | ---------------------------- |
+| RNF-001  | RNFT-001    | NestJS + Passport + JWT      |
+| RNF-002  | RNFT-002    | JWT + Refresh Tokens         |
+| RNF-003  | RNFT-003    | NestJS Guards + RBAC         |
+| RNF-004  | RNFT-004    | Prisma + PostgreSQL multi-DB |
+| RNF-005  | RNFT-005    | Helmet + TLS                 |
+| RNF-006  | RNFT-006    | Argon2 + AES-256             |
+| RNF-007  | RNFT-007    | Prisma Middleware            |
+| RNF-008  | RNFT-008    | Helmet + ValidationPipe      |
+| RNF-015  | RNFT-015    | Vite + React + Lighthouse    |
+| RNF-016  | RNFT-016    | NestJS + Sentry Performance  |
+| RNF-017  | RNFT-017    | Prisma Connection Pool       |
+| RNF-018  | RNFT-018    | Prisma Batch + Bull          |
+| RNF-019  | RNFT-019    | PostgreSQL + pg_trgm         |
+| RNF-021  | RNFT-021    | React Query                  |
+| RNF-037  | RNFT-037    | NestJS Health Checks         |
+| RNF-038  | RNFT-038    | pg_dump + S3                 |
+| RNF-042  | RNFT-042    | Sentry                       |
+| RNF-045  | RNFT-045    | Mantine Responsive           |
+| RNF-046  | RNFT-046    | Mantine + axe-core           |
+| RNF-050  | RNFT-050    | Mantine Skeleton             |
+| RNF-056  | RNFT-056    | Vite PWA + Workbox           |
+| RNF-057  | RNFT-057    | @nestjs/swagger              |
+| RNF-058  | RNFT-058    | Vitest + Codecov             |
+| RNF-059  | RNFT-059    | Testcontainers               |
+| RNF-060  | RNFT-060    | Playwright                   |
+| RNF-061  | RNFT-061    | NestJS Logger + Sentry       |
+| RNF-066  | RNFT-066    | Prisma Migrate               |
 
 ### 7.2 Tecnología → RNFs Implementados
 
-| Tecnología | RNFs Técnicos |
-|------------|---------------|
-| NestJS | RNFT-001, 002, 003, 005, 008, 016, 037, 057, 061 |
-| Prisma | RNFT-004, 006, 007, 017, 018, 019, 066 |
-| React + Mantine | RNFT-015, 021, 045, 046, 050 |
-| PostgreSQL | RNFT-004, 019, 038 |
-| Vitest | RNFT-058, 059 |
-| Playwright | RNFT-060 |
-| Sentry | RNFT-016, 042, 061 |
-| Vite | RNFT-015, 056 |
+| Tecnología      | RNFs Técnicos                                    |
+| --------------- | ------------------------------------------------ |
+| NestJS          | RNFT-001, 002, 003, 005, 008, 016, 037, 057, 061 |
+| Prisma          | RNFT-004, 006, 007, 017, 018, 019, 066           |
+| React + Mantine | RNFT-015, 021, 045, 046, 050                     |
+| PostgreSQL      | RNFT-004, 019, 038                               |
+| Vitest          | RNFT-058, 059                                    |
+| Playwright      | RNFT-060                                         |
+| Sentry          | RNFT-016, 042, 061                               |
+| Vite            | RNFT-015, 056                                    |
 
 ---
 

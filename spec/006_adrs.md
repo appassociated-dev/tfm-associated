@@ -844,6 +844,8 @@ La aplicación necesita exponer funcionalidad a clientes web (SPA) y móvil (PWA
 
 **Convenciones:**
 
+| spec/013_inventario-de-endpoints.md | Inventario de endpoints EP-NNN que materializan las convenciones REST |
+
 - Recursos en plural: `/api/v1/members`, `/api/v1/events`
 - Versionado en URL: `/api/v1/...`
 - Tenant en header: `X-Tenant-Id: {uuid}`
