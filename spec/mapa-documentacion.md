@@ -87,7 +87,31 @@ Cada documento declara sus "Inputs" (KBs previos). La documentación se expande 
   │ uso detallados│
   │ [KB-009]      │
   │ v2.6 (activo) │
-  │ 15.315 líneas │
+  │ 15.390 líneas │
+  └───────┬───────┘
+          │
+          ▼
+  ┌───────────────┐
+  │ 012 ENT       │
+  │ 40 entidades  │
+  │ modelo datos  │
+  │ [KB-005,      │
+  │  KB-006,      │
+  │  KB-010]      │
+  │ v1.0 (activo) │
+  │ 1.132 líneas  │
+  └───────┬───────┘
+          │
+          ▼
+  ┌───────────────┐
+  │ 013 EP        │
+  │ 123 endpoints │
+  │ inventario API│
+  │ [KB-010,      │
+  │  KB-012,      │
+  │  KB-006]      │
+  │ v1.0 (activo) │
+  │ 4.031 líneas  │
   └───────────────┘
 ```
 
@@ -104,6 +128,8 @@ Cada documento declara sus "Inputs" (KBs previos). La documentación se expande 
 | `RNFT-xxx` | 008       | RNFT-{001..061} - mapeo 1:1 con RNF-xxx                               | ~40+        |
 | `US-xxx`   | 009       | US-{001..202}                                                         | 202         |
 | `UC-xxx`   | 010       | UC-{001..076}                                                         | 76          |
+| `ENT-xxx`  | 012       | ENT-{001..040}                                                        | 40          |
+| `EP-xxx`   | 013       | EP-{001..123}                                                         | 123         |
 
 ### Detalle de secciones RF (003)
 
@@ -155,6 +181,14 @@ N4RF17 ──────► RNF-018 ──────► RNFT-018 ────
                  UC-023: Generación Remesa SEPA
                  Application Service: SepaRemittanceService
                  Domain Events: SepaRemittanceGenerated
+                      │
+                      ▼
+                ENT-018, ENT-019, ENT-020
+                (sepa_mandates, sepa_remittances, sepa_debits)
+                      │
+                      ▼
+                EP-079..EP-087
+                SEPA Mandates & Remittances endpoints
 ```
 
 ### Cadena genérica de trazabilidad
@@ -174,6 +208,10 @@ US (User Story)
     ↓  "US-047: Como Tesorero, quiero generar remesa SEPA"
 UC (Caso de Uso)
     ↓  "UC-023: agrupa US-047, US-048, US-049"
+ENT (Modelo de Datos)
+    ↓  "ENT-018: sepa_mandates"
+EP (Endpoint API)
+    ↓  "EP-079: GET /api/v1/treasury/sepa-mandates"
 Implementación
        Controllers, Services, Repositories
 ```
@@ -206,7 +244,15 @@ Cada documento contiene al final una sección de trazabilidad que conecta con su
  │
  ▼
 010 ◄────────────── 010 (Tabla UC→US)
-                     Cada UC lista "User Stories: US-xxx, US-yyy"
+ │                   Cada UC lista "User Stories: US-xxx, US-yyy"
+ │
+ ▼
+012 ◄────────────── 012 (Matriz ENT→BC + ENT→RNF + ENT→ADR)
+ │                   Cada ENT indica BC propietario, RNFs y ADRs aplicables
+ │
+ ▼
+013 ◄────────────── 013 (Tabla EP→UC + EP→ENT)
+                     Cada EP indica UC que implementa y ENTs que manipula
 ```
 
 ### Tipos de referencias cruzadas
@@ -220,8 +266,15 @@ Cada documento contiene al final una sección de trazabilidad que conecta con su
 | RF → BC    | BC-Identity mapea N2RF01-N2RF08 | 005 → 003        | ~84 refs          |
 | US → RF    | US-001 RF Origen: N2RF01        | 009 → 003        | ~587 refs         |
 | UC → US    | UC-001 User Stories: US-001     | 010 → 009        | ~610 refs         |
+| ENT → BC   | ENT-009 → BC-Membership         | 012 → 005        | ~40 refs          |
+| ENT → RNF  | ENT-009 → RNF-006               | 012 → 004        | ~50 refs          |
+| ENT → ADR  | ENT-009 → ADR-002               | 012 → 006        | ~40 refs          |
+| EP → UC    | EP-001 → UC-001                 | 013 → 010        | ~123 refs         |
+| EP → ENT   | EP-001 → ENT-001, ENT-002       | 013 → 012        | ~300 refs         |
+| UC → ENT   | UC-006 → ENT-009                | 010 → 012        | ~76 refs          |
+| UC → EP    | UC-006 → EP-015..024            | 010 → 013        | ~76 refs          |
 
-**Total de referencias cruzadas: ~1.800 menciones**
+**Total de referencias cruzadas: ~2.459 menciones**
 
 ---
 
@@ -273,23 +326,23 @@ Cada documento contiene al final una sección de trazabilidad que conecta con su
 Cada documento aporta una perspectiva distinta sobre el mismo requisito, incrementando progresivamente el nivel de detalle:
 
 ```
-ABSTRACTO                                           CONCRETO
-◄──────────────────────────────────────────────────────────►
+ABSTRACTO                                                                              CONCRETO
+◄──────────────────────────────────────────────────────────────────────────────────────────────►
 
-003 RF        004 RNF       005 BC        009 US        010 UC
-┌──────┐     ┌──────┐     ┌──────┐     ┌──────┐     ┌──────────┐
-│ QUÉ  │────►│ CÓMO │────►│DÓNDE │────►│QUIÉN │────►│ FLUJO    │
-│      │     │(restr│     │(domn)│     │(actor│     │ COMPLETO │
-│"Ficha│     │ no   │     │      │     │ hace │     │          │
-│centr.│     │ func)│     │BC-   │     │ qué) │     │ Happy    │
-│socio"│     │"Cifr.│     │Memb. │     │"Como │     │ path +   │
-│      │     │DNI/  │     │Aggr: │     │SEC,  │     │ Altern + │
-│      │     │IBAN" │     │Member│     │alta  │     │ Excepción│
-│      │     │      │     │VO:   │     │socio"│     │ + Events │
-│      │     │      │     │Ident.│     │      │     │ + ACLs   │
-│      │     │      │     │Doc   │     │      │     │ + BD     │
-└──────┘     └──────┘     └──────┘     └──────┘     └──────────┘
-N3RF01       RNF-006      BC-Memb.     US-009       UC-006
+003 RF        004 RNF       005 BC        009 US        010 UC        012 ENT       013 EP
+┌──────┐     ┌──────┐     ┌──────┐     ┌──────┐     ┌──────────┐  ┌──────────┐  ┌──────────┐
+│ QUÉ  │────►│ CÓMO │────►│DÓNDE │────►│QUIÉN │────►│ FLUJO    │─►│ EN QUÉ   │─►│  CÓMO   │
+│      │     │(restr│     │(domn)│     │(actor│     │ COMPLETO │  │  tabla   │  │ acceder  │
+│"Ficha│     │ no   │     │      │     │ hace │     │          │  │ se       │  │  vía API │
+│centr.│     │ func)│     │BC-   │     │ qué) │     │ Happy    │  │ persiste │  │          │
+│socio"│     │"Cifr.│     │Memb. │     │"Como │     │ path +   │  │          │  │ Contrato │
+│      │     │DNI/  │     │Aggr: │     │SEC,  │     │ Altern + │  │ members  │  │  HTTP    │
+│      │     │IBAN" │     │Member│     │alta  │     │ Excepción│  │ (ENT-009)│  │ EP-015   │
+│      │     │      │     │VO:   │     │socio"│     │ + Events │  │          │  │ ..024    │
+│      │     │      │     │Ident.│     │      │     │ + ACLs   │  │ Esquema  │  │          │
+│      │     │      │     │Doc   │     │      │     │ + BD     │  │ relacion.│  │          │
+└──────┘     └──────┘     └──────┘     └──────┘     └──────────┘  └──────────┘  └──────────┘
+N3RF01       RNF-006      BC-Memb.     US-009       UC-006         ENT-009        EP-015
                             │                          │
                  006 ADR    │     007 Stack   008 RNFT │
                  ┌──────┐   │     ┌──────┐   ┌──────┐ │
@@ -313,6 +366,8 @@ N3RF01       RNF-006      BC-Memb.     US-009       UC-006
 | 008 RNFT  | **Cómo** se implementa técnicamente       | Implementación concreta      |
 | 009 US    | **Quién** hace **qué** y **para qué**     | Flujo de usuario             |
 | 010 UC    | **Flujo completo** con eventos y errores  | Especificación ejecutable    |
+| 012 ENT   | **En qué** tabla se persiste              | Esquema relacional           |
+| 013 EP    | **Cómo** se accede vía API                | Contrato HTTP                |
 
 ---
 
@@ -320,8 +375,8 @@ N3RF01       RNF-006      BC-Memb.     US-009       UC-006
 
 | Métrica               | Valor                                     |
 | --------------------- | ----------------------------------------- |
-| Total documentos      | 9 archivos .md                            |
-| Total líneas          | 32.626                                    |
+| Total documentos      | 10 archivos .md                           |
+| Total líneas          | 37.257                                    |
 | Total RFs             | 221                                       |
 | Total RNFs            | 66                                        |
 | Total RNFTs           | ~40+                                      |
@@ -329,20 +384,24 @@ N3RF01       RNF-006      BC-Memb.     US-009       UC-006
 | Total BCs             | 6 (3 Core + 3 Supporting) + transversales |
 | Total User Stories    | 202 (80 Must / 110 Should / 12 Could)     |
 | Total Casos de Uso    | 76                                        |
-| Referencias cruzadas  | ~1.800 menciones                          |
-| Matrices trazabilidad | 5 explícitas                              |
+| Total Entidades (ENT) | 40                                        |
+| Total Endpoints (EP)  | 123                                       |
+| Referencias cruzadas  | ~2.459 menciones                          |
+| Matrices trazabilidad | 7 explícitas                              |
 
 ### Distribución por volumen
 
 ```
-010 UC   ████████████████████████████████████████████ 15.315 (48%)
-009 US   ██████████████████████           7.726 (24%)
+010 UC   ████████████████████████████████████████████ 15.390 (41%)
+009 US   ██████████████████████           7.726 (21%)
+013 EP   ███████████                      4.031 (11%)
 003 RF   ███████                          2.433  (7%)
-005 BC   █████                            1.991  (6%)
-008 RNFT ████                             1.567  (5%)
-004 RNF  ███                              1.046  (3%)
-006 ADR  ███                              1.038  (3%)
-007 Stk  ██                                 815  (3%)
+005 BC   █████                            2.047  (5%)
+008 RNFT ████                             1.567  (4%)
+012 ENT  ███                              1.132  (3%)
+004 RNF  ███                              1.052  (3%)
+006 ADR  ███                              1.041  (3%)
+007 Stk  ██                                 838  (2%)
 ```
 
 ---
@@ -352,7 +411,7 @@ N3RF01       RNF-006      BC-Memb.     US-009       UC-006
 El orden en que los documentos deben estar definidos antes de poder crear los siguientes:
 
 ```
-KB-002 → 003 RF → 005 BC → 006 ADR → 007 Stack → 008 RNFT → 009 US → 010 UC
+KB-002 → 003 RF → 005 BC → 006 ADR → 007 Stack → 008 RNFT → 009 US → 010 UC → 012 ENT → 013 EP
               ↘                                       ↗
                004 RNF ──────────────────────────────┘
 ```
@@ -367,3 +426,5 @@ KB-002 → 003 RF → 005 BC → 006 ADR → 007 Stack → 008 RNFT → 009 US �
 | 6    | 008 RNFT  | 004, 007                  |
 | 7    | 009 US    | 003, 005, 008             |
 | 8    | 010 UC    | 009                       |
+| 9    | 012 ENT   | 005, 006, 010             |
+| 10   | 013 EP    | 010, 012, 006             |
