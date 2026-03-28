@@ -114,7 +114,7 @@
 
 **Trazabilidad RF:** N3RF01, N4RF06
 
-**Tablas ENT:** ENT-009 (`members.iban_encrypted`), ENT-001 (`tenants.database_password_encrypted`)
+**Tablas ENT:** ENT-009 (`members.iban_encrypted`), ENT-001 (`tenants.database_password_encrypted`), ENT-018 (`sepa_mandates.iban_debtor_encrypted`)
 
 ---
 

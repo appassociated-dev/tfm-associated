@@ -14,7 +14,7 @@ Esquema de Numeración: NxRFyy (ej: N2RF01, N3RF34)
 
 ```
 Archivo: 004_rnf-base.md
-Líneas: 1,046
+Líneas: 1,052
 Versión: 1.2
 Propósito: Define 66 Requisitos No Funcionales agnósticos de tecnología
 Esquema de Numeración: RNF-xxx (ej: RNF-001, RNF-066)
@@ -24,7 +24,7 @@ Esquema de Numeración: RNF-xxx (ej: RNF-001, RNF-066)
 
 ```
 Archivo: 005_modelo-dominio.md
-Líneas: 1,991
+Líneas: 2,047
 Versión: 1.5
 Propósito: Mapea 6 Bounded Contexts del DDD con Aggregates, Entities y Value Objects
 Esquema de Numeración: BC-NombreBc (ej: BC-Identity, BC-Membership)
@@ -34,7 +34,7 @@ Esquema de Numeración: BC-NombreBc (ej: BC-Identity, BC-Membership)
 
 ```
 Archivo: 006_adrs.md
-Líneas: 1,038
+Líneas: 1,041
 Versión: 1.0
 Propósito: Define 12 Decisiones Arquitectónicas alineadas a ADRs
 Esquema de Numeración: ADR-xxx (ej: ADR-001, ADR-012)
@@ -74,7 +74,7 @@ Esquema de Numeración: US-xxx (ej: US-001, US-202)
 
 ```
 Archivo: 010_casos-uso.md
-Líneas: 15,315
+Líneas: 15,390
 Versión: 2.6
 Propósito: Define 76 Casos de Uso agrupando User Stories con flujos y eventos
 Esquema de Numeración: UC-xxx (ej: UC-001, UC-076)

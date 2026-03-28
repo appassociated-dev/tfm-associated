@@ -1,4 +1,4 @@
-# Matriz de Trazabilidad: User Stories → Casos de Uso
+# Casos de Uso
 
 **Proyecto:** Associated - ERP para Colectividades Españolas  
 **Versión:** 2.6  
@@ -753,6 +753,7 @@ Proceso formal de traspaso de cargo directivo (especialmente Presidente) con wor
 
      [Rechazar] [Aceptar Cargo]
      ```
+
 6. Usuario entrante pulsa "Aceptar Cargo"
 7. **Paso 3:** Ejecución del traspaso
    - `HandoverService.executeHandover(handover_id)`
@@ -1120,6 +1121,7 @@ Gestión del ciclo de vida del estado del socio con transiciones controladas, re
      → Suspendido (motivo: sanción)
      → BajaVoluntaria (proceso de baja)
      ```
+
 2. Secretario selecciona nuevo estado y proporciona motivo
 3. `MemberService.changeStatus(memberId, new_status, motivo, user_id)`
    - Valida que la transición esté permitida según **Tabla 1: Matriz de Transiciones de Estado:**
@@ -15535,6 +15537,7 @@ El sistema mantiene un calendario fiscal actualizado según normativa vigente (A
      ```
 
    - Sistema genera calendario fiscal personalizado según configuración
+
 3. Sistema crea instancias de obligaciones tributarias aplicables
 
 **Parte 2: Ejecución automática de revisión semanal** (US-201, US-202)
