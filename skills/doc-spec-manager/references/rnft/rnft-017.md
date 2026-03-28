@@ -11,19 +11,19 @@
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: `${DATABASE_URL}?connection_limit=10&pool_timeout=10`
-    }
-  }
+      url: `${DATABASE_URL}?connection_limit=10&pool_timeout=10`,
+    },
+  },
 });
 ```
 
 **Parámetros de pool:**
 
-| Parámetro | Valor | Justificación |
-|-----------|-------|---------------|
-| `connection_limit` | 10 por tenant | Evita saturación |
-| `pool_timeout` | 10s | Falla rápido si no hay conexiones |
-| Total conexiones | ~100 (10 tenants) | Límite PostgreSQL default: 100 |
+| Parámetro          | Valor             | Justificación                     |
+| ------------------ | ----------------- | --------------------------------- |
+| `connection_limit` | 10 por tenant     | Evita saturación                  |
+| `pool_timeout`     | 10s               | Falla rápido si no hay conexiones |
+| Total conexiones   | ~100 (10 tenants) | Límite PostgreSQL default: 100    |
 
 **Métricas de concurrencia:**
 

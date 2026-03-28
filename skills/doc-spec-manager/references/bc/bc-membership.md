@@ -39,7 +39,10 @@ Responsable del ciclo de vida completo del socio: desde la solicitud de alta has
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-009 (`members`), ENT-010 (`status_history`)
+
 **Comportamientos:**
+
 - `register(data, type)` → valida, crea con estado Aspirante/Activo
 - `changeStatus(newStatus, reason)` → valida transición, registra historial
 - `changeType(newType)` → valida elegibilidad, ajusta derechos
@@ -77,6 +80,8 @@ Responsable del ciclo de vida completo del socio: desde la solicitud de alta has
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-007 (`member_types`)
+
 #### 3.2.3 Aggregate: RegistrationRequest
 
 ```
@@ -104,6 +109,8 @@ Responsable del ciclo de vida completo del socio: desde la solicitud de alta has
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-024 (`registration_requests`) [placeholder]
+
 #### 3.2.4 Aggregate: MemberCard
 
 ```
@@ -128,6 +135,8 @@ Responsable del ciclo de vida completo del socio: desde la solicitud de alta has
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-021 (`member_cards`) [placeholder]
+
 #### 3.2.5 Aggregate: FiscalYear
 
 ```
@@ -149,6 +158,8 @@ Responsable del ciclo de vida completo del socio: desde la solicitud de alta has
 │   - Fechas no pueden solaparse con otros ejercicios         │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+**Tabla Prisma:** ENT-008 (`fiscal_years`)
 
 #### 3.2.6 Aggregate: WaitingList
 
@@ -179,7 +190,10 @@ Responsable del ciclo de vida completo del socio: desde la solicitud de alta has
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-022 (`waiting_list`) [placeholder]
+
 **Comportamientos:**
+
 - `addToList(request)` → añade al final, calcula posición
 - `processNext()` → retorna siguiente en cola, marca procesado
 - `removeFromList(reason)` → saca de la cola (voluntario, expiración)
@@ -219,7 +233,10 @@ Responsable del ciclo de vida completo del socio: desde la solicitud de alta has
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-023 (`disciplinary_cases`) [placeholder]
+
 **Comportamientos:**
+
 - `openCase(member, infraction)` → crea con estado abierto
 - `addInfraction(detail)` → registra nueva infracción al expediente
 - `applySanction(type, days?)` → asigna sanción y cierra expediente
@@ -227,56 +244,56 @@ Responsable del ciclo de vida completo del socio: desde la solicitud de alta has
 
 ### 3.3 Value Objects
 
-| Value Object | Atributos | Validaciones |
-|--------------|-----------|--------------|
-| `MemberId` | uuid | UUID v4 válido |
-| `MemberNumber` | valor: string | Formato configurable por tenant |
-| `PersonalData` | name, surnames, birthDate | Nombre no vacío, fecha pasada |
-| `ContactData` | email, phone, address | Email válido, teléfono formato ES |
-| `IdentityDocument` | tipo (DNI/NIE/Pasaporte), numero | Algoritmo validación según tipo |
-| `BankDetails` | iban | IBAN válido (algoritmo mod 97) |
-| `MemberStatus` | enum | ACTIVE, PENDING_PAYMENT, SUSPENDED, VOLUNTARY_LEAVE, NONPAYMENT_LEAVE, DISCIPLINARY_LEAVE, APPLICANT, DECEASED |
-| `AgeRange` | minima, maxima | min >= 0, max > min (si definidos) |
-| `QRCode` | valor: string | Hash único, no predecible |
-| `WaitingPosition` | numero: int | Orden cronológico en lista espera |
-| `RegistrationDate` | fecha: DateTime | Timestamp de entrada en lista |
-| `ListExitReason` | enum | APPROVED, REJECTED, EXPIRED, VOLUNTARY |
-| `WaitingListStatus` | enum | ACTIVE, Procesado |
-| `InfractionType` | enum | MINOR, SERIOUS, VERY_SERIOUS |
-| `SanctionType` | enum | WARNING, SUSPENSION, EXPULSION |
-| `CaseStatus` | enum | OPEN, UNDER_REVIEW, CLOSED |
+| Value Object        | Atributos                        | Validaciones                                                                                                   |
+| ------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `MemberId`          | uuid                             | UUID v4 válido                                                                                                 |
+| `MemberNumber`      | valor: string                    | Formato configurable por tenant                                                                                |
+| `PersonalData`      | name, surnames, birthDate        | Nombre no vacío, fecha pasada                                                                                  |
+| `ContactData`       | email, phone, address            | Email válido, teléfono formato ES                                                                              |
+| `IdentityDocument`  | tipo (DNI/NIE/Pasaporte), numero | Algoritmo validación según tipo                                                                                |
+| `BankDetails`       | iban                             | IBAN válido (algoritmo mod 97)                                                                                 |
+| `MemberStatus`      | enum                             | ACTIVE, PENDING_PAYMENT, SUSPENDED, VOLUNTARY_LEAVE, NONPAYMENT_LEAVE, DISCIPLINARY_LEAVE, APPLICANT, DECEASED |
+| `AgeRange`          | minima, maxima                   | min >= 0, max > min (si definidos)                                                                             |
+| `QRCode`            | valor: string                    | Hash único, no predecible                                                                                      |
+| `WaitingPosition`   | numero: int                      | Orden cronológico en lista espera                                                                              |
+| `RegistrationDate`  | fecha: DateTime                  | Timestamp de entrada en lista                                                                                  |
+| `ListExitReason`    | enum                             | APPROVED, REJECTED, EXPIRED, VOLUNTARY                                                                         |
+| `WaitingListStatus` | enum                             | ACTIVE, Procesado                                                                                              |
+| `InfractionType`    | enum                             | MINOR, SERIOUS, VERY_SERIOUS                                                                                   |
+| `SanctionType`      | enum                             | WARNING, SUSPENSION, EXPULSION                                                                                 |
+| `CaseStatus`        | enum                             | OPEN, UNDER_REVIEW, CLOSED                                                                                     |
 
 ### 3.4 Domain Events
 
-| Evento | Trigger | Payload | Consumidores |
-|--------|---------|---------|--------------|
-| `MemberRegistered` | Alta completada | memberId, memberType, fecha | BC-Treasury (generar cuota), BC-Communication (bienvenida) |
-| `MemberDeactivated` | Baja cualquier tipo | memberId, tipoBaja, motivo, fecha | BC-Treasury (anular pendientes), BC-Communication (notificar) |
-| `MemberStatusChanged` | Cambio de estado | memberId, estadoAnterior, estadoNuevo, motivo | BC-Treasury (suspender/reactivar cobros) |
-| `MemberTypeChanged` | Cambio de categoría | memberId, tipoAnterior, tipoNuevo | BC-Treasury (ajustar cuota) |
-| `MemberDataUpdated` | Modificación datos | memberId, camposModificados | BC-Treasury (si IBAN), BC-Communication (si email) |
-| `MemberCardValidated` | Escaneo QR exitoso | memberCardId, memberId, timestamp, ubicacion? | BC-Events (check-in automático) |
-| `FiscalYearOpened` | Apertura ejercicio | fiscalYearId, periodo | BC-Treasury (generar cuotas), BC-Membership (arrastrar socios) |
-| `FiscalYearClosed` | Cierre ejercicio | fiscalYearId, estadisticas | BC-Documents (generar memoria) |
-| `RegistrationRequestStarted` | Nueva solicitud | requestId, datos | BC-Communication (notificar junta) |
-| `RegistrationRequestApproved` | Aprobación | requestId, memberId | BC-Communication (notificar aspirante) |
-| `MemberTypeCreated` | Creación de tipo de socio | memberTypeId, name, description, tenantId | BC-Treasury (vincular planes de cuota) |
-| `NonpaymentLeave` | Baja automática por morosidad | memberId, deudaTotal, leaveDate | BC-Communication (notificar), BC-Treasury (cerrar cuenta) |
+| Evento                        | Trigger                       | Payload                                       | Consumidores                                                   |
+| ----------------------------- | ----------------------------- | --------------------------------------------- | -------------------------------------------------------------- |
+| `MemberRegistered`            | Alta completada               | memberId, memberType, fecha                   | BC-Treasury (generar cuota), BC-Communication (bienvenida)     |
+| `MemberDeactivated`           | Baja cualquier tipo           | memberId, tipoBaja, motivo, fecha             | BC-Treasury (anular pendientes), BC-Communication (notificar)  |
+| `MemberStatusChanged`         | Cambio de estado              | memberId, estadoAnterior, estadoNuevo, motivo | BC-Treasury (suspender/reactivar cobros)                       |
+| `MemberTypeChanged`           | Cambio de categoría           | memberId, tipoAnterior, tipoNuevo             | BC-Treasury (ajustar cuota)                                    |
+| `MemberDataUpdated`           | Modificación datos            | memberId, camposModificados                   | BC-Treasury (si IBAN), BC-Communication (si email)             |
+| `MemberCardValidated`         | Escaneo QR exitoso            | memberCardId, memberId, timestamp, ubicacion? | BC-Events (check-in automático)                                |
+| `FiscalYearOpened`            | Apertura ejercicio            | fiscalYearId, periodo                         | BC-Treasury (generar cuotas), BC-Membership (arrastrar socios) |
+| `FiscalYearClosed`            | Cierre ejercicio              | fiscalYearId, estadisticas                    | BC-Documents (generar memoria)                                 |
+| `RegistrationRequestStarted`  | Nueva solicitud               | requestId, datos                              | BC-Communication (notificar junta)                             |
+| `RegistrationRequestApproved` | Aprobación                    | requestId, memberId                           | BC-Communication (notificar aspirante)                         |
+| `MemberTypeCreated`           | Creación de tipo de socio     | memberTypeId, name, description, tenantId     | BC-Treasury (vincular planes de cuota)                         |
+| `NonpaymentLeave`             | Baja automática por morosidad | memberId, deudaTotal, leaveDate               | BC-Communication (notificar), BC-Treasury (cerrar cuenta)      |
 
 ### 3.5 Trazabilidad RF
 
-| RF | Elemento de Dominio |
-|----|---------------------|
-| N3RF01 | Member (PersonalData, ContactData, BankDetails) |
-| N3RF02-05 | Member.CamposPersonalizados (extensión por tipo colectividad) |
-| N3RF06 | MemberStatus (Value Object enum) |
-| N3RF07-10 | MemberType (Aggregate) |
-| N3RF11 | MemberType.configuracion (reglas) |
-| N3RF12-13 | Member.HistorialEstados, calculateSeniority() |
-| N3RF14 | Domain Service: MemberStatistics |
-| N3RF15-19 | FiscalYear (Aggregate) |
+| RF        | Elemento de Dominio                                                                    |
+| --------- | -------------------------------------------------------------------------------------- |
+| N3RF01    | Member (PersonalData, ContactData, BankDetails)                                        |
+| N3RF02-05 | Member.CamposPersonalizados (extensión por tipo colectividad)                          |
+| N3RF06    | MemberStatus (Value Object enum)                                                       |
+| N3RF07-10 | MemberType (Aggregate)                                                                 |
+| N3RF11    | MemberType.configuracion (reglas)                                                      |
+| N3RF12-13 | Member.HistorialEstados, calculateSeniority()                                          |
+| N3RF14    | Domain Service: MemberStatistics                                                       |
+| N3RF15-19 | FiscalYear (Aggregate)                                                                 |
 | N3RF20-23 | RegistrationRequest (Aggregate 3.2.3), workflow estados, WaitingList (Aggregate 3.2.6) |
-| N3RF24-27 | Member.deactivate(), eventos de baja, DisciplinaryCase (Aggregate 3.2.7) |
-| N3RF28-29 | RegistrationRequest con prioridad (lista espera), WaitingList (Aggregate 3.2.6) |
-| N3RF30-32 | MemberCard (Aggregate) |
-| N3RF33-34 | MemberCard específico cofradías (PapeletaSitio - extensión) |
+| N3RF24-27 | Member.deactivate(), eventos de baja, DisciplinaryCase (Aggregate 3.2.7)               |
+| N3RF28-29 | RegistrationRequest con prioridad (lista espera), WaitingList (Aggregate 3.2.6)        |
+| N3RF30-32 | MemberCard (Aggregate)                                                                 |
+| N3RF33-34 | MemberCard específico cofradías (PapeletaSitio - extensión)                            |

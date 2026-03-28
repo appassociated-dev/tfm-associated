@@ -6,12 +6,12 @@
 
 **Métricas objetivo:**
 
-| Operación | p95 | p99 | Medición |
-|-----------|-----|-----|----------|
-| GET simple | < 100ms | < 200ms | Sentry Performance |
-| GET con joins | < 200ms | < 400ms | Sentry Performance |
-| POST/PUT | < 300ms | < 600ms | Sentry Performance |
-| Operaciones complejas | < 3s | < 5s | Sentry Performance |
+| Operación             | p95     | p99     | Medición           |
+| --------------------- | ------- | ------- | ------------------ |
+| GET simple            | < 100ms | < 200ms | Sentry Performance |
+| GET con joins         | < 200ms | < 400ms | Sentry Performance |
+| POST/PUT              | < 300ms | < 600ms | Sentry Performance |
+| Operaciones complejas | < 3s    | < 5s    | Sentry Performance |
 
 **Interceptor de logging de tiempos:**
 
@@ -22,16 +22,16 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const now = Date.now();
     const request = context.switchToHttp().getRequest();
-    
+
     return next.handle().pipe(
       tap(() => {
         const responseTime = Date.now() - now;
-        
+
         // Log a Sentry si supera umbral
         if (responseTime > 500) {
           Sentry.captureMessage(`Slow API: ${request.url}`, {
             level: 'warning',
-            extra: { responseTime, method: request.method }
+            extra: { responseTime, method: request.method },
           });
         }
       }),
@@ -45,9 +45,7 @@ export class LoggingInterceptor implements NestInterceptor {
 ```typescript
 // prisma.service.ts
 const prisma = new PrismaClient({
-  log: process.env.NODE_ENV === 'development' 
-    ? ['query', 'warn', 'error'] 
-    : ['error'],
+  log: process.env.NODE_ENV === 'development' ? ['query', 'warn', 'error'] : ['error'],
 });
 
 // Queries optimizadas con select específico

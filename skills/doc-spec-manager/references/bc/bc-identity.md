@@ -32,6 +32,8 @@ Gestiona la autenticación de usuarios, autorización basada en roles y la estru
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-002 (`users`), ENT-005 (`refresh_tokens`)
+
 #### 8.2.2 Aggregate: Tenant
 
 ```
@@ -57,6 +59,8 @@ Gestiona la autenticación de usuarios, autorización basada en roles y la estru
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-001 (`tenants`)
+
 #### 8.2.3 Aggregate: TenantMembership (User-Tenant)
 
 ```
@@ -80,6 +84,8 @@ Gestiona la autenticación de usuarios, autorización basada en roles y la estru
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-003 (`tenant_memberships`)
+
 #### 8.2.4 Aggregate: Rol
 
 ```
@@ -102,34 +108,36 @@ Gestiona la autenticación de usuarios, autorización basada en roles y la estru
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-004 (`roles`)
+
 ### 8.3 Roles Predefinidos (Sistema)
 
-| Código | Nombre | Permisos Principales |
-|--------|--------|---------------------|
-| `PRESIDENT` | Presidente/Hermano Mayor | Todo + aprobaciones críticas |
-| `SECRETARY` | Secretario | Socios, actas, documentación |
-| `TREASURER` | Tesorero | Economía, cuotas, remesas |
-| `BOARD_MEMBER` | Vocal | Según área asignada |
-| `MEMBER` | Socio | Solo lectura propia vía portal |
+| Código         | Nombre                   | Permisos Principales           |
+| -------------- | ------------------------ | ------------------------------ |
+| `PRESIDENT`    | Presidente/Hermano Mayor | Todo + aprobaciones críticas   |
+| `SECRETARY`    | Secretario               | Socios, actas, documentación   |
+| `TREASURER`    | Tesorero                 | Economía, cuotas, remesas      |
+| `BOARD_MEMBER` | Vocal                    | Según área asignada            |
+| `MEMBER`       | Socio                    | Solo lectura propia vía portal |
 
 ### 8.4 Domain Events
 
-| Evento | Trigger | Payload |
-|--------|---------|---------|
-| `UserCreated` | Registro | userId, email |
-| `UserAuthenticated` | Login exitoso | userId, tenantId, email, rol, ipAddress, userAgent, timestamp |
-| `AuthenticationFailed` | Login fallido | email, intentos, ip |
-| `TenantProvisioned` | Provisión completa de tenant | tenantId, nombreColectividad, tipoColectividad, adminUserId, adminEmail, cif |
+| Evento                 | Trigger                      | Payload                                                                      |
+| ---------------------- | ---------------------------- | ---------------------------------------------------------------------------- |
+| `UserCreated`          | Registro                     | userId, email                                                                |
+| `UserAuthenticated`    | Login exitoso                | userId, tenantId, email, rol, ipAddress, userAgent, timestamp                |
+| `AuthenticationFailed` | Login fallido                | email, intentos, ip                                                          |
+| `TenantProvisioned`    | Provisión completa de tenant | tenantId, nombreColectividad, tipoColectividad, adminUserId, adminEmail, cif |
 
 ### 8.5 Trazabilidad RF
 
-| RF | Elemento de Dominio |
-|----|---------------------|
-| N2RF01 | Tenant (Aggregate), aislamiento por BD |
-| N2RF02 | User con múltiples TenantMembership |
-| N2RF03 | ConfiguracionTenant |
-| N2RF04 | Rol predefinidos (sistema) |
-| N2RF05 | Rol personalizados (tenantId != null) |
-| N2RF06 | Domain Events de auditoría |
-| N2RF07 | RolAsignado event, histórico |
+| RF     | Elemento de Dominio                             |
+| ------ | ----------------------------------------------- |
+| N2RF01 | Tenant (Aggregate), aislamiento por BD          |
+| N2RF02 | User con múltiples TenantMembership             |
+| N2RF03 | ConfiguracionTenant                             |
+| N2RF04 | Rol predefinidos (sistema)                      |
+| N2RF05 | Rol personalizados (tenantId != null)           |
+| N2RF06 | Domain Events de auditoría                      |
+| N2RF07 | RolAsignado event, histórico                    |
 | N2RF08 | Validación edad en TenantMembership para cargos |

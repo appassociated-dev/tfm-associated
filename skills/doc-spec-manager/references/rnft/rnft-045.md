@@ -10,11 +10,11 @@
 // theme.ts
 const theme = createTheme({
   breakpoints: {
-    xs: '30em',   // 480px
-    sm: '48em',   // 768px
-    md: '64em',   // 1024px
-    lg: '74em',   // 1184px
-    xl: '90em',   // 1440px
+    xs: '30em', // 480px
+    sm: '48em', // 768px
+    md: '64em', // 1024px
+    lg: '74em', // 1184px
+    xl: '90em', // 1440px
   },
 });
 ```
@@ -27,7 +27,7 @@ import { useMediaQuery } from '@mantine/hooks';
 
 const Layout = () => {
   const isMobile = useMediaQuery('(max-width: 768px)');
-  
+
   return (
     <AppShell
       navbar={{ width: isMobile ? 0 : 250, breakpoint: 'sm' }}

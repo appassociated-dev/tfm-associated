@@ -45,7 +45,7 @@ export default defineConfig({
   uses: codecov/codecov-action@v4
   with:
     fail_ci_if_error: true
-    
+
 - name: Check coverage thresholds
   run: |
     COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
@@ -57,8 +57,8 @@ export default defineConfig({
 
 **Métricas CI:**
 
-| Métrica | Umbral Global | Umbral Diff |
-|---------|---------------|-------------|
-| Line coverage | ≥ 80% | ≥ 85% |
-| Branch coverage | ≥ 70% | ≥ 75% |
-| Tests pasando | 100% | 100% |
+| Métrica         | Umbral Global | Umbral Diff |
+| --------------- | ------------- | ----------- |
+| Line coverage   | ≥ 80%         | ≥ 85%       |
+| Branch coverage | ≥ 70%         | ≥ 75%       |
+| Tests pasando   | 100%          | 100%        |

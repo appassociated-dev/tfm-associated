@@ -13,18 +13,20 @@ async function bootstrap() {
     key: fs.readFileSync('./secrets/private-key.pem'),
     cert: fs.readFileSync('./secrets/certificate.pem'),
   };
-  
+
   const app = await NestFactory.create(AppModule, { httpsOptions });
-  
+
   // Forzar HTTPS
-  app.use(helmet({
-    hsts: {
-      maxAge: 31536000, // 1 año
-      includeSubDomains: true,
-      preload: true,
-    },
-  }));
-  
+  app.use(
+    helmet({
+      hsts: {
+        maxAge: 31536000, // 1 año
+        includeSubDomains: true,
+        preload: true,
+      },
+    }),
+  );
+
   await app.listen(443);
 }
 ```
@@ -33,19 +35,22 @@ async function bootstrap() {
 
 ```typescript
 // app.module.ts
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
     },
-  },
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-}));
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  }),
+);
 ```
 
 **Verificación:**
+
 - SSL Labs: Grado A mínimo
 - Headers verificados con securityheaders.com

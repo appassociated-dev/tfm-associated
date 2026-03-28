@@ -37,6 +37,7 @@ export class HealthController {
 ```
 
 **Monitorización:**
+
 - Endpoint `/health` verificado cada 30s
 - Alertas en Sentry si health check falla 3 veces consecutivas
 - Objetivo: 99.5% disponibilidad mensual

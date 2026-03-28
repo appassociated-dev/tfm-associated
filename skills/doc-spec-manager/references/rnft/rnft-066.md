@@ -31,6 +31,7 @@ prisma/
 ```
 
 **Reglas:**
+
 - Migraciones siempre forward-only
 - Backup antes de migraciones destructivas
 - Migraciones probadas en staging antes de producción

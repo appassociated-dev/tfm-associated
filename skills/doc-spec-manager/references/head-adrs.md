@@ -92,6 +92,44 @@
 
 ---
 
+## Trazabilidad General
+
+### Matriz ADR → RNF
+
+| ADR     | RNFs Relacionados         |
+| ------- | ------------------------- |
+| ADR-001 | RNF-020, RNF-057          |
+| ADR-002 | RNF-004, RNF-029, RNF-038 |
+| ADR-003 | RNF-057                   |
+| ADR-004 | RNF-042                   |
+| ADR-005 | RNF-004, RNF-038, RNF-066 |
+| ADR-006 | RNF-001, RNF-002, RNF-005 |
+| ADR-007 | RNF-003, RNF-013          |
+| ADR-008 | RNF-007, RNF-042          |
+| ADR-009 | RNF-058-060               |
+| ADR-010 | RNF-015-016, RNF-057      |
+| ADR-011 | RNF-009, RNF-022          |
+| ADR-012 | RNF-058, RNF-059, RNF-060 |
+
+### Matriz ADR → BC
+
+| ADR     | BCs Afectados                            |
+| ------- | ---------------------------------------- |
+| ADR-001 | Todos                                    |
+| ADR-002 | BC-Identity (DB-Main), resto (DB-Tenant) |
+| ADR-003 | Todos                                    |
+| ADR-004 | Todos (productores y consumidores)       |
+| ADR-005 | Todos                                    |
+| ADR-006 | BC-Identity                              |
+| ADR-007 | BC-Identity, todos (verificación)        |
+| ADR-008 | Todos (emisión y recepción)              |
+| ADR-009 | Todos                                    |
+| ADR-010 | Todos (exposición API)                   |
+| ADR-011 | BC-Documents                             |
+| ADR-012 | Todos                                    |
+
+---
+
 ## Navegación
 
 Cada ADR se encuentra en `adr/adr-{xxx}.md`.

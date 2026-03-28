@@ -13,9 +13,9 @@
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({
         secret: config.get('JWT_SECRET'),
-        signOptions: { 
-          expiresIn: '15m',  // Access token corto
-          algorithm: 'HS256'
+        signOptions: {
+          expiresIn: '15m', // Access token corto
+          algorithm: 'HS256',
         },
       }),
     }),
@@ -27,10 +27,10 @@ export class AuthModule {}
 
 **Configuración de tokens:**
 
-| Token | Duración | Almacenamiento | Renovación |
-|-------|----------|----------------|------------|
-| Access Token | 15 minutos | Memory (frontend) | Automática con refresh |
-| Refresh Token | 7 días | HttpOnly Cookie | En login |
+| Token         | Duración   | Almacenamiento    | Renovación             |
+| ------------- | ---------- | ----------------- | ---------------------- |
+| Access Token  | 15 minutos | Memory (frontend) | Automática con refresh |
+| Refresh Token | 7 días     | HttpOnly Cookie   | En login               |
 
 **Política de contraseñas (class-validator):**
 
@@ -46,11 +46,12 @@ password: string;
 
 ```typescript
 // Configuración
-MAX_FAILED_ATTEMPTS = 5
-LOCKOUT_DURATION_MINUTES = 15
+MAX_FAILED_ATTEMPTS = 5;
+LOCKOUT_DURATION_MINUTES = 15;
 ```
 
 **Verificación:**
+
 - Test E2E: Login con credenciales válidas/inválidas
 - Test: Bloqueo tras 5 intentos fallidos
 - Auditoría: Revisar tokens generados tienen claims correctos

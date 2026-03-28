@@ -15,9 +15,7 @@ Sentry.init({
   environment: process.env.NODE_ENV,
   tracesSampleRate: 1.0,
   profilesSampleRate: 1.0,
-  integrations: [
-    Sentry.prismaIntegration(),
-  ],
+  integrations: [Sentry.prismaIntegration()],
   beforeSend(event) {
     // Sanitizar datos sensibles
     if (event.request?.data) {
@@ -59,8 +57,8 @@ Sentry.init({
 
 **Alertas configuradas:**
 
-| Condición | Acción |
-|-----------|--------|
-| Error rate > 1% | Notificación Slack |
-| Error crítico (500) | Email inmediato |
-| Latencia p95 > 2s | Warning en dashboard |
+| Condición           | Acción               |
+| ------------------- | -------------------- |
+| Error rate > 1%     | Notificación Slack   |
+| Error crítico (500) | Email inmediato      |
+| Latencia p95 > 2s   | Warning en dashboard |

@@ -33,6 +33,8 @@ Repositorio centralizado de documentos de la entidad: estatutos, actas, facturas
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-038 (`documents`) [placeholder]
+
 #### 7.2.2 Aggregate: Categoria
 
 ```
@@ -54,6 +56,8 @@ Repositorio centralizado de documentos de la entidad: estatutos, actas, facturas
 │   - Categorías sistema no eliminables                       │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+**Tabla Prisma:** ENT-039 (`document_categories`) [placeholder]
 
 #### 7.2.3 Aggregate: Acta
 
@@ -88,6 +92,8 @@ Repositorio centralizado de documentos de la entidad: estatutos, actas, facturas
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-040 (`meeting_minutes`) [placeholder]
+
 ### 7.3 Domain Events
 
 BC-Documents emite eventos relacionados con la generación y gestión de documentos:
@@ -96,15 +102,16 @@ BC-Documents emite eventos relacionados con la generación y gestión de documen
 | `AssemblyReportGenerated` | Informe de Asamblea General generado | informeId, fiscalYearId, tipoInforme, fechaGeneracion, generadoPor | BC-Documents (almacenar en repositorio) |
 
 **Notas:**
+
 - `AssemblyReportGenerated`: Genera informe de Asamblea General con datos económicos y de membresía del ejercicio
 
 ### 7.4 Trazabilidad RF
 
-| RF | Elemento de Dominio |
-|----|---------------------|
-| N7RF01-03 | Document (Aggregate), MetadatosDocumento |
-| N7RF04-05 | ArchivoFisico, previsualización |
-| N7RF06-07 | Búsqueda por metadatos, Categoria.rolesAcceso |
-| N7RF08 | Límite almacenamiento (configuración tenant) |
-| N7RF09-12 | Versionado, OCR, búsqueda full-text (avanzado) |
+| RF        | Elemento de Dominio                              |
+| --------- | ------------------------------------------------ |
+| N7RF01-03 | Document (Aggregate), MetadatosDocumento         |
+| N7RF04-05 | ArchivoFisico, previsualización                  |
+| N7RF06-07 | Búsqueda por metadatos, Categoria.rolesAcceso    |
+| N7RF08    | Límite almacenamiento (configuración tenant)     |
+| N7RF09-12 | Versionado, OCR, búsqueda full-text (avanzado)   |
 | N6RF17-23 | Acta (Aggregate) - movido desde BC-Communication |

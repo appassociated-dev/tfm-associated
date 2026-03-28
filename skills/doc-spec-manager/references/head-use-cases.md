@@ -28,15 +28,15 @@
 
 ## Leyenda
 
-| Columna | Descripción |
-|---------|-------------|
-| **UC** | Identificador del Caso de Uso (UC-001 a UC-076) |
-| **Nombre UC** | Descripción corta del caso de uso |
-| **User Stories** | IDs de las User Stories que agrupa (formato US-XXX) |
-| **BC** | Bounded Context destino |
-| **Application Service** | Nombre del servicio de aplicación principal |
-| **Prioridad** | Must / Should / Could según criticidad |
-| **Complejidad** | Alta / Media / Baja (estimación técnica) |
+| Columna                 | Descripción                                         |
+| ----------------------- | --------------------------------------------------- |
+| **UC**                  | Identificador del Caso de Uso (UC-001 a UC-076)     |
+| **Nombre UC**           | Descripción corta del caso de uso                   |
+| **User Stories**        | IDs de las User Stories que agrupa (formato US-XXX) |
+| **BC**                  | Bounded Context destino                             |
+| **Application Service** | Nombre del servicio de aplicación principal         |
+| **Prioridad**           | Must / Should / Could según criticidad              |
+| **Complejidad**         | Alta / Media / Baja (estimación técnica)            |
 
 ---
 
@@ -53,19 +53,19 @@ Este documento define los **76 Casos de Uso** del sistema Associated, derivados 
 
 ### Distribución por Bounded Context
 
-| BC | Casos de Uso | User Stories Agrupadas | Tipo |
-|----|--------------|------------------------|------|
-| **BC-Identity** | 5 | 8 | Generic |
-| **BC-Membership** | 10 | 34 | Core |
-| **BC-Treasury** | 11 | 38 | Core |
-| **BC-Events** | 11 | 29 | Core |
-| **BC-Communication** | 9 | 23 | Supporting |
-| **BC-Documents** | 8 | 12 | Supporting |
-| **Transversal N8 (Import/Export)** | 8 | 13 | Cross-cutting |
-| **Transversal N9 (Reporting)** | 4 | 12 | Cross-cutting |
-| **Transversal N10 (Portal Socio)** | 4 | 15 | Cross-cutting |
-| **Transversal N11 (Cumplimiento)** | 5 | 15 | Cross-cutting |
-| **Total** | **76** | **202** | |
+| BC                                 | Casos de Uso | User Stories Agrupadas | Tipo          |
+| ---------------------------------- | ------------ | ---------------------- | ------------- |
+| **BC-Identity**                    | 5            | 8                      | Generic       |
+| **BC-Membership**                  | 10           | 34                     | Core          |
+| **BC-Treasury**                    | 11           | 38                     | Core          |
+| **BC-Events**                      | 11           | 29                     | Core          |
+| **BC-Communication**               | 9            | 23                     | Supporting    |
+| **BC-Documents**                   | 8            | 12                     | Supporting    |
+| **Transversal N8 (Import/Export)** | 8            | 13                     | Cross-cutting |
+| **Transversal N9 (Reporting)**     | 4            | 12                     | Cross-cutting |
+| **Transversal N10 (Portal Socio)** | 4            | 15                     | Cross-cutting |
+| **Transversal N11 (Cumplimiento)** | 5            | 15                     | Cross-cutting |
+| **Total**                          | **76**       | **202**                |               |
 
 ### Criterios de Agrupación Aplicados
 
@@ -82,14 +82,14 @@ Las User Stories se han agrupado en Casos de Uso siguiendo estos criterios:
 
 ### Nomenclatura
 
-| Elemento | Formato | Ejemplo | Descripción |
-|----------|---------|---------|-------------|
-| **Caso de Uso** | UC-XXX | UC-001 | Identificador único secuencial |
-| **Application Service** | `NameService` | `MemberService` | Clase de aplicación responsable |
-| **Domain Event** | `EventName` | `MemberRegistered` | Evento de dominio emitido |
-| **Aggregate** | **NombreAggregate** | **Member** | Aggregate Root involucrado |
-| **Entity** | *NombreEntity* | *Charge* | Entidad dentro de un Aggregate |
-| **Domain Service** | `NameDomainService` | `ProrataCalculator` | Servicio de dominio |
+| Elemento                | Formato             | Ejemplo             | Descripción                     |
+| ----------------------- | ------------------- | ------------------- | ------------------------------- |
+| **Caso de Uso**         | UC-XXX              | UC-001              | Identificador único secuencial  |
+| **Application Service** | `NameService`       | `MemberService`     | Clase de aplicación responsable |
+| **Domain Event**        | `EventName`         | `MemberRegistered`  | Evento de dominio emitido       |
+| **Aggregate**           | **NombreAggregate** | **Member**          | Aggregate Root involucrado      |
+| **Entity**              | _NombreEntity_      | _Charge_            | Entidad dentro de un Aggregate  |
+| **Domain Service**      | `NameDomainService` | `ProrataCalculator` | Servicio de dominio             |
 
 ### Estructura de Caso de Uso
 
@@ -102,11 +102,11 @@ Cada caso de uso documenta:
 - **User Stories:** US-XXX, US-YYY, US-ZZZ
 - **Bounded Context:** BC-Nombre | Transversal (BC-Primario + BC-Secundario)
 - **Application Service:** `NameService.method()` | `ServiceA`, `ServiceB`
-- **Aggregates:** 
+- **Aggregates:**
   - **AggregateRoot1**, *Entity1* (si hay entities)
   - BC-Externo: **AggregateRoot2** (si es transversal)
 - **Prioridad:** Must | Should | Could | Won't
-**Descripción:**  
+**Descripción:**
 [Resumen conciso del objetivo del caso de uso en 1-3 líneas]
 
 #### Actores
@@ -147,11 +147,11 @@ FE-2: [Otra excepción]
 
 ### Tipos de Flujo
 
-| Tipo | Código | Propósito |
-|------|--------|-----------|
-| **Flujo Normal** | FN | Secuencia principal (happy path) |
-| **Flujo Alternativo** | FA-X | Variante válida del flujo normal |
-| **Flujo de Excepción** | FE-X | Manejo de errores y condiciones excepcionales |
+| Tipo                   | Código | Propósito                                     |
+| ---------------------- | ------ | --------------------------------------------- |
+| **Flujo Normal**       | FN     | Secuencia principal (happy path)              |
+| **Flujo Alternativo**  | FA-X   | Variante válida del flujo normal              |
+| **Flujo de Excepción** | FE-X   | Manejo de errores y condiciones excepcionales |
 
 ### Capas de Arquitectura Referenciadas
 
@@ -190,46 +190,48 @@ Usuario → Controller → AppService → Aggregate → Repository
 
 ### Totales Generales
 
-| Métrica | Valor |
-|---------|-------|
-| **Total Casos de Uso** | **76** |
+| Métrica                          | Valor                           |
+| -------------------------------- | ------------------------------- |
+| **Total Casos de Uso**           | **76**                          |
 | **Total User Stories cubiertas** | **202** (100% del scope N2-N11) |
-| **UCs Must** | 37 (48.7%) |
-| **UCs Should** | 33 (43.4%) |
-| **UCs Could** | 6 (7.9%) |
-| **UCs Won't** | 0 (0%) |
+| **UCs Must**                     | 37 (48.7%)                      |
+| **UCs Should**                   | 33 (43.4%)                      |
+| **UCs Could**                    | 6 (7.9%)                        |
+| **UCs Won't**                    | 0 (0%)                          |
 
 ### Distribución por Bounded Context
 
-| Bounded Context | UCs | User Stories | % del total UCs |
-|-----------------|-----|--------------|-----------------|
-| BC-Identity | 5 | 8 | 6.6% |
-| BC-Membership | 10 | 34 | 13.2% |
-| BC-Treasury | 11 | 40 | 14.5% |
-| BC-Events | 11 | 36 | 14.5% |
-| BC-Communication | 9 | 25 | 11.8% |
-| BC-Documents | 8 | 29 | 10.5% |
-| Transversal Import/Export | 8 | 15 | 10.5% |
-| Transversal Reporting | 4 | 13 | 5.3% |
-| Transversal Portal Socio | 4 | 12 | 5.3% |
-| Transversal Cumplimiento | 5 | 15 | 6.6% |
-| **TOTAL** | **76** | **202** | **100%** |
+| Bounded Context           | UCs    | User Stories | % del total UCs |
+| ------------------------- | ------ | ------------ | --------------- |
+| BC-Identity               | 5      | 8            | 6.6%            |
+| BC-Membership             | 10     | 34           | 13.2%           |
+| BC-Treasury               | 11     | 40           | 14.5%           |
+| BC-Events                 | 11     | 36           | 14.5%           |
+| BC-Communication          | 9      | 25           | 11.8%           |
+| BC-Documents              | 8      | 29           | 10.5%           |
+| Transversal Import/Export | 8      | 15           | 10.5%           |
+| Transversal Reporting     | 4      | 13           | 5.3%            |
+| Transversal Portal Socio  | 4      | 12           | 5.3%            |
+| Transversal Cumplimiento  | 5      | 15           | 6.6%            |
+| **TOTAL**                 | **76** | **202**      | **100%**        |
 
 ### Complejidad Técnica
 
 | Complejidad | Cantidad | % del total |
-|-------------|----------|-------------|
-| **Alta** | 30 UCs | 39.5% |
-| **Media** | 38 UCs | 50.0% |
-| **Baja** | 8 UCs | 10.5% |
+| ----------- | -------- | ----------- |
+| **Alta**    | 30 UCs   | 39.5%       |
+| **Media**   | 38 UCs   | 50.0%       |
+| **Baja**    | 8 UCs    | 10.5%       |
 
 **UCs de Alta Complejidad (30):**
+
 - UC-001, UC-002, UC-004, UC-012, UC-015, UC-017, UC-019, UC-023, UC-025, UC-026, UC-027
 - UC-030, UC-032, UC-034, UC-038, UC-047, UC-048, UC-055
 - UC-056, UC-057, UC-059, UC-060, UC-063, UC-064, UC-065, UC-066, UC-070, UC-071
 - UC-072, UC-073
 
 **Justificación de Alta Complejidad:**
+
 - Integración con sistemas externos (pasarelas pago, AEAT, SEPA)
 - Algoritmos complejos (cálculo quórum, generación XML ISO 20022)
 - Seguridad crítica (cifrado QR, URLs firmadas, validaciones JWT)

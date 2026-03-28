@@ -10,13 +10,11 @@
 // prisma-audit.middleware.ts
 prisma.$use(async (params, next) => {
   const result = await next(params);
-  
+
   const auditableModels = ['Member', 'MemberAccount', 'Transaction', 'User'];
   const auditableActions = ['create', 'update', 'delete'];
-  
-  if (auditableModels.includes(params.model) && 
-      auditableActions.includes(params.action)) {
-    
+
+  if (auditableModels.includes(params.model) && auditableActions.includes(params.action)) {
     await prisma.auditLog.create({
       data: {
         userId: context.userId,
@@ -29,10 +27,10 @@ prisma.$use(async (params, next) => {
         ipAddress: context.ip,
         userAgent: context.userAgent,
         timestamp: new Date(),
-      }
+      },
     });
   }
-  
+
   return result;
 });
 ```
@@ -52,7 +50,7 @@ model AuditLog {
   ipAddress  String
   userAgent  String?
   timestamp  DateTime @default(now())
-  
+
   @@index([tenantId, timestamp])
   @@index([model, recordId])
 }

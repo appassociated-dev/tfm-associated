@@ -43,9 +43,9 @@ export default defineConfig({
 
 **Funcionalidad offline:**
 
-| Recurso | Estrategia | Descripción |
-|---------|------------|-------------|
-| Shell de app | CacheFirst | Siempre disponible |
-| API datos | NetworkFirst | Fallback a caché |
-| Imágenes | CacheFirst | Reducir tráfico |
-| Carnet digital | CacheFirst | Disponible offline |
+| Recurso        | Estrategia   | Descripción        |
+| -------------- | ------------ | ------------------ |
+| Shell de app   | CacheFirst   | Siempre disponible |
+| API datos      | NetworkFirst | Fallback a caché   |
+| Imágenes       | CacheFirst   | Reducir tráfico    |
+| Carnet digital | CacheFirst   | Disponible offline |

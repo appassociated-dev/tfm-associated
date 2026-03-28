@@ -43,3 +43,5 @@ export class MembersController {
 # Generar tipos TypeScript desde OpenAPI
 npx openapi-typescript http://localhost:3000/api-json -o ./src/api/types.ts
 ```
+
+**Inventario de Endpoints:** El inventario formal de endpoints del sistema se define en `spec/013_inventario-de-endpoints.md` bajo el formato EP-NNN. Cada endpoint EP referencia el caso de uso (UC) que lo origina y las entidades (ENT) que expone. La especificación OpenAPI generada por `@nestjs/swagger` DEBE ser consistente con este inventario.

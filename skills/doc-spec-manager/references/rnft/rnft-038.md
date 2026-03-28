@@ -30,10 +30,10 @@ find $BACKUP_DIR -mtime +7 -delete
 
 **Política de retención:**
 
-| Tipo | Frecuencia | Retención |
-|------|------------|-----------|
-| Diario | 00:00 UTC | 30 días |
-| Semanal | Domingo | 12 semanas |
-| Mensual | Día 1 | 12 meses |
+| Tipo    | Frecuencia | Retención  |
+| ------- | ---------- | ---------- |
+| Diario  | 00:00 UTC  | 30 días    |
+| Semanal | Domingo    | 12 semanas |
+| Mensual | Día 1      | 12 meses   |
 
 **Verificación:** Test de restauración trimestral documentado.

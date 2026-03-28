@@ -55,6 +55,7 @@ test('Member registration complete', async ({ page }) => {
 ```
 
 **Flujos críticos cubiertos:**
+
 - Login/logout
 - Alta de member
 - Registro de pago

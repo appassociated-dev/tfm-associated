@@ -11,8 +11,8 @@
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,     // 5 minutos
-      gcTime: 30 * 60 * 1000,       // 30 minutos (antes cacheTime)
+      staleTime: 5 * 60 * 1000, // 5 minutos
+      gcTime: 30 * 60 * 1000, // 30 minutos (antes cacheTime)
       refetchOnWindowFocus: false,
       retry: 1,
     },
@@ -22,12 +22,12 @@ export const queryClient = new QueryClient({
 
 **Estrategias de caché por tipo de dato:**
 
-| Dato | staleTime | gcTime | Invalidación |
-|------|-----------|--------|--------------|
-| Listado members | 5 min | 30 min | Mutation |
-| Detalle member | 10 min | 60 min | Mutation |
-| Tipos de cuota | 1 hora | 24 horas | Manual |
-| Configuración tenant | 1 hora | 24 horas | Manual |
+| Dato                 | staleTime | gcTime   | Invalidación |
+| -------------------- | --------- | -------- | ------------ |
+| Listado members      | 5 min     | 30 min   | Mutation     |
+| Detalle member       | 10 min    | 60 min   | Mutation     |
+| Tipos de cuota       | 1 hora    | 24 horas | Manual       |
+| Configuración tenant | 1 hora    | 24 horas | Manual       |
 
 **Prefetching para navegación:**
 

@@ -50,8 +50,8 @@ encrypt(text: string): { encrypted: string; iv: string; tag: string } {
 
 **Datos cifrados:**
 
-| Campo | Método | Propósito |
-|-------|--------|-----------|
-| Contraseña | Argon2 (default params) | Hash irreversible |
-| IBAN | AES-256-GCM | Cifrado reversible |
-| DNI | AES-256-GCM | Cifrado reversible |
+| Campo      | Método                  | Propósito          |
+| ---------- | ----------------------- | ------------------ |
+| Contraseña | Argon2 (default params) | Hash irreversible  |
+| IBAN       | AES-256-GCM             | Cifrado reversible |
+| DNI        | AES-256-GCM             | Cifrado reversible |

@@ -43,6 +43,8 @@ Gestiona el ciclo de vida de eventos y actividades: planificación, inscripcione
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-030 (`events`) [placeholder]
+
 #### 5.2.2 Entity: Registration (dentro de Event)
 
 ```
@@ -135,6 +137,7 @@ Gestiona el ciclo de vida de eventos y actividades: planificación, inscripcione
 ```
 
 **Comportamientos:**
+
 - `addMenuOption(name, price)` → añade opción al listado
 - `makeReservation(member, menuOption)` → registra inscripción con menú
 - `updateReservation(reservation, newOption)` → cambia selección
@@ -174,6 +177,7 @@ Gestiona el ciclo de vida de eventos y actividades: planificación, inscripcione
 ```
 
 **Comportamientos:**
+
 - `createSquad(name, leader)` → inicializa cuadrilla
 - `addMember(member, role)` → añade socio validando capacidad
 - `removeMember(member, reason)` → da de baja del grupo
@@ -214,6 +218,7 @@ Gestiona el ciclo de vida de eventos y actividades: planificación, inscripcione
 ```
 
 **Comportamientos:**
+
 - `createMatch(opponent, date, venue)` → programa encuentro
 - `callPlayers(members[])` → establece lista de convocados
 - `recordResult(homeGoals, awayGoals)` → cierra partido
@@ -221,44 +226,44 @@ Gestiona el ciclo de vida de eventos y actividades: planificación, inscripcione
 
 ### 5.3 Value Objects
 
-| Value Object | Atributos | Validaciones |
-|--------------|-----------|--------------|
-| `EventPeriod` | fechaInicio: DateTime, fechaFin: DateTime | FechaFin >= FechaInicio |
-| `Location` | direccion: string, coordenadas?: LatLng, sala?: string | Dirección no vacía |
-| `RegistrationConfig` | openDate: Date, closeDate: Date, requierePago: boolean, precio?: Money | FechaCierre <= fechaInicio evento |
-| `EventStatus` | enum | Borrador, Publicado, Inscripciones Abiertas, Inscripciones Cerradas, Realizado, Cancelado |
-| `RegistrationStatus` | enum | Confirmada, ListaEspera, Cancelada, Asistencia Registrada |
-| `CheckinMethod` | enum | QR, Manual, NFC |
-| `MenuOption` | nombre: string, precio: Money | Nombre no vacío |
-| `RestaurantData` | nombre: string, direccion: string, telefono: string | Todos obligatorios |
-| `IdentifierColor` | valor: string | Color hex o nombre CSS válido |
-| `MatchResult` | golesLocal: int, golesVisitante: int | >= 0 ambos |
-| `OpponentData` | nombre: string, escudo?: URL | Nombre obligatorio |
-| `MatchStatus` | enum | Convocado, Jugado, Suspendido, Aplazado |
+| Value Object         | Atributos                                                              | Validaciones                                                                              |
+| -------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `EventPeriod`        | fechaInicio: DateTime, fechaFin: DateTime                              | FechaFin >= FechaInicio                                                                   |
+| `Location`           | direccion: string, coordenadas?: LatLng, sala?: string                 | Dirección no vacía                                                                        |
+| `RegistrationConfig` | openDate: Date, closeDate: Date, requierePago: boolean, precio?: Money | FechaCierre <= fechaInicio evento                                                         |
+| `EventStatus`        | enum                                                                   | Borrador, Publicado, Inscripciones Abiertas, Inscripciones Cerradas, Realizado, Cancelado |
+| `RegistrationStatus` | enum                                                                   | Confirmada, ListaEspera, Cancelada, Asistencia Registrada                                 |
+| `CheckinMethod`      | enum                                                                   | QR, Manual, NFC                                                                           |
+| `MenuOption`         | nombre: string, precio: Money                                          | Nombre no vacío                                                                           |
+| `RestaurantData`     | nombre: string, direccion: string, telefono: string                    | Todos obligatorios                                                                        |
+| `IdentifierColor`    | valor: string                                                          | Color hex o nombre CSS válido                                                             |
+| `MatchResult`        | golesLocal: int, golesVisitante: int                                   | >= 0 ambos                                                                                |
+| `OpponentData`       | nombre: string, escudo?: URL                                           | Nombre obligatorio                                                                        |
+| `MatchStatus`        | enum                                                                   | Convocado, Jugado, Suspendido, Aplazado                                                   |
 
 ### 5.4 Domain Events
 
-| Evento | Trigger | Payload | Consumidores |
-|--------|---------|---------|--------------|
-| `EventCreated` | Creación evento | eventId, tipo, fecha | BC-Communication (publicar) |
-| `EventPublished` | Apertura inscripciones | eventId | BC-Communication (notificar socios) |
-| `EventCancelled` | Cancelación | eventId, motivo | BC-Communication (notificar inscritos), BC-Treasury (reembolsos) |
-| `RegistrationCompleted` | Nueva inscripción | registrationId, eventId, memberId | BC-Treasury (generar cargo si precio), BC-Communication (confirmación) |
-| `RegistrationCancelled` | Cancelación inscripción | registrationId, eventId | BC-Treasury (anular cargo) |
-| `CapacityReached` | Aforo lleno | eventId | BC-Communication (activar lista espera) |
-| `SlotReleased` | Baja de inscrito | eventId, posicionListaEspera | BC-Communication (notificar siguiente) |
-| `EventFeedbackRequested` | Solicitud valoraciones post-evento | eventId, registeredMembers[], fechaSolicitud | BC-Communication (enviar formulario) |
-| `RecurringIssueDetected` | Detección patrón de problemas | eventId, tipoProblema, frecuencia | BC-Communication (alertar organizadores) |
+| Evento                   | Trigger                            | Payload                                      | Consumidores                                                           |
+| ------------------------ | ---------------------------------- | -------------------------------------------- | ---------------------------------------------------------------------- |
+| `EventCreated`           | Creación evento                    | eventId, tipo, fecha                         | BC-Communication (publicar)                                            |
+| `EventPublished`         | Apertura inscripciones             | eventId                                      | BC-Communication (notificar socios)                                    |
+| `EventCancelled`         | Cancelación                        | eventId, motivo                              | BC-Communication (notificar inscritos), BC-Treasury (reembolsos)       |
+| `RegistrationCompleted`  | Nueva inscripción                  | registrationId, eventId, memberId            | BC-Treasury (generar cargo si precio), BC-Communication (confirmación) |
+| `RegistrationCancelled`  | Cancelación inscripción            | registrationId, eventId                      | BC-Treasury (anular cargo)                                             |
+| `CapacityReached`        | Aforo lleno                        | eventId                                      | BC-Communication (activar lista espera)                                |
+| `SlotReleased`           | Baja de inscrito                   | eventId, posicionListaEspera                 | BC-Communication (notificar siguiente)                                 |
+| `EventFeedbackRequested` | Solicitud valoraciones post-evento | eventId, registeredMembers[], fechaSolicitud | BC-Communication (enviar formulario)                                   |
+| `RecurringIssueDetected` | Detección patrón de problemas      | eventId, tipoProblema, frecuencia            | BC-Communication (alertar organizadores)                               |
 
 ### 5.5 Trazabilidad RF
 
-| RF | Elemento de Dominio |
-|----|---------------------|
-| N5RF01-02 | Event (Aggregate), TipoEvento |
-| N5RF03-04 | Event con calendario, exportación iCal |
-| N5RF05-09 | Registration (Entity), control aforo, lista espera |
-| N5RF10-11 | RegistrationConfig, DatosInscripcion |
-| N5RF12-16 | Asistencia (VO), check-in QR/manual |
-| N5RF17-19 | Extensión: SocialDinner (específico peñas), Aggregate 5.2.5 |
-| N5RF20-26 | Extensión: Procesion, Costaleros (específico cofradías) |
+| RF        | Elemento de Dominio                                                                      |
+| --------- | ---------------------------------------------------------------------------------------- |
+| N5RF01-02 | Event (Aggregate), TipoEvento                                                            |
+| N5RF03-04 | Event con calendario, exportación iCal                                                   |
+| N5RF05-09 | Registration (Entity), control aforo, lista espera                                       |
+| N5RF10-11 | RegistrationConfig, DatosInscripcion                                                     |
+| N5RF12-16 | Asistencia (VO), check-in QR/manual                                                      |
+| N5RF17-19 | Extensión: SocialDinner (específico peñas), Aggregate 5.2.5                              |
+| N5RF20-26 | Extensión: Procesion, Costaleros (específico cofradías)                                  |
 | N5RF27-30 | Extensión: Competicion (específico clubes), Aggregate 5.2.7 Match, Aggregate 5.2.6 Squad |

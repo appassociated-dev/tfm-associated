@@ -36,6 +36,7 @@
 ```
 
 **Comportamientos:**
+
 - `generateAlert(tipo, descripcion, criticidad)` → crea alerta
 - `assignResponsible(usuario)` → delega resolución
 - `markAsResolved(observaciones)` → cierra alerta

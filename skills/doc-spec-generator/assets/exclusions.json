@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "file": "analisis-documentacion.md",
+    "exclude-atom": true,
+    "exclude-copy": true,
+    "_comment": "Archivo completamente ignorado por el pipeline, como si no existiera en spec/"
+  },
+  {
+    "file": "glosario-traducciones.md",
+    "exclude-atom": true,
+    "exclude-copy": false,
+    "_comment": "No se atomiza (no genera fragmentos), pero se copia tal cual a references/"
+  },
+  {
+    "file": "mapa-documentacion.md",
+    "exclude-atom": true,
+    "exclude-copy": true,
+    "_comment": "Archivo completamente ignorado por el pipeline, como si no existiera en spec/"
+  }
+]

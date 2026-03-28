@@ -48,9 +48,9 @@ async searchByName(tenantId: string, query: string): Promise<Member[]> {
 
 **Métricas:**
 
-| Búsqueda | Tiempo objetivo |
-|----------|-----------------|
-| Por DNI (exacta) | < 50ms |
-| Por nombre (fuzzy) | < 300ms |
-| Listado paginado | < 200ms |
-| Filtros combinados | < 500ms |
+| Búsqueda           | Tiempo objetivo |
+| ------------------ | --------------- |
+| Por DNI (exacta)   | < 50ms          |
+| Por nombre (fuzzy) | < 300ms         |
+| Listado paginado   | < 200ms         |
+| Filtros combinados | < 500ms         |

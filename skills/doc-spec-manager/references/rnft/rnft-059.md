@@ -13,15 +13,13 @@ import { PostgreSqlContainer } from '@testcontainers/postgresql';
 let container: StartedPostgreSqlContainer;
 
 beforeAll(async () => {
-  container = await new PostgreSqlContainer('postgres:18-alpine')
-    .withDatabase('test_db')
-    .start();
-  
+  container = await new PostgreSqlContainer('postgres:18-alpine').withDatabase('test_db').start();
+
   process.env.DATABASE_URL = container.getConnectionUri();
-  
+
   // Ejecutar migraciones
-  execSync('npx prisma migrate deploy', { 
-    env: { ...process.env, DATABASE_URL: container.getConnectionUri() }
+  execSync('npx prisma migrate deploy', {
+    env: { ...process.env, DATABASE_URL: container.getConnectionUri() },
   });
 }, 60000);
 

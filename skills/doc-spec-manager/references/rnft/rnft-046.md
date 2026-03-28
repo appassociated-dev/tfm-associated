@@ -5,6 +5,7 @@
 **RNF Base:** RNF-046 (Accesibilidad)
 
 **Mantine incluye accesibilidad por defecto:**
+
 - Focus visible en todos los elementos interactivos
 - Roles ARIA correctos
 - Labels asociados a inputs
@@ -27,5 +28,6 @@ const theme = createTheme({
 ```
 
 **Verificación:**
+
 - axe-core en tests E2E
 - Lighthouse Accessibility > 90

@@ -35,12 +35,12 @@ async generateRemittance(memberIds: string[]): Promise<SepaRemittance> {
 
 **Tiempos objetivo:**
 
-| Operación | Volumen | Tiempo máximo |
-|-----------|---------|---------------|
-| Remesa SEPA | 500 members | < 30s |
-| Importación CSV | 500 registros | < 60s |
-| Generación cuotas | 500 members | < 30s |
-| Exportación Excel | 1000 registros | < 15s |
+| Operación         | Volumen        | Tiempo máximo |
+| ----------------- | -------------- | ------------- |
+| Remesa SEPA       | 500 members    | < 30s         |
+| Importación CSV   | 500 registros  | < 60s         |
+| Generación cuotas | 500 members    | < 30s         |
+| Exportación Excel | 1000 registros | < 15s         |
 
 **Procesamiento asíncrono con Bull (para operaciones > 30s):**
 

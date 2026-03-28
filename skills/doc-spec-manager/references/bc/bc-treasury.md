@@ -34,6 +34,8 @@ Responsable de toda la gestión económica: definición de cuotas, generación d
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-013 (`member_accounts`), ENT-014 (`fee_subscriptions`), ENT-015 (`charges`), ENT-016 (`payments`)
+
 #### 4.2.2 Entity: Charge (dentro de MemberAccount)
 
 ```
@@ -116,6 +118,8 @@ Responsable de toda la gestión económica: definición de cuotas, generación d
 └─────────────────────────────────────────────────────────────┘
 ```
 
+**Tabla Prisma:** ENT-018 (`sepa_mandates`) [pending]
+
 #### 4.2.5 Aggregate: FeePlan
 
 ```
@@ -144,6 +148,8 @@ Responsable de toda la gestión económica: definición de cuotas, generación d
 │   - amount >= 0 (puede ser 0 para planes especiales)            │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+**Tabla Prisma:** ENT-011 (`fee_plans`), ENT-012 (`member_type_fee_plans`)
 
 #### 4.2.6 Entity: MemberTypeFeePlan (Relación N:M)
 
@@ -193,6 +199,8 @@ Responsable de toda la gestión económica: definición de cuotas, generación d
 │   - Todos los adeudos deben tener mandato válido            │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+**Tabla Prisma:** ENT-019 (`sepa_remittances`), ENT-020 (`sepa_debits`) [pending]
 
 #### 4.2.7 Entity: FeeSubscription (dentro de MemberAccount)
 
@@ -314,6 +322,7 @@ SubscriptionCancelReason (enum):
 ```
 
 **Comportamientos:**
+
 - `generateLink(charge, validHours)` → crea URL firmada
 - `validateAccess(token)` → verifica vigencia y estado
 - `markAsPaid(payment)` → cierra enlace tras pago exitoso
@@ -355,6 +364,7 @@ SubscriptionCancelReason (enum):
 ```
 
 **Comportamientos:**
+
 - `openShift(attendant, initialBalance)` → inicia turno
 - `recordTransaction(type, amount)` → añade operación
 - `closeShift(finalBalance)` → calcula diferencia y cierra
@@ -391,6 +401,7 @@ SubscriptionCancelReason (enum):
 ```
 
 **Comportamientos:**
+
 - `createCategory(code, name, parent?)` → valida jerarquía
 - `markAsBookable()` → permite asignar movimientos
 - `deactivate()` → impide nuevas asignaciones
@@ -433,6 +444,7 @@ SubscriptionCancelReason (enum):
 ```
 
 **Comportamientos:**
+
 - `openFiscalYear(period, openingBalance)` → inicia ejercicio
 - `recordTransaction(type, amount)` → actualiza acumulados
 - `closeFiscalYear()` → calcula saldo final, congela
@@ -440,82 +452,82 @@ SubscriptionCancelReason (enum):
 
 ### 4.3 Value Objects
 
-| Value Object | Atributos | Validaciones |
-|--------------|-----------|--------------|
-| `Money` | cantidad: decimal, moneda: string | cantidad >= 0, moneda ISO 4217 (default EUR) |
-| `PaymentMethod` | type: enum, referencia: string | Tipos: CASH, TRANSFER, DIRECT_DEBIT, BIZUM, CARD |
-| `ChargeStatus` | enum | PENDING, PAID, PARTIALLY_PAID, CANCELLED |
-| `PaymentStatus` | enum | CONFIRMED, RETURNED, CANCELLED |
-| `DelinquencyStatus` | enum | UP_TO_DATE, MINOR_DELINQUENCY, MAJOR_DELINQUENCY, Suspendido |
-| `SepaSequence` | enum | FRST, RCUR, OOFF, FNAL |
-| `RemittanceStatus` | enum | DRAFT, GENERATED, SENT, PROCESSED, WITH_RETURNS |
-| `CreditorIdentifier` | valor: string | Formato ES + 2 dígitos + sufijo (14 chars) |
-| `Frequency` | enum | MONTHLY, QUARTERLY, BIANNUAL, ANNUAL, CUSTOM (orientativo, la configuración real está en billingMonths[]) |
-| `PlanType` | enum | ONE_TIME, RECURRING |
-| `SubscriptionCancelReason` | enum | PLAN_CHANGE, MEMBER_LEAVE, EXEMPTION, ONE_TIME_COMPLETED |
-| `BillingMonths` | int[] | Array de meses (1-12) en que se generan cargos. Vacío para planes ONE_TIME. |
-| `SignedURL` | token: string | Hash criptográfico único para enlaces de pago |
-| `LinkStatus` | enum | PENDING, PAID, Expirado |
-| `ShiftStatus` | enum | OPEN, Cerrado, Cuadrado |
-| `AccountCode` | code: string | Según plan ENL o personalizado (ej: "7.1") |
-| `CategoryType` | enum | INCOME, EXPENSE, ASSET, LIABILITY |
-| `AccountingYearStatus` | enum | OPEN, Cerrado |
-| `AccountingPeriod` | fechaInicio: Date, fechaFin: Date | Periodo fiscal del ejercicio |
+| Value Object               | Atributos                         | Validaciones                                                                                              |
+| -------------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `Money`                    | cantidad: decimal, moneda: string | cantidad >= 0, moneda ISO 4217 (default EUR)                                                              |
+| `PaymentMethod`            | type: enum, referencia: string    | Tipos: CASH, TRANSFER, DIRECT_DEBIT, BIZUM, CARD                                                          |
+| `ChargeStatus`             | enum                              | PENDING, PAID, PARTIALLY_PAID, CANCELLED                                                                  |
+| `PaymentStatus`            | enum                              | CONFIRMED, RETURNED, CANCELLED                                                                            |
+| `DelinquencyStatus`        | enum                              | UP_TO_DATE, MINOR_DELINQUENCY, MAJOR_DELINQUENCY, Suspendido                                              |
+| `SepaSequence`             | enum                              | FRST, RCUR, OOFF, FNAL                                                                                    |
+| `RemittanceStatus`         | enum                              | DRAFT, GENERATED, SENT, PROCESSED, WITH_RETURNS                                                           |
+| `CreditorIdentifier`       | valor: string                     | Formato ES + 2 dígitos + sufijo (14 chars)                                                                |
+| `Frequency`                | enum                              | MONTHLY, QUARTERLY, BIANNUAL, ANNUAL, CUSTOM (orientativo, la configuración real está en billingMonths[]) |
+| `PlanType`                 | enum                              | ONE_TIME, RECURRING                                                                                       |
+| `SubscriptionCancelReason` | enum                              | PLAN_CHANGE, MEMBER_LEAVE, EXEMPTION, ONE_TIME_COMPLETED                                                  |
+| `BillingMonths`            | int[]                             | Array de meses (1-12) en que se generan cargos. Vacío para planes ONE_TIME.                               |
+| `SignedURL`                | token: string                     | Hash criptográfico único para enlaces de pago                                                             |
+| `LinkStatus`               | enum                              | PENDING, PAID, Expirado                                                                                   |
+| `ShiftStatus`              | enum                              | OPEN, Cerrado, Cuadrado                                                                                   |
+| `AccountCode`              | code: string                      | Según plan ENL o personalizado (ej: "7.1")                                                                |
+| `CategoryType`             | enum                              | INCOME, EXPENSE, ASSET, LIABILITY                                                                         |
+| `AccountingYearStatus`     | enum                              | OPEN, Cerrado                                                                                             |
+| `AccountingPeriod`         | fechaInicio: Date, fechaFin: Date | Periodo fiscal del ejercicio                                                                              |
 
 ### 4.4 Domain Events
 
-| Evento | Trigger | Payload | Consumidores |
-|--------|---------|---------|--------------|
-| `ChargeGenerated` | Creación de cargo | chargeId, memberId, amount, description | BC-Communication (aviso) |
-| `PaymentRecorded` | Cobro confirmado | paymentId, chargeId, memberId, amount, metodo | BC-Membership (actualizar estado si procede) |
-| `PaymentReturned` | Devolución bancaria | paymentId, chargeId, motivo | BC-Communication (notificar), BC-Membership (marcar morosidad) |
-| `DelinquencyDetected` | Cargo vencido sin pago | memberId, chargeId, diasVencido | BC-Communication (workflow avisos) |
-| `FeePlanCreated` | Creación de plan | feePlanId, code, name, type, amount | BC-Membership (invalidar caché) |
-| `FeePlanModified` | Modificación plan | feePlanId, camposModificados | BC-Membership (invalidar caché) |
-| `FeePlanLinkedToMemberType` | Vinculación N:M | feePlanId, memberTypeId, isDefault | BC-Membership (invalidar caché) |
-| `ChargePaid` | Pago de cargo | chargeId, memberId, amount, paymentDate, paymentMethod | BC-Communication (enviar recibo), BC-Membership (actualizar morosidad) |
-| `ChargeCollected` | Cobro efectivo de cargo | chargeId, memberId, amount, fechaCobro, remittanceId? | BC-Communication (confirmar pago) |
-| `ChargeMarkedForRetry` | Marcado para reintento de cobro | chargeId, memberId, intentoNumero, proximaFecha | BC-Communication (avisar socio) |
-| `ReceiptGenerated` | Generación de recibo PDF | reciboId, paymentId, numeroRecibo, issueDate | BC-Communication (enviar por email), BC-Documents (archivar) |
-| `SepaMandateRegistered` | Registro mandato SEPA | mandateId, memberId, iban, signatureDate, status | BC-Treasury (habilitar domiciliación) |
-| `SepaMandateRevoked` | Revocación mandato SEPA | mandateId, memberId, motivoRevocacion, fechaRevocacion | BC-Treasury (deshabilitar domiciliación), BC-Communication (notificar) |
-| `SepaRemittanceGenerated` | Generación fichero SEPA XML | remittanceId, chargeDate, totalAdeudos, totalAmount, creditorIdentifier | BC-Communication (avisar socios 2 días antes) |
-| `PaymentLinkGenerated` | Generación enlace pago online | chargeId, memberId, url, expirationDate | BC-Communication (enviar email con enlace) |
-| `DelinquencyRegularized` | Regularización de morosidad | memberId, paidAmount, fechaRegularizacion | BC-Membership (restaurar estado), BC-Communication (confirmar) |
-| `OverdraftCertificateGenerated` | Certificado de descubierto | certificadoId, memberId, deudaTotal, issueDate | BC-Documents (archivar), BC-Communication (notificar socio) |
-| `SubscriptionCreated` | Creación suscripción cuota | subscriptionId, memberId, feePlanId, fechaInicio, status | BC-Treasury (programar generación mensual) |
-| `SubscriptionModified` | Modificación suscripción | subscriptionId, camposModificados[], fechaModificacion | BC-Treasury (recalcular próximos cargos) |
-| `SubscriptionClosed` | Cierre de suscripción | subscriptionId, motivoCierre, fechaCierre | BC-Treasury (detener generación) |
-| `MonthlyGenerationCompleted` | Generación mensual de cuotas | fiscalYearId, mes, totalCargosGenerados, totalAmount | BC-Communication (notificar tesorero), Sistema de auditoría |
-| `DiscrepancyDetected` | Detección de descuadre | diferencia, cuentaId, fechaDeteccion | BC-Communication (alertar tesorero) |
+| Evento                          | Trigger                         | Payload                                                                 | Consumidores                                                           |
+| ------------------------------- | ------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `ChargeGenerated`               | Creación de cargo               | chargeId, memberId, amount, description                                 | BC-Communication (aviso)                                               |
+| `PaymentRecorded`               | Cobro confirmado                | paymentId, chargeId, memberId, amount, metodo                           | BC-Membership (actualizar estado si procede)                           |
+| `PaymentReturned`               | Devolución bancaria             | paymentId, chargeId, motivo                                             | BC-Communication (notificar), BC-Membership (marcar morosidad)         |
+| `DelinquencyDetected`           | Cargo vencido sin pago          | memberId, chargeId, diasVencido                                         | BC-Communication (workflow avisos)                                     |
+| `FeePlanCreated`                | Creación de plan                | feePlanId, code, name, type, amount                                     | BC-Membership (invalidar caché)                                        |
+| `FeePlanModified`               | Modificación plan               | feePlanId, camposModificados                                            | BC-Membership (invalidar caché)                                        |
+| `FeePlanLinkedToMemberType`     | Vinculación N:M                 | feePlanId, memberTypeId, isDefault                                      | BC-Membership (invalidar caché)                                        |
+| `ChargePaid`                    | Pago de cargo                   | chargeId, memberId, amount, paymentDate, paymentMethod                  | BC-Communication (enviar recibo), BC-Membership (actualizar morosidad) |
+| `ChargeCollected`               | Cobro efectivo de cargo         | chargeId, memberId, amount, fechaCobro, remittanceId?                   | BC-Communication (confirmar pago)                                      |
+| `ChargeMarkedForRetry`          | Marcado para reintento de cobro | chargeId, memberId, intentoNumero, proximaFecha                         | BC-Communication (avisar socio)                                        |
+| `ReceiptGenerated`              | Generación de recibo PDF        | reciboId, paymentId, numeroRecibo, issueDate                            | BC-Communication (enviar por email), BC-Documents (archivar)           |
+| `SepaMandateRegistered`         | Registro mandato SEPA           | mandateId, memberId, iban, signatureDate, status                        | BC-Treasury (habilitar domiciliación)                                  |
+| `SepaMandateRevoked`            | Revocación mandato SEPA         | mandateId, memberId, motivoRevocacion, fechaRevocacion                  | BC-Treasury (deshabilitar domiciliación), BC-Communication (notificar) |
+| `SepaRemittanceGenerated`       | Generación fichero SEPA XML     | remittanceId, chargeDate, totalAdeudos, totalAmount, creditorIdentifier | BC-Communication (avisar socios 2 días antes)                          |
+| `PaymentLinkGenerated`          | Generación enlace pago online   | chargeId, memberId, url, expirationDate                                 | BC-Communication (enviar email con enlace)                             |
+| `DelinquencyRegularized`        | Regularización de morosidad     | memberId, paidAmount, fechaRegularizacion                               | BC-Membership (restaurar estado), BC-Communication (confirmar)         |
+| `OverdraftCertificateGenerated` | Certificado de descubierto      | certificadoId, memberId, deudaTotal, issueDate                          | BC-Documents (archivar), BC-Communication (notificar socio)            |
+| `SubscriptionCreated`           | Creación suscripción cuota      | subscriptionId, memberId, feePlanId, fechaInicio, status                | BC-Treasury (programar generación mensual)                             |
+| `SubscriptionModified`          | Modificación suscripción        | subscriptionId, camposModificados[], fechaModificacion                  | BC-Treasury (recalcular próximos cargos)                               |
+| `SubscriptionClosed`            | Cierre de suscripción           | subscriptionId, motivoCierre, fechaCierre                               | BC-Treasury (detener generación)                                       |
+| `MonthlyGenerationCompleted`    | Generación mensual de cuotas    | fiscalYearId, mes, totalCargosGenerados, totalAmount                    | BC-Communication (notificar tesorero), Sistema de auditoría            |
+| `DiscrepancyDetected`           | Detección de descuadre          | diferencia, cuentaId, fechaDeteccion                                    | BC-Communication (alertar tesorero)                                    |
 
 ### 4.5 Domain Services
 
-| Servicio | Responsabilidad |
-|----------|-----------------|
-| `ChargeGenerator` | Genera cargos para suscripciones activas cuyo plan incluya el mes actual en billingMonths. Proceso mensual automatizable. |
-| `ManualChargeGenerator` | Crea cargos puntuales sin suscripción asociada (derramas, penalizaciones, ajustes) |
-| `ProrataCalculator` | Calcula cuota proporcional para altas a mitad de ejercicio |
-| `SepaRemittanceGenerator` | Crea fichero XML ISO 20022 pain.008.001.08 |
-| `DelinquencyManager` | Evalúa y ejecuta workflow de morosidad |
-| `PaymentReconciler` | Asocia pagos de pasarela con cargos pendientes |
-| `SubscriptionManager` | Gestiona altas, bajas y cambios de modalidad de pago |
+| Servicio                  | Responsabilidad                                                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `ChargeGenerator`         | Genera cargos para suscripciones activas cuyo plan incluya el mes actual en billingMonths. Proceso mensual automatizable. |
+| `ManualChargeGenerator`   | Crea cargos puntuales sin suscripción asociada (derramas, penalizaciones, ajustes)                                        |
+| `ProrataCalculator`       | Calcula cuota proporcional para altas a mitad de ejercicio                                                                |
+| `SepaRemittanceGenerator` | Crea fichero XML ISO 20022 pain.008.001.08                                                                                |
+| `DelinquencyManager`      | Evalúa y ejecuta workflow de morosidad                                                                                    |
+| `PaymentReconciler`       | Asocia pagos de pasarela con cargos pendientes                                                                            |
+| `SubscriptionManager`     | Gestiona altas, bajas y cambios de modalidad de pago                                                                      |
 
 ### 4.6 Trazabilidad RF
 
-| RF | Elemento de Dominio |
-|----|---------------------|
-| N4RF01 | FeePlan (Aggregate), MemberTypeFeePlan |
-| N4RF02 | Domain Service: ChargeGenerator (basado en suscripciones activas y billingMonths) |
-| N4RF03 | Domain Service: ProrataCalculator |
-| N4RF04-05 | FeeSubscription.discount, exenciones |
-| N4RF06 | FeeSubscription (selección modalidad al alta) |
-| N4RF07 | FeeSubscription.cancelReason=PLAN_CHANGE |
-| N4RF08 | Domain Service: ManualChargeGenerator, Charge.isManual=true |
-| N4RF09-11 | Payment (Entity), PaymentMethod, PaymentStatus |
-| N4RF12-13 | Payment.receiptDocumentId, generación recibo |
-| N4RF14-16 | Domain Service: DelinquencyManager, eventos morosidad |
-| N4RF17-23 | SepaRemittance, SepaDebit, SepaMandate |
-| N4RF24-27 | Integración pasarela (Application Service), PaymentLink (Aggregate 4.2.10) |
+| RF        | Elemento de Dominio                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------------------- |
+| N4RF01    | FeePlan (Aggregate), MemberTypeFeePlan                                                                  |
+| N4RF02    | Domain Service: ChargeGenerator (basado en suscripciones activas y billingMonths)                       |
+| N4RF03    | Domain Service: ProrataCalculator                                                                       |
+| N4RF04-05 | FeeSubscription.discount, exenciones                                                                    |
+| N4RF06    | FeeSubscription (selección modalidad al alta)                                                           |
+| N4RF07    | FeeSubscription.cancelReason=PLAN_CHANGE                                                                |
+| N4RF08    | Domain Service: ManualChargeGenerator, Charge.isManual=true                                             |
+| N4RF09-11 | Payment (Entity), PaymentMethod, PaymentStatus                                                          |
+| N4RF12-13 | Payment.receiptDocumentId, generación recibo                                                            |
+| N4RF14-16 | Domain Service: DelinquencyManager, eventos morosidad                                                   |
+| N4RF17-23 | SepaRemittance, SepaDebit, SepaMandate                                                                  |
+| N4RF24-27 | Integración pasarela (Application Service), PaymentLink (Aggregate 4.2.10)                              |
 | N4RF28-33 | Transaction (Aggregate 4.2.9), AccountingCategory (Aggregate 4.2.12), AccountingYear (Aggregate 4.2.13) |
-| N4RF34-38 | Extensión: CashRegisterShift (Aggregate 4.2.11, específico peñas) |
+| N4RF34-38 | Extensión: CashRegisterShift (Aggregate 4.2.11, específico peñas)                                       |

@@ -6,8 +6,9 @@ Ejecuta la pipeline completa:
 1. Verifica que spec/ contiene los documentos esperados.
 2. Limpia references/ de archivos huérfanos.
 3. Ejecuta los 10 scripts de extracción.
-4. Ejecuta los 10 scripts de generación de head-*.md.
-5. Reporta resultados.
+4. Copia archivos passthrough (exclude-atom, exclude-copy:false) a references/.
+5. Ejecuta los 10 scripts de generación de head-*.md.
+6. Reporta resultados.
 """
 
 import shutil
@@ -217,6 +218,28 @@ def run_head_generators(exclusion_config: ExclusionConfig | None = None) -> list
     return head_files
 
 
+def copy_passthrough_files(exclusion_config: ExclusionConfig | None = None) -> list[str]:
+    """Copia archivos passthrough (exclude-atom pero no exclude-copy) a references/.
+
+    Los archivos en atom_files pero no en copy_files se copian tal cual desde spec/
+    a references/, sin ningún procesamiento adicional.
+    """
+    config = exclusion_config or ExclusionConfig()
+
+    # passthrough = archivos que omiten atomización pero deben copiarse a references/
+    passthrough = config.atom_files - config.copy_files
+
+    copied = []
+    for filename in sorted(passthrough):
+        src = SPEC_DIR / filename
+        dst = REFERENCES_DIR / filename
+        shutil.copy2(src, dst)
+        copied.append(filename)
+        print(f"  {filename}")
+
+    return copied
+
+
 def count_total_files() -> int:
     """Cuenta el total de archivos .md generados en references/."""
     return len(list(REFERENCES_DIR.rglob('*.md')))
@@ -237,24 +260,28 @@ def main():
               f"{len(exclusion_config.atom_files)} atom")
 
     # 1. Verificar spec/
-    print("\n[1/5] Verificando spec/...")
+    print("\n[1/6] Verificando spec/...")
     if not verify_spec_files(exclusion_config):
         sys.exit(1)
 
     # 2. Limpiar references/
-    print("\n[2/5] Limpiando references/...")
+    print("\n[2/6] Limpiando references/...")
     clean_references(exclusion_config)
 
     # 3. Extracciones
-    print("\n[3/5] Ejecutando extracciones...")
+    print("\n[3/6] Ejecutando extracciones...")
     counts = run_extractions(exclusion_config)
 
-    # 4. Head files
-    print("\n[4/5] Generando head-*.md...")
+    # 4. Copia passthrough
+    print("\n[4/6] Copiando archivos passthrough...")
+    passthrough_files = copy_passthrough_files(exclusion_config)
+
+    # 5. Head files
+    print("\n[5/6] Generando head-*.md...")
     head_files = run_head_generators(exclusion_config)
 
-    # 5. Validación
-    print("\n[5/5] Validando integridad...")
+    # 6. Validación
+    print("\n[6/6] Validando integridad...")
     import validate_references
     errors, warnings = validate_references.validate(exclusion_config)
 
@@ -266,6 +293,7 @@ def main():
     print("\n" + "=" * 60)
     print(f"  Completado en {elapsed:.2f}s")
     print(f"  Fragmentos: {total_fragments}")
+    print(f"  Passthrough: {len(passthrough_files)}")
     print(f"  Head files: {len(head_files)}")
     print(f"  Total archivos: {total}")
     if errors > 0:

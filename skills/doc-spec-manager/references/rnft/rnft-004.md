@@ -16,8 +16,8 @@ export class PrismaTenantService {
     if (!this.clients.has(tenantId)) {
       const client = new PrismaClient({
         datasources: {
-          db: { url: this.getTenantDatabaseUrl(tenantId) }
-        }
+          db: { url: this.getTenantDatabaseUrl(tenantId) },
+        },
       });
       this.clients.set(tenantId, client);
     }
@@ -39,11 +39,11 @@ export class PrismaTenantService {
 export class TenantMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const tenantId = req.headers['x-tenant-id'] as string;
-    
+
     if (!tenantId) {
       throw new BadRequestException('X-Tenant-Id header required');
     }
-    
+
     req['tenantId'] = tenantId;
     next();
   }
@@ -63,5 +63,6 @@ GRANT CONNECT ON DATABASE associated_abc123 TO tenant_abc123;
 ```
 
 **Métricas:**
+
 - Conexiones por tenant monitorizadas en Sentry
 - Pool máximo por tenant: 10 conexiones

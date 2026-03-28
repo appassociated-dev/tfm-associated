@@ -16,15 +16,16 @@ export const RequirePermissions = (...permissions: Permission[]) =>
 export class PermissionsGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredPermissions = this.reflector.get<Permission[]>(
-      'permissions', context.getHandler()
+      'permissions',
+      context.getHandler(),
     );
-    
+
     if (!requiredPermissions) return true;
-    
+
     const { user } = context.switchToHttp().getRequest();
     const userPermissions = await this.getPermissions(user);
-    
-    return requiredPermissions.every(p => userPermissions.includes(p));
+
+    return requiredPermissions.every((p) => userPermissions.includes(p));
   }
 }
 ```
@@ -65,10 +66,10 @@ Ejemplos:
 
 **Roles predefinidos por tenant:**
 
-| Rol | Permisos |
-|-----|----------|
-| `admin` | Todos (`*:*:*`) |
-| `treasurer` | `treasury:*:*`, `membership:members:read` |
-| `secretary` | `membership:*:*`, `communication:*:*` |
+| Rol            | Permisos                                  |
+| -------------- | ----------------------------------------- |
+| `admin`        | Todos (`*:*:*`)                           |
+| `treasurer`    | `treasury:*:*`, `membership:members:read` |
+| `secretary`    | `membership:*:*`, `communication:*:*`     |
 | `board_member` | `*:*:read`, `events:registrations:create` |
-| `member` | Portal socio únicamente |
+| `member`       | Portal socio únicamente                   |
