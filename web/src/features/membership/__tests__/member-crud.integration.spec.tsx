@@ -8,7 +8,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { type ReactNode } from 'react';
+import { type ReactNode, type ChangeEvent } from 'react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { MantineProvider } from '@mantine/core';
 import { DatesProvider } from '@mantine/dates';
@@ -38,7 +38,17 @@ vi.mock('@mantine/dates', async () => {
   const actual = await vi.importActual('@mantine/dates');
   return {
     ...actual,
-    DateInput: ({ value, onChange, onBlur, placeholder }: any) => {
+    DateInput: ({
+      value,
+      onChange,
+      onBlur,
+      placeholder,
+    }: {
+      value?: string | Date | null;
+      onChange?: (value: string) => void;
+      onBlur?: () => void;
+      placeholder?: string;
+    }) => {
       // value es string "YYYY-MM-DD" o null (segun el schema del form)
       const displayValue = (() => {
         if (!value) return '';
@@ -63,7 +73,7 @@ vi.mock('@mantine/dates', async () => {
           type="text"
           placeholder={placeholder}
           value={displayValue}
-          onChange={(e: any) => {
+          onChange={(e: ChangeEvent<HTMLInputElement>) => {
             const raw = e.target.value;
             // Parsear DD/MM/YYYY → "YYYY-MM-DD" (lo que Mantine 8 DateInput produce)
             const parts = raw.split('/');
