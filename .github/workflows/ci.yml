@@ -124,12 +124,12 @@ jobs:
 
       - name: Setup PostgreSQL extensions
         run: |
-          psql "$DATABASE_MAIN_URL" -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
-          psql "$DATABASE_MAIN_URL" -c "CREATE EXTENSION IF NOT EXISTS \"pg_trgm\";"
-          psql "$DATABASE_MAIN_URL" -c "CREATE EXTENSION IF NOT EXISTS \"pgcrypto\";"
+          psql "${DATABASE_MAIN_URL%%\?*}" -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
+          psql "${DATABASE_MAIN_URL%%\?*}" -c "CREATE EXTENSION IF NOT EXISTS \"pg_trgm\";"
+          psql "${DATABASE_MAIN_URL%%\?*}" -c "CREATE EXTENSION IF NOT EXISTS \"pgcrypto\";"
 
       - name: Create tenant template database
-        run: psql "$DATABASE_MAIN_URL" -c "CREATE DATABASE associated_tenant_template OWNER associated;"
+        run: psql "${DATABASE_MAIN_URL%%\?*}" -c "CREATE DATABASE associated_tenant_template OWNER associated;"
 
       - name: Generate Prisma clients
         run: npm run -w api prisma:generate
