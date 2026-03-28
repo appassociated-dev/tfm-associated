@@ -291,6 +291,9 @@ npm run -w api prisma:migrate:main
 # Arrancar API y frontend
 npm run -w api start:dev   # http://localhost:3000
 npm run -w web dev         # http://localhost:5173
+
+# Provisionar primer tenant y datos iniciales
+bash doc/manual-testing/seed-data.sh
 ```
 
 Para la configuración completa del entorno de desarrollo, variables de entorno, tests y troubleshooting, consultar [SETUP.md](SETUP.md).
