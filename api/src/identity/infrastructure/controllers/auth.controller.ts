@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Body, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 import { Public } from '../auth/public.decorator';
 import { RequestWithUser } from '../../../shared/infrastructure/types/request-with-user';
@@ -38,8 +39,10 @@ export class AuthController {
   /**
    * Autenticar usuario con email y contraseña.
    * Retorna tokens JWT y datos del usuario con su tenant activo.
+   * Rate limiting estricto: 5 intentos por 10 min por IP, bloqueo 15 min (REQ-RL-002).
    */
   @Public()
+  @Throttle({ login: { ttl: 600_000, limit: 5, blockDuration: 900_000 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Autenticar usuario' })
@@ -62,8 +65,10 @@ export class AuthController {
 
   /**
    * Renovar access token usando un refresh token válido.
+   * Rate limiting moderado: 10 intentos por 10 min por IP (REQ-RL-002).
    */
   @Public()
+  @Throttle({ login: { ttl: 600_000, limit: 10 } })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Renovar access token' })

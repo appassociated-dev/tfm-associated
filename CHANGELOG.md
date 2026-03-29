@@ -7,6 +7,39 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260329-001-acester-CLAUDE
+
+- **Fecha de sesion:** 29 de marzo de 2026
+- **Hora de inicio:** 18:50
+- **Hora de ultimos trabajos:** 19:44
+- **Documento de sesion:** [doc/agents-sessions/20260329-001-acester-CLAUDE.md](doc/agents-sessions/20260329-001-acester-CLAUDE.md)
+
+#### Added
+
+- `@nestjs/throttler ^6.5.0` instalado como dependencia de produccion en `api/`
+- `ThrottlerModule.forRoot()` en `AppModule` con named throttlers: `login` (5 req/10min, blockDuration 15min) y `default` (100 req/min)
+- `ThrottlerGuard` registrado como `APP_GUARD` global — se ejecuta antes de `JwtAuthGuard` para proteccion en endpoints publicos (REQ-RL-005)
+- `@Throttle({ login: {} })` en endpoints `POST /auth/login` y `POST /auth/refresh` (REQ-RL-002)
+- `@SkipThrottle({ default: true, login: true })` en `HealthController` para excluir probes de k8s (REQ-RL-004)
+- 10 tests unitarios de throttling en `auth.controller.throttle.spec.ts`
+- 7 tests de integracion del `ThrottlerGuard` en `throttler-integration.spec.ts`
+
+#### Changed
+
+- `AppModule`: registrado `ThrottlerModule` y `ThrottlerGuard` como `APP_GUARD` (REQ-RL-001)
+- `AuthController`: decorado con `@Throttle` en login y refresh (REQ-RL-002)
+- `HealthController`: decorado con `@SkipThrottle` (REQ-RL-004)
+
+#### Fixed
+
+[Sin cambios]
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260329-001-acester-CLAUDECODE
 
 - **Fecha de sesion:** 29 de marzo de 2026
