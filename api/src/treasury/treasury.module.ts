@@ -24,6 +24,14 @@ import { GenerateMonthlyChargesHandler } from './application/commands/generate-m
 import { GenerateSubscriptionChargesHandler } from './application/commands/generate-subscription-charges.handler';
 import { RecordPaymentHandler } from './application/commands/record-payment.handler';
 import { RecordMultiChargePaymentHandler } from './application/commands/record-multi-charge-payment.handler';
+import { CreateMemberAccountHandler } from './application/commands/create-member-account.handler';
+import { OnMemberRegisteredTreasuryHandler } from './application/event-handlers/on-member-registered.treasury-handler';
+import { OnMemberDeactivatedTreasuryHandler } from './application/event-handlers/on-member-deactivated.treasury-handler';
+import { OnMemberReinstatedTreasuryHandler } from './application/event-handlers/on-member-reinstated.treasury-handler';
+import { OnMemberDataUpdatedTreasuryHandler } from './application/event-handlers/on-member-data-updated.treasury-handler';
+import { OnMemberStatusChangedTreasuryHandler } from './application/event-handlers/on-member-status-changed.treasury-handler';
+import { OnFiscalYearOpenedTreasuryHandler } from './application/event-handlers/on-fiscal-year-opened.treasury-handler';
+import { OnMemberTypeChangedTreasuryHandler } from './application/event-handlers/on-member-type-changed.treasury-handler';
 import { GetFeePlanHandler } from './application/queries/get-fee-plan.handler';
 import { ListFeePlansHandler } from './application/queries/list-fee-plans.handler';
 import { GetFeePlanTemplatesHandler } from './application/queries/get-fee-plan-templates.handler';
@@ -126,6 +134,18 @@ import {
     // Handlers CQRS — Comandos (Payments / UC-021)
     RecordPaymentHandler,
     RecordMultiChargePaymentHandler,
+
+    // Handlers CQRS — Comandos (MemberAccount — Integration Event consumers ADR-008)
+    CreateMemberAccountHandler,
+
+    // Event Handlers — Integration Events consumers BC-Membership → BC-Treasury (ADR-008)
+    OnMemberRegisteredTreasuryHandler,
+    OnMemberDeactivatedTreasuryHandler,
+    OnMemberReinstatedTreasuryHandler,
+    OnMemberDataUpdatedTreasuryHandler,
+    OnMemberStatusChangedTreasuryHandler,
+    OnFiscalYearOpenedTreasuryHandler,
+    OnMemberTypeChangedTreasuryHandler,
 
     // Handlers CQRS — Queries (FeePlan)
     GetFeePlanHandler,

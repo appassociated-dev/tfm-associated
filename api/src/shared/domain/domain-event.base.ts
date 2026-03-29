@@ -19,6 +19,8 @@ export interface DomainEventParams<TPayload> {
   eventId?: string;
   /** Fecha de ocurrencia del evento. Si se proporciona, se usa en lugar de new Date() (reconstitución desde outbox). */
   occurredOn?: Date;
+  /** ID del tenant. Solo presente en Integration Events reconstituidos desde el outbox de DB-Main. Undefined para Domain Events intra-BC. */
+  tenantId?: string;
 }
 
 /**
@@ -51,6 +53,9 @@ export abstract class DomainEvent<TPayload = unknown> {
   /** Usuario que ejecutó la acción. Undefined para operaciones de sistema. */
   readonly actorId?: string;
 
+  /** ID del tenant. Solo presente en Integration Events reconstituidos desde el outbox de DB-Main (GAP-002). Undefined para Domain Events intra-BC. */
+  readonly tenantId?: string;
+
   constructor(params: DomainEventParams<TPayload>) {
     this.eventId = params.eventId ?? uuidV4();
     this.occurredOn = params.occurredOn ?? new Date();
@@ -59,5 +64,6 @@ export abstract class DomainEvent<TPayload = unknown> {
     this.aggregateType = params.aggregateType;
     this.boundedContext = params.boundedContext;
     this.actorId = params.actorId;
+    this.tenantId = params.tenantId;
   }
 }

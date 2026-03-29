@@ -168,4 +168,29 @@ describe('DomainEvent', () => {
     expect(event.aggregateType).toBeDefined();
     expect(event.boundedContext).toBeDefined();
   });
+
+  // --- Tests A-004: tenantId propagation (REQ-IEC-001, REQ-IEC-003) ---
+
+  it('tenantId es undefined cuando no se proporciona (retrocompatibilidad)', () => {
+    // Test 1: retrocompatibilidad — eventos de dominio intra-BC no tienen tenantId
+    const event = new TestEvent({
+      payload: { memberId: '1', name: 'Test' },
+      aggregateId: 'agg-001',
+      aggregateType: 'TestAggregate',
+      boundedContext: 'BC-Test',
+    });
+    expect(event.tenantId).toBeUndefined();
+  });
+
+  it('preserva tenantId cuando se proporciona (Integration Event reconstituido)', () => {
+    // Test 2: Integration Events reconstituidos desde outbox sí tienen tenantId
+    const event = new TestEvent({
+      payload: { memberId: '1', name: 'Test' },
+      aggregateId: 'agg-001',
+      aggregateType: 'TestAggregate',
+      boundedContext: 'BC-Test',
+      tenantId: 'T-001',
+    });
+    expect(event.tenantId).toBe('T-001');
+  });
 });

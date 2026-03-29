@@ -29,6 +29,7 @@ const makeOutboxRow = (
     aggregateType: string;
     boundedContext: string;
     actorId: string | null;
+    tenantId: string | null;
     createdAt: Date;
     retryCount: number;
     maxRetries: number;
@@ -43,6 +44,7 @@ const makeOutboxRow = (
   aggregateType: 'Member',
   boundedContext: 'BC-Membership',
   actorId: '550e8400-e29b-41d4-a716-000000000003',
+  tenantId: 'tenant-abc',
   createdAt: new Date('2026-01-01T10:00:00Z'),
   retryCount: 0,
   maxRetries: 3,
@@ -99,6 +101,28 @@ describe('EventReconstitutionRegistry', () => {
       const event = registry.reconstitute(row.eventType, row);
 
       expect(event.actorId).toBeUndefined();
+    });
+
+    // Tests A-004: tenantId propagation (REQ-IEC-002, REQ-IEC-003)
+
+    it('deberia propagar tenantId desde la fila del outbox al evento reconstituido', () => {
+      // Test 3: row.tenantId='abc' → event.tenantId === 'abc'
+      registry.register('MemberRegistered', MemberRegisteredEvent);
+
+      const row = makeOutboxRow({ tenantId: 'tenant-123' });
+      const event = registry.reconstitute(row.eventType, row);
+
+      expect(event.tenantId).toBe('tenant-123');
+    });
+
+    it('deberia mapear tenantId null del outbox a undefined en el evento (REQ-IEC-003)', () => {
+      // Test 4: row.tenantId=null → event.tenantId === undefined, sin error
+      registry.register('MemberRegistered', MemberRegisteredEvent);
+
+      const row = makeOutboxRow({ tenantId: null });
+      const event = registry.reconstitute(row.eventType, row);
+
+      expect(event.tenantId).toBeUndefined();
     });
   });
 

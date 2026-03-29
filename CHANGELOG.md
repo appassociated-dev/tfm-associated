@@ -7,6 +7,39 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260329-001-acester-CLAUDECODE
+
+- **Fecha de sesion:** 29 de marzo de 2026
+- **Hora de inicio:** 05:19
+- **Hora de ultimos trabajos:** 18:17
+- **Documento de sesion:** [doc/agents-sessions/20260329-001-acester-CLAUDECODE.md](doc/agents-sessions/20260329-001-acester-CLAUDECODE.md)
+
+#### Added
+
+- Campo `tenantId` opcional en `DomainEvent` base class y `DomainEventParams` para propagar tenant context en Integration Events reconstituidos (ADR-008)
+- `CreateMemberAccountCommand` + `CreateMemberAccountHandler` en BC-Treasury con check de idempotencia via `existsByMemberId()` (UC-006, UC-011)
+- 7 `@EventsHandler` en BC-Treasury para consumir Integration Events de BC-Membership: `OnMemberRegistered`, `OnMemberDeactivated`, `OnMemberReinstated`, `OnMemberDataUpdated` (stub), `OnMemberStatusChanged` (stub), `OnFiscalYearOpened`, `OnMemberTypeChanged` (ADR-008, UC-006/007/010/011/013)
+- `OnPaymentRecordedMembershipHandler` en BC-Membership para reaccionar a `PaymentRecorded` de BC-Treasury: actualiza estado de morosidad PENDING_PAYMENT → ACTIVE (ADR-008, UC-021)
+- Integration test del pipeline completo de consumo: outbox row → reconstitución → EventBus → @EventsHandler → CommandBus (3 escenarios: happy path, null tenantId, error isolation)
+
+#### Changed
+
+- `OutboxEventRow` interface incluye `tenantId: string | null` mapeado desde columna `tenant_id` de outbox_events
+- `EventReconstitutionRegistry.reconstitute()` propaga `tenantId` del outbox row al evento reconstituido
+
+#### Fixed
+
+- Bug de serializacion Date en `OnFiscalYearOpenedTreasuryHandler`: `.getMonth()` sobre string del JSON retornaba NaN — corregido con `new Date()` parsing (Judgment Day Round 1)
+- Stub handlers con `constructor(unknown)` rompia NestJS DI — corregido con `CommandBus` tipado + tenantId guard + try/catch (Judgment Day Round 1)
+- `OnMemberDeactivatedTreasuryHandler`: try/catch envolvia todo el loop de subscripciones — movido dentro del loop para aislamiento per-subscripcion (Judgment Day Round 1)
+- Ternary muerto `defaultPlan ? 0 : 0` en `OnMemberTypeChangedTreasuryHandler` reemplazado por constante con TODO (Judgment Day Round 1)
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260328-002-acester-CLAUDECODE
 
 - **Fecha de sesión:** 28 de marzo de 2026

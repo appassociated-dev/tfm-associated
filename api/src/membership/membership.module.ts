@@ -20,6 +20,7 @@ import { SimpleRegistrationHandler } from './application/commands/simple-registr
 import { ProcessVoluntaryLeaveHandler } from './application/commands/voluntary-leave.handler';
 import { ProcessNonpaymentLeaveHandler } from './application/commands/nonpayment-leave.handler';
 import { ReinstateMemberHandler } from './application/commands/reinstate-member.handler';
+import { OnPaymentRecordedMembershipHandler } from './application/event-handlers/on-payment-recorded.membership-handler';
 import { GetMemberTypeHandler } from './application/queries/get-member-type.handler';
 import { ListMemberTypesHandler } from './application/queries/list-member-types.handler';
 import { GetTemplatesHandler } from './application/queries/get-templates.handler';
@@ -123,6 +124,9 @@ import {
     ProcessVoluntaryLeaveHandler,
     ProcessNonpaymentLeaveHandler,
     ReinstateMemberHandler,
+
+    // Handlers de integración — EventsHandlers cross-BC (ADR-008)
+    OnPaymentRecordedMembershipHandler,
 
     // Handlers CQRS — Queries (MemberType)
     GetMemberTypeHandler,

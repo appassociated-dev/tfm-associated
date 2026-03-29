@@ -20,6 +20,8 @@ export interface OutboxEventRow {
   boundedContext: string;
   /** ID del actor. Null para operaciones de sistema. */
   actorId: string | null;
+  /** ID del tenant. Null para eventos de BC-Identity (sin tenant). */
+  tenantId: string | null;
   /** Fecha de creación en el outbox (corresponde a occurredOn del evento). */
   createdAt: Date;
   /** Número de reintentos realizados. */
@@ -89,7 +91,8 @@ export class EventReconstitutionRegistry {
       throw new EventTypeNotRegisteredError(eventType);
     }
 
-    // Pasar eventId y occurredOn por constructor para preservar la identidad original del evento
+    // Pasar eventId y occurredOn por constructor para preservar la identidad original del evento.
+    // tenantId se propaga desde la columna tenant_id del outbox para que los @EventsHandler lo dispongan.
     const instance = new EventClass({
       payload: row.payload,
       aggregateId: row.aggregateId,
@@ -98,6 +101,7 @@ export class EventReconstitutionRegistry {
       actorId: row.actorId ?? undefined,
       eventId: row.id,
       occurredOn: row.createdAt,
+      tenantId: row.tenantId ?? undefined,
     });
 
     return instance;
