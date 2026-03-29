@@ -17,5 +17,5 @@ export interface MemberRegisteredPayload {
  * Consumido por BC-Treasury (crear MemberAccount + MandatoSepa) y BC-Communication (email bienvenida).
  */
 export class MemberRegisteredEvent extends DomainEvent<MemberRegisteredPayload> {
-  readonly eventType = 'member.registered';
+  readonly eventType = 'MemberRegistered';
 }

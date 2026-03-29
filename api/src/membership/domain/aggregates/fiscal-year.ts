@@ -235,12 +235,17 @@ export class FiscalYear extends AggregateRoot<FiscalYearId> {
 
     this.addDomainEvent(
       new FiscalYearOpenedEvent({
-        fiscalYearId: this.id.toValue(),
-        name: this._name,
-        startDate: this._period.startDate,
-        endDate: this._period.endDate,
-        carriedOverMembers: carriedOverMembersCount,
-        appliedTransitions: [],
+        payload: {
+          fiscalYearId: this.id.toValue(),
+          name: this._name,
+          startDate: this._period.startDate,
+          endDate: this._period.endDate,
+          carriedOverMembers: carriedOverMembersCount,
+          appliedTransitions: [],
+        },
+        aggregateId: this.id.toValue(),
+        aggregateType: 'FiscalYear',
+        boundedContext: 'BC-Membership',
       }),
     );
   }
@@ -262,11 +267,16 @@ export class FiscalYear extends AggregateRoot<FiscalYearId> {
 
     this.addDomainEvent(
       new FiscalYearClosedEvent({
-        fiscalYearId: this.id.toValue(),
-        name: this._name,
-        membersAtEnd,
-        closedAt: this._closedAt,
-        warnings,
+        payload: {
+          fiscalYearId: this.id.toValue(),
+          name: this._name,
+          membersAtEnd,
+          closedAt: this._closedAt,
+          warnings,
+        },
+        aggregateId: this.id.toValue(),
+        aggregateType: 'FiscalYear',
+        boundedContext: 'BC-Membership',
       }),
     );
   }

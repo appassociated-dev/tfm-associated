@@ -21,7 +21,7 @@ import {
   AgeNotEligibleError,
 } from '../../../domain/exceptions';
 import { ErrorReporter } from '../../../../shared/domain';
-import { MemberOutboxPublisher } from '../../ports/member-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 
 /** Helper: crea un MemberType reconstituido activo con rango de edad. */
 function createActiveMemberType(
@@ -134,7 +134,7 @@ describe('CreateMemberHandler', () => {
   let memberRepository: MemberRepository;
   let memberTypeRepository: MemberTypeRepository;
   let errorReporter: ErrorReporter;
-  let outboxPublisher: MemberOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
 
   beforeEach(() => {
     memberRepository = {

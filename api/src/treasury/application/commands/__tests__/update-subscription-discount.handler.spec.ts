@@ -3,7 +3,7 @@ import { UpdateSubscriptionDiscountHandler } from '../update-subscription-discou
 import { UpdateSubscriptionDiscountCommand } from '../update-subscription-discount.command';
 import { MemberAccountRepository } from '../../../domain/repositories/member-account.repository';
 import { FeePlanRepository } from '../../../domain/repositories/fee-plan.repository';
-import { TreasuryOutboxPublisher } from '../../ports/treasury-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { MemberAccount } from '../../../domain/aggregates/member-account';
 import { FeePlan } from '../../../domain/aggregates/fee-plan';
 import { FeeSubscription } from '../../../domain/entities/fee-subscription';
@@ -69,7 +69,7 @@ describe('UpdateSubscriptionDiscountHandler', () => {
   let handler: UpdateSubscriptionDiscountHandler;
   let memberAccountRepository: MemberAccountRepository;
   let feePlanRepository: FeePlanRepository;
-  let outboxPublisher: TreasuryOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
 
   beforeEach(() => {
     memberAccountRepository = {

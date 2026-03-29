@@ -20,7 +20,7 @@ import {
   OptimisticLockingError,
 } from '../../../domain/exceptions';
 import { ErrorReporter } from '../../../../shared/domain';
-import { MemberOutboxPublisher } from '../../ports/member-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 
 const TENANT_ID = 'tenant-uuid-1234';
 const MEMBER_ID = 'b1ffbc99-9c0b-4ef8-bb6d-6bb9bd380a22';
@@ -88,7 +88,7 @@ describe('UpdateMemberHandler', () => {
   let memberRepository: MemberRepository;
   let memberTypeRepository: MemberTypeRepository;
   let errorReporter: ErrorReporter;
-  let outboxPublisher: MemberOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
 
   beforeEach(() => {
     memberRepository = {

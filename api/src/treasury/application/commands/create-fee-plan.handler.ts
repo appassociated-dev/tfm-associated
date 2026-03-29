@@ -7,9 +7,9 @@ import {
   FeePlanRepository,
 } from '../../domain/repositories/fee-plan.repository';
 import {
-  TREASURY_OUTBOX_PUBLISHER,
-  TreasuryOutboxPublisher,
-} from '../ports/treasury-outbox.publisher';
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 import { FeePlan } from '../../domain/aggregates/fee-plan';
 import { FeePlanCode } from '../../domain/value-objects/fee-plan-code';
 import { FeePlanCodeAlreadyExistsError } from '../../domain/exceptions';
@@ -23,8 +23,8 @@ export class CreateFeePlanHandler implements ICommandHandler<CreateFeePlanComman
   constructor(
     @Inject(FEE_PLAN_REPOSITORY)
     private readonly feePlanRepository: FeePlanRepository,
-    @Inject(TREASURY_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: TreasuryOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
   ) {}
 
   async execute(command: CreateFeePlanCommand): Promise<FeePlanResponseDto> {

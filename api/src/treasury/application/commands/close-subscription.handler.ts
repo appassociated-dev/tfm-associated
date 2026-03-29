@@ -6,9 +6,9 @@ import {
   MemberAccountRepository,
 } from '../../domain/repositories/member-account.repository';
 import {
-  TREASURY_OUTBOX_PUBLISHER,
-  TreasuryOutboxPublisher,
-} from '../ports/treasury-outbox.publisher';
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 import { MemberAccountId } from '../../domain/value-objects/member-account-id';
 import { SubscriptionId } from '../../domain/value-objects/subscription-id';
 import { SubscriptionCancelReason } from '../../domain/value-objects/subscription-cancel-reason';
@@ -24,8 +24,8 @@ export class CloseSubscriptionHandler implements ICommandHandler<CloseSubscripti
   constructor(
     @Inject(MEMBER_ACCOUNT_REPOSITORY)
     private readonly memberAccountRepository: MemberAccountRepository,
-    @Inject(TREASURY_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: TreasuryOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
   ) {}
 
   async execute(command: CloseSubscriptionCommand): Promise<void> {

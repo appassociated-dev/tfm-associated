@@ -14,5 +14,5 @@ export interface SubscriptionClosedPayload {
  * Se dispara cuando un socio causa baja y su suscripción deja de estar vigente.
  */
 export class SubscriptionClosedEvent extends DomainEvent<SubscriptionClosedPayload> {
-  readonly eventType = 'subscription.closed';
+  readonly eventType = 'SubscriptionClosed';
 }

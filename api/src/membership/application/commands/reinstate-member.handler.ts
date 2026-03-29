@@ -11,7 +11,10 @@ import {
   SUBSCRIPTION_QUERY_PORT,
   SubscriptionQueryPort,
 } from '../../domain/ports/subscription-query.port';
-import { MEMBER_OUTBOX_PUBLISHER, MemberOutboxPublisher } from '../ports/member-outbox.publisher';
+import {
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 import { PrismaTenantService } from '../../../shared/infrastructure/persistence/prisma-tenant.service';
 import { MemberId } from '../../domain/value-objects/member-id';
 import { StatusChangeReason } from '../../domain/value-objects/status-change-reason';
@@ -38,8 +41,8 @@ export class ReinstateMemberHandler implements ICommandHandler<ReinstateMemberCo
     private readonly statusHistoryRepository: StatusHistoryRepository,
     @Inject(SUBSCRIPTION_QUERY_PORT)
     private readonly subscriptionQueryPort: SubscriptionQueryPort,
-    @Inject(MEMBER_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: MemberOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
     private readonly prismaTenantService: PrismaTenantService,
   ) {}
 

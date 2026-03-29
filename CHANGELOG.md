@@ -7,7 +7,74 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-[Vacio pendiente de iniciar nuevas sesiones]
+### 20260328-002-acester-CLAUDECODE
+
+- **Fecha de sesión:** 28 de marzo de 2026
+- **Hora de inicio:** 18:14
+- **Hora de últimos trabajos:** 00:52
+- **Documento de sesión:** [doc/agents-sessions/20260328-002-acester-CLAUDECODE.md](doc/agents-sessions/20260328-002-acester-CLAUDECODE.md)
+
+#### Added
+
+- `IntegrationEventPublisher` — puerto + implementación `PrismaIntegrationEventPublisher` para publicar Integration Events en outbox de main DB (ADR-008, ENT-006)
+- `DomainAuditPublisher` — puerto + implementación `PrismaDomainAuditPublisher` para audit-only en tenant DB dentro de la misma transacción de negocio (ENT-017)
+- `EventReconstitutionRegistry` — registro de eventType → clase para reconstituir eventos tipados desde JSON; los 3 BCs registran 24 tipos en `onModuleInit`
+- `OutboxProcessorModule` (`@Global`) — módulo compartido que exporta ambos publishers y el registry; registrado en AppModule
+- Columna `processingStartedAt` en main DB `outbox_events` para stale recovery correcto (Judgment Day)
+- Integration tests del pipeline outbox y del publisher (pending→processed, stale recovery, dual-write)
+- 30+ unit tests para la nueva infraestructura de eventos (publishers, registry, processor)
+
+#### Changed
+
+- `DomainEvent` base class — añadidos 4 campos (`aggregateId`, `aggregateType`, `boundedContext`, `actorId`); constructor migrado a params object; soporte opcional `eventId`/`occurredOn` para reconstitución
+- `OutboxProcessorService` — reescritura completa: polling cada 5s, batch de 50, mutex en-proceso, stale recovery con `processingStartedAt`, dispatch a EventBus, aislamiento de errores por evento
+- 24 subclases `DomainEvent` actualizadas (5 Identity, 9 Membership, 10 Treasury): `eventType` en PascalCase, nuevo constructor con params object
+- BC-Membership (6 handlers) y BC-Treasury (12 handlers): migrados de publishers BC-específicos a `INTEGRATION_EVENT_PUBLISHER` compartido
+- BC-Identity `ProvisionTenantHandler`: ahora publica eventos (antes se descartaban silenciosamente)
+- Schemas Prisma main (`OutboxEvent`) y tenant (`OutboxEvent`) reescritos per ENT-006 y ENT-017 con las migraciones correspondientes
+- `PrismaMainService` — añadido método `$transaction` delegado al cliente Prisma
+
+#### Fixed
+
+- Stale recovery usaba `createdAt` en lugar de `processingStartedAt` — corregido con nueva columna (Judgment Day Round 1)
+- `updateMany` del processor sin filtro `status: 'pending'` — podía actualizar rows ya `processed` o `failed` (Judgment Day Round 1)
+- 5 tests de dominio con `eventType` en formato legacy (dot-notation / kebab) — actualizados a PascalCase
+
+#### Removed
+
+- `PrismaMemberOutboxPublisher` + port de BC-Membership (reemplazado por publisher compartido)
+- `PrismaTreasuryOutboxPublisher` + port de BC-Treasury (reemplazado por publisher compartido)
+
+---
+
+### 20260328-001-acester-CLAUDECODE
+
+- **Fecha de sesión:** 28 de marzo de 2026
+- **Hora de inicio:** 11:00
+- **Hora de últimos trabajos:** 18:32
+- **Documento de sesión:** [doc/agents-sessions/20260328-001-acester-CLAUDECODE.md](doc/agents-sessions/20260328-001-acester-CLAUDECODE.md)
+
+#### Added
+
+- RNF-067 "Entrega Garantizada de Integration Events" con criterios at-least-once delivery, retry policy y stale recovery
+
+#### Changed
+
+- ADR-004 y ADR-008 reescritos con nueva estrategia dual de eventos: Domain Events (audit-only en tenant DB) e Integration Events (Outbox Pattern en main DB)
+- ENT-006 (main DB) y ENT-017 (tenant DB) redefinidos con schemas diferenciados para Integration Events y Domain Events respectivamente
+- Tablas de eventos por BC en modelo de dominio reclasificadas con columna "Tipo" (Integration | Domain)
+- UC-047 re-arquitectado: OutboxProcessor reemplaza @OnEvent in-process para consumo de Integration Events
+- UC-048 corregido: generación PDF por llamada directa en command handler, sin @OnEvent
+- Renombrado global en spec/: "Business Events" → "Integration Events", "Internal Events" → "Domain Events"
+
+#### Fixed
+
+- Trazabilidad rota ENT-006 y ENT-017: RNF-015 (inexistente para eventos) reemplazado por RNF-067
+- Anchor roto en índice de ADR-008 en spec/006_adrs.md
+
+#### Removed
+
+[Sin cambios]
 
 ---
 

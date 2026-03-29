@@ -9,6 +9,7 @@ import { DocumentsModule } from './documents/documents.module';
 import { ObservabilityModule } from './shared/infrastructure/observability/observability.module';
 import { TenantCredentialsModule } from './shared/infrastructure/modules/tenant-credentials.module';
 import { HealthModule } from './shared/infrastructure/health/health.module';
+import { OutboxProcessorModule } from './shared/infrastructure/persistence/outbox-processor.module';
 
 /**
  * Módulo raíz de la aplicación.
@@ -24,6 +25,7 @@ import { HealthModule } from './shared/infrastructure/health/health.module';
     ScheduleModule.forRoot(),
     TenantCredentialsModule,
     ObservabilityModule.register(),
+    OutboxProcessorModule,
     HealthModule,
     IdentityModule,
     MembershipModule,

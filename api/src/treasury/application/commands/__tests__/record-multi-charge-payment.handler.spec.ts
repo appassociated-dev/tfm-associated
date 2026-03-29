@@ -4,7 +4,7 @@ import { RecordMultiChargePaymentHandler } from '../record-multi-charge-payment.
 import { RecordMultiChargePaymentCommand } from '../record-multi-charge-payment.command';
 import { MemberAccountRepository } from '../../../domain/repositories/member-account.repository';
 import { PaymentRepository } from '../../../domain/repositories/payment.repository';
-import { TreasuryOutboxPublisher } from '../../ports/treasury-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { MemberAccount } from '../../../domain/aggregates/member-account';
 import { Charge } from '../../../domain/entities/charge';
 import {
@@ -83,7 +83,7 @@ describe('RecordMultiChargePaymentHandler', () => {
   let handler: RecordMultiChargePaymentHandler;
   let memberAccountRepository: MemberAccountRepository;
   let paymentRepository: PaymentRepository;
-  let outboxPublisher: TreasuryOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
   let receiptSeq: number;
 
   beforeEach(() => {
@@ -147,8 +147,8 @@ describe('RecordMultiChargePaymentHandler', () => {
     expect(outboxPublisher.publish).toHaveBeenCalledWith(
       TENANT_ID,
       expect.arrayContaining([
-        expect.objectContaining({ eventType: 'payment.recorded' }),
-        expect.objectContaining({ eventType: 'receipt.generated' }),
+        expect.objectContaining({ eventType: 'PaymentRecorded' }),
+        expect.objectContaining({ eventType: 'ReceiptGenerated' }),
       ]),
     );
   });

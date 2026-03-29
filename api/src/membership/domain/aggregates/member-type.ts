@@ -256,11 +256,16 @@ export class MemberType extends AggregateRoot<MemberTypeId> {
     // Emitir evento de dominio
     memberType.addDomainEvent(
       new MemberTypeCreatedEvent({
-        memberTypeId: memberTypeId.toValue(),
-        code: codeResult.value.value,
-        name: props.name,
-        description: props.description,
-        tenantId: props.tenantId,
+        payload: {
+          memberTypeId: memberTypeId.toValue(),
+          code: codeResult.value.value,
+          name: props.name,
+          description: props.description,
+          tenantId: props.tenantId,
+        },
+        aggregateId: memberTypeId.toValue(),
+        aggregateType: 'MemberType',
+        boundedContext: 'BC-Membership',
       }),
     );
 

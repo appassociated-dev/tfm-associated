@@ -4,7 +4,7 @@ import { ProcessNonpaymentLeaveCommand } from '../nonpayment-leave.command';
 import { MemberRepository } from '../../../domain/repositories/member.repository';
 import { StatusHistoryRepository } from '../../../domain/repositories/status-history.repository';
 import { SubscriptionQueryPort } from '../../../domain/ports/subscription-query.port';
-import { MemberOutboxPublisher } from '../../ports/member-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { Member } from '../../../domain/aggregates/member';
 import { MemberId } from '../../../domain/value-objects/member-id';
 import { MemberTypeId } from '../../../domain/value-objects/member-type-id';
@@ -73,7 +73,7 @@ describe('ProcessNonpaymentLeaveHandler', () => {
   let memberRepository: MemberRepository;
   let statusHistoryRepository: StatusHistoryRepository;
   let subscriptionQueryPort: SubscriptionQueryPort;
-  let outboxPublisher: MemberOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
   let prismaTenantService: { getClient: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {

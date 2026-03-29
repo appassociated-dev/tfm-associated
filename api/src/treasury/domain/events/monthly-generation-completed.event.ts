@@ -19,5 +19,5 @@ export interface MonthlyGenerationCompletedPayload {
  * Útil para auditoría y alertas al tesorero.
  */
 export class MonthlyGenerationCompletedEvent extends DomainEvent<MonthlyGenerationCompletedPayload> {
-  readonly eventType = 'monthly-generation.completed';
+  readonly eventType = 'MonthlyGenerationCompleted';
 }

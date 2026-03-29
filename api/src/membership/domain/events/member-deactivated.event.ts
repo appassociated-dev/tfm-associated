@@ -21,5 +21,5 @@ export interface MemberDeactivatedPayload {
  * Consumido por BC-Treasury (cancelar suscripciones, cerrar cuenta) y BC-Communication (notificación).
  */
 export class MemberDeactivatedEvent extends DomainEvent<MemberDeactivatedPayload> {
-  readonly eventType = 'member.deactivated';
+  readonly eventType = 'MemberDeactivated';
 }

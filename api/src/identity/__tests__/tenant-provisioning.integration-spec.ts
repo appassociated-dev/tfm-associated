@@ -7,6 +7,7 @@ import { TenantProvisioningFailedError } from '../domain/exceptions/tenant-provi
 import type { DatabaseProvisioningPort } from '../application/ports/database-provisioning.port';
 import type { TenantCredentialPort } from '../application/ports/tenant-credential.port';
 import type { ErrorReporter } from '../../shared/domain';
+import type { IntegrationEventPublisher } from '../../shared/application/ports/integration-event.publisher';
 import { PrismaMainService } from '../../shared/infrastructure/persistence/prisma-main.service';
 import { PrismaTenantRepository } from '../infrastructure/persistence/prisma-tenant.repository';
 import { DatabaseProvisioningService } from '../infrastructure/services/database-provisioning.service';
@@ -190,11 +191,16 @@ describe('TenantProvisioning Integration', () => {
       getCredentials: vi.fn().mockResolvedValue(null),
     };
 
+    const integrationEventPublisher: IntegrationEventPublisher = {
+      publish: vi.fn().mockResolvedValue(undefined),
+    };
+
     handler = new ProvisionTenantHandler(
       tenantRepository,
       dbProvisioningService as unknown as DatabaseProvisioningPort,
       tenantCredentialPort,
       errorReporter,
+      integrationEventPublisher,
     );
   });
 
@@ -393,11 +399,15 @@ describe('TenantProvisioning Integration', () => {
       persistCredentials: vi.fn().mockResolvedValue(undefined),
       getCredentials: vi.fn().mockResolvedValue(null),
     };
+    const failingPublisher: IntegrationEventPublisher = {
+      publish: vi.fn().mockResolvedValue(undefined),
+    };
     const failingHandler = new ProvisionTenantHandler(
       tenantRepository,
       failingDbService,
       failingCredentialPort,
       errorReporter,
+      failingPublisher,
     );
 
     const command = createValidCommand('B65410011');

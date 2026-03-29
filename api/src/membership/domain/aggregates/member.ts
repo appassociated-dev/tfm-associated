@@ -254,14 +254,19 @@ export class Member extends AggregateRoot<MemberId> {
     // Emitir evento MemberRegistered
     member.addDomainEvent(
       new MemberRegisteredEvent({
-        memberId: id.toValue(),
-        memberNumber: props.memberNumber.value,
-        name: props.personalData.name,
-        surnames: props.personalData.surnames,
-        email: props.contactData.email,
-        memberTypeId: props.memberTypeId.toValue(),
-        registrationDate: now,
-        iban: props.bankDetails?.iban,
+        payload: {
+          memberId: id.toValue(),
+          memberNumber: props.memberNumber.value,
+          name: props.personalData.name,
+          surnames: props.personalData.surnames,
+          email: props.contactData.email,
+          memberTypeId: props.memberTypeId.toValue(),
+          registrationDate: now,
+          iban: props.bankDetails?.iban,
+        },
+        aggregateId: id.toValue(),
+        aggregateType: 'Member',
+        boundedContext: 'BC-Membership',
       }),
     );
 
@@ -340,12 +345,17 @@ export class Member extends AggregateRoot<MemberId> {
     // Emitir evento de dominio
     this.addDomainEvent(
       new MemberStatusChangedEvent({
-        memberId: this._id.toValue(),
-        previousStatus: previousStatus.value,
-        newStatus: newStatus.value,
-        reason: reason.value,
-        changedBy,
-        changedAt: now,
+        payload: {
+          memberId: this._id.toValue(),
+          previousStatus: previousStatus.value,
+          newStatus: newStatus.value,
+          reason: reason.value,
+          changedBy,
+          changedAt: now,
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'Member',
+        boundedContext: 'BC-Membership',
       }),
     );
 
@@ -366,10 +376,15 @@ export class Member extends AggregateRoot<MemberId> {
 
     this.addDomainEvent(
       new MemberDataUpdatedEvent({
-        memberId: this._id.toValue(),
-        modifiedFields: ['personalData'],
-        ibanChanged: false,
-        updateDate: new Date(),
+        payload: {
+          memberId: this._id.toValue(),
+          modifiedFields: ['personalData'],
+          ibanChanged: false,
+          updateDate: new Date(),
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'Member',
+        boundedContext: 'BC-Membership',
       }),
     );
   }
@@ -386,11 +401,16 @@ export class Member extends AggregateRoot<MemberId> {
 
     this.addDomainEvent(
       new MemberDataUpdatedEvent({
-        memberId: this._id.toValue(),
-        modifiedFields: ['contactData'],
-        newEmail: emailChanged ? newContactData.email : undefined,
-        ibanChanged: false,
-        updateDate: new Date(),
+        payload: {
+          memberId: this._id.toValue(),
+          modifiedFields: ['contactData'],
+          newEmail: emailChanged ? newContactData.email : undefined,
+          ibanChanged: false,
+          updateDate: new Date(),
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'Member',
+        boundedContext: 'BC-Membership',
       }),
     );
   }
@@ -406,11 +426,16 @@ export class Member extends AggregateRoot<MemberId> {
 
     this.addDomainEvent(
       new MemberDataUpdatedEvent({
-        memberId: this._id.toValue(),
-        modifiedFields: ['bankDetails'],
-        newIban: newBankDetails.iban,
-        ibanChanged: true,
-        updateDate: new Date(),
+        payload: {
+          memberId: this._id.toValue(),
+          modifiedFields: ['bankDetails'],
+          newIban: newBankDetails.iban,
+          ibanChanged: true,
+          updateDate: new Date(),
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'Member',
+        boundedContext: 'BC-Membership',
       }),
     );
   }
@@ -519,12 +544,17 @@ export class Member extends AggregateRoot<MemberId> {
     // Emitir evento específico de baja con payload enriquecido
     this.addDomainEvent(
       new MemberDeactivatedEvent({
-        memberId: this._id.toValue(),
-        memberNumber: this._memberNumber?.value ?? '',
-        leaveType: leaveStatus.value,
-        effectiveDate,
-        reason: reason.value,
-        pendingDebt,
+        payload: {
+          memberId: this._id.toValue(),
+          memberNumber: this._memberNumber?.value ?? '',
+          leaveType: leaveStatus.value,
+          effectiveDate,
+          reason: reason.value,
+          pendingDebt,
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'Member',
+        boundedContext: 'BC-Membership',
       }),
     );
 
@@ -582,12 +612,17 @@ export class Member extends AggregateRoot<MemberId> {
     // Emitir evento específico de rehabilitación
     this.addDomainEvent(
       new MemberReinstatedEvent({
-        memberId: this._id.toValue(),
-        memberNumber: this._memberNumber?.value ?? '',
-        previousLeaveType,
-        reinstatementDate,
-        debtPaid,
-        seniorityRecovered: keepSeniority,
+        payload: {
+          memberId: this._id.toValue(),
+          memberNumber: this._memberNumber?.value ?? '',
+          previousLeaveType,
+          reinstatementDate,
+          debtPaid,
+          seniorityRecovered: keepSeniority,
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'Member',
+        boundedContext: 'BC-Membership',
       }),
     );
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit, Inject } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { MemberTypesController } from './infrastructure/controllers/member-types.controller';
 import { FiscalYearsController } from './infrastructure/controllers/fiscal-years.controller';
@@ -50,12 +50,23 @@ import { SUBSCRIPTION_QUERY_PORT } from './domain/ports/subscription-query.port'
 import { PrismaSubscriptionQueryAdapter } from './infrastructure/ports/prisma-subscription-query.adapter';
 import { MemberPrismaMapper } from './infrastructure/persistence/member-prisma.mapper';
 import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma-tenant.service';
-import { PrismaMemberOutboxPublisher } from './infrastructure/services/prisma-member-outbox.publisher';
-import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publisher';
+import { EventReconstitutionRegistry } from '../shared/infrastructure/persistence/event-reconstitution.registry';
+import {
+  FiscalYearClosedEvent,
+  FiscalYearOpenedEvent,
+  MemberDataUpdatedEvent,
+  MemberDeactivatedEvent,
+  MemberRegisteredEvent,
+  MemberReinstatedEvent,
+  MemberStatusChangedEvent,
+  MemberTypeChangedEvent,
+  MemberTypeCreatedEvent,
+} from './domain/events';
 
 /**
  * BC-Membership: Socios, tipos, ejercicios fiscales, altas y carnets.
- * Módulo autocontenido según ADR-003.
+ * Módulo autocontenido según ADR-003. Implementa OnModuleInit para registrar
+ * los 9 tipos de eventos de BC-Membership en EventReconstitutionRegistry.
  *
  * Registra:
  * - CqrsModule para Command/Query handling (ADR-004)
@@ -176,14 +187,32 @@ import { MEMBER_OUTBOX_PUBLISHER } from './application/ports/member-outbox.publi
     // Mapper inyectable para Member
     MemberPrismaMapper,
 
-    {
-      provide: MEMBER_OUTBOX_PUBLISHER,
-      useClass: PrismaMemberOutboxPublisher,
-    },
+    // INTEGRATION_EVENT_PUBLISHER provisto globalmente por OutboxProcessorModule
 
     // Servicios de infraestructura compartidos
     PrismaTenantService,
   ],
   exports: [],
 })
-export class MembershipModule {}
+export class MembershipModule implements OnModuleInit {
+  constructor(
+    @Inject(EventReconstitutionRegistry)
+    private readonly registry: EventReconstitutionRegistry,
+  ) {}
+
+  /**
+   * Registra los 9 tipos de eventos de BC-Membership en el EventReconstitutionRegistry.
+   * Permite que OutboxProcessorService reconstituya eventos tipados al procesarlos.
+   */
+  onModuleInit(): void {
+    this.registry.register('FiscalYearClosed', FiscalYearClosedEvent);
+    this.registry.register('FiscalYearOpened', FiscalYearOpenedEvent);
+    this.registry.register('MemberDataUpdated', MemberDataUpdatedEvent);
+    this.registry.register('MemberDeactivated', MemberDeactivatedEvent);
+    this.registry.register('MemberRegistered', MemberRegisteredEvent);
+    this.registry.register('MemberReinstated', MemberReinstatedEvent);
+    this.registry.register('MemberStatusChanged', MemberStatusChangedEvent);
+    this.registry.register('MemberTypeChanged', MemberTypeChangedEvent);
+    this.registry.register('MemberTypeCreated', MemberTypeCreatedEvent);
+  }
+}

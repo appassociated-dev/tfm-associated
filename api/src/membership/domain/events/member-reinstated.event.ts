@@ -21,5 +21,5 @@ export interface MemberReinstatedPayload {
  * Consumido por BC-Treasury (reactivar cuenta, crear suscripciones) y BC-Communication (notificación).
  */
 export class MemberReinstatedEvent extends DomainEvent<MemberReinstatedPayload> {
-  readonly eventType = 'member.reinstated';
+  readonly eventType = 'MemberReinstated';
 }

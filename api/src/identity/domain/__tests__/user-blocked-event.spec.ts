@@ -11,14 +11,24 @@ describe('UserBlockedEvent', () => {
   };
 
   it('debería crear el evento con un payload válido', () => {
-    const event = new UserBlockedEvent(validPayload);
+    const event = new UserBlockedEvent({
+      payload: validPayload,
+      aggregateId: validPayload.userId,
+      aggregateType: 'User',
+      boundedContext: 'BC-Identity',
+    });
 
     expect(event.payload).toEqual(validPayload);
   });
 
-  it('debería tener eventType "identity.user.blocked"', () => {
-    const event = new UserBlockedEvent(validPayload);
+  it('debería tener eventType "UserBlocked"', () => {
+    const event = new UserBlockedEvent({
+      payload: validPayload,
+      aggregateId: validPayload.userId,
+      aggregateType: 'User',
+      boundedContext: 'BC-Identity',
+    });
 
-    expect(event.eventType).toBe('identity.user.blocked');
+    expect(event.eventType).toBe('UserBlocked');
   });
 });

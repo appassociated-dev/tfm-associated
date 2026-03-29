@@ -5,7 +5,7 @@ import { MemberRepository } from '../../../domain/repositories/member.repository
 import { MemberTypeRepository } from '../../../domain/repositories/member-type.repository';
 import { FiscalYearRepository } from '../../../domain/repositories/fiscal-year.repository';
 import { RegistrationChargePort } from '../../../domain/ports/registration-charge.port';
-import { MemberOutboxPublisher } from '../../ports/member-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { MemberType } from '../../../domain/aggregates/member-type';
 import { Member } from '../../../domain/aggregates/member';
 import { MemberId } from '../../../domain/value-objects/member-id';
@@ -168,7 +168,7 @@ describe('SimpleRegistrationHandler', () => {
   let memberTypeRepository: MemberTypeRepository;
   let fiscalYearRepository: FiscalYearRepository;
   let registrationChargePort: RegistrationChargePort;
-  let outboxPublisher: MemberOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
   let errorReporter: ErrorReporter;
   let prismaTenantService: { getClient: ReturnType<typeof vi.fn> };
 

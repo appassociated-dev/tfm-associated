@@ -11,14 +11,24 @@ describe('MemberTypeCreatedEvent', () => {
   };
 
   it('debería crear el evento con un payload válido', () => {
-    const event = new MemberTypeCreatedEvent(validPayload);
+    const event = new MemberTypeCreatedEvent({
+      payload: validPayload,
+      aggregateId: validPayload.memberTypeId,
+      aggregateType: 'MemberType',
+      boundedContext: 'BC-Membership',
+    });
 
     expect(event.payload).toEqual(validPayload);
   });
 
-  it('debería tener eventType "member-type.created"', () => {
-    const event = new MemberTypeCreatedEvent(validPayload);
+  it('debería tener eventType "MemberTypeCreated"', () => {
+    const event = new MemberTypeCreatedEvent({
+      payload: validPayload,
+      aggregateId: validPayload.memberTypeId,
+      aggregateType: 'MemberType',
+      boundedContext: 'BC-Membership',
+    });
 
-    expect(event.eventType).toBe('member-type.created');
+    expect(event.eventType).toBe('MemberTypeCreated');
   });
 });

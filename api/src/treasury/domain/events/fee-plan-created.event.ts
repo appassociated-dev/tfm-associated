@@ -15,5 +15,5 @@ export interface FeePlanCreatedPayload {
  * Contiene la información necesaria para que otros BCs reaccionen.
  */
 export class FeePlanCreatedEvent extends DomainEvent<FeePlanCreatedPayload> {
-  readonly eventType = 'fee-plan.created';
+  readonly eventType = 'FeePlanCreated';
 }

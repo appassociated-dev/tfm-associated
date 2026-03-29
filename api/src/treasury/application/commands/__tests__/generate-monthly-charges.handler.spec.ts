@@ -7,7 +7,7 @@ import { FeePlanRepository } from '../../../domain/repositories/fee-plan.reposit
 import { ChargeRepository } from '../../../domain/repositories/charge.repository';
 import { FiscalYearQueryPort } from '../../../domain/ports/fiscal-year-query.port';
 import { MemberQueryPort } from '../../../domain/ports/member-query.port';
-import { TreasuryOutboxPublisher } from '../../ports/treasury-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { ErrorReporter } from '../../../../shared/domain/ports/error-reporter.port';
 import { MemberAccount } from '../../../domain/aggregates/member-account';
 import { FeePlan } from '../../../domain/aggregates/fee-plan';
@@ -179,7 +179,7 @@ describe('GenerateMonthlyChargesHandler', () => {
   let chargeRepository: ChargeRepository;
   let fiscalYearQueryPort: FiscalYearQueryPort;
   let memberQueryPort: MemberQueryPort;
-  let outboxPublisher: TreasuryOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
   let errorReporter: ErrorReporter;
 
   beforeEach(() => {

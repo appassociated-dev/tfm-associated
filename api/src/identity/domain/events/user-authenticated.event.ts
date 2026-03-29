@@ -16,5 +16,5 @@ export interface UserAuthenticatedPayload {
  * Puede ser consumido por auditoría u otros BCs para registrar accesos.
  */
 export class UserAuthenticatedEvent extends DomainEvent<UserAuthenticatedPayload> {
-  readonly eventType = 'identity.user.authenticated';
+  readonly eventType = 'UserAuthenticated';
 }

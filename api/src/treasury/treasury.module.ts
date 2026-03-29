@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit, Inject } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { FeePlansController } from './infrastructure/controllers/fee-plans.controller';
 import { SubscriptionsController } from './infrastructure/controllers/subscriptions.controller';
@@ -52,12 +52,23 @@ import { MEMBER_QUERY_PORT } from './domain/ports/member-query.port';
 import { PrismaMemberQueryAdapter } from './infrastructure/ports/prisma-member-query.adapter';
 import { FISCAL_YEAR_QUERY_PORT } from './domain/ports/fiscal-year-query.port';
 import { PrismaFiscalYearQueryAdapter } from './infrastructure/ports/prisma-fiscal-year-query.adapter';
-import { TREASURY_OUTBOX_PUBLISHER } from './application/ports/treasury-outbox.publisher';
-import { PrismaTreasuryOutboxPublisher } from './infrastructure/services/prisma-treasury-outbox.publisher';
 import { RECEIPT_GENERATOR } from './infrastructure/services/receipt-generator';
 import { PdfReceiptGenerator } from './infrastructure/services/receipt-generator';
 import { ChargeGenerationCron } from './infrastructure/cron/charge-generation.cron';
 import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma-tenant.service';
+import { EventReconstitutionRegistry } from '../shared/infrastructure/persistence/event-reconstitution.registry';
+import {
+  ChargeGeneratedEvent,
+  FeePlanCreatedEvent,
+  FeePlanLinkedToMemberTypeEvent,
+  FeePlanModifiedEvent,
+  MonthlyGenerationCompletedEvent,
+  PaymentRecordedEvent,
+  ReceiptGeneratedEvent,
+  SubscriptionClosedEvent,
+  SubscriptionCreatedEvent,
+  SubscriptionModifiedEvent,
+} from './domain/events';
 
 /**
  * BC-Treasury: Cuentas, planes de cuotas, remesas SEPA y transacciones.
@@ -75,7 +86,7 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
  * - Handlers CQRS: registro de cobros, cobro multi-cargo, consultas de pagos, balance, recibos, búsqueda de socios (UC-021)
  * - Repositorios FeePlan, MemberTypeFeePlan, MemberAccount, Charge y Payment vía inyección por token
  * - Puertos anti-corrupción MemberTypeQueryPort, MemberQueryPort y FiscalYearQueryPort para consultas cross-BC (ADR-008)
- * - TreasuryOutboxPublisher para eventos de dominio al outbox (ADR-008)
+ * - IntegrationEventPublisher (compartido, @Global vía OutboxProcessorModule) para eventos de integración al outbox (ADR-008)
  * - ReceiptGenerator para generación de recibos PDF (UC-021, US-057)
  * - ChargeGenerationCron para generación automática mensual de cargos (US-047)
  * - PrismaTenantService para acceso a la BD del tenant (ADR-002)
@@ -172,11 +183,7 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
       useClass: PrismaFiscalYearQueryAdapter,
     },
 
-    // Publisher de outbox (ADR-008)
-    {
-      provide: TREASURY_OUTBOX_PUBLISHER,
-      useClass: PrismaTreasuryOutboxPublisher,
-    },
+    // INTEGRATION_EVENT_PUBLISHER provisto globalmente por OutboxProcessorModule
 
     // Generador de recibos PDF (UC-021, US-057)
     {
@@ -194,4 +201,26 @@ import { PrismaTenantService } from '../shared/infrastructure/persistence/prisma
   ],
   exports: [],
 })
-export class TreasuryModule {}
+export class TreasuryModule implements OnModuleInit {
+  constructor(
+    @Inject(EventReconstitutionRegistry)
+    private readonly registry: EventReconstitutionRegistry,
+  ) {}
+
+  /**
+   * Registra los 10 tipos de eventos de BC-Treasury en el EventReconstitutionRegistry.
+   * Permite que OutboxProcessorService reconstituya eventos tipados al procesarlos.
+   */
+  onModuleInit(): void {
+    this.registry.register('ChargeGenerated', ChargeGeneratedEvent);
+    this.registry.register('FeePlanCreated', FeePlanCreatedEvent);
+    this.registry.register('FeePlanLinkedToMemberType', FeePlanLinkedToMemberTypeEvent);
+    this.registry.register('FeePlanModified', FeePlanModifiedEvent);
+    this.registry.register('MonthlyGenerationCompleted', MonthlyGenerationCompletedEvent);
+    this.registry.register('PaymentRecorded', PaymentRecordedEvent);
+    this.registry.register('ReceiptGenerated', ReceiptGeneratedEvent);
+    this.registry.register('SubscriptionClosed', SubscriptionClosedEvent);
+    this.registry.register('SubscriptionCreated', SubscriptionCreatedEvent);
+    this.registry.register('SubscriptionModified', SubscriptionModifiedEvent);
+  }
+}

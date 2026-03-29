@@ -4,7 +4,7 @@ import { LinkMemberTypesCommand } from '../link-member-types.command';
 import { FeePlanRepository } from '../../../domain/repositories/fee-plan.repository';
 import { MemberTypeFeePlanRepository } from '../../../domain/repositories/member-type-fee-plan.repository';
 import { MemberTypeQueryPort, MemberTypeDto } from '../../../domain/ports/member-type-query.port';
-import { TreasuryOutboxPublisher } from '../../ports/treasury-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { FeePlan } from '../../../domain/aggregates/fee-plan';
 import { FeePlanNotFoundError } from '../../../domain/exceptions';
 
@@ -45,7 +45,7 @@ describe('LinkMemberTypesHandler', () => {
   let feePlanRepository: FeePlanRepository;
   let memberTypeFeePlanRepository: MemberTypeFeePlanRepository;
   let memberTypeQueryPort: MemberTypeQueryPort;
-  let outboxPublisher: TreasuryOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
 
   beforeEach(() => {
     feePlanRepository = {

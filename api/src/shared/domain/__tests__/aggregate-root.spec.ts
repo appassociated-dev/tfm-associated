@@ -10,6 +10,13 @@ class TestUpdatedEvent extends DomainEvent<{ field: string }> {
   readonly eventType = 'TestUpdated';
 }
 
+// Parámetros de contexto comunes para los eventos de prueba
+const TEST_CONTEXT = {
+  aggregateId: 'agg-test-001',
+  aggregateType: 'TestAggregate',
+  boundedContext: 'BC-Test',
+} as const;
+
 class TestAggregate extends AggregateRoot<string> {
   constructor(id: string) {
     super(id);
@@ -17,11 +24,11 @@ class TestAggregate extends AggregateRoot<string> {
 
   // Expone addDomainEvent para tests
   create(name: string): void {
-    this.addDomainEvent(new TestCreatedEvent({ name }));
+    this.addDomainEvent(new TestCreatedEvent({ payload: { name }, ...TEST_CONTEXT }));
   }
 
   update(field: string): void {
-    this.addDomainEvent(new TestUpdatedEvent({ field }));
+    this.addDomainEvent(new TestUpdatedEvent({ payload: { field }, ...TEST_CONTEXT }));
   }
 }
 
@@ -62,7 +69,7 @@ describe('AggregateRoot', () => {
     const agg = new TestAggregate('agg-1');
     agg.create('Test');
     const events = agg.pullDomainEvents();
-    events.push(new TestCreatedEvent({ name: 'Extra' }));
+    events.push(new TestCreatedEvent({ payload: { name: 'Extra' }, ...TEST_CONTEXT }));
     // La lista interna sigue vacía
     expect(agg.pullDomainEvents()).toHaveLength(0);
   });
