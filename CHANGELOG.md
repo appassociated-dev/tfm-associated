@@ -7,6 +7,54 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260329-002-acester-CLAUDE
+
+- **Fecha de sesion:** 29 de marzo de 2026
+- **Hora de inicio:** 18:52
+- **Hora de ultimos trabajos:** 00:47
+- **Documento de sesion:** [doc/agents-sessions/20260329-002-acester-CLAUDE.md](doc/agents-sessions/20260329-002-acester-CLAUDE.md)
+
+#### Added
+
+- SDD Explore: backend funcional, frontend bloqueante (botón disabled, useDisclosure roto, sin navegación)
+- SDD Propose: 9 entregables frontend definidos, scope puramente UI, riesgo bajo
+- SDD Spec: 9 requisitos (REQ-LFC-001 a 009) con escenarios Given/When/Then para Leave Flow Completion
+- SDD Design: 7 ADRs arquitectónicas (fix useDisclosure, lógica botón, doble confirm, hook extraído, navegación, timeline estática, notificación enriquecida)
+- SDD Tasks: 19 tareas desglosadas en 5 fases de implementación
+- SDD Apply Fase 1: Hook `useNonpaymentLeave` extraído con patrón use-voluntary-leave.ts — `web/src/features/membership/leave/hooks/` (7/7 tests GREEN)
+- SDD Apply Fase 2: NonpaymentLeavePage corregida — useDisclosure fix, botón funcional, doble confirmación case-insensitive con TextInput "CONFIRMAR BAJA", timeline con getActivePhaseIndex(), notificación enriquecida
+- SDD Apply Fase 3: Botón "Baja por impago" en LeaveActions con navegación (15/15 tests GREEN)
+- SDD Apply Fase 4: Tests de página `nonpayment-leave.page.spec.tsx` cubriendo renderizado, happy path, edge cases, error 422 (16/16 tests GREEN)
+- Hook `use-nonpayment-leave.ts` — encapsula mutación de baja por impago con error handling
+- CSS module `nonpayment-leave.module.css` — estilos tipográficos extraídos de estilos inline (Judgment Day Round 2)
+- Claves i18n para baja por impago en `web/src/i18n/locales/es/membership.json`
+- Judgment Day Round 1: revisión adversarial paralela (2 jueces ciegos) — 3 CRITICAL + 6 WARNING detectados y corregidos (12 correcciones aplicadas)
+- Judgment Day Round 2: re-revisión — inline styles eliminados via CSS module, i18n test reliability aceptado como bajo riesgo
+- Judgment Day Round 3: VEREDICTO LIMPIO — APROBADO ✅
+- SDD Verify: validación formal completada — PASS WITH WARNINGS (9/9 requisitos validados, 19/19 tareas completadas, 2 warnings non-blocking: archivo i18n nuevo, CSS module permitido)
+- SDD Archive: `leave-flow-completion` archivado exitosamente — delta specs sincronizadas, artifacts persistidos
+
+#### Changed
+
+- `nonpayment-leave.page.tsx`: useDisclosure fix, lógica botón con guard `member.status === 'ACTIVE'`, doble confirmación con TextInput, timeline con getActivePhaseIndex(), notificación enriquecida, estilos inline → CSS module
+- `leave-actions.tsx`: nuevo botón "Baja por impago" con navegación a ruta de baja por impago
+- `leave-actions.spec.tsx`: tests actualizados para cubrir nuevo botón y estados
+- `membership.json`: nuevas claves i18n para baja por impago
+
+#### Fixed
+
+- Error silencioso en catch de baja por impago — errores non-422 ahora notifican al usuario (Judgment Day Round 1, CRITICAL)
+- Modal permanecía abierto al recibir error — ahora gestiona correctamente el estado de cierre (Judgment Day Round 1, CRITICAL)
+- memberId undefined resultaba en no-op silencioso — añadido guard con feedback al usuario (Judgment Day Round 1, CRITICAL)
+- Tooltip sobre botón deshabilitado y clave compartida de tooltip — corregidos (Judgment Day Round 1, WARNING)
+- Fecha ISO cruda en notificación — formateada para el usuario (Judgment Day Round 1, WARNING)
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260329-001-acester-CLAUDE
 
 - **Fecha de sesion:** 29 de marzo de 2026
