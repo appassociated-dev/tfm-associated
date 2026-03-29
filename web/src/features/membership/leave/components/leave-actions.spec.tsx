@@ -211,4 +211,66 @@ describe('LeaveActions', () => {
       });
     });
   });
+
+  describe('boton de baja por impago', () => {
+    it('deberia mostrar boton cuando NONPAYMENT_LEAVE esta en transiciones y tiene permiso', async () => {
+      setupTransitions('SUSPENDED', [
+        { status: 'NONPAYMENT_LEAVE', description: 'Baja por impago' },
+      ]);
+
+      renderActions(MEMBER_ID, {
+        permissions: ['membership:members:deactivate'],
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Procesar Baja por Impago')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia ocultar boton cuando NONPAYMENT_LEAVE no esta en transiciones', async () => {
+      setupTransitions('ACTIVE', [{ status: 'VOLUNTARY_LEAVE', description: 'Baja voluntaria' }]);
+
+      renderActions(MEMBER_ID, {
+        permissions: ['membership:members:deactivate'],
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Procesar Baja por Impago')).not.toBeInTheDocument();
+      });
+    });
+
+    it('deberia navegar a la pagina de baja por impago al hacer click', async () => {
+      setupTransitions('SUSPENDED', [
+        { status: 'NONPAYMENT_LEAVE', description: 'Baja por impago' },
+      ]);
+
+      const { user } = renderActions(MEMBER_ID, {
+        permissions: ['membership:members:deactivate'],
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Procesar Baja por Impago')).toBeInTheDocument();
+      });
+
+      // Act
+      await user.click(screen.getByText('Procesar Baja por Impago'));
+
+      // Assert
+      expect(mockNavigate).toHaveBeenCalledWith(`/members/${MEMBER_ID}/nonpayment-leave`);
+    });
+
+    it('deberia ocultar boton sin permiso membership:members:deactivate', async () => {
+      setupTransitions('SUSPENDED', [
+        { status: 'NONPAYMENT_LEAVE', description: 'Baja por impago' },
+      ]);
+
+      renderActions(MEMBER_ID, {
+        permissions: ['membership:members:read'], // sin deactivate
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Procesar Baja por Impago')).not.toBeInTheDocument();
+      });
+    });
+  });
 });

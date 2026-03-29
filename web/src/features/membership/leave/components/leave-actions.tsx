@@ -41,7 +41,14 @@ export function LeaveActions({ memberId }: LeaveActionsProps) {
   const transitions = data?.availableTransitions ?? [];
 
   // Verificar si la transicion a VOLUNTARY_LEAVE esta disponible
-  const canVoluntaryLeave = transitions.some((t) => t.status === 'VOLUNTARY_LEAVE');
+  const canVoluntaryLeave = transitions.some(
+    (transition) => transition.status === 'VOLUNTARY_LEAVE',
+  );
+
+  // Verificar si la transicion a NONPAYMENT_LEAVE esta disponible
+  const canNonpaymentLeave = transitions.some(
+    (transition) => transition.status === 'NONPAYMENT_LEAVE',
+  );
 
   // Verificar si el socio esta en estado terminal rehabilitable
   const isRehabilitableStatus = REHABILITABLE_STATUSES.includes(currentStatus);
@@ -60,6 +67,18 @@ export function LeaveActions({ memberId }: LeaveActionsProps) {
           onClick={() => navigate(`/members/${memberId}/leave`)}
         >
           {t('leave.actions.processVoluntaryLeave')}
+        </Button>
+      )}
+
+      {/* Boton de baja por impago */}
+      {canNonpaymentLeave && hasPermission('membership:members:deactivate') && (
+        <Button
+          color="red"
+          variant="outline"
+          leftSection={<IconUserMinus size={18} stroke={1.5} />}
+          onClick={() => navigate(`/members/${memberId}/nonpayment-leave`)}
+        >
+          {t('leave.actions.processNonpaymentLeave')}
         </Button>
       )}
 

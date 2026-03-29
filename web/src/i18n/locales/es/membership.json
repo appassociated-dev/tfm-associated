@@ -215,10 +215,13 @@
       "phaseWithDays": "Fase {{index}} ({{days}} dias)",
       "phaseNoDays": "Fase {{index}}",
       "phasePending": "Pendiente",
+      "phaseCurrent": "Estado actual",
+      "phaseCompleted": "Fase completada",
       "certificateTitle": "Certificado de descubierto",
       "certificateMember": "Socio",
       "generateCertificate": "Generar Certificado PDF",
       "certificateTooltip": "Requiere endpoint de backend",
+      "cancelLeaveTooltip": "Requiere endpoint de cancelacion",
       "certificateNotAvailableTitle": "No disponible",
       "certificateNotAvailableText": "La generacion de certificado PDF requiere un endpoint de backend que aun no esta implementado.",
       "regularizationTitle": "Oportunidad de regularizacion",
@@ -241,11 +244,14 @@
         "title": "Confirmacion final",
         "irreversibleTitle": "Accion irreversible",
         "irreversibleText": "La baja por impago requiere un proceso formal de rehabilitacion para ser revertida. Confirme que desea proceder.",
-        "confirmButton": "Confirmar Baja por Impago"
+        "confirmButton": "Confirmar Baja por Impago",
+        "typeToConfirm": "Escribe CONFIRMAR BAJA para continuar",
+        "placeholder": "CONFIRMAR BAJA",
+        "mismatch": "El texto no coincide"
       },
       "notifications": {
         "successTitle": "Baja por impago procesada",
-        "successText": "La baja por impago ha sido ejecutada correctamente",
+        "successText": "Fecha efectiva: {{effectiveDate}}. {{subscriptionsClosed}} suscripciones cerradas.",
         "stateErrorTitle": "Error de estado",
         "stateErrorText": "No se puede procesar la baja desde el estado actual."
       }
@@ -286,6 +292,7 @@
     },
     "actions": {
       "processVoluntaryLeave": "Procesar Baja Voluntaria",
+      "processNonpaymentLeave": "Procesar Baja por Impago",
       "reinstateMember": "Rehabilitar Socio",
       "permanentLeave": "Este socio está dado de baja de forma permanente"
     },
