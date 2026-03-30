@@ -17,12 +17,18 @@ import {
 const FEE_PLANS_BASE = '/v1/treasury/fee-plans';
 const MEMBER_TYPES_BASE = '/v1/member-types';
 
-/** Obtiene listado de planes, opcionalmente filtrado por estado. */
-export async function getFeePlans(params?: { active?: boolean }): Promise<FeePlan[]> {
+/** Obtiene listado de planes, opcionalmente filtrado por estado y/o tipo de socio (REQ-SPU-005). */
+export async function getFeePlans(params?: {
+  active?: boolean;
+  memberTypeId?: string;
+}): Promise<FeePlan[]> {
   // Construir query params limpiando valores undefined para evitar serialización ambigua
   const cleanParams: Record<string, string> = {};
   if (params?.active !== undefined) {
     cleanParams['active'] = String(params.active);
+  }
+  if (params?.memberTypeId !== undefined) {
+    cleanParams['memberTypeId'] = params.memberTypeId;
   }
   const hasParams = Object.keys(cleanParams).length > 0;
 

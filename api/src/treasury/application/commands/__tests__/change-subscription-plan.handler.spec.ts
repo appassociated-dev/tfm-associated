@@ -108,6 +108,7 @@ describe('ChangeSubscriptionPlanHandler', () => {
       findById: vi.fn().mockResolvedValue(createFeePlan()),
       findByCode: vi.fn(),
       findAll: vi.fn(),
+      findAllWithCount: vi.fn(),
       existsByCode: vi.fn(),
       hasActiveSubscriptions: vi.fn(),
     };

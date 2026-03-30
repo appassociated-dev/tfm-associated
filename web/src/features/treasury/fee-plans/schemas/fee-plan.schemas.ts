@@ -21,6 +21,12 @@ export const feePlanSchema = z.object({
   active: z.boolean(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  /** Cantidad de suscripciones activas vinculadas (REQ-SPU-008). Siempre presente en el listado. */
+  activeSubscriptionsCount: z.number().int().min(0),
+  /** Plan por defecto para el tipo de socio filtrado (REQ-SPU-006). Solo presente cuando se filtra por memberTypeId. */
+  isDefault: z.boolean().optional(),
+  /** Orden de presentación para el tipo de socio filtrado (REQ-SPU-006). Solo presente cuando se filtra por memberTypeId. */
+  displayOrder: z.number().int().min(0).optional(),
 });
 
 // === Schema vinculación plan ↔ tipo socio ===

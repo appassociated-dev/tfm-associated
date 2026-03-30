@@ -34,6 +34,7 @@ export function buildFeePlan(overrides?: Partial<FeePlan>): FeePlan {
     frequency: 'ANNUAL',
     billingMonths: [1],
     active: true,
+    activeSubscriptionsCount: 0,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
     ...overrides,

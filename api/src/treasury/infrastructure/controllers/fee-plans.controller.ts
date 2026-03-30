@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Post,
   Get,
@@ -92,7 +93,8 @@ export class FeePlansController {
 
   /**
    * Lista todos los planes de cuota del tenant actual.
-   * Permite filtrar por estado activo/inactivo.
+   * Permite filtrar por estado activo/inactivo y por tipo de socio (REQ-SPU-005).
+   * Cuando se filtra por memberTypeId, el DTO incluye isDefault y displayOrder (REQ-SPU-006).
    */
   @Get()
   @RequirePermissions('treasury:fee-plans:read')
@@ -103,6 +105,13 @@ export class FeePlansController {
     type: Boolean,
     description: 'Filtrar por estado activo',
   })
+  @ApiQuery({
+    name: 'memberTypeId',
+    required: false,
+    type: String,
+    description:
+      'Filtrar por tipo de socio (UUID). Devuelve solo planes vinculados, con isDefault y displayOrder (REQ-SPU-005, REQ-SPU-006)',
+  })
   @ApiResponse({
     status: 200,
     description: 'Lista de planes de cuota',
@@ -111,10 +120,19 @@ export class FeePlansController {
   async list(
     @Req() req: Request & { tenantId: string },
     @Query('active') active?: string,
+    @Query('memberTypeId') memberTypeId?: string,
   ): Promise<FeePlanResponseDto[]> {
+    // Validar memberTypeId como UUID v4 cuando está presente (ParseUUIDPipe no soporta opcionales)
+    if (memberTypeId !== undefined) {
+      const uuidV4Regex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      if (!uuidV4Regex.test(memberTypeId)) {
+        throw new BadRequestException('memberTypeId debe ser un UUID v4 válido.');
+      }
+    }
+
     const activeFilter = active === 'true' ? true : active === 'false' ? false : undefined;
 
-    const query = new ListFeePlansQuery(req.tenantId, activeFilter);
+    const query = new ListFeePlansQuery(req.tenantId, activeFilter, memberTypeId);
     return this.queryBus.execute(query);
   }
 

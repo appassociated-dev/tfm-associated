@@ -143,6 +143,20 @@ describe('feeSubscriptionSchema', () => {
 
     expect(() => feeSubscriptionSchema.parse(invalid)).toThrow(ZodError);
   });
+
+  it('deberia aceptar suscripcion con pendingChargesCount presente', () => {
+    const withPending = { ...validSubscription, pendingChargesCount: 3 };
+    const result = feeSubscriptionSchema.parse(withPending);
+
+    expect(result.pendingChargesCount).toBe(3);
+  });
+
+  it('deberia aceptar suscripcion sin pendingChargesCount (backward compat)', () => {
+    // validSubscription no incluye pendingChargesCount — campo opcional para compatibilidad
+    const result = feeSubscriptionSchema.parse(validSubscription);
+
+    expect(result.pendingChargesCount).toBeUndefined();
+  });
 });
 
 describe('createSubscriptionInputSchema', () => {

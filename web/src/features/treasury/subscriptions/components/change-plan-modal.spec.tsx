@@ -60,9 +60,10 @@ function renderModal(props: Partial<Parameters<typeof ChangePlanModal>[0]> = {})
     opened: true,
     onClose: vi.fn(),
     memberAccountId: 'test-member-account-id',
+    memberTypeId: '00000000-0000-4000-8000-000000000001',
     subscription: createMockSubscription(),
     ...props,
-  };
+  } as Parameters<typeof ChangePlanModal>[0];
 
   return render(<ChangePlanModal {...defaultProps} />);
 }
@@ -535,6 +536,65 @@ describe('ChangePlanModal', () => {
 
       // Assert
       expect(screen.queryByText('Cambiar Plan')).not.toBeInTheDocument();
+    });
+  });
+
+  // --- Alerta de cargos pendientes (REQ-SPU-002) ---
+
+  describe('alerta de cargos pendientes', () => {
+    beforeEach(() => {
+      mockNotificationsShow.mockClear();
+    });
+
+    it('deberia renderizar alerta naranja con el contador cuando pendingChargesCount > 0', () => {
+      // Arrange
+      const subscriptionWithPending = createMockSubscription({ pendingChargesCount: 3 });
+
+      // Act
+      renderModal({ subscription: subscriptionWithPending });
+
+      // Assert
+      expect(screen.getByText(/3 cargos pendientes/)).toBeInTheDocument();
+    });
+
+    it('deberia NO renderizar alerta de cargos pendientes cuando pendingChargesCount es 0', () => {
+      // Arrange
+      const subscriptionNoPending = createMockSubscription({ pendingChargesCount: 0 });
+
+      // Act
+      renderModal({ subscription: subscriptionNoPending });
+
+      // Assert
+      expect(
+        screen.queryByText(/cargos pendientes en la cuenta del socio/),
+      ).not.toBeInTheDocument();
+    });
+
+    it('deberia NO renderizar alerta de cargos pendientes cuando pendingChargesCount es undefined', () => {
+      // Arrange - suscripcion sin el campo (backend anterior)
+      const subscriptionLegacy = createMockSubscription({ pendingChargesCount: undefined });
+
+      // Act
+      renderModal({ subscription: subscriptionLegacy });
+
+      // Assert
+      expect(
+        screen.queryByText(/cargos pendientes en la cuenta del socio/),
+      ).not.toBeInTheDocument();
+    });
+
+    it('deberia mostrar el checkbox de mantener cargos pendientes independientemente del contador', () => {
+      // Arrange
+      const subscriptionWithPending = createMockSubscription({ pendingChargesCount: 5 });
+
+      // Act
+      renderModal({ subscription: subscriptionWithPending });
+
+      // Assert: la alerta aparece Y el checkbox sigue visible
+      expect(screen.getByText(/5 cargos pendientes/)).toBeInTheDocument();
+      expect(
+        screen.getByText('Mantener cargos pendientes (la deuda se arrastra al nuevo plan)'),
+      ).toBeInTheDocument();
     });
   });
 });

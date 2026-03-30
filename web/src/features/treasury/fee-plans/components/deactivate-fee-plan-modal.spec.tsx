@@ -26,6 +26,7 @@ const samplePlan: FeePlan = {
   frequency: 'ANNUAL',
   billingMonths: [1],
   active: true,
+  activeSubscriptionsCount: 5,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
 };
@@ -40,6 +41,7 @@ const secondPlan: FeePlan = {
   frequency: null,
   billingMonths: [],
   active: true,
+  activeSubscriptionsCount: 5,
   createdAt: '2026-02-01T00:00:00.000Z',
   updatedAt: '2026-02-01T00:00:00.000Z',
 };
@@ -140,7 +142,7 @@ describe('DeactivateFeePlanModal', () => {
       renderModal({ activeSubscriptionsCount: 1 });
 
       // Assert
-      expect(screen.getByText(/Este plan tiene 1 suscripciones activas/)).toBeInTheDocument();
+      expect(screen.getByText(/Este plan tiene 1 suscripción activa/)).toBeInTheDocument();
     });
 
     it('deberia mostrar texto de confirmacion cuando no hay suscripciones activas', () => {

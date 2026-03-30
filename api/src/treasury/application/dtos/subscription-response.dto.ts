@@ -50,13 +50,20 @@ export class SubscriptionResponseDto {
   @ApiProperty({ description: 'Fecha de creación del registro' })
   createdAt!: Date;
 
+  @ApiPropertyOptional({
+    description: 'Cantidad de cargos pendientes de la suscripción (REQ-SPU-001)',
+  })
+  pendingChargesCount?: number;
+
   /**
    * Construye un DTO de respuesta a partir de la entidad de dominio.
    * Opcionalmente enriquece con nombre y código del plan.
+   * Opcionalmente incluye el conteo de cargos pendientes de la cuenta.
    */
   static fromDomain(
     subscription: FeeSubscription,
     feePlan?: { name: string; code: string },
+    pendingChargesCount?: number,
   ): SubscriptionResponseDto {
     const dto = new SubscriptionResponseDto();
     dto.id = subscription.id.toValue();
@@ -73,6 +80,7 @@ export class SubscriptionResponseDto {
     dto.cancelReason = subscription.cancelReason?.value ?? null;
     dto.isActive = subscription.isActive();
     dto.createdAt = subscription.createdAt;
+    dto.pendingChargesCount = pendingChargesCount;
     return dto;
   }
 }

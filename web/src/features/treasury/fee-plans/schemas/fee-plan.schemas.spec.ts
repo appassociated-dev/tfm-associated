@@ -25,6 +25,7 @@ const validFeePlan = {
   frequency: 'ANNUAL' as const,
   billingMonths: [1],
   active: true,
+  activeSubscriptionsCount: 0,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
 };
@@ -157,6 +158,14 @@ describe('feePlanSchema', () => {
     const invalid = { ...validFeePlan, billingMonths: [0, 1] };
 
     expect(() => feePlanSchema.parse(invalid)).toThrow(ZodError);
+  });
+
+  it('deberia aceptar plan sin isDefault ni displayOrder (backward compat)', () => {
+    // validFeePlan no incluye isDefault ni displayOrder — campos opcionales para compat con listados sin memberTypeId
+    const result = feePlanSchema.parse(validFeePlan);
+
+    expect(result.isDefault).toBeUndefined();
+    expect(result.displayOrder).toBeUndefined();
   });
 });
 

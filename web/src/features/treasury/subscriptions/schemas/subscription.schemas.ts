@@ -29,6 +29,8 @@ export const feeSubscriptionSchema = z.object({
   cancelReason: cancelReasonSchema.nullable(),
   chargesGenerated: z.number().int().min(0),
   totalCollected: z.number().min(0),
+  // Campo opcional: cantidad de cargos pendientes de la suscripcion (REQ-SPU-001)
+  pendingChargesCount: z.number().int().min(0).optional(),
 });
 
 // === Schema respuesta suscripciones de un socio ===

@@ -7,6 +7,45 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260330-002-acester-CLAUDE
+
+- **Fecha de sesion:** 30 de marzo de 2026
+- **Hora de inicio:** 11:30
+- **Hora de ultimos trabajos:** 13:15
+- **Documento de sesion:** [doc/agents-sessions/20260330-002-acester-CLAUDE.md](doc/agents-sessions/20260330-002-acester-CLAUDE.md)
+
+#### Added
+
+- `activeSubscriptionsCount` en `FeePlanResponseDto` con Prisma `_count` filtrado por status ACTIVE (REQ-SPU-008, REQ-SPU-009)
+- Filtro opcional `?memberTypeId=` en `GET /v1/treasury/fee-plans` con validacion UUID (REQ-SPU-005)
+- Campos `isDefault` y `displayOrder` en respuesta filtrada por memberTypeId (REQ-SPU-006)
+- `pendingChargesCount` en `SubscriptionResponseDto` (REQ-SPU-001)
+- Badge "Recomendado" en `SubscriptionSelector` cuando `isDefault=true` (REQ-SPU-004)
+- Labels descriptivos "Pago periodico"/"Pago unico" en `SubscriptionSelector` (REQ-SPU-003)
+- Alerta de cargos pendientes en `ChangePlanModal` con plural i18n (REQ-SPU-002)
+- CSS modules para `subscription-selector.tsx` y `change-plan-modal.tsx` (elimina inline styles)
+- Prop `memberTypeId` en `ChangePlanModal` para filtrar planes por tipo de socio
+- Typed i18n keys (`PlanTypeLabelKey`, `PlanTypeDescriptionKey`) eliminando `as never` casts
+- 6 tests adicionales de verify: schema backward compat, handler combined filters, sort displayOrder
+
+#### Changed
+
+- `SubscriptionSelector` ahora pasa `memberTypeId` al hook `useFeePlans` (eliminado TODO linea 68)
+- `feePlanSchema` Zod: `activeSubscriptionsCount` ahora required (no optional)
+- `FeePlansListPage` pasa count real a `DeactivateFeePlanModal` (antes siempre 0)
+- `ListFeePlansHandler` inyecta `MemberTypeFeePlanRepository` para composicion en memoria (AD-5)
+
+#### Fixed
+
+- Filtro `findAllWithCount()` usaba `notIn ['COMPLETED', 'CANCELLED']` pero DB tiene `ACTIVE/CLOSED` — corregido a `equals: 'ACTIVE'` (Judgment Day Round 1)
+- `pendingChargesCount` contaba cargos de toda la cuenta, no del plan — i18n corregido a "en la cuenta del socio"
+- i18n sin plural: "1 cargos pendientes" → keys `_one`/`_other` para gramatica correcta
+- JSDoc y Swagger description stale tras fix de filtro status
+- `buildFeePlan` factory y `validFeePlan` fixture sin `activeSubscriptionsCount` tras hacerlo required
+- Test assertions con regex stale tras cambio de wording i18n
+
+---
+
 ### 20260330-001-acester-CLAUDE
 
 - **Fecha de sesion:** 30 de marzo de 2026

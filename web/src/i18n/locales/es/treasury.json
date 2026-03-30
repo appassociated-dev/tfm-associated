@@ -22,7 +22,9 @@
   },
   "planType": {
     "recurring": "Periódico",
-    "oneTime": "Única"
+    "oneTime": "Única",
+    "recurringDescription": "Pago periódico",
+    "oneTimeDescription": "Pago único"
   },
   "collectivityType": {
     "pena": "Peña",
@@ -89,7 +91,8 @@
     "deactivateModal": {
       "title": "Inactivar Plan",
       "noPlanSelected": "No se ha seleccionado ningún plan.",
-      "activeSubscriptions": "Este plan tiene {{count}} suscripciones activas. No puede eliminarse, pero sí marcarse como inactivo.",
+      "activeSubscriptions_one": "Este plan tiene 1 suscripción activa. No puede eliminarse, pero sí marcarse como inactivo.",
+      "activeSubscriptions_other": "Este plan tiene {{count}} suscripciones activas. No puede eliminarse, pero sí marcarse como inactivo.",
       "confirmMessage": "¿Está seguro de que desea inactivar el plan '{{name}}'?",
       "infoNote": "El plan dejará de aparecer en los selectores de alta pero las suscripciones existentes no se verán afectadas.",
       "cancel": "Cancelar",
@@ -245,7 +248,8 @@
       "selected": "Seleccionado",
       "base": "Base:",
       "withTypeDiscount": "Con dto. tipo ({{percent}}%):",
-      "discountTotal": "Descuento total"
+      "discountTotal": "Descuento total",
+      "recommended": "Recomendado"
     },
     "changePlanModal": {
       "title": "Cambiar Plan",
@@ -268,6 +272,8 @@
       "infoTitle": "Informacion",
       "infoText": "Los cargos futuros del plan actual se cancelaran",
       "keepPendingCharges": "Mantener cargos pendientes (la deuda se arrastra al nuevo plan)",
+      "pendingChargesWarning_one": "Hay 1 cargo pendiente en la cuenta del socio. ¿Continuar?",
+      "pendingChargesWarning_other": "Hay {{count}} cargos pendientes en la cuenta del socio. ¿Continuar?",
       "cancel": "Cancelar",
       "confirm": "Confirmar Cambio"
     },

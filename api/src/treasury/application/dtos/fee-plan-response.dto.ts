@@ -70,6 +70,24 @@ export class FeePlanResponseDto {
   updatedAt!: Date;
 
   @ApiPropertyOptional({
+    description:
+      'Número de suscripciones activas vinculadas al plan. Solo es preciso en respuestas de listado; en el endpoint de detalle siempre devuelve 0.',
+  })
+  activeSubscriptionsCount!: number;
+
+  @ApiPropertyOptional({
+    description:
+      'Si es el plan por defecto para el tipo de socio filtrado (solo presente cuando se filtra por memberTypeId, AD-3)',
+  })
+  isDefault?: boolean;
+
+  @ApiPropertyOptional({
+    description:
+      'Orden de presentación para el tipo de socio filtrado (solo presente cuando se filtra por memberTypeId, AD-3)',
+  })
+  displayOrder?: number;
+
+  @ApiPropertyOptional({
     description: 'Tipos de socio vinculados (solo en detalle individual)',
     type: [LinkedMemberTypeDto],
   })
@@ -93,6 +111,7 @@ export class FeePlanResponseDto {
     dto.active = feePlan.active;
     dto.createdAt = feePlan.createdAt;
     dto.updatedAt = feePlan.updatedAt;
+    dto.activeSubscriptionsCount = 0;
     return dto;
   }
 }

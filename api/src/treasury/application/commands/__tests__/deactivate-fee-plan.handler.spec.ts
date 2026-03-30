@@ -39,6 +39,7 @@ describe('DeactivateFeePlanHandler', () => {
       findById: vi.fn().mockResolvedValue(createExistingFeePlan()),
       findByCode: vi.fn().mockResolvedValue(null),
       findAll: vi.fn().mockResolvedValue([]),
+      findAllWithCount: vi.fn(),
       existsByCode: vi.fn().mockResolvedValue(false),
       hasActiveSubscriptions: vi.fn().mockResolvedValue(false),
     };

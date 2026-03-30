@@ -115,6 +115,7 @@ describe('GetChargesByAccountHandler', () => {
       findById: vi.fn(),
       findByCode: vi.fn(),
       findAll: vi.fn().mockResolvedValue([createPlan()]),
+      findAllWithCount: vi.fn(),
       existsByCode: vi.fn(),
       hasActiveSubscriptions: vi.fn(),
     };

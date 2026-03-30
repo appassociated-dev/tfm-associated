@@ -206,6 +206,7 @@ export function MemberSubscriptionsPage() {
               opened={changePlanOpened}
               onClose={closeChangePlan}
               memberAccountId={memberId}
+              memberTypeId={memberTypeId}
               subscription={activeSubscription}
             />
             <UpdateDiscountModal

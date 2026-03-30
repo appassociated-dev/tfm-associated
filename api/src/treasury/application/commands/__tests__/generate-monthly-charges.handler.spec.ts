@@ -198,6 +198,7 @@ describe('GenerateMonthlyChargesHandler', () => {
       findById: vi.fn(),
       findByCode: vi.fn(),
       findAll: vi.fn().mockResolvedValue([createMonthlyPlan(), createSemiAnnualPlan()]),
+      findAllWithCount: vi.fn(),
       existsByCode: vi.fn(),
       hasActiveSubscriptions: vi.fn(),
     };
