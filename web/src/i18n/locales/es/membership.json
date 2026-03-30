@@ -305,7 +305,9 @@
       },
       "reinstatement": {
         "successTitle": "Rehabilitacion exitosa",
-        "successText": "Socio rehabilitado correctamente"
+        "successText": "Socio rehabilitado correctamente",
+        "stateErrorTitle": "Error de rehabilitacion",
+        "stateErrorText": "No se puede rehabilitar al socio desde el estado actual."
       }
     }
   }

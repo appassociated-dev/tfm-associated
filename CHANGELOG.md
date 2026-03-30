@@ -7,6 +7,43 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260330-001-acester-CLAUDE
+
+- **Fecha de sesion:** 30 de marzo de 2026
+- **Hora de inicio:** 01:40
+- **Hora de ultimos trabajos:** 01:50
+- **Documento de sesion:** [doc/agents-sessions/20260330-001-acester-CLAUDE.md](doc/agents-sessions/20260330-001-acester-CLAUDE.md)
+
+#### Added
+
+- SDD Explore: inventario de 6 hooks de mutacion con gaps de error handling — 4 sin `onError`, 2 con manejo parcial; patron de referencia `useNonpaymentLeave` identificado
+- SDD Propose: enfoque `handleMutationError(error, domainHandlers?)` como utilidad compartida en `web/src/shared/utils/`, alineado con RNF-049
+- SDD Spec: 9 requisitos (REQ-MEH-001 a REQ-MEH-009) y 22 escenarios Given/When/Then cubriendo todos los codigos de error por hook
+- SDD Design: diseno tecnico de `handleMutationError` con tipos TypeScript (`DomainErrorHandlers`), type narrowing sobre `error: unknown`, arquitectura de tests con vitest + MSW
+- SDD Tasks: 19 tareas desglosadas en 5 fases (i18n → utilidad compartida → hooks membership → hooks treasury → verificacion)
+- SDD Apply: utilidad `handleMutationError` creada en `web/src/shared/utils/` con TDD completo (8/8 tests GREEN)
+- SDD Apply: claves i18n de error anadidas a `membership.json` y `treasury.json`
+
+#### Changed
+
+- `useDeactivateFeePlan`: refactorizado para usar `handleMutationError`, eliminando logica inline duplicada
+
+#### Fixed
+
+- `useReinstateMember`: anadido `onError` con rama 422 especifica de dominio y fallback generico (8/8 tests GREEN)
+- `useVoluntaryLeave`: anadido fallback generico para errores non-422 que se descartaban silenciosamente (6/6 tests GREEN)
+- `useUpdateFeePlan`: anadido `onError` con fallback generico — errores no notificados al usuario (8/8 tests GREEN)
+- `useActivateFeePlan`: anadido `onError` con rama 422 especifica de dominio y fallback generico (7/7 tests GREEN)
+- `useDeactivateFeePlan`: anadido fallback generico para errores non-422 que se descartaban silenciosamente (8/8 tests GREEN)
+- `useImportTemplate`: anadido `onError` con rama 422 especifica de dominio y fallback generico (10/10 tests GREEN)
+- Tests en `useVoluntaryLeave` y `useDeactivateFeePlan` que afirmaban incorrectamente que el error silencioso era comportamiento correcto
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260329-002-acester-CLAUDE
 
 - **Fecha de sesion:** 29 de marzo de 2026

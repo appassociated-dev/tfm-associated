@@ -3,7 +3,7 @@ import { notifications } from '@mantine/notifications';
 
 import i18n from '@/i18n/i18n';
 import { deactivateFeePlan } from '../api/fee-plan.api';
-import { ApiError } from '@/shared/api/api-error';
+import { handleMutationError } from '@/shared/utils/handle-mutation-error';
 
 /** Hook para inactivar un plan de cuota. */
 export function useDeactivateFeePlan() {
@@ -21,15 +21,16 @@ export function useDeactivateFeePlan() {
       });
     },
     onError: (error: unknown) => {
-      const status = error instanceof ApiError ? error.status : undefined;
-      if (status === 422) {
-        notifications.show({
-          title: i18n.t('treasury:feePlans.notifications.deactivateError.title'),
-          message: i18n.t('treasury:feePlans.notifications.deactivateError.message'),
-          color: 'red',
-          autoClose: 4000,
-        });
-      }
+      // 422 indica que el plan tiene suscripciones activas y no puede inactivarse
+      handleMutationError(error, {
+        422: () => {
+          notifications.show({
+            title: i18n.t('treasury:feePlans.notifications.deactivateError.title'),
+            message: i18n.t('treasury:feePlans.notifications.deactivateError.message'),
+            color: 'red',
+          });
+        },
+      });
     },
   });
 }

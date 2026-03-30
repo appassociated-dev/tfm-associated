@@ -115,6 +115,62 @@ describe('useActivateFeePlan', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
   });
 
+  it('deberia mostrar notificacion roja de dominio para error 422 (transicion invalida)', async () => {
+    // Arrange
+    server.use(
+      http.patch('*/v1/treasury/fee-plans/:id/activate', () => {
+        return HttpResponse.json(
+          { error: { code: 'INVALID_STATE', message: 'Plan ya activo', details: null } },
+          { status: 422 },
+        );
+      }),
+    );
+
+    // Act
+    const { result } = renderHook(() => useActivateFeePlan());
+
+    await act(async () => {
+      try {
+        await result.current.mutateAsync(PLAN_ID);
+      } catch {
+        // Se espera que falle
+      }
+    });
+
+    // Assert — 422: notificacion roja de dominio especifica
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(mockNotificationsShow).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'No se puede activar',
+        color: 'red',
+      }),
+    );
+  });
+
+  it('deberia mostrar notificacion roja generica para error 500', async () => {
+    // Arrange
+    server.use(
+      http.patch('*/v1/treasury/fee-plans/:id/activate', () => {
+        return HttpResponse.json({ message: 'Server Error' }, { status: 500 });
+      }),
+    );
+
+    // Act
+    const { result } = renderHook(() => useActivateFeePlan());
+
+    await act(async () => {
+      try {
+        await result.current.mutateAsync(PLAN_ID);
+      } catch {
+        // Se espera que falle
+      }
+    });
+
+    // Assert — error generico: notificacion roja con mensaje generico
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(mockNotificationsShow).toHaveBeenCalledWith(expect.objectContaining({ color: 'red' }));
+  });
+
   it('deberia tener isPending en false antes de mutar', () => {
     // Act
     const { result } = renderHook(() => useActivateFeePlan());

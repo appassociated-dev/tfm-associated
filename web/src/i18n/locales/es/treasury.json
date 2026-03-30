@@ -182,6 +182,14 @@
       "importSuccess": {
         "title": "Plantilla importada",
         "message": "Plantilla importada: {{count}} planes creados"
+      },
+      "activateError": {
+        "title": "No se puede activar",
+        "message": "No se puede activar el plan desde el estado actual."
+      },
+      "importError": {
+        "title": "Error al importar plantilla",
+        "message": "No hay plantilla disponible para este tipo de colectividad."
       }
     }
   },
