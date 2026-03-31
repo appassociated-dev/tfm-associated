@@ -7,6 +7,46 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260331-003-acester-CLAUDECODE
+
+- **Fecha de sesión:** 31 de marzo de 2026
+- **Hora de inicio:** 14:24
+- **Hora de últimos trabajos:** 14:02
+- **Documento de sesión:** [doc/agents-sessions/20260331-003-acester-CLAUDECODE.md](doc/agents-sessions/20260331-003-acester-CLAUDECODE.md)
+- **SDD Change:** `fix-swagger-ui` — **SDD COMPLETE** ✅ (Explore → Propose → Spec → Design → Tasks → Apply → Judgment Day → Verify → Archive)
+
+#### Added
+
+[Sin cambios]
+
+#### Changed
+
+- SDD Explore `fix-swagger-ui`: auditados 5 ficheros — 4 bugs críticos identificados (API Key missing en Swagger config, @ApiBearerAuth decoradores incompletos, HTML exceptions en lugar de JSON, cobertura incompleta de decoradores en controllers)
+- SDD Propose `fix-swagger-ui`: propuesta 3-pronged definida — fix de configuración main.ts, globalización exception filter, decoradores @ApiBearerAuth en 8 controllers; 10 archivos en scope, riesgo bajo, sin violaciones ADR
+- SDD Spec `fix-swagger-ui`: 7 requerimientos (REQ-SWAGGER-001..007) con traza a RNFT-057, 14 escenarios GIVEN/WHEN/THEN
+- SDD Design `fix-swagger-ui`: 11 archivos en scope, 3 decisiones arquitectónicas; auditoría de 12 controllers (4 correctos, 8 requieren cambios); 6 nuevos test cases
+
+#### Fixed
+
+- Swagger UI: added API key security scheme, persistent authorization, JSON exception responses, and Bearer auth decorators on all protected controllers (REQ-SWAGGER-001..005)
+- **Swagger UI fully functional:** API key authentication in Swagger editor, Bearer token authentication, JSON exception responses with proper HTTP status codes, persistent authorization state across page reloads
+- Exception filter: BadRequestException array handling, generic 500 fallback with observability reporting (logging estructurado + Sentry), empty array guard
+- AuthController @ApiBearerAuth correctly positioned at method-level for mixed public/protected controller endpoints
+
+#### Removed
+
+[Sin cambios]
+
+**Métricas finales del ciclo SDD:**
+
+- SDD Apply: 17/20 tasks implementadas (3 = manual browser verification), 1327 tests passing, lint clean, typecheck clean
+- Judgment Day: 3 rondas adversariales, 3 críticos + 3 warnings encontrados y corregidos, aprobado por ambos jueces
+- 18/20 escenarios automatizados compilantes (90% cobertura)
+- 1330 tests pasando (100%) — upgrade desde 1327 tras fixes Judgment Day
+- 11 archivos modificados en total
+
+---
+
 ### 20260331-002-acester-CLAUDE
 
 - **Fecha de sesion:** 31 de marzo de 2026

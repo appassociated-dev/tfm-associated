@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { ProvisionTenantDto } from '../../application/dtos/provision-tenant.dto';
 import { TenantProvisionedResponseDto } from '../../application/dtos/tenant-provisioned-response.dto';
 import { ProvisionTenantCommand } from '../../application/commands/provision-tenant.command';
@@ -38,6 +38,7 @@ import { Public } from '../auth/public.decorator';
  * Refs: UC-001 (provisión de tenant), ADR-006 (JWT + Passport), ADR-007 (RBAC Guards)
  */
 @ApiTags('Tenants')
+@ApiSecurity('api-key')
 @Controller('v1/tenants')
 export class TenantsController {
   constructor(private readonly commandBus: CommandBus) {}

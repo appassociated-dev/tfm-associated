@@ -16,7 +16,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
 import { RequirePermissions } from '../../../shared/infrastructure/guards/require-permissions.decorator';
 import { CreateFeePlanDto } from '../../application/dtos/create-fee-plan.dto';
@@ -46,6 +46,7 @@ import { GetFeePlanTemplatesQuery } from '../../application/queries/get-fee-plan
  * ANTES de las rutas con parámetro (:id) para evitar conflictos de enrutamiento.
  */
 @ApiTags('Fee Plans')
+@ApiBearerAuth()
 @Controller('v1/treasury/fee-plans')
 export class FeePlansController {
   constructor(

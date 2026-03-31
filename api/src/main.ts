@@ -29,10 +29,15 @@ async function bootstrap(): Promise<void> {
     .setDescription('ERP ligero para colectividades españolas')
     .setVersion('0.0.0')
     .addBearerAuth()
+    .addApiKey({ type: 'apiKey', in: 'header', name: 'X-Api-Key' }, 'api-key')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);

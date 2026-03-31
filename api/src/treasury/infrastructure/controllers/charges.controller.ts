@@ -13,7 +13,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { RequirePermissions } from '../../../shared/infrastructure/guards/require-permissions.decorator';
 import { GenerateMonthlyChargesDto } from '../../application/dtos/generate-monthly-charges.dto';
@@ -32,6 +32,7 @@ import { GetChargesByAccountQuery } from '../../application/queries/get-charges-
  * El tenantId se extrae del request (establecido por TenantMiddleware/JWT).
  */
 @ApiTags('Charges')
+@ApiBearerAuth()
 @Controller('v1/treasury/charges')
 export class ChargesController {
   constructor(
@@ -95,6 +96,7 @@ export class ChargesController {
  * El tenantId se extrae del request (establecido por TenantMiddleware/JWT).
  */
 @ApiTags('Charges')
+@ApiBearerAuth()
 @Controller('v1/treasury/member-accounts/:accountId/charges')
 export class MemberAccountChargesController {
   constructor(
