@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CloseSubscriptionHandler } from '../close-subscription.handler';
 import { CloseSubscriptionCommand } from '../close-subscription.command';
 import { MemberAccountRepository } from '../../../domain/repositories/member-account.repository';
-import { TreasuryOutboxPublisher } from '../../ports/treasury-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { MemberAccount } from '../../../domain/aggregates/member-account';
 import { FeeSubscription } from '../../../domain/entities/fee-subscription';
 import { FeePlan } from '../../../domain/aggregates/fee-plan';
@@ -63,7 +63,7 @@ function createMemberAccountWithSubscription(): MemberAccount {
 describe('CloseSubscriptionHandler', () => {
   let handler: CloseSubscriptionHandler;
   let memberAccountRepository: MemberAccountRepository;
-  let outboxPublisher: TreasuryOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
 
   beforeEach(() => {
     memberAccountRepository = {

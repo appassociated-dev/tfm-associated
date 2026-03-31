@@ -14,5 +14,5 @@ export interface FeePlanModifiedPayload {
  * Contiene la información actualizada del plan.
  */
 export class FeePlanModifiedEvent extends DomainEvent<FeePlanModifiedPayload> {
-  readonly eventType = 'fee-plan.modified';
+  readonly eventType = 'FeePlanModified';
 }

@@ -14,5 +14,5 @@ export interface MemberTypeCreatedPayload {
  * Contiene la información necesaria para que otros BCs reaccionen.
  */
 export class MemberTypeCreatedEvent extends DomainEvent<MemberTypeCreatedPayload> {
-  readonly eventType = 'member-type.created';
+  readonly eventType = 'MemberTypeCreated';
 }

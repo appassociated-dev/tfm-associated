@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CreateFeePlanHandler } from '../create-fee-plan.handler';
 import { CreateFeePlanCommand } from '../create-fee-plan.command';
 import { FeePlanRepository } from '../../../domain/repositories/fee-plan.repository';
-import { TreasuryOutboxPublisher } from '../../ports/treasury-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { FeePlanCodeAlreadyExistsError } from '../../../domain/exceptions';
 import { FeePlanCodeInvalidError } from '../../../domain/value-objects/fee-plan-code';
 
@@ -24,7 +24,7 @@ function validCommand(overrides: Partial<CreateFeePlanCommand> = {}): CreateFeeP
 describe('CreateFeePlanHandler', () => {
   let handler: CreateFeePlanHandler;
   let feePlanRepository: FeePlanRepository;
-  let outboxPublisher: TreasuryOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
 
   beforeEach(() => {
     feePlanRepository = {
@@ -33,6 +33,7 @@ describe('CreateFeePlanHandler', () => {
       findById: vi.fn().mockResolvedValue(null),
       findByCode: vi.fn().mockResolvedValue(null),
       findAll: vi.fn().mockResolvedValue([]),
+      findAllWithCount: vi.fn(),
       existsByCode: vi.fn().mockResolvedValue(false),
       hasActiveSubscriptions: vi.fn().mockResolvedValue(false),
     };

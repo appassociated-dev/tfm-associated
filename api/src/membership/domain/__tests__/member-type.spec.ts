@@ -50,7 +50,7 @@ describe('MemberType', () => {
       const events = result.value.pullDomainEvents();
       expect(events).toHaveLength(1);
       expect(events[0]).toBeInstanceOf(MemberTypeCreatedEvent);
-      expect(events[0].eventType).toBe('member-type.created');
+      expect(events[0].eventType).toBe('MemberTypeCreated');
     }
   });
 

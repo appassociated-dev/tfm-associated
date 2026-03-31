@@ -14,5 +14,5 @@ export interface FiscalYearClosedPayload {
  * Contiene los datos finales del ejercicio y advertencias pendientes.
  */
 export class FiscalYearClosedEvent extends DomainEvent<FiscalYearClosedPayload> {
-  readonly eventType = 'fiscal-year.closed';
+  readonly eventType = 'FiscalYearClosed';
 }

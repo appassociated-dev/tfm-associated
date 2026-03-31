@@ -288,6 +288,7 @@ export function FeePlansListPage() {
         opened={deactivateOpened}
         onClose={closeDeactivate}
         plan={selectedPlan}
+        activeSubscriptionsCount={selectedPlan?.activeSubscriptionsCount ?? 0}
       />
       {selectedPlan && (
         <LinkMemberTypesModal

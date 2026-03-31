@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit, Inject } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
@@ -26,6 +26,14 @@ import { PrismaRefreshTokenRepository } from './infrastructure/persistence/prism
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { JwtAuthGuard } from '../shared/infrastructure/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../shared/infrastructure/guards/permissions.guard';
+import { EventReconstitutionRegistry } from '../shared/infrastructure/persistence/event-reconstitution.registry';
+import {
+  TenantProvisionedEvent,
+  UserCreatedEvent,
+  UserAuthenticatedEvent,
+  AuthenticationFailedEvent,
+  UserBlockedEvent,
+} from './domain/events';
 
 /**
  * BC-Identity: Usuarios, tenants, membresías y roles.
@@ -39,9 +47,11 @@ import { PermissionsGuard } from '../shared/infrastructure/guards/permissions.gu
  * - Handlers CQRS: provisión, login, refresh, logout, switch tenant, perfil
  * - Repositorios y puertos de infraestructura vía inyección por token
  * - Guards globales: JwtAuthGuard y PermissionsGuard (ADR-006, ADR-007)
+ * - OnModuleInit: registra los 5 tipos de eventos de BC-Identity en EventReconstitutionRegistry
  *
  * PrismaMainService, ENCRYPTION_SERVICE, TENANT_CREDENTIAL_PROVIDER y
  * TENANT_CREDENTIAL_PORT son provistos globalmente por TenantCredentialsModule.
+ * EventReconstitutionRegistry es provisto globalmente por OutboxProcessorModule.
  */
 @Module({
   imports: [
@@ -105,4 +115,21 @@ import { PermissionsGuard } from '../shared/infrastructure/guards/permissions.gu
   ],
   exports: [],
 })
-export class IdentityModule {}
+export class IdentityModule implements OnModuleInit {
+  constructor(
+    @Inject(EventReconstitutionRegistry)
+    private readonly registry: EventReconstitutionRegistry,
+  ) {}
+
+  /**
+   * Registra los 5 tipos de eventos de BC-Identity en el EventReconstitutionRegistry.
+   * Permite que OutboxProcessorService reconstituya eventos tipados al procesarlos.
+   */
+  onModuleInit(): void {
+    this.registry.register('TenantProvisioned', TenantProvisionedEvent);
+    this.registry.register('UserCreated', UserCreatedEvent);
+    this.registry.register('UserAuthenticated', UserAuthenticatedEvent);
+    this.registry.register('AuthenticationFailed', AuthenticationFailedEvent);
+    this.registry.register('UserBlocked', UserBlockedEvent);
+  }
+}

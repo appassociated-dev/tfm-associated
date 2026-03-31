@@ -165,15 +165,20 @@ export class MemberAccount extends AggregateRoot<MemberAccountId> {
     // Emitir evento de dominio
     this.addDomainEvent(
       new SubscriptionCreatedEvent({
-        subscriptionId: subscription.id.toValue(),
-        memberAccountId: this._id.toValue(),
-        memberId: this._memberId,
-        feePlanId: subscription.feePlanId.toValue(),
-        registrationDate: subscription.registrationDate,
-        effectiveAmount: subscription.effectiveAmount.amount,
-        typeDiscount: subscription.discount.typeDiscount,
-        personalDiscount: subscription.discount.personalDiscount,
-        tenantId: this._tenantId,
+        payload: {
+          subscriptionId: subscription.id.toValue(),
+          memberAccountId: this._id.toValue(),
+          memberId: this._memberId,
+          feePlanId: subscription.feePlanId.toValue(),
+          registrationDate: subscription.registrationDate,
+          effectiveAmount: subscription.effectiveAmount.amount,
+          typeDiscount: subscription.discount.typeDiscount,
+          personalDiscount: subscription.discount.personalDiscount,
+          tenantId: this._tenantId,
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'MemberAccount',
+        boundedContext: 'BC-Treasury',
       }),
     );
 
@@ -201,11 +206,16 @@ export class MemberAccount extends AggregateRoot<MemberAccountId> {
     // Emitir evento de dominio
     this.addDomainEvent(
       new SubscriptionClosedEvent({
-        subscriptionId: subscriptionId.toValue(),
-        memberAccountId: this._id.toValue(),
-        cancelReason: reason.value,
-        leaveDate,
-        tenantId: this._tenantId,
+        payload: {
+          subscriptionId: subscriptionId.toValue(),
+          memberAccountId: this._id.toValue(),
+          cancelReason: reason.value,
+          leaveDate,
+          tenantId: this._tenantId,
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'MemberAccount',
+        boundedContext: 'BC-Treasury',
       }),
     );
 
@@ -262,11 +272,16 @@ export class MemberAccount extends AggregateRoot<MemberAccountId> {
     // Emitir evento de dominio
     this.addDomainEvent(
       new SubscriptionModifiedEvent({
-        subscriptionId: subscriptionId.toValue(),
-        memberAccountId: this._id.toValue(),
-        modifiedFields: ['discount', 'effectiveAmount'],
-        modificationDate: new Date(),
-        tenantId: this._tenantId,
+        payload: {
+          subscriptionId: subscriptionId.toValue(),
+          memberAccountId: this._id.toValue(),
+          modifiedFields: ['discount', 'effectiveAmount'],
+          modificationDate: new Date(),
+          tenantId: this._tenantId,
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'MemberAccount',
+        boundedContext: 'BC-Treasury',
       }),
     );
 
@@ -348,15 +363,20 @@ export class MemberAccount extends AggregateRoot<MemberAccountId> {
     // Emitir evento de dominio
     this.addDomainEvent(
       new PaymentRecordedEvent({
-        paymentId: payment.id.toValue(),
-        chargeId: chargeId.toValue(),
-        memberAccountId: this._id.toValue(),
-        memberId: this._memberId,
-        amount: payment.amount.amount,
-        paymentMethod: payment.paymentMethod.value,
-        paymentDate: payment.paymentDate,
-        paymentReference: payment.paymentReference.value,
-        chargeNewStatus: charge.status.value,
+        payload: {
+          paymentId: payment.id.toValue(),
+          chargeId: chargeId.toValue(),
+          memberAccountId: this._id.toValue(),
+          memberId: this._memberId,
+          amount: payment.amount.amount,
+          paymentMethod: payment.paymentMethod.value,
+          paymentDate: payment.paymentDate,
+          paymentReference: payment.paymentReference.value,
+          chargeNewStatus: charge.status.value,
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'MemberAccount',
+        boundedContext: 'BC-Treasury',
       }),
     );
 
@@ -442,15 +462,20 @@ export class MemberAccount extends AggregateRoot<MemberAccountId> {
       // Emitir evento de dominio
       this.addDomainEvent(
         new PaymentRecordedEvent({
-          paymentId: payment.id.toValue(),
-          chargeId: charge.id.toValue(),
-          memberAccountId: this._id.toValue(),
-          memberId: this._memberId,
-          amount: amount.amount,
-          paymentMethod: paymentData.method.value,
-          paymentDate: paymentData.date,
-          paymentReference: paymentData.reference.value,
-          chargeNewStatus: charge.status.value,
+          payload: {
+            paymentId: payment.id.toValue(),
+            chargeId: charge.id.toValue(),
+            memberAccountId: this._id.toValue(),
+            memberId: this._memberId,
+            amount: amount.amount,
+            paymentMethod: paymentData.method.value,
+            paymentDate: paymentData.date,
+            paymentReference: paymentData.reference.value,
+            chargeNewStatus: charge.status.value,
+          },
+          aggregateId: this._id.toValue(),
+          aggregateType: 'MemberAccount',
+          boundedContext: 'BC-Treasury',
         }),
       );
     }

@@ -6,7 +6,7 @@ import { MemberAccountRepository } from '../../../domain/repositories/member-acc
 import { FeePlanRepository } from '../../../domain/repositories/fee-plan.repository';
 import { ChargeRepository } from '../../../domain/repositories/charge.repository';
 import { FiscalYearQueryPort } from '../../../domain/ports/fiscal-year-query.port';
-import { TreasuryOutboxPublisher } from '../../ports/treasury-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { MemberAccount } from '../../../domain/aggregates/member-account';
 import { FeePlan } from '../../../domain/aggregates/fee-plan';
 import { FeeSubscription } from '../../../domain/entities/fee-subscription';
@@ -83,7 +83,7 @@ describe('GenerateSubscriptionChargesHandler', () => {
   let feePlanRepository: FeePlanRepository;
   let chargeRepository: ChargeRepository;
   let fiscalYearQueryPort: FiscalYearQueryPort;
-  let outboxPublisher: TreasuryOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
 
   beforeEach(() => {
     memberAccountRepository = {
@@ -101,6 +101,7 @@ describe('GenerateSubscriptionChargesHandler', () => {
       findById: vi.fn().mockResolvedValue(createMonthlyPlan()),
       findByCode: vi.fn(),
       findAll: vi.fn(),
+      findAllWithCount: vi.fn(),
       existsByCode: vi.fn(),
       hasActiveSubscriptions: vi.fn(),
     };

@@ -17,8 +17,8 @@ const VALID_UUID_2 = '660e8400-e29b-41d4-a716-446655440001';
 
 const validPersonalData = {
   dni: '12345678Z',
-  firstName: 'Juan',
-  lastName: 'García López',
+  name: 'Juan',
+  surnames: 'García López',
   birthDate: '1990-05-15',
   email: 'juan@ejemplo.com',
   phone: null,
@@ -41,8 +41,8 @@ const validMemberType = {
 
 const validRegistrationRequest = {
   dni: '12345678Z',
-  firstName: 'Juan',
-  lastName: 'García López',
+  name: 'Juan',
+  surnames: 'García López',
   birthDate: '1990-05-15',
   email: 'juan@ejemplo.com',
   phone: null,
@@ -73,8 +73,8 @@ describe('personalDataSchema', () => {
     const result = personalDataSchema.parse(validPersonalData);
 
     expect(result.dni).toBe('12345678Z');
-    expect(result.firstName).toBe('Juan');
-    expect(result.lastName).toBe('García López');
+    expect(result.name).toBe('Juan');
+    expect(result.surnames).toBe('García López');
     expect(result.birthDate).toBe('1990-05-15');
     expect(result.email).toBe('juan@ejemplo.com');
   });
@@ -107,14 +107,14 @@ describe('personalDataSchema', () => {
     expect(() => personalDataSchema.parse(invalid)).toThrow(ZodError);
   });
 
-  it('deberia rechazar firstName vacio', () => {
-    const invalid = { ...validPersonalData, firstName: '' };
+  it('deberia rechazar name vacio', () => {
+    const invalid = { ...validPersonalData, name: '' };
 
     expect(() => personalDataSchema.parse(invalid)).toThrow(ZodError);
   });
 
-  it('deberia rechazar lastName vacio', () => {
-    const invalid = { ...validPersonalData, lastName: '' };
+  it('deberia rechazar surnames vacio', () => {
+    const invalid = { ...validPersonalData, surnames: '' };
 
     expect(() => personalDataSchema.parse(invalid)).toThrow(ZodError);
   });
@@ -167,6 +167,37 @@ describe('memberTypeSchema', () => {
     const invalid = { ...validMemberType, id: 'no-es-uuid' };
 
     expect(() => memberTypeSchema.parse(invalid)).toThrow(ZodError);
+  });
+
+  it('deberia aceptar campos opcionales completos del DTO (REQ-ZOD-005)', () => {
+    // Fixture con todos los campos de MemberTypeResponseDto
+    const fullDto = {
+      ...validMemberType,
+      minimumSeniorityForVoting: 2,
+      minimumSeniorityForOffice: 3,
+      automaticTransitionTargetId: null,
+      rulesConfig: null,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    };
+
+    const result = memberTypeSchema.parse(fullDto);
+
+    expect(result.minimumSeniorityForVoting).toBe(2);
+    expect(result.minimumSeniorityForOffice).toBe(3);
+    expect(result.automaticTransitionTargetId).toBeNull();
+    expect(result.rulesConfig).toBeNull();
+    expect(result.createdAt).toBe('2026-01-01T00:00:00.000Z');
+    expect(result.updatedAt).toBe('2026-01-01T00:00:00.000Z');
+  });
+
+  it('deberia aceptar subset estrecho del wizard sin campos opcionales', () => {
+    // El wizard solo usa campos basicos — los nuevos campos opcionales no deben ser requeridos
+    const result = memberTypeSchema.parse(validMemberType);
+
+    expect(result.minimumSeniorityForVoting).toBeUndefined();
+    expect(result.automaticTransitionTargetId).toBeUndefined();
+    expect(result.rulesConfig).toBeUndefined();
   });
 });
 
@@ -224,6 +255,25 @@ describe('registrationResponseSchema', () => {
     const invalid = { ...validRegistrationResponse, registrationDate: '15/03/2026' };
 
     expect(() => registrationResponseSchema.parse(invalid)).toThrow(ZodError);
+  });
+
+  it('deberia aceptar emailWarning en respuesta de alta (REQ-ZOD-006)', () => {
+    // emailWarning es un aviso no bloqueante de email duplicado
+    const withWarning = {
+      ...validRegistrationResponse,
+      emailWarning: 'Ya existe un socio con este email',
+    };
+
+    const result = registrationResponseSchema.parse(withWarning);
+
+    expect(result.emailWarning).toBe('Ya existe un socio con este email');
+  });
+
+  it('deberia aceptar respuesta sin emailWarning (campo opcional)', () => {
+    // emailWarning es opcional — la respuesta normal no lo incluye
+    const result = registrationResponseSchema.parse(validRegistrationResponse);
+
+    expect(result.emailWarning).toBeUndefined();
   });
 });
 

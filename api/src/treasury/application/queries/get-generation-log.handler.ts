@@ -13,16 +13,16 @@ export interface GenerationLogEntryDto {
   eventType: string;
   /** Payload del evento con los datos de generación. */
   payload: Record<string, unknown>;
-  /** Fecha de creación del evento. */
-  createdAt: Date;
-  /** Fecha de procesamiento (null si aún no se procesó). */
-  processedAt: Date | null;
+  /** Fecha de ocurrencia del evento. */
+  occurredAt: Date;
 }
 
 /**
  * Handler de la query para obtener el log de generación de cargos.
  * Consulta la tabla outbox_events de la BD del tenant filtrando por
- * eventos de tipo 'monthly-generation.completed' y el periodo solicitado.
+ * eventos de tipo 'MonthlyGenerationCompleted' y el periodo solicitado.
+ * La tabla outbox del tenant (ENT-017) es de solo-auditoría: no tiene campos
+ * de procesamiento (status, processedAt, retryCount).
  */
 @QueryHandler(GetGenerationLogQuery)
 export class GetGenerationLogHandler implements IQueryHandler<GetGenerationLogQuery> {
@@ -38,9 +38,9 @@ export class GetGenerationLogHandler implements IQueryHandler<GetGenerationLogQu
     // Buscar eventos de generación completada para el mes/año dado
     const events = await prisma.outboxEvent.findMany({
       where: {
-        eventType: 'monthly-generation.completed',
+        eventType: 'MonthlyGenerationCompleted',
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { occurredAt: 'desc' },
     });
 
     // Filtrar por mes/año en el payload (el outbox no tiene campos de mes/año)
@@ -53,8 +53,7 @@ export class GetGenerationLogHandler implements IQueryHandler<GetGenerationLogQu
       id: event.id,
       eventType: event.eventType,
       payload: event.payload as Record<string, unknown>,
-      createdAt: event.createdAt,
-      processedAt: event.processedAt,
+      occurredAt: event.occurredAt,
     }));
   }
 }

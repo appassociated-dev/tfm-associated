@@ -66,7 +66,7 @@ describe('MemberTypeStep', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    vi.setSystemTime(new Date('2026-06-15'));
+    vi.setSystemTime(new Date(2026, 5, 15)); // mes 0-indexado: 5 = junio
   });
 
   afterEach(() => {

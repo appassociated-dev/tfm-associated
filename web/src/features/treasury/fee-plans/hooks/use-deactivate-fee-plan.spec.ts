@@ -124,7 +124,16 @@ describe('useDeactivateFeePlan', () => {
     // Arrange
     server.use(
       http.patch('*/v1/treasury/fee-plans/:id/deactivate', () => {
-        return HttpResponse.json({ message: 'Plan tiene suscripciones activas' }, { status: 422 });
+        return HttpResponse.json(
+          {
+            error: {
+              code: 'PLAN_HAS_ACTIVE_SUBSCRIPTIONS',
+              message: 'Plan tiene suscripciones activas',
+              details: null,
+            },
+          },
+          { status: 422 },
+        );
       }),
     );
 
@@ -150,7 +159,7 @@ describe('useDeactivateFeePlan', () => {
     });
   });
 
-  it('no deberia mostrar ninguna notificacion para errores no-422', async () => {
+  it('deberia mostrar notificacion roja generica para errores no-422 (error 500)', async () => {
     // Arrange
     server.use(
       http.patch('*/v1/treasury/fee-plans/:id/deactivate', () => {
@@ -169,9 +178,9 @@ describe('useDeactivateFeePlan', () => {
       }
     });
 
-    // Assert — el hook solo muestra notificacion para 422, no para otros errores
+    // Assert — error generico: notificacion roja con mensaje generico (BUG FIX: antes era silencioso)
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(mockNotificationsShow).not.toHaveBeenCalled();
+    expect(mockNotificationsShow).toHaveBeenCalledWith(expect.objectContaining({ color: 'red' }));
   });
 
   it('deberia tener isPending en false antes de mutar', () => {
@@ -182,7 +191,7 @@ describe('useDeactivateFeePlan', () => {
     expect(result.current.isPending).toBe(false);
   });
 
-  it('deberia manejar error 400 sin mostrar notificacion', async () => {
+  it('deberia mostrar notificacion roja generica para error 400', async () => {
     // Arrange
     server.use(
       http.patch('*/v1/treasury/fee-plans/:id/deactivate', () => {
@@ -201,8 +210,8 @@ describe('useDeactivateFeePlan', () => {
       }
     });
 
-    // Assert — solo 422 muestra notificacion, 400 no
+    // Assert — error generico: notificacion roja (BUG FIX: antes era silencioso para 400)
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(mockNotificationsShow).not.toHaveBeenCalled();
+    expect(mockNotificationsShow).toHaveBeenCalledWith(expect.objectContaining({ color: 'red' }));
   });
 });

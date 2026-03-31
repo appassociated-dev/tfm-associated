@@ -79,6 +79,40 @@ export class PrismaFeePlanRepository implements FeePlanRepository {
     return rawList.map((raw: unknown) => FeePlanPrismaMapper.toDomain(raw as PrismaRawFeePlan));
   }
 
+  /**
+   * Obtiene todos los planes de cuota junto con el conteo de suscripciones activas.
+   * Usa Prisma _count con filtro para incluir solo suscripciones ACTIVE (AD-1, REQ-SPU-008).
+   * Un único query — sin N+1.
+   */
+  async findAllWithCount(): Promise<{ feePlan: FeePlan; activeSubscriptionsCount: number }[]> {
+    const rawList = await (
+      await this.getPrisma()
+    ).feePlan.findMany({
+      orderBy: { createdAt: 'asc' },
+      include: {
+        _count: {
+          select: {
+            subscriptions: {
+              where: {
+                status: { equals: 'ACTIVE' },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return rawList.map((raw: unknown) => {
+      const { _count, ...planData } = raw as PrismaRawFeePlan & {
+        _count: { subscriptions: number };
+      };
+      return {
+        feePlan: FeePlanPrismaMapper.toDomain(planData as PrismaRawFeePlan),
+        activeSubscriptionsCount: _count.subscriptions,
+      };
+    });
+  }
+
   /** Verifica si ya existe un plan de cuota con el código dado. */
   async existsByCode(code: FeePlanCode): Promise<boolean> {
     const raw = await (
@@ -92,7 +126,7 @@ export class PrismaFeePlanRepository implements FeePlanRepository {
 
   /**
    * Verifica si un plan de cuota tiene suscripciones activas.
-   * Consulta la tabla fee_subscriptions con status distinto de COMPLETED y CANCELLED.
+   * Consulta la tabla fee_subscriptions con status igual a ACTIVE.
    */
   async hasActiveSubscriptions(id: FeePlanId): Promise<boolean> {
     const count = await (
@@ -100,7 +134,7 @@ export class PrismaFeePlanRepository implements FeePlanRepository {
     ).feeSubscription.count({
       where: {
         feePlanId: id.toValue(),
-        status: { notIn: ['COMPLETED', 'CANCELLED'] },
+        status: { equals: 'ACTIVE' },
       },
     });
 

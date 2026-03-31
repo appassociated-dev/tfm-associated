@@ -14,9 +14,9 @@ import {
   MemberTypeQueryPort,
 } from '../../domain/ports/member-type-query.port';
 import {
-  TREASURY_OUTBOX_PUBLISHER,
-  TreasuryOutboxPublisher,
-} from '../ports/treasury-outbox.publisher';
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 import { FeePlanId } from '../../domain/value-objects/fee-plan-id';
 import { MemberTypeFeePlan } from '../../domain/entities/member-type-fee-plan';
 import { FeePlanLinkedToMemberTypeEvent } from '../../domain/events/fee-plan-linked-to-member-type.event';
@@ -36,8 +36,8 @@ export class LinkMemberTypesHandler implements ICommandHandler<LinkMemberTypesCo
     private readonly memberTypeFeePlanRepository: MemberTypeFeePlanRepository,
     @Inject(MEMBER_TYPE_QUERY_PORT)
     private readonly memberTypeQueryPort: MemberTypeQueryPort,
-    @Inject(TREASURY_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: TreasuryOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
   ) {}
 
   async execute(command: LinkMemberTypesCommand): Promise<void> {
@@ -93,10 +93,15 @@ export class LinkMemberTypesHandler implements ICommandHandler<LinkMemberTypesCo
       // Preparar evento de dominio
       events.push(
         new FeePlanLinkedToMemberTypeEvent({
-          feePlanId: command.feePlanId,
-          memberTypeId: link.memberTypeId,
-          isDefault: link.isDefault,
-          tenantId: command.tenantId,
+          payload: {
+            feePlanId: command.feePlanId,
+            memberTypeId: link.memberTypeId,
+            isDefault: link.isDefault,
+            tenantId: command.tenantId,
+          },
+          aggregateId: command.feePlanId,
+          aggregateType: 'FeePlan',
+          boundedContext: 'BC-Treasury',
         }),
       );
     }

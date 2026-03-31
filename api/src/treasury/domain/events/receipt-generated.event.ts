@@ -14,5 +14,5 @@ export interface ReceiptGeneratedPayload {
  * para archivar el recibo.
  */
 export class ReceiptGeneratedEvent extends DomainEvent<ReceiptGeneratedPayload> {
-  readonly eventType = 'receipt.generated';
+  readonly eventType = 'ReceiptGenerated';
 }

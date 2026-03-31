@@ -158,7 +158,73 @@ describe('useReinstateMember', () => {
   });
 
   it('deberia manejar error de red', async () => {
-    // Arrange
+    // Arrange — HttpResponse.error() simula TypeError: Failed to fetch (red caida)
+    server.use(
+      http.post('*/v1/members/:memberId/reinstate', () => {
+        return HttpResponse.error();
+      }),
+    );
+
+    // Act
+    const { result } = renderHook(() => useReinstateMember());
+
+    await act(async () => {
+      try {
+        await result.current.mutateAsync({
+          memberId: MEMBER_ID,
+          data: reinstatementRequest,
+        });
+      } catch {
+        // Se espera que falle
+      }
+    });
+
+    // Assert — fallo de red: notificacion roja generica
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(mockNotificationsShow).toHaveBeenCalledWith(expect.objectContaining({ color: 'red' }));
+  });
+
+  it('deberia mostrar notificacion roja de dominio para error 422 (conflicto de estado)', async () => {
+    // Arrange — 422 indica que el socio no puede rehabilitarse desde el estado actual
+    server.use(
+      http.post('*/v1/members/:memberId/reinstate', () => {
+        return HttpResponse.json(
+          {
+            error: {
+              code: 'REINSTATEMENT_NOT_APPLICABLE',
+              message: 'El socio no puede ser rehabilitado desde el estado actual',
+              details: null,
+            },
+          },
+          { status: 422 },
+        );
+      }),
+    );
+
+    // Act
+    const { result } = renderHook(() => useReinstateMember());
+
+    await act(async () => {
+      try {
+        await result.current.mutateAsync({
+          memberId: MEMBER_ID,
+          data: reinstatementRequest,
+        });
+      } catch {
+        // Se espera que falle
+      }
+    });
+
+    // Assert — notificacion roja especifica de dominio (stateErrorTitle), NO el fallback generico
+    await waitFor(() =>
+      expect(mockNotificationsShow).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'Error de rehabilitacion', color: 'red' }),
+      ),
+    );
+  });
+
+  it('deberia mostrar notificacion roja generica para error 500', async () => {
+    // Arrange — error interno del servidor
     server.use(
       http.post('*/v1/members/:memberId/reinstate', () => {
         return HttpResponse.json({ message: 'Internal Server Error' }, { status: 500 });
@@ -179,8 +245,9 @@ describe('useReinstateMember', () => {
       }
     });
 
-    // Assert
+    // Assert — fallback generico con color rojo
     await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(mockNotificationsShow).toHaveBeenCalledWith(expect.objectContaining({ color: 'red' }));
   });
 
   it('deberia tener isPending en false antes de mutar', () => {

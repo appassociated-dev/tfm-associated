@@ -13,5 +13,5 @@ export interface AuthenticationFailedPayload {
  * Útil para auditoría y detección de ataques de fuerza bruta.
  */
 export class AuthenticationFailedEvent extends DomainEvent<AuthenticationFailedPayload> {
-  readonly eventType = 'identity.authentication.failed';
+  readonly eventType = 'AuthenticationFailed';
 }

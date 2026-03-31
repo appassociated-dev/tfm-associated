@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams } from 'react-router';
 import {
   Alert,
@@ -10,12 +11,12 @@ import {
   Stack,
   Table,
   Text,
+  TextInput,
   Timeline,
   Title,
   Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { useTranslation } from 'react-i18next';
 
@@ -23,9 +24,11 @@ import { formatMoney } from '@/shared/utils/format-money';
 import { formatDateCompact } from '@/shared/utils/format-date';
 
 import { useLeaveSummary } from '../hooks/use-leave-summary';
-import { processNonpaymentLeave } from '../api/member-leave.api';
+import { useAvailableTransitions } from '../hooks/use-available-transitions';
+
+import classes from './nonpayment-leave.module.css';
+import { useNonpaymentLeave } from '../hooks/use-nonpayment-leave';
 import { StatusBadge } from '../components/status-badge';
-import type { LeaveResponse } from '../schemas/member-leave.schemas';
 
 // === Constantes ===
 
@@ -58,6 +61,26 @@ const DELINQUENCY_PHASES = [
   },
 ] as const;
 
+/** Frase exacta que el usuario debe escribir para confirmar la baja por impago. */
+const CONFIRMATION_PHRASE = 'CONFIRMAR BAJA';
+
+/**
+ * Devuelve el indice de fase activo en el Timeline segun el estado actual del socio.
+ * PENDING_PAYMENT → fase 0, SUSPENDED → fase 1, NONPAYMENT_LEAVE → fase 4 (completado).
+ */
+function getActivePhaseIndex(status: string): number {
+  switch (status) {
+    case 'PENDING_PAYMENT':
+      return 0;
+    case 'SUSPENDED':
+      return 1;
+    case 'NONPAYMENT_LEAVE':
+      return 4;
+    default:
+      return -1;
+  }
+}
+
 // === Componente principal ===
 
 /**
@@ -67,38 +90,22 @@ const DELINQUENCY_PHASES = [
  */
 export function NonpaymentLeavePage() {
   const { memberId } = useParams<{ memberId: string }>();
-  const queryClient = useQueryClient();
   const { t } = useTranslation(['membership', 'common']);
 
-  // Datos
+  // Datos del socio y resumen de morosidad
   const { data: summary, isLoading, isError, refetch } = useLeaveSummary(memberId);
 
-  // Mutation para ejecutar baja por impago
-  const nonpaymentLeave = useMutation({
-    mutationFn: (id: string) => processNonpaymentLeave(id),
-    onSuccess: (_data: LeaveResponse) => {
-      queryClient.invalidateQueries({ queryKey: ['members'] });
-      queryClient.invalidateQueries({ queryKey: ['leave-summary'] });
-      notifications.show({
-        title: t('leave.nonpayment.notifications.successTitle'),
-        message: t('leave.nonpayment.notifications.successText'),
-        color: 'green',
-      });
-    },
-    onError: (error: unknown) => {
-      const status = (error as { response?: { status?: number } })?.response?.status;
-      if (status === 422) {
-        notifications.show({
-          title: t('leave.nonpayment.notifications.stateErrorTitle'),
-          message: t('leave.nonpayment.notifications.stateErrorText'),
-          color: 'red',
-        });
-      }
-    },
-  });
+  // Transiciones disponibles desde el backend — fuente de verdad para elegibilidad
+  const { data: transitionsData } = useAvailableTransitions(memberId);
+
+  // Mutation encapsulada en hook (invalidacion de queries y notificaciones incluidas)
+  const nonpaymentLeave = useNonpaymentLeave();
+
+  // Texto de doble confirmacion que el usuario debe escribir para habilitar el boton
+  const [confirmText, setConfirmText] = useState('');
 
   // Modales
-  const [confirmOpened, { close: closeConfirm }] = useDisclosure(false);
+  const [confirmOpened, { open: openConfirm, close: closeConfirm }] = useDisclosure(false);
   const [doubleConfirmOpened, { open: openDoubleConfirm, close: closeDoubleConfirm }] =
     useDisclosure(false);
 
@@ -110,13 +117,23 @@ export function NonpaymentLeavePage() {
     openDoubleConfirm();
   }
 
-  /** Segundo paso de confirmacion: ejecuta la baja. */
+  /** Cierra el modal de doble confirmacion y limpia el texto de confirmacion. */
+  function handleCloseDoubleConfirm() {
+    closeDoubleConfirm();
+    setConfirmText('');
+  }
+
+  /** Segundo paso de confirmacion: ejecuta la baja por impago. */
   function handleExecuteLeave() {
     if (!memberId) return;
 
     nonpaymentLeave.mutate(memberId, {
       onSuccess: () => {
-        closeDoubleConfirm();
+        handleCloseDoubleConfirm();
+      },
+      // Cierra el modal y limpia estado en caso de error para evitar que quede abierto
+      onError: () => {
+        handleCloseDoubleConfirm();
       },
     });
   }
@@ -140,7 +157,25 @@ export function NonpaymentLeavePage() {
     );
   }
 
+  // memberId puede ser undefined si la ruta no esta correctamente configurada
+  if (!memberId) {
+    return (
+      <Alert color="red" title={t('leave.nonpayment.errorLoadTitle')}>
+        {t('leave.nonpayment.errorLoadText')}
+      </Alert>
+    );
+  }
+
   if (!summary) return null;
+
+  // La elegibilidad se deriva del backend: NONPAYMENT_LEAVE debe estar entre las transiciones disponibles
+  const canExecuteLeave =
+    transitionsData?.availableTransitions?.some(
+      (transition) => transition.status === 'NONPAYMENT_LEAVE',
+    ) ?? false;
+
+  // La doble confirmacion requiere que el usuario escriba exactamente la frase definida
+  const isConfirmTextValid = confirmText.trim().toUpperCase() === CONFIRMATION_PHRASE;
 
   return (
     <>
@@ -192,10 +227,13 @@ export function NonpaymentLeavePage() {
         {/* Seccion: Resumen workflow de morosidad */}
         <Stack gap="sm">
           <Title order={4}>{t('leave.nonpayment.workflowTitle')}</Title>
-          <Alert color="yellow" title={t('leave.nonpayment.workflowIncompleteTitle')}>
-            {t('leave.nonpayment.workflowIncompleteText')}
-          </Alert>
-          <DelinquencyTimeline />
+          {/* Alerta informativa solo cuando el workflow no ha concluido con baja efectiva */}
+          {summary.currentStatus !== 'NONPAYMENT_LEAVE' && (
+            <Alert color="yellow" title={t('leave.nonpayment.workflowIncompleteTitle')}>
+              {t('leave.nonpayment.workflowIncompleteText')}
+            </Alert>
+          )}
+          <DelinquencyTimeline currentStatus={summary.currentStatus} />
         </Stack>
 
         {/* Seccion: Certificado de descubierto preview */}
@@ -220,35 +258,13 @@ export function NonpaymentLeavePage() {
                 <Table>
                   <Table.Thead>
                     <Table.Tr>
-                      <Table.Th
-                        style={{
-                          textTransform: 'uppercase',
-                          fontSize: 'var(--mantine-font-size-xs)',
-                        }}
-                        fw={600}
-                        c="dimmed"
-                      >
+                      <Table.Th fz="xs" tt="uppercase" fw={600} c="dimmed">
                         {t('leave.voluntary.table.description')}
                       </Table.Th>
-                      <Table.Th
-                        style={{
-                          textTransform: 'uppercase',
-                          fontSize: 'var(--mantine-font-size-xs)',
-                          textAlign: 'right',
-                        }}
-                        fw={600}
-                        c="dimmed"
-                      >
+                      <Table.Th fz="xs" tt="uppercase" ta="right" fw={600} c="dimmed">
                         {t('leave.voluntary.table.amount')}
                       </Table.Th>
-                      <Table.Th
-                        style={{
-                          textTransform: 'uppercase',
-                          fontSize: 'var(--mantine-font-size-xs)',
-                        }}
-                        fw={600}
-                        c="dimmed"
-                      >
+                      <Table.Th fz="xs" tt="uppercase" fw={600} c="dimmed">
                         {t('leave.voluntary.table.dueDate')}
                       </Table.Th>
                     </Table.Tr>
@@ -257,9 +273,7 @@ export function NonpaymentLeavePage() {
                     {summary.pendingCharges.map((charge) => (
                       <Table.Tr key={charge.chargeId}>
                         <Table.Td>{charge.concept ?? '—'}</Table.Td>
-                        <Table.Td
-                          style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}
-                        >
+                        <Table.Td ta="right" className={classes.tabularNums}>
                           {formatMoney(charge.amount)}
                         </Table.Td>
                         <Table.Td>{formatDateCompact(new Date(charge.dueDate))}</Table.Td>
@@ -278,7 +292,7 @@ export function NonpaymentLeavePage() {
                   size="lg"
                   fw={700}
                   c={summary.totalPendingDebt > 0 ? 'red' : undefined}
-                  style={{ fontVariantNumeric: 'tabular-nums' }}
+                  className={classes.tabularNums}
                 >
                   {formatMoney(summary.totalPendingDebt)}
                 </Text>
@@ -314,7 +328,7 @@ export function NonpaymentLeavePage() {
             {t('leave.nonpayment.regularizationAlertText')}
           </Alert>
           <Group>
-            <Tooltip label={t('leave.nonpayment.certificateTooltip')} withArrow>
+            <Tooltip label={t('leave.nonpayment.cancelLeaveTooltip')} withArrow>
               <Button
                 variant="outline"
                 color="brand"
@@ -336,9 +350,12 @@ export function NonpaymentLeavePage() {
         {/* Boton de confirmacion */}
         <Group justify="flex-end">
           <Tooltip label={t('leave.nonpayment.executeTooltip')} withArrow>
-            <Button color="red" disabled>
-              {t('leave.nonpayment.executeButton')}
-            </Button>
+            {/* span necesario para que el Tooltip reciba eventos de puntero cuando el boton esta deshabilitado */}
+            <span>
+              <Button color="red" onClick={openConfirm} disabled={!canExecuteLeave}>
+                {t('leave.nonpayment.executeButton')}
+              </Button>
+            </span>
           </Tooltip>
         </Group>
       </Stack>
@@ -382,10 +399,10 @@ export function NonpaymentLeavePage() {
         </Stack>
       </Modal>
 
-      {/* Modal de confirmacion - paso 2 (doble confirmacion) */}
+      {/* Modal de confirmacion - paso 2 (doble confirmacion con texto de validacion) */}
       <Modal
         opened={doubleConfirmOpened}
-        onClose={closeDoubleConfirm}
+        onClose={handleCloseDoubleConfirm}
         title={t('leave.nonpayment.doubleConfirmModal.title')}
         centered
       >
@@ -394,11 +411,29 @@ export function NonpaymentLeavePage() {
             {t('leave.nonpayment.doubleConfirmModal.irreversibleText')}
           </Alert>
 
+          {/* Campo de doble confirmacion: el usuario debe escribir "CONFIRMAR BAJA" */}
+          <TextInput
+            label={t('leave.nonpayment.doubleConfirmModal.typeToConfirm')}
+            placeholder={t('leave.nonpayment.doubleConfirmModal.placeholder')}
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.currentTarget.value)}
+            error={
+              confirmText.length > 0 && !isConfirmTextValid
+                ? t('leave.nonpayment.doubleConfirmModal.mismatch')
+                : undefined
+            }
+          />
+
           <Group justify="flex-end" gap="sm" mt="md">
-            <Button variant="default" onClick={closeDoubleConfirm}>
+            <Button variant="default" onClick={handleCloseDoubleConfirm}>
               {t('common:actions.cancel')}
             </Button>
-            <Button color="red" onClick={handleExecuteLeave} loading={nonpaymentLeave.isPending}>
+            <Button
+              color="red"
+              onClick={handleExecuteLeave}
+              loading={nonpaymentLeave.isPending}
+              disabled={!isConfirmTextValid}
+            >
               {t('leave.nonpayment.doubleConfirmModal.confirmButton')}
             </Button>
           </Group>
@@ -410,40 +445,58 @@ export function NonpaymentLeavePage() {
 
 // === Componentes internos ===
 
+interface DelinquencyTimelineProps {
+  /** Estado actual del socio para resaltar la fase correspondiente. */
+  currentStatus: string;
+}
+
 /**
  * Timeline de fases del workflow de morosidad.
- * Muestra las 5 fases con estado completado/pendiente.
- * Sin datos reales de fechas (backend-driven), muestra estados placeholder.
+ * Resalta la fase activa segun el estado actual del socio.
+ * Muestra "Fase completada", "Estado actual" o "Pendiente" por fase.
  */
-function DelinquencyTimeline() {
+function DelinquencyTimeline({ currentStatus }: DelinquencyTimelineProps) {
   const { t } = useTranslation('membership');
+  const activePhaseIndex = getActivePhaseIndex(currentStatus);
 
   return (
-    <Timeline active={-1} bulletSize={24} lineWidth={2}>
-      {DELINQUENCY_PHASES.map((phase, index) => (
-        <Timeline.Item
-          key={index}
-          title={
-            <Group gap="xs">
-              <Text size="sm" fw={500}>
-                {phase.days !== null
-                  ? t('leave.nonpayment.phaseWithDays', { index: index + 1, days: phase.days })
-                  : t('leave.nonpayment.phaseNoDays', { index: index + 1 })}
-              </Text>
-              <Text size="sm" fw={500}>
-                — {t(phase.labelKey)}
-              </Text>
-            </Group>
-          }
-        >
-          <Text size="xs" c="dimmed">
-            {t(phase.descriptionKey)}
-          </Text>
-          <Text size="xs" c="dimmed" fs="italic" mt={4}>
-            {t('leave.nonpayment.phasePending')}
-          </Text>
-        </Timeline.Item>
-      ))}
+    <Timeline active={activePhaseIndex} bulletSize={24} lineWidth={2}>
+      {DELINQUENCY_PHASES.map((phase, index) => {
+        // Determina el texto de estado segun posicion relativa al indice activo
+        let phaseStatusText: string;
+        if (activePhaseIndex >= 0 && index < activePhaseIndex) {
+          phaseStatusText = t('leave.nonpayment.phaseCompleted');
+        } else if (index === activePhaseIndex) {
+          phaseStatusText = t('leave.nonpayment.phaseCurrent');
+        } else {
+          phaseStatusText = t('leave.nonpayment.phasePending');
+        }
+
+        return (
+          <Timeline.Item
+            key={phase.labelKey}
+            title={
+              <Group gap="xs">
+                <Text size="sm" fw={500}>
+                  {phase.days !== null
+                    ? t('leave.nonpayment.phaseWithDays', { index: index + 1, days: phase.days })
+                    : t('leave.nonpayment.phaseNoDays', { index: index + 1 })}
+                </Text>
+                <Text size="sm" fw={500}>
+                  — {t(phase.labelKey)}
+                </Text>
+              </Group>
+            }
+          >
+            <Text size="xs" c="dimmed">
+              {t(phase.descriptionKey)}
+            </Text>
+            <Text size="xs" c="dimmed" fs="italic" mt={4}>
+              {phaseStatusText}
+            </Text>
+          </Timeline.Item>
+        );
+      })}
     </Timeline>
   );
 }

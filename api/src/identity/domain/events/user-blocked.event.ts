@@ -14,5 +14,5 @@ export interface UserBlockedPayload {
  * Puede ser consumido para notificaciones o auditoría de seguridad.
  */
 export class UserBlockedEvent extends DomainEvent<UserBlockedPayload> {
-  readonly eventType = 'identity.user.blocked';
+  readonly eventType = 'UserBlocked';
 }

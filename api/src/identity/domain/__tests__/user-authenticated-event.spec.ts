@@ -13,14 +13,24 @@ describe('UserAuthenticatedEvent', () => {
   };
 
   it('debería crear el evento con un payload válido', () => {
-    const event = new UserAuthenticatedEvent(validPayload);
+    const event = new UserAuthenticatedEvent({
+      payload: validPayload,
+      aggregateId: validPayload.userId,
+      aggregateType: 'User',
+      boundedContext: 'BC-Identity',
+    });
 
     expect(event.payload).toEqual(validPayload);
   });
 
-  it('debería tener eventType "identity.user.authenticated"', () => {
-    const event = new UserAuthenticatedEvent(validPayload);
+  it('debería tener eventType "UserAuthenticated"', () => {
+    const event = new UserAuthenticatedEvent({
+      payload: validPayload,
+      aggregateId: validPayload.userId,
+      aggregateType: 'User',
+      boundedContext: 'BC-Identity',
+    });
 
-    expect(event.eventType).toBe('identity.user.authenticated');
+    expect(event.eventType).toBe('UserAuthenticated');
   });
 });

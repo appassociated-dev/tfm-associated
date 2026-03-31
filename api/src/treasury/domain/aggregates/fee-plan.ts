@@ -223,12 +223,17 @@ export class FeePlan extends AggregateRoot<FeePlanId> {
     // Emitir evento de dominio
     feePlan.addDomainEvent(
       new FeePlanCreatedEvent({
-        feePlanId: feePlanId.toValue(),
-        code: codeResult.value.value,
-        name: props.name,
-        type: planType.value,
-        amount: props.amount,
-        tenantId: props.tenantId,
+        payload: {
+          feePlanId: feePlanId.toValue(),
+          code: codeResult.value.value,
+          name: props.name,
+          type: planType.value,
+          amount: props.amount,
+          tenantId: props.tenantId,
+        },
+        aggregateId: feePlanId.toValue(),
+        aggregateType: 'FeePlan',
+        boundedContext: 'BC-Treasury',
       }),
     );
 
@@ -345,11 +350,16 @@ export class FeePlan extends AggregateRoot<FeePlanId> {
     // Emitir evento de modificación
     this.addDomainEvent(
       new FeePlanModifiedEvent({
-        feePlanId: this._id.toValue(),
-        code: this._code.value,
-        name: this._name,
-        type: planType.value,
-        amount: props.amount,
+        payload: {
+          feePlanId: this._id.toValue(),
+          code: this._code.value,
+          name: this._name,
+          type: planType.value,
+          amount: props.amount,
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'FeePlan',
+        boundedContext: 'BC-Treasury',
       }),
     );
 

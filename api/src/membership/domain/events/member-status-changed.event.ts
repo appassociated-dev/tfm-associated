@@ -15,5 +15,5 @@ export interface MemberStatusChangedPayload {
  * Consumido por BC-Treasury (suspender/reactivar cobros) y BC-Communication (notificar socio).
  */
 export class MemberStatusChangedEvent extends DomainEvent<MemberStatusChangedPayload> {
-  readonly eventType = 'member.status-changed';
+  readonly eventType = 'MemberStatusChanged';
 }

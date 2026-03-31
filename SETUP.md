@@ -31,8 +31,12 @@ npm run -w api prisma:generate
 # 6. Ejecutar migraciones de la BD principal
 npm run -w api prisma:migrate:main
 
-# 7. Arrancar la API en modo desarrollo
+# 7. Arrancar la API y WEB en modo desarrollo
 npm run -w api start:dev
+npm run -w web dev
+
+# 8. Provisionar primer tenant y datos iniciales
+bash doc/manual-testing/seed-data.sh
 ```
 
 ## Servicios Docker

@@ -8,7 +8,7 @@ import { PrismaMemberRepository } from '../infrastructure/persistence/prisma-mem
 import { PrismaMemberTypeRepository } from '../infrastructure/persistence/prisma-member-type.repository';
 import { MemberPrismaMapper } from '../infrastructure/persistence/member-prisma.mapper';
 import { Aes256EncryptionService } from '../infrastructure/services/aes256-encryption.service';
-import { PrismaMemberOutboxPublisher } from '../infrastructure/services/prisma-member-outbox.publisher';
+import type { IntegrationEventPublisher } from '../../shared/application/ports/integration-event.publisher';
 import { PrismaTenantService } from '../../shared/infrastructure/persistence/prisma-tenant.service';
 import { CreateMemberHandler } from '../application/commands/create-member.handler';
 import { UpdateMemberHandler } from '../application/commands/update-member.handler';
@@ -151,7 +151,7 @@ describe('UC-006: Member Management Integration', () => {
   let memberTypeRepository: PrismaMemberTypeRepository;
   let encryptionService: Aes256EncryptionService;
   let mapper: MemberPrismaMapper;
-  let outboxPublisher: PrismaMemberOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
 
   /** ID del tenant ficticio (constante para toda la suite). */
   const TENANT_ID = 'test-uc006-integration';
@@ -321,7 +321,9 @@ describe('UC-006: Member Management Integration', () => {
 
     memberTypeRepository = new PrismaMemberTypeRepository(tenantService);
     memberTypeRepository.setTenantId(TENANT_ID);
-    outboxPublisher = new PrismaMemberOutboxPublisher(tenantService);
+    // Mock del publisher de outbox — el test verifica el audit outbox del tenant (ENT-017),
+    // no el main outbox (ENT-006). El publisher principal es global vía OutboxProcessorModule.
+    outboxPublisher = { publish: vi.fn().mockResolvedValue(undefined) };
 
     // Seed de MemberType
     testMemberTypeId = await seedMemberType();
@@ -860,12 +862,11 @@ describe('UC-006: Member Management Integration', () => {
         ),
       );
 
-      // Verificar que el evento está en la tabla outbox
+      // Verificar que el evento está en la tabla outbox (audit-only, ENT-017 — sin processedAt)
       const outboxEvents = await tenantPrisma.outboxEvent.findMany({
-        where: { eventType: 'member.registered' },
+        where: { eventType: 'MemberRegistered' },
       });
       expect(outboxEvents).toHaveLength(1);
-      expect(outboxEvents[0].processedAt).toBeNull();
 
       const payload = outboxEvents[0].payload as Record<string, unknown>;
       expect(payload.memberId).toBe(result.id);
@@ -907,9 +908,9 @@ describe('UC-006: Member Management Integration', () => {
         ),
       );
 
-      // Verificar outbox
+      // Verificar outbox (ENT-017: audit-only, sin processedAt/status)
       const outboxEvents = await tenantPrisma.outboxEvent.findMany({
-        where: { eventType: 'member.data-updated' },
+        where: { eventType: 'MemberDataUpdated' },
       });
       expect(outboxEvents).toHaveLength(1);
 

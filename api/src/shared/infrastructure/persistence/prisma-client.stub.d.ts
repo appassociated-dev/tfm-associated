@@ -71,17 +71,22 @@ declare module '@prisma-main' {
     revokedAt: Date | null;
   }
 
-  /** Datos de un evento de outbox tal como los devuelve el Prisma Client (camelCase). */
+  /** Datos de un evento de outbox tal como los devuelve el Prisma Client (camelCase) — ENT-006. */
   export interface PrismaRawOutboxEvent {
     id: string;
-    eventType: string;
-    payload: unknown;
     tenantId: string | null;
-    createdAt: Date;
-    processedAt: Date | null;
+    boundedContext: string;
+    eventType: string;
+    aggregateId: string;
+    aggregateType: string;
+    payload: unknown;
+    actorId: string | null;
+    status: string;
     retryCount: number;
-    nextRetryAt: Date | null;
-    lastError: string | null;
+    maxRetries: number;
+    createdAt: Date;
+    processingStartedAt: Date | null;
+    processedAt: Date | null;
   }
 
   /** Tipo de membresía con relaciones de tenant y rol incluidas. */
@@ -106,6 +111,8 @@ declare module '@prisma-main' {
       where?: Record<string, unknown>;
       orderBy?: Record<string, unknown>;
       include?: Record<string, boolean>;
+      take?: number;
+      skip?: number;
     }): Promise<TRaw[]>;
     update(args: { where: Record<string, unknown>; data: Record<string, unknown> }): Promise<TRaw>;
     delete(args: { where: Record<string, unknown> }): Promise<TRaw>;
@@ -119,6 +126,7 @@ declare module '@prisma-main' {
       create: Record<string, unknown>;
       update: Record<string, unknown>;
     }): Promise<TRaw>;
+    count(args?: { where?: Record<string, unknown> }): Promise<number>;
   }
 
   /** Delegado especializado para TenantMembership con soporte de include. */
@@ -147,6 +155,15 @@ declare module '@prisma-main' {
     $executeRaw(query: TemplateStringsArray, ...values: unknown[]): Promise<number>;
     $queryRawUnsafe<T = unknown>(query: string, ...values: unknown[]): Promise<T>;
     $executeRawUnsafe(query: string, ...values: unknown[]): Promise<number>;
+    $transaction<R>(
+      fn: (
+        tx: Omit<
+          PrismaClient,
+          '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+        >,
+      ) => Promise<R>,
+      options?: { maxWait?: number; timeout?: number },
+    ): Promise<R>;
 
     tenant: PrismaDelegate<PrismaRawTenant>;
     user: PrismaDelegate<PrismaRawUser>;
@@ -158,16 +175,16 @@ declare module '@prisma-main' {
 }
 
 declare module '@prisma-tenant' {
-  /** Datos de un evento de outbox tal como los devuelve el Prisma Client (camelCase). */
+  /** Datos de un evento de outbox de auditoría tal como los devuelve el Prisma Client — ENT-017. */
   export interface PrismaRawOutboxEvent {
     id: string;
+    boundedContext: string;
     eventType: string;
+    aggregateId: string;
+    aggregateType: string;
     payload: unknown;
-    createdAt: Date;
-    processedAt: Date | null;
-    retryCount: number;
-    nextRetryAt: Date | null;
-    lastError: string | null;
+    actorId: string | null;
+    occurredAt: Date;
   }
 
   /** Datos de un MemberType tal como los devuelve el Prisma Client (camelCase). */

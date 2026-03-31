@@ -19,21 +19,20 @@ vi.mock('@mantine/notifications', () => ({
 
 function createMockSubscription(overrides: Partial<FeeSubscription> = {}): FeeSubscription {
   return {
-    id: 'sub-001',
-    feePlanId: 'plan-001',
+    id: '00000000-0000-4000-8000-000000000001',
+    feePlanId: '00000000-0000-4000-8000-000000000002',
     feePlanName: 'Cuota Anual',
     feePlanCode: 'ANUAL',
-    feePlanType: 'RECURRING',
-    baseAmount: 12000,
     typeDiscount: 0.3,
     personalDiscount: 0.1,
     personalDiscountReason: 'Familiar directo',
     effectiveAmount: 7560,
+    effectiveAmountFormatted: '75.60 EUR',
+    isActive: true,
     registrationDate: '2026-01-01T00:00:00.000Z',
     leaveDate: null,
     cancelReason: null,
-    chargesGenerated: 3,
-    totalCollected: 22680,
+    createdAt: '2026-01-01T00:00:00.000Z',
     ...overrides,
   };
 }
@@ -42,7 +41,7 @@ function renderModal(props: Partial<Parameters<typeof UpdateDiscountModal>[0]> =
   const defaultProps = {
     opened: true,
     onClose: vi.fn(),
-    memberAccountId: 'test-member-account-id',
+    memberAccountId: '00000000-0000-4000-8000-000000000099',
     subscription: createMockSubscription(),
     ...props,
   };

@@ -152,10 +152,15 @@ export class User extends AggregateRoot<UserId> {
       // Emitir evento de fallo de autenticación para auditoría
       this.addDomainEvent(
         new AuthenticationFailedEvent({
-          email: this._email.value,
-          ipAddress: '', // Se completará en la capa de aplicación cuando esté disponible
-          timestamp: new Date(),
-          attemptCount: this._failedAttempts,
+          payload: {
+            email: this._email.value,
+            ipAddress: '', // Se completará en la capa de aplicación cuando esté disponible
+            timestamp: new Date(),
+            attemptCount: this._failedAttempts,
+          },
+          aggregateId: this._id.toValue(),
+          aggregateType: 'User',
+          boundedContext: 'BC-Identity',
         }),
       );
 
@@ -174,13 +179,18 @@ export class User extends AggregateRoot<UserId> {
     // Nota: tenantId, ipAddress, userAgent se completarán en el handler de aplicación
     this.addDomainEvent(
       new UserAuthenticatedEvent({
-        userId: this._id.toValue(),
-        tenantId: '', // Se completa en el handler
-        email: this._email.value,
-        rol: '', // Se completa en el handler
-        ipAddress: '', // Se completa en el handler
-        userAgent: '', // Se completa en el handler
-        timestamp: new Date(),
+        payload: {
+          userId: this._id.toValue(),
+          tenantId: '', // Se completa en el handler
+          email: this._email.value,
+          rol: '', // Se completa en el handler
+          ipAddress: '', // Se completa en el handler
+          userAgent: '', // Se completa en el handler
+          timestamp: new Date(),
+        },
+        aggregateId: this._id.toValue(),
+        aggregateType: 'User',
+        boundedContext: 'BC-Identity',
       }),
     );
 
@@ -211,11 +221,16 @@ export class User extends AggregateRoot<UserId> {
 
       this.addDomainEvent(
         new UserBlockedEvent({
-          userId: this._id.toValue(),
-          email: this._email.value,
-          blockReason: `${MAX_FAILED_ATTEMPTS} intentos fallidos en ${SLIDING_WINDOW_MS / 60000} minutos`,
-          blockDuration: BLOCK_DURATION_MS,
-          timestamp: now,
+          payload: {
+            userId: this._id.toValue(),
+            email: this._email.value,
+            blockReason: `${MAX_FAILED_ATTEMPTS} intentos fallidos en ${SLIDING_WINDOW_MS / 60000} minutos`,
+            blockDuration: BLOCK_DURATION_MS,
+            timestamp: now,
+          },
+          aggregateId: this._id.toValue(),
+          aggregateType: 'User',
+          boundedContext: 'BC-Identity',
         }),
       );
     }

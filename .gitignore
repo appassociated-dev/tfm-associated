@@ -100,3 +100,9 @@ doc/reports/front-1/audit-motivo-desastre-front-1.md
 doc/reports/front-1/flujos-sdd-fix-desastre/
 doc/reports/migration-tenant.md
 doc/steps-first-deploy.md
+doc/backend-fase-1-paul/
+doc/flujos-SDD-post-fase-1-prompt.md
+doc/flujos-SDD-post-fase-1-response.md
+doc/sdd_012-modelo-de-datos.md
+doc/sdd_013-inventario-de-endpoints.md
+doc/reports/front-1/backend-test-refactor.md

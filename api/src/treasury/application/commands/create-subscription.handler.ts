@@ -16,9 +16,9 @@ import {
 } from '../../domain/repositories/member-type-fee-plan.repository';
 import { MEMBER_QUERY_PORT, MemberQueryPort } from '../../domain/ports/member-query.port';
 import {
-  TREASURY_OUTBOX_PUBLISHER,
-  TreasuryOutboxPublisher,
-} from '../ports/treasury-outbox.publisher';
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 import { MemberAccountId } from '../../domain/value-objects/member-account-id';
 import { FeePlanId } from '../../domain/value-objects/fee-plan-id';
 import { Discount } from '../../domain/value-objects/discount';
@@ -47,8 +47,8 @@ export class CreateSubscriptionHandler implements ICommandHandler<CreateSubscrip
     private readonly memberTypeFeePlanRepository: MemberTypeFeePlanRepository,
     @Inject(MEMBER_QUERY_PORT)
     private readonly memberQueryPort: MemberQueryPort,
-    @Inject(TREASURY_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: TreasuryOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
   ) {}
 
   async execute(command: CreateSubscriptionCommand): Promise<SubscriptionResponseDto> {

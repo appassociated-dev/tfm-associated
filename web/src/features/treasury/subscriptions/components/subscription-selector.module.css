@@ -1,0 +1,31 @@
+/* Estilos del selector de plan de cuota y desglose de descuento */
+
+/* === Tarjeta de plan === */
+
+.plan-card {
+  cursor: pointer;
+}
+
+/* Estado seleccionado: borde de marca con mayor grosor */
+.plan-card[data-selected='true'] {
+  border-color: var(--mantine-color-brand-6);
+  border-width: 2px;
+}
+
+/* === Tipografia numerica === */
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.tabular-nums-right {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* === Separador del desglose === */
+
+.breakdown-divider {
+  border-top: 1px solid var(--mantine-color-gray-3);
+  margin: 4px 0;
+}

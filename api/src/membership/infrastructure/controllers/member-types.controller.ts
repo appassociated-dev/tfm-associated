@@ -15,7 +15,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
 import { RequirePermissions } from '../../../shared/infrastructure/guards/require-permissions.decorator';
 import { CreateMemberTypeDto } from '../../application/dtos/create-member-type.dto';
@@ -39,6 +39,7 @@ import { GetTemplatesQuery } from '../../application/queries/get-templates.query
  * El tenantId se extrae del request (establecido por TenantMiddleware/JWT).
  */
 @ApiTags('Member Types')
+@ApiBearerAuth()
 @Controller('v1/member-types')
 export class MemberTypesController {
   constructor(

@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import * as authApi from '../api/auth.api';
+import { STORAGE_KEYS } from '@/shared/constants/storage-keys';
 import type {
   AuthTokens,
   LoginApiResponse,
@@ -19,8 +20,6 @@ import type {
 import { isTenantSelectorResponse } from '../schemas/auth.schemas';
 
 // === Constantes ===
-
-const REFRESH_TOKEN_KEY = 'associated_refresh_token';
 
 /** Margen en segundos antes de la expiración para disparar auto-refresh. */
 const REFRESH_MARGIN_SECONDS = 60;
@@ -124,7 +123,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           accessTokenRef.current = tokens.accessToken;
 
           // Actualizar refresh token si el backend rota tokens
-          localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
+          localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refreshToken);
           refreshTokenRef.current = tokens.refreshToken;
 
           // Programar siguiente refresh
@@ -147,8 +146,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setTenant(null);
     setRole(null);
     setPermissions([]);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem('associated_tenant_id');
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.TENANT_ID);
     refreshTokenRef.current = null;
   }, [clearRefreshTimer]);
 
@@ -166,8 +165,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setRole(response.role);
 
       // Guardar tenant ID y refresh token en localStorage
-      localStorage.setItem('associated_tenant_id', response.tenant.id);
-      localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+      localStorage.setItem(STORAGE_KEYS.TENANT_ID, response.tenant.id);
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refreshToken);
       refreshTokenRef.current = response.refreshToken;
 
       // Programar auto-refresh
@@ -245,7 +244,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (tokens) {
           setAccessToken(tokens.accessToken);
           accessTokenRef.current = tokens.accessToken;
-          localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
+          localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refreshToken);
           refreshTokenRef.current = tokens.refreshToken;
           scheduleTokenRefresh(tokens.expiresIn);
         } else {
@@ -259,7 +258,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     const restoreSession = async () => {
-      const storedRefresh = localStorage.getItem(REFRESH_TOKEN_KEY);
+      const storedRefresh = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
 
       if (!storedRefresh) {
         setIsLoading(false);
@@ -271,7 +270,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const tokens = await authApi.refreshTokens(storedRefresh);
         setAccessToken(tokens.accessToken);
         accessTokenRef.current = tokens.accessToken;
-        localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken);
+        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refreshToken);
         refreshTokenRef.current = tokens.refreshToken;
 
         // Paso 2: Obtener perfil completo del usuario
@@ -285,7 +284,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         scheduleTokenRefresh(tokens.expiresIn);
       } catch {
         // Si la restauración falla, limpiar todo y dejar al usuario desautenticado
-        localStorage.removeItem(REFRESH_TOKEN_KEY);
+        localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
         refreshTokenRef.current = null;
       } finally {
         setIsLoading(false);

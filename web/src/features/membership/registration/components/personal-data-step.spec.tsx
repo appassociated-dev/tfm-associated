@@ -27,7 +27,7 @@ describe('PersonalDataStep', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    vi.setSystemTime(new Date('2026-06-15'));
+    vi.setSystemTime(new Date(2026, 5, 15)); // mes 0-indexado: 5 = junio
 
     // MSW: DNI y email no existen por defecto
     server.use(
@@ -84,8 +84,8 @@ describe('PersonalDataStep', () => {
       renderStep({
         initialValues: {
           dni: '12345678Z',
-          firstName: 'Juan',
-          lastName: 'García',
+          name: 'Juan',
+          surnames: 'García',
           birthDate: '1996-01-01',
           email: 'juan@test.com',
           phone: null,
@@ -103,8 +103,8 @@ describe('PersonalDataStep', () => {
       renderStep({
         initialValues: {
           dni: '87654321X',
-          firstName: 'Ana',
-          lastName: 'López',
+          name: 'Ana',
+          surnames: 'López',
           birthDate: '2001-06-15',
           email: 'ana@test.com',
           phone: null,
@@ -166,8 +166,8 @@ describe('PersonalDataStep', () => {
       renderStep({
         initialValues: {
           dni: '12345678Z',
-          firstName: 'Test',
-          lastName: 'Test',
+          name: 'Test',
+          surnames: 'Test',
           birthDate: '1990-01-01',
           email: 'test@test.com',
           phone: null,
@@ -187,8 +187,8 @@ describe('PersonalDataStep', () => {
       renderStep({
         initialValues: {
           dni: '99999999R',
-          firstName: 'Test',
-          lastName: 'Test',
+          name: 'Test',
+          surnames: 'Test',
           birthDate: '1990-01-01',
           email: 'test@test.com',
           phone: null,
@@ -211,6 +211,147 @@ describe('PersonalDataStep', () => {
 
       // Sin datos, el callback deberia llamarse con null
       expect(props.onValidChange).toHaveBeenCalledWith(null);
+    });
+  });
+
+  describe('regresion: datos de representante legal no deben persistir al pasar a mayor de edad', () => {
+    it('deberia llamar a onValidChange sin campos legalRep cuando birthDate es de adulto', async () => {
+      // Renderizar con fecha de adulto (26 años) y datos completos validos
+      // El DNI 12345678Z es valido y el MSW devuelve exists: false por defecto
+      const { props } = renderStep({
+        initialValues: {
+          dni: '12345678Z',
+          name: 'Juan',
+          surnames: 'García',
+          birthDate: '2000-01-01',
+          email: 'juan@test.com',
+          phone: null,
+          address: null,
+          postalCode: null,
+          city: null,
+        },
+      });
+
+      // Esperar a que la consulta de DNI se resuelva (MSW devuelve exists: false)
+      const mockFn = vi.mocked(props.onValidChange);
+      await waitFor(() => {
+        const calls = mockFn.mock.calls as [[Record<string, unknown> | null]];
+        const validCall = calls.find((call) => call[0] !== null);
+        expect(validCall).toBeDefined();
+        const data = validCall![0] as Record<string, unknown>;
+        expect(data.legalRepresentativeName).toBeUndefined();
+        expect(data.legalRepresentativeDocumentNumber).toBeUndefined();
+      });
+    });
+  });
+
+  describe('representante legal - menor de edad', () => {
+    it('deberia NO mostrar alerta ni campos de representante cuando el socio es mayor de edad', () => {
+      // Fecha: 2000-01-01, sistema en 2026-06-15 → 26 años (mayor)
+      renderStep({
+        initialValues: {
+          dni: '12345678Z',
+          name: 'Juan',
+          surnames: 'García',
+          birthDate: '2000-01-01',
+          email: 'juan@test.com',
+          phone: null,
+          address: null,
+          postalCode: null,
+          city: null,
+        },
+      });
+
+      // El alert de menor NO debe estar en el DOM
+      expect(screen.queryByText(/menor de edad/i)).not.toBeInTheDocument();
+      // Los campos de representante NO deben estar en el DOM
+      expect(screen.queryByLabelText(/representante legal/i)).not.toBeInTheDocument();
+    });
+
+    it('deberia mostrar alerta y campos de representante cuando el socio es menor de edad', () => {
+      // Fecha: 2015-01-01, sistema en 2026-06-15 → 11 años (menor)
+      renderStep({
+        initialValues: {
+          dni: '12345678Z',
+          name: 'Niño',
+          surnames: 'Test',
+          birthDate: '2015-01-01',
+          email: 'nino@test.com',
+          phone: null,
+          address: null,
+          postalCode: null,
+          city: null,
+        },
+      });
+
+      // El alert de menor DEBE estar visible
+      expect(screen.getByText(/menor de edad/i)).toBeInTheDocument();
+      // Los campos de representante DEBEN estar en el DOM
+      expect(screen.getByLabelText(/Nombre del representante legal/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/DNI del representante legal/i)).toBeInTheDocument();
+    });
+
+    it('deberia NO mostrar alerta cuando el socio cumple exactamente 18 años hoy (limite superior)', () => {
+      // Sistema en 2026-06-15; nacido el 2008-06-15 → exactamente 18 años → mayor de edad
+      renderStep({
+        initialValues: {
+          dni: '12345678Z',
+          name: 'Juan',
+          surnames: 'García',
+          birthDate: '2008-06-15',
+          email: 'juan18@test.com',
+          phone: null,
+          address: null,
+          postalCode: null,
+          city: null,
+        },
+      });
+
+      expect(screen.queryByText(/menor de edad/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/representante legal/i)).not.toBeInTheDocument();
+    });
+
+    it('deberia mostrar alerta cuando el socio tiene exactamente 17 años (menor de edad)', () => {
+      // Sistema en 2026-06-15; nacido el 2009-06-15 → exactamente 17 años → menor de edad
+      renderStep({
+        initialValues: {
+          dni: '12345678Z',
+          name: 'Ana',
+          surnames: 'García',
+          birthDate: '2009-06-15',
+          email: 'ana17@test.com',
+          phone: null,
+          address: null,
+          postalCode: null,
+          city: null,
+        },
+      });
+
+      expect(screen.getByText(/menor de edad/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Nombre del representante legal/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/DNI del representante legal/i)).toBeInTheDocument();
+    });
+
+    it('deberia ocultar alerta y campos de representante si no hay fecha de nacimiento', () => {
+      // Sin fecha de nacimiento, no se puede calcular edad → no hay alerta
+      renderStep({
+        initialValues: {
+          dni: '12345678Z',
+          name: 'Juan',
+          surnames: 'García',
+          birthDate: null as unknown as string,
+          email: 'juan@test.com',
+          phone: null,
+          address: null,
+          postalCode: null,
+          city: null,
+        },
+      });
+
+      // Sin fecha no se puede calcular menor de edad → alert no visible
+      expect(screen.queryByText(/menor de edad/i)).not.toBeInTheDocument();
+      // Los campos de representante NO deben estar en el DOM
+      expect(screen.queryByLabelText(/representante legal/i)).not.toBeInTheDocument();
     });
   });
 });

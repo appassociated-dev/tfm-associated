@@ -11,14 +11,24 @@ describe('UserCreatedEvent', () => {
   };
 
   it('debería crear el evento con un payload válido', () => {
-    const event = new UserCreatedEvent(validPayload);
+    const event = new UserCreatedEvent({
+      payload: validPayload,
+      aggregateId: validPayload.userId,
+      aggregateType: 'User',
+      boundedContext: 'BC-Identity',
+    });
 
     expect(event.payload).toEqual(validPayload);
   });
 
-  it('debería tener eventType "user.created"', () => {
-    const event = new UserCreatedEvent(validPayload);
+  it('debería tener eventType "UserCreated"', () => {
+    const event = new UserCreatedEvent({
+      payload: validPayload,
+      aggregateId: validPayload.userId,
+      aggregateType: 'User',
+      boundedContext: 'BC-Identity',
+    });
 
-    expect(event.eventType).toBe('user.created');
+    expect(event.eventType).toBe('UserCreated');
   });
 });

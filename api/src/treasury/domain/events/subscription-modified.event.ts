@@ -14,5 +14,5 @@ export interface SubscriptionModifiedPayload {
  * Incluye los campos modificados para facilitar la trazabilidad de cambios.
  */
 export class SubscriptionModifiedEvent extends DomainEvent<SubscriptionModifiedPayload> {
-  readonly eventType = 'subscription.modified';
+  readonly eventType = 'SubscriptionModified';
 }

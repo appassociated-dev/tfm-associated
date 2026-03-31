@@ -57,5 +57,8 @@ export default defineConfig({
     // Timeouts generosos: los tests E2E provisionan BDs reales
     testTimeout: 60_000,
     hookTimeout: 120_000,
+
+    // Reporters: consola para desarrollo local + JUnit para CI
+    reporters: ['default', ['junit', { outputFile: 'test-results/results.xml' }]],
   },
 });

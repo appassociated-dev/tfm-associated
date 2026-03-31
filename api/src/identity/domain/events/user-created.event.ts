@@ -14,5 +14,5 @@ export interface UserCreatedPayload {
  * Puede ser consumido por auditoría u otros BCs.
  */
 export class UserCreatedEvent extends DomainEvent<UserCreatedPayload> {
-  readonly eventType = 'user.created';
+  readonly eventType = 'UserCreated';
 }

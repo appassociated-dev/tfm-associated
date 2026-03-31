@@ -13,7 +13,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
 import { RequirePermissions } from '../../../shared/infrastructure/guards/require-permissions.decorator';
 import { OpenFiscalYearDto } from '../../application/dtos/open-fiscal-year.dto';
@@ -37,6 +37,7 @@ import { CompareFiscalYearsQuery } from '../../application/queries/compare-fisca
  * El tenantId se extrae del request (establecido por TenantMiddleware/JWT).
  */
 @ApiTags('Fiscal Years')
+@ApiBearerAuth()
 @Controller('v1/fiscal-years')
 export class FiscalYearsController {
   constructor(

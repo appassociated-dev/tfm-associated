@@ -38,10 +38,10 @@
       "dniDuplicateText": "Ya existe socio con DNI {{dni}} ({{name}}, #{{number}})",
       "dniLabel": "DNI/NIE",
       "dniPlaceholder": "12345678Z o X1234567L",
-      "firstNameLabel": "Nombre",
-      "firstNamePlaceholder": "Nombre del aspirante",
-      "lastNameLabel": "Apellidos",
-      "lastNamePlaceholder": "Apellidos del aspirante",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Nombre del aspirante",
+      "surnamesLabel": "Apellidos",
+      "surnamesPlaceholder": "Apellidos del aspirante",
       "birthDateLabel": "Fecha de nacimiento",
       "birthDatePlaceholder": "dd/mm/aaaa",
       "ageYearSingular": "año",
@@ -54,7 +54,11 @@
       "addressLabel": "Direccion",
       "postalCodeLabel": "Codigo postal",
       "postalCodePlaceholder": "28001",
-      "cityLabel": "Ciudad"
+      "cityLabel": "Ciudad",
+      "minorWarningTitle": "Socio menor de edad",
+      "minorWarningText": "Para menores de edad es necesario indicar un representante legal",
+      "legalRepNameLabel": "Nombre del representante legal",
+      "legalRepDocLabel": "DNI del representante legal"
     },
     "memberTypeStep": {
       "loadErrorTitle": "Error al cargar tipos de socio",
@@ -95,12 +99,14 @@
       "willCreateActive": "Se creara el socio en estado Activo",
       "willGenerateCharge": "Se generara cargo de inscripcion",
       "willAssignNumber": "Se asignará número de socio automáticamente",
-      "confirmRegistration": "Confirmar Alta"
+      "confirmRegistration": "Confirmar Alta",
+      "legalRepName": "Nombre representante legal",
+      "legalRepDoc": "DNI representante legal"
     },
     "validation": {
       "dniRequired": "DNI/NIE es obligatorio",
-      "firstNameRequired": "Nombre es obligatorio",
-      "lastNameRequired": "Apellidos es obligatorio",
+      "nameRequired": "Nombre es obligatorio",
+      "surnamesRequired": "Apellidos es obligatorio",
       "birthDateInvalid": "Fecha de nacimiento inválida",
       "birthDateRequired": "Fecha de nacimiento es obligatoria",
       "emailInvalid": "Email inválido",
@@ -215,10 +221,13 @@
       "phaseWithDays": "Fase {{index}} ({{days}} dias)",
       "phaseNoDays": "Fase {{index}}",
       "phasePending": "Pendiente",
+      "phaseCurrent": "Estado actual",
+      "phaseCompleted": "Fase completada",
       "certificateTitle": "Certificado de descubierto",
       "certificateMember": "Socio",
       "generateCertificate": "Generar Certificado PDF",
       "certificateTooltip": "Requiere endpoint de backend",
+      "cancelLeaveTooltip": "Requiere endpoint de cancelacion",
       "certificateNotAvailableTitle": "No disponible",
       "certificateNotAvailableText": "La generacion de certificado PDF requiere un endpoint de backend que aun no esta implementado.",
       "regularizationTitle": "Oportunidad de regularizacion",
@@ -241,11 +250,14 @@
         "title": "Confirmacion final",
         "irreversibleTitle": "Accion irreversible",
         "irreversibleText": "La baja por impago requiere un proceso formal de rehabilitacion para ser revertida. Confirme que desea proceder.",
-        "confirmButton": "Confirmar Baja por Impago"
+        "confirmButton": "Confirmar Baja por Impago",
+        "typeToConfirm": "Escribe CONFIRMAR BAJA para continuar",
+        "placeholder": "CONFIRMAR BAJA",
+        "mismatch": "El texto no coincide"
       },
       "notifications": {
         "successTitle": "Baja por impago procesada",
-        "successText": "La baja por impago ha sido ejecutada correctamente",
+        "successText": "Fecha efectiva: {{effectiveDate}}. {{subscriptionsClosed}} suscripciones cerradas.",
         "stateErrorTitle": "Error de estado",
         "stateErrorText": "No se puede procesar la baja desde el estado actual."
       }
@@ -286,6 +298,7 @@
     },
     "actions": {
       "processVoluntaryLeave": "Procesar Baja Voluntaria",
+      "processNonpaymentLeave": "Procesar Baja por Impago",
       "reinstateMember": "Rehabilitar Socio",
       "permanentLeave": "Este socio está dado de baja de forma permanente"
     },
@@ -298,7 +311,9 @@
       },
       "reinstatement": {
         "successTitle": "Rehabilitacion exitosa",
-        "successText": "Socio rehabilitado correctamente"
+        "successText": "Socio rehabilitado correctamente",
+        "stateErrorTitle": "Error de rehabilitacion",
+        "stateErrorText": "No se puede rehabilitar al socio desde el estado actual."
       }
     }
   }

@@ -15,7 +15,10 @@ import {
   REGISTRATION_CHARGE_PORT,
   RegistrationChargePort,
 } from '../../domain/ports/registration-charge.port';
-import { MEMBER_OUTBOX_PUBLISHER, MemberOutboxPublisher } from '../ports/member-outbox.publisher';
+import {
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 import { PrismaTenantService } from '../../../shared/infrastructure/persistence/prisma-tenant.service';
 import { Member } from '../../domain/aggregates/member';
 import { MemberTypeId } from '../../domain/value-objects/member-type-id';
@@ -54,8 +57,8 @@ export class SimpleRegistrationHandler implements ICommandHandler<SimpleRegistra
     private readonly fiscalYearRepository: FiscalYearRepository,
     @Inject(REGISTRATION_CHARGE_PORT)
     private readonly registrationChargePort: RegistrationChargePort,
-    @Inject(MEMBER_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: MemberOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
     @Inject(ERROR_REPORTER)
     private readonly errorReporter: ErrorReporter,
     private readonly prismaTenantService: PrismaTenantService,

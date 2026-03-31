@@ -1,6 +1,6 @@
 // Tests para registration.api.ts — funciones de la capa API de alta de socios.
-// Valida URLs (incluyendo encode de parámetros), métodos HTTP, transformación
-// de payload (firstName/lastName → name/surnames, dni → documentType/documentNumber),
+// Valida URLs (incluyendo encode de parámetros), métodos HTTP,
+// payload directo (name/surnames sin transformación, dni → documentType/documentNumber),
 // parseo Zod de respuestas, y manejo de errores.
 // Usa MSW para interceptar peticiones a nivel de red.
 
@@ -378,8 +378,8 @@ describe('Registration API', () => {
       // Act
       const result = await simpleRegistration({
         dni: '12345678A',
-        firstName: 'María',
-        lastName: 'García López',
+        name: 'María',
+        surnames: 'García López',
         birthDate: '1990-05-15',
         email: 'maria@club.es',
         phone: '+34666777888',
@@ -389,10 +389,10 @@ describe('Registration API', () => {
         memberTypeId: 'f47ac10b-58cc-4372-a567-0000000000c1',
       });
 
-      // Assert — verifica transformación de campos
+      // Assert — payload directo sin transformación firstName/lastName
       expect(capturedBody).toEqual({
-        name: 'María', // firstName → name
-        surnames: 'García López', // lastName → surnames
+        name: 'María', // nombre directo (sin re-mapeo)
+        surnames: 'García López', // apellidos directos (sin re-mapeo)
         documentType: 'DNI', // calculado de dni
         documentNumber: '12345678A', // dni → documentNumber
         birthDate: '1990-05-15',
@@ -403,6 +403,9 @@ describe('Registration API', () => {
         city: 'Madrid',
         memberTypeId: 'f47ac10b-58cc-4372-a567-0000000000c1',
       });
+      // Verificar que NO hay firstName/lastName en el payload
+      expect(capturedBody as Record<string, unknown>).not.toHaveProperty('firstName');
+      expect(capturedBody as Record<string, unknown>).not.toHaveProperty('lastName');
       expect(result).toEqual(regResponse);
     });
 
@@ -420,8 +423,8 @@ describe('Registration API', () => {
       // Act
       await simpleRegistration({
         dni: 'X1234567L',
-        firstName: 'Pierre',
-        lastName: 'Dubois',
+        name: 'Pierre',
+        surnames: 'Dubois',
         birthDate: '1985-03-20',
         email: 'pierre@club.es',
         phone: null,
@@ -458,8 +461,8 @@ describe('Registration API', () => {
       // Act
       const result = await simpleRegistration({
         dni: '99999999R',
-        firstName: 'Test',
-        lastName: 'User',
+        name: 'Test',
+        surnames: 'User',
         birthDate: '2000-01-01',
         email: 'test@club.es',
         phone: null,
@@ -496,8 +499,8 @@ describe('Registration API', () => {
       await expect(
         simpleRegistration({
           dni: '12345678A',
-          firstName: 'Dup',
-          lastName: 'User',
+          name: 'Dup',
+          surnames: 'User',
           birthDate: '1990-01-01',
           email: 'dup@club.es',
           phone: null,
@@ -530,8 +533,8 @@ describe('Registration API', () => {
       await expect(
         simpleRegistration({
           dni: '12345678A',
-          firstName: 'Test',
-          lastName: 'User',
+          name: 'Test',
+          surnames: 'User',
           birthDate: '1990-01-01',
           email: 'bad-email',
           phone: null,

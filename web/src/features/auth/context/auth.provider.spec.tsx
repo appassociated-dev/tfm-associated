@@ -25,11 +25,7 @@ import {
 } from '@/test/factories';
 import { AuthProvider, getAccessToken } from './auth.provider';
 import { useAuth } from './use-auth';
-
-// === Helpers ===
-
-const REFRESH_TOKEN_KEY = 'associated_refresh_token';
-const TENANT_ID_KEY = 'associated_tenant_id';
+import { STORAGE_KEYS } from '@/shared/constants/storage-keys';
 
 /**
  * Wrapper que envuelve el hook en un AuthProvider real.
@@ -167,8 +163,8 @@ describe('AuthProvider', () => {
       });
 
       // Assert
-      expect(localStorage.getItem(REFRESH_TOKEN_KEY)).toBe('my-refresh-token-xyz');
-      expect(localStorage.getItem(TENANT_ID_KEY)).toBe(loginData.tenant.id);
+      expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('my-refresh-token-xyz');
+      expect(localStorage.getItem(STORAGE_KEYS.TENANT_ID)).toBe(loginData.tenant.id);
       expect(result.current.user?.name).toBe('Carlos Pérez');
       expect(result.current.role).toBe('member');
     });
@@ -308,8 +304,8 @@ describe('AuthProvider', () => {
       expect(result.current.accessToken).toBeNull();
       expect(result.current.role).toBeNull();
       expect(result.current.permissions).toEqual([]);
-      expect(localStorage.getItem(REFRESH_TOKEN_KEY)).toBeNull();
-      expect(localStorage.getItem(TENANT_ID_KEY)).toBeNull();
+      expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBeNull();
+      expect(localStorage.getItem(STORAGE_KEYS.TENANT_ID)).toBeNull();
     });
 
     it('debe limpiar estado local incluso si la API de logout falla', async () => {
@@ -343,7 +339,7 @@ describe('AuthProvider', () => {
       // Assert — estado local limpio a pesar del error del backend
       expect(result.current.isAuthenticated).toBe(false);
       expect(result.current.user).toBeNull();
-      expect(localStorage.getItem(REFRESH_TOKEN_KEY)).toBeNull();
+      expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBeNull();
     });
   });
 
@@ -399,8 +395,8 @@ describe('AuthProvider', () => {
       expect(result.current.role).toBe('member');
       expect(result.current.accessToken).toBe('new-access-for-tenant-b');
       expect(result.current.permissions).toEqual(['membership:members:read']);
-      expect(localStorage.getItem(REFRESH_TOKEN_KEY)).toBe('new-refresh-for-tenant-b');
-      expect(localStorage.getItem(TENANT_ID_KEY)).toBe(tenantB.id);
+      expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('new-refresh-for-tenant-b');
+      expect(localStorage.getItem(STORAGE_KEYS.TENANT_ID)).toBe(tenantB.id);
     });
 
     it('debe actualizar tokens en localStorage tras switch (triangulación)', async () => {
@@ -433,7 +429,7 @@ describe('AuthProvider', () => {
 
       // Assert
       expect(result.current.tenant?.slug).toBe('fed-y');
-      expect(localStorage.getItem(REFRESH_TOKEN_KEY)).toBe('refresh-after-switch-y');
+      expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refresh-after-switch-y');
     });
   });
 
@@ -443,7 +439,7 @@ describe('AuthProvider', () => {
   describe('restauración de sesión', () => {
     it('debe restaurar sesión desde refresh token en localStorage', async () => {
       // Arrange — simular sesión previa guardada
-      localStorage.setItem(REFRESH_TOKEN_KEY, 'stored-refresh-token');
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'stored-refresh-token');
 
       const tokens = buildAuthTokens({
         accessToken: 'restored-access-token',
@@ -475,12 +471,12 @@ describe('AuthProvider', () => {
       expect(result.current.permissions).toEqual(['membership:*', 'communication:*']);
       expect(result.current.accessToken).toBe('restored-access-token');
       // Refresh token rotado
-      expect(localStorage.getItem(REFRESH_TOKEN_KEY)).toBe('rotated-refresh-token');
+      expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('rotated-refresh-token');
     });
 
     it('debe limpiar y quedar desautenticado si refresh falla al restaurar', async () => {
       // Arrange — hay un refresh token guardado pero es inválido
-      localStorage.setItem(REFRESH_TOKEN_KEY, 'expired-refresh-token');
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'expired-refresh-token');
 
       server.use(
         http.post('*/v1/auth/refresh', () =>
@@ -498,12 +494,12 @@ describe('AuthProvider', () => {
       expect(result.current.isAuthenticated).toBe(false);
       expect(result.current.user).toBeNull();
       expect(result.current.accessToken).toBeNull();
-      expect(localStorage.getItem(REFRESH_TOKEN_KEY)).toBeNull();
+      expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBeNull();
     });
 
     it('debe restaurar con datos diferentes (triangulación)', async () => {
       // Arrange — segundo escenario de restauración con datos distintos
-      localStorage.setItem(REFRESH_TOKEN_KEY, 'another-stored-refresh');
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'another-stored-refresh');
 
       const tokens = buildAuthTokens({
         accessToken: 'access-two',
@@ -584,7 +580,7 @@ describe('AuthProvider', () => {
       });
 
       // Assert — tokens actualizados
-      expect(localStorage.getItem(REFRESH_TOKEN_KEY)).toBe('refreshed-refresh');
+      expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('refreshed-refresh');
 
       vi.useRealTimers();
     });
@@ -639,7 +635,7 @@ describe('AuthProvider', () => {
       // Assert — sesión cerrada
       expect(result.current.user).toBeNull();
       expect(result.current.accessToken).toBeNull();
-      expect(localStorage.getItem(REFRESH_TOKEN_KEY)).toBeNull();
+      expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBeNull();
       expect(refreshCallCount).toBeGreaterThanOrEqual(1);
 
       vi.useRealTimers();

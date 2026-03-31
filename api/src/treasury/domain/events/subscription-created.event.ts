@@ -19,5 +19,5 @@ export interface SubscriptionCreatedPayload {
  * por ejemplo para generar las cuotas correspondientes.
  */
 export class SubscriptionCreatedEvent extends DomainEvent<SubscriptionCreatedPayload> {
-  readonly eventType = 'subscription.created';
+  readonly eventType = 'SubscriptionCreated';
 }

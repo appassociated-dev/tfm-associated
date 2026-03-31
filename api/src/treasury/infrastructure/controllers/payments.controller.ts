@@ -14,7 +14,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { RequirePermissions } from '../../../shared/infrastructure/guards/require-permissions.decorator';
 import { RecordPaymentDto } from '../../application/dtos/record-payment.dto';
@@ -43,6 +43,7 @@ import { SearchMembersForPaymentQuery } from '../../application/queries/search-m
  * El tenantId se extrae del request (establecido por TenantMiddleware/JWT).
  */
 @ApiTags('Payments')
+@ApiBearerAuth()
 @Controller('v1/treasury')
 export class PaymentsGlobalController {
   constructor(private readonly queryBus: QueryBus) {}
@@ -122,6 +123,7 @@ export class PaymentsGlobalController {
  * El tenantId se extrae del request (establecido por TenantMiddleware/JWT).
  */
 @ApiTags('Payments')
+@ApiBearerAuth()
 @Controller('v1/treasury/member-accounts/:accountId')
 export class MemberAccountPaymentsController {
   constructor(

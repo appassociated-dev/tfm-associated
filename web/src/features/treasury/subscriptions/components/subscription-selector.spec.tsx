@@ -11,6 +11,9 @@ import { SubscriptionSelector } from './subscription-selector';
 
 const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
 
+// Captura del memberTypeId enviado en la última petición al handler MSW
+let lastCapturedMemberTypeId: string | null = null;
+
 const samplePlans = [
   buildFeePlan({
     id: VALID_UUID,
@@ -46,7 +49,10 @@ describe('SubscriptionSelector', () => {
     resetFeePlanCounters();
     // Handler por defecto: devolver planes activos
     server.use(
-      http.get('*/v1/treasury/fee-plans', () => {
+      http.get('*/v1/treasury/fee-plans', ({ request }) => {
+        const url = new URL(request.url);
+        // Verificar que se envía el memberTypeId como parámetro de consulta (REQ-SPU-007)
+        lastCapturedMemberTypeId = url.searchParams.get('memberTypeId');
         return HttpResponse.json(apiResponse(samplePlans));
       }),
     );
@@ -69,6 +75,24 @@ describe('SubscriptionSelector', () => {
       // Assert
       expect(screen.queryByText('Cuota Anual')).not.toBeInTheDocument();
       expect(screen.queryByText('Confirmar selección')).not.toBeInTheDocument();
+    });
+  });
+
+  // --- Propagación de memberTypeId a la API ---
+
+  describe('propagacion de memberTypeId a la API', () => {
+    it('deberia enviar memberTypeId como query param al backend (REQ-SPU-007)', async () => {
+      // Arrange
+      lastCapturedMemberTypeId = null;
+
+      // Act
+      renderSelector({ memberTypeId: VALID_UUID });
+
+      // Assert: esperar a que se carguen los planes (la petición ya se ejecutó)
+      await waitFor(() => {
+        expect(screen.getByText('Cuota Anual')).toBeInTheDocument();
+      });
+      expect(lastCapturedMemberTypeId).toBe(VALID_UUID);
     });
   });
 
@@ -326,6 +350,101 @@ describe('SubscriptionSelector', () => {
       await waitFor(() => {
         expect(screen.getByText('Sin planes disponibles')).toBeInTheDocument();
       });
+    });
+  });
+
+  // --- Etiquetas descriptivas de tipo de plan (REQ-SPU-003) ---
+
+  describe('etiquetas descriptivas de tipo de plan', () => {
+    it('deberia mostrar "Pago periódico" para planes de tipo RECURRING', async () => {
+      // Act
+      renderSelector();
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Pago periódico')).toBeInTheDocument();
+      });
+    });
+
+    it('deberia mostrar "Pago único" para planes de tipo ONE_TIME', async () => {
+      // Act
+      renderSelector();
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Pago único')).toBeInTheDocument();
+      });
+    });
+  });
+
+  // --- Badge Recomendado (REQ-SPU-004) ---
+
+  describe('badge Recomendado', () => {
+    it('deberia mostrar badge verde Recomendado en el plan cuando isDefault=true', async () => {
+      // Arrange: plan por defecto y plan no predeterminado
+      const defaultPlan = buildFeePlan({
+        id: VALID_UUID,
+        name: 'Plan Recomendado',
+        isDefault: true,
+      });
+      const regularPlan = buildFeePlan({
+        id: '660e8400-e29b-41d4-a716-446655440001',
+        name: 'Plan Regular',
+        isDefault: false,
+      });
+      server.use(
+        http.get('*/v1/treasury/fee-plans', () => {
+          return HttpResponse.json(apiResponse([defaultPlan, regularPlan]));
+        }),
+      );
+
+      // Act
+      renderSelector();
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Plan Recomendado')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Recomendado')).toBeInTheDocument();
+    });
+
+    it('deberia NO mostrar badge Recomendado cuando isDefault=false', async () => {
+      // Arrange: ambos planes sin isDefault
+      const planA = buildFeePlan({ name: 'Plan A', isDefault: false });
+      const planB = buildFeePlan({ name: 'Plan B', isDefault: false });
+      server.use(
+        http.get('*/v1/treasury/fee-plans', () => {
+          return HttpResponse.json(apiResponse([planA, planB]));
+        }),
+      );
+
+      // Act
+      renderSelector();
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Plan A')).toBeInTheDocument();
+      });
+      expect(screen.queryByText('Recomendado')).not.toBeInTheDocument();
+    });
+
+    it('deberia NO mostrar badges Recomendado cuando memberTypeId no esta presente (isDefault ausente)', async () => {
+      // Arrange: planes sin campo isDefault (como devuelve el backend sin memberTypeId)
+      const planA = buildFeePlan({ name: 'Plan Sin Default' });
+      server.use(
+        http.get('*/v1/treasury/fee-plans', () => {
+          return HttpResponse.json(apiResponse([planA]));
+        }),
+      );
+
+      // Act: sin memberTypeId
+      renderSelector({ memberTypeId: undefined as unknown as string });
+
+      // Assert
+      await waitFor(() => {
+        expect(screen.getByText('Plan Sin Default')).toBeInTheDocument();
+      });
+      expect(screen.queryByText('Recomendado')).not.toBeInTheDocument();
     });
   });
 

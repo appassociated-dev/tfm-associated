@@ -2,6 +2,7 @@ import axios, { type InternalAxiosRequestConfig } from 'axios';
 import i18n from '@/i18n/i18n';
 import { ApiError, apiErrorResponseSchema } from './api-error';
 import { getAccessToken, setTokens } from '@/features/auth/context/auth.provider';
+import { STORAGE_KEYS } from '@/shared/constants/storage-keys';
 
 /** URL base del API, configurable via variable de entorno. */
 const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
@@ -31,7 +32,7 @@ httpClient.interceptors.request.use((config) => {
   }
 
   // X-Tenant-Id: se lee de localStorage (se setea cuando el usuario selecciona tenant)
-  const tenantId = localStorage.getItem('associated_tenant_id');
+  const tenantId = localStorage.getItem(STORAGE_KEYS.TENANT_ID);
   if (tenantId) {
     config.headers['X-Tenant-Id'] = tenantId;
   }
@@ -103,7 +104,7 @@ httpClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem('associated_refresh_token');
+        const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
         if (!refreshToken) {
           throw new Error('No refresh token available');
         }
@@ -114,7 +115,7 @@ httpClient.interceptors.response.use(
 
         // Actualizar tokens en AuthProvider (estado en memoria)
         setTokens(tokens);
-        localStorage.setItem('associated_refresh_token', tokens.refreshToken);
+        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refreshToken);
 
         // Procesar cola con nuevo token — desbloquea peticiones encoladas
         processQueue(null, tokens.accessToken);
@@ -128,8 +129,8 @@ httpClient.interceptors.response.use(
 
         // Limpiar estado de autenticacion completo
         setTokens(null);
-        localStorage.removeItem('associated_refresh_token');
-        localStorage.removeItem('associated_tenant_id');
+        localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.TENANT_ID);
 
         // Redirigir a login
         window.location.href = '/login';

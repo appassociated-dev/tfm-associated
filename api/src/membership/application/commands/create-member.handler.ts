@@ -25,7 +25,10 @@ import {
   AgeNotEligibleError,
 } from '../../domain/exceptions';
 import { ErrorReporter, ERROR_REPORTER } from '../../../shared/domain';
-import { MEMBER_OUTBOX_PUBLISHER, MemberOutboxPublisher } from '../ports/member-outbox.publisher';
+import {
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 
 /**
  * Handler del comando de creación de socio con ficha completa (UC-006).
@@ -43,8 +46,8 @@ export class CreateMemberHandler implements ICommandHandler<CreateMemberCommand>
     private readonly memberTypeRepository: MemberTypeRepository,
     @Inject(ERROR_REPORTER)
     private readonly errorReporter: ErrorReporter,
-    @Inject(MEMBER_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: MemberOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
   ) {}
 
   async execute(command: CreateMemberCommand): Promise<MemberResponseDto> {
