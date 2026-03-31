@@ -1,5 +1,5 @@
 import { Button, Loader, Stack, Text } from '@mantine/core';
-import { IconUserMinus, IconUserPlus } from '@tabler/icons-react';
+import { IconUserMinus, IconUserOff, IconUserPlus } from '@tabler/icons-react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
@@ -75,7 +75,7 @@ export function LeaveActions({ memberId }: LeaveActionsProps) {
         <Button
           color="red"
           variant="outline"
-          leftSection={<IconUserMinus size={18} stroke={1.5} />}
+          leftSection={<IconUserOff size={18} stroke={1.5} />}
           onClick={() => navigate(`/members/${memberId}/nonpayment-leave`)}
         >
           {t('leave.actions.processNonpaymentLeave')}

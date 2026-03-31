@@ -3,6 +3,7 @@ import { screen, waitFor } from '@testing-library/react';
 
 import { render } from '@/test/helpers/render';
 import { TenantSelector, type TenantSelectorProps } from './tenant-selector';
+import { STORAGE_KEYS } from '@/shared/constants/storage-keys';
 
 // === Datos de prueba ===
 
@@ -54,17 +55,15 @@ describe('TenantSelector', () => {
       ).toBeInTheDocument();
     });
 
-    it('deberia renderizar cards con nombre, slug y badge de rol', () => {
+    it('deberia renderizar cards con nombre y badge de rol', () => {
       renderTenantSelector();
 
       // Primer tenant
       expect(screen.getByText('Club Deportivo Espanol')).toBeInTheDocument();
-      expect(screen.getByText('club-deportivo')).toBeInTheDocument();
       expect(screen.getByText('admin')).toBeInTheDocument();
 
       // Segundo tenant
       expect(screen.getByText('Asociacion Cultural Gallega')).toBeInTheDocument();
-      expect(screen.getByText('asociacion-gallega')).toBeInTheDocument();
       expect(screen.getByText('member')).toBeInTheDocument();
     });
   });
@@ -148,7 +147,7 @@ describe('TenantSelector', () => {
   describe('ultimo tenant seleccionado', () => {
     it('deberia mostrar badge "Ultima sesion" para el ultimo tenant seleccionado', () => {
       // Arrange: simular que previamente se selecciono el primer tenant
-      localStorage.setItem('associated_last_tenant', '550e8400-e29b-41d4-a716-446655440000');
+      localStorage.setItem(STORAGE_KEYS.LAST_TENANT, '550e8400-e29b-41d4-a716-446655440000');
 
       renderTenantSelector();
 
@@ -171,7 +170,7 @@ describe('TenantSelector', () => {
 
       // Assert: localStorage actualizado
       await waitFor(() => {
-        expect(localStorage.getItem('associated_last_tenant')).toBe(
+        expect(localStorage.getItem(STORAGE_KEYS.LAST_TENANT)).toBe(
           '550e8400-e29b-41d4-a716-446655440000',
         );
       });

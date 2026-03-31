@@ -2,11 +2,7 @@ import { useState } from 'react';
 import { Badge, Card, Group, Loader, Stack, Text, Title } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import type { TenantInfo } from '../schemas/auth.schemas';
-
-// === Constantes ===
-
-/** Clave de localStorage para persistir el último tenant seleccionado. */
-const LAST_TENANT_KEY = 'associated_last_tenant';
+import { STORAGE_KEYS } from '@/shared/constants/storage-keys';
 
 // === Types ===
 
@@ -77,9 +73,6 @@ export function TenantSelector({ tenants, onSelect }: TenantSelectorProps) {
                       </Badge>
                     )}
                   </Group>
-                  <Text c="dimmed" size="sm">
-                    {tenant.slug}
-                  </Text>
                 </Stack>
 
                 <Group gap="sm" wrap="nowrap">
@@ -102,7 +95,7 @@ export function TenantSelector({ tenants, onSelect }: TenantSelectorProps) {
 /** Lee el último tenant seleccionado desde localStorage. */
 function getLastTenantId(): string | null {
   try {
-    return localStorage.getItem(LAST_TENANT_KEY);
+    return localStorage.getItem(STORAGE_KEYS.LAST_TENANT);
   } catch {
     // localStorage puede no estar disponible (SSR, iframe sandbox, etc.)
     return null;
@@ -112,7 +105,7 @@ function getLastTenantId(): string | null {
 /** Persiste el tenant seleccionado en localStorage. */
 function persistLastTenant(tenantId: string): void {
   try {
-    localStorage.setItem(LAST_TENANT_KEY, tenantId);
+    localStorage.setItem(STORAGE_KEYS.LAST_TENANT, tenantId);
   } catch {
     // Silenciar errores de localStorage (quota, sandbox, etc.)
   }

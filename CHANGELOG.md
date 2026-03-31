@@ -7,6 +7,34 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260331-001-acester-CLAUDE (retroactivo)
+
+- **Fecha de sesion:** 31 de marzo de 2026
+- **Hora de inicio:** 02:11
+- **Hora de ultimos trabajos:** 02:58
+- **Documento de sesion:** [doc/agents-sessions/20260331-001-acester-CLAUDE.md](doc/agents-sessions/20260331-001-acester-CLAUDE.md)
+- **SDD Change:** `frontend-structural-quality`
+
+#### Added
+
+[Sin cambios]
+
+#### Changed
+
+- Centralizar claves de localStorage en modulo compartido `storage-keys.ts` — 3 claves movidas, 6 archivos actualizados
+- Eliminar slug tecnico del selector de tenant — se muestra solo nombre y rol (UC-002)
+- Corregir icono de baja por impago: `IconUserMinus` → `IconUserOff` (consistencia semantica)
+
+#### Fixed
+
+[Sin cambios]
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260330-003-acester-CLAUDE
 
 - **Fecha de sesion:** 30 de marzo de 2026

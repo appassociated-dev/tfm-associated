@@ -233,8 +233,6 @@ describe('Login Flow (Integración)', () => {
       });
       expect(screen.getByText('Club Alfa')).toBeInTheDocument();
       expect(screen.getByText('Club Beta')).toBeInTheDocument();
-      expect(screen.getByText('club-alfa')).toBeInTheDocument();
-      expect(screen.getByText('club-beta')).toBeInTheDocument();
 
       // El formulario de login ya no debe estar visible
       expect(screen.queryByPlaceholderText('tu@email.com')).not.toBeInTheDocument();
