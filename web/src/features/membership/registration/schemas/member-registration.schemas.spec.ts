@@ -17,8 +17,8 @@ const VALID_UUID_2 = '660e8400-e29b-41d4-a716-446655440001';
 
 const validPersonalData = {
   dni: '12345678Z',
-  firstName: 'Juan',
-  lastName: 'García López',
+  name: 'Juan',
+  surnames: 'García López',
   birthDate: '1990-05-15',
   email: 'juan@ejemplo.com',
   phone: null,
@@ -41,8 +41,8 @@ const validMemberType = {
 
 const validRegistrationRequest = {
   dni: '12345678Z',
-  firstName: 'Juan',
-  lastName: 'García López',
+  name: 'Juan',
+  surnames: 'García López',
   birthDate: '1990-05-15',
   email: 'juan@ejemplo.com',
   phone: null,
@@ -73,8 +73,8 @@ describe('personalDataSchema', () => {
     const result = personalDataSchema.parse(validPersonalData);
 
     expect(result.dni).toBe('12345678Z');
-    expect(result.firstName).toBe('Juan');
-    expect(result.lastName).toBe('García López');
+    expect(result.name).toBe('Juan');
+    expect(result.surnames).toBe('García López');
     expect(result.birthDate).toBe('1990-05-15');
     expect(result.email).toBe('juan@ejemplo.com');
   });
@@ -107,14 +107,14 @@ describe('personalDataSchema', () => {
     expect(() => personalDataSchema.parse(invalid)).toThrow(ZodError);
   });
 
-  it('deberia rechazar firstName vacio', () => {
-    const invalid = { ...validPersonalData, firstName: '' };
+  it('deberia rechazar name vacio', () => {
+    const invalid = { ...validPersonalData, name: '' };
 
     expect(() => personalDataSchema.parse(invalid)).toThrow(ZodError);
   });
 
-  it('deberia rechazar lastName vacio', () => {
-    const invalid = { ...validPersonalData, lastName: '' };
+  it('deberia rechazar surnames vacio', () => {
+    const invalid = { ...validPersonalData, surnames: '' };
 
     expect(() => personalDataSchema.parse(invalid)).toThrow(ZodError);
   });

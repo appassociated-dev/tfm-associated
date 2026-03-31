@@ -48,19 +48,27 @@ export async function getMemberTypes(): Promise<MemberType[]> {
 
 /** Ejecuta alta simple de socio.
  * Transforma el payload del frontend al formato del backend:
- * - firstName/lastName → name/surnames
  * - dni → documentType + documentNumber
+ * - legalRepresentative* fields son descartados explícitamente (backend no los acepta aún)
  */
 export async function simpleRegistration(
   input: SimpleRegistrationRequest,
 ): Promise<RegistrationResponse> {
-  const { dni, firstName, lastName, ...rest } = input;
+  // Construir payload explícitamente para descartar campos no aceptados por el backend
+  // KNOWN LIMITATION: legalRepresentative data collected in UI only — backend SimpleRegistrationDto
+  // does not accept legalRepresentativeName / legalRepresentativeDocumentNumber (pending backend change).
   const payload = {
-    ...rest,
-    name: firstName,
-    surnames: lastName,
-    documentType: getDocumentType(dni),
-    documentNumber: dni,
+    name: input.name,
+    surnames: input.surnames,
+    birthDate: input.birthDate,
+    email: input.email,
+    phone: input.phone,
+    address: input.address,
+    postalCode: input.postalCode,
+    city: input.city,
+    memberTypeId: input.memberTypeId,
+    documentType: getDocumentType(input.dni),
+    documentNumber: input.dni,
   };
   const { data } = await httpClient.post('/v1/members/simple-registration', payload);
   return registrationResponseSchema.parse(data.data ?? data);

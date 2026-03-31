@@ -187,14 +187,14 @@ async function fillPersonalData(
   user: ReturnType<typeof userEvent.setup>,
   overrides: {
     dni?: string;
-    firstName?: string;
-    lastName?: string;
+    name?: string;
+    surnames?: string;
     email?: string;
   } = {},
 ) {
   const dni = overrides.dni ?? VALID_DNI;
-  const firstName = overrides.firstName ?? 'Maria';
-  const lastName = overrides.lastName ?? 'Garcia Lopez';
+  const name = overrides.name ?? 'Maria';
+  const surnames = overrides.surnames ?? 'Garcia Lopez';
   const email = overrides.email ?? 'maria.garcia@ejemplo.com';
 
   // Rellenar DNI (placeholder: "12345678Z o X1234567L")
@@ -205,12 +205,12 @@ async function fillPersonalData(
   // Rellenar nombre (placeholder: "Nombre del aspirante")
   const nameInput = screen.getByPlaceholderText('Nombre del aspirante');
   await user.clear(nameInput);
-  await user.type(nameInput, firstName);
+  await user.type(nameInput, name);
 
   // Rellenar apellidos (placeholder: "Apellidos del aspirante")
   const lastNameInput = screen.getByPlaceholderText('Apellidos del aspirante');
   await user.clear(lastNameInput);
-  await user.type(lastNameInput, lastName);
+  await user.type(lastNameInput, surnames);
 
   // Rellenar fecha de nacimiento con fireEvent.change + blur.
   // NO usar user.type() aqui: escribe caracter a caracter y cada uno
@@ -529,7 +529,7 @@ describe('Flujo de Alta de Socio (Integracion)', () => {
 
       // Act — completar wizard entero
       const { user } = await renderRegistrationFlow();
-      await fillPersonalData(user, { firstName: 'Pedro', lastName: 'Martinez' });
+      await fillPersonalData(user, { name: 'Pedro', surnames: 'Martinez' });
 
       await waitFor(
         () => {

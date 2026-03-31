@@ -7,6 +7,39 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260330-003-acester-CLAUDE
+
+- **Fecha de sesion:** 30 de marzo de 2026
+- **Hora de inicio:** 23:02
+- **Hora de finalizacion:** 01:50
+- **Documento de sesion:** [doc/agents-sessions/20260330-003-acester-CLAUDE.md](doc/agents-sessions/20260330-003-acester-CLAUDE.md)
+- **SDD Change:** `domain-validation-naming` — COMPLETED
+- **Verificacion:** PASS (18/18 tareas, 17/17 escenarios, 1098 tests, 0 TS errors)
+- **Estado:** ARCHIVADO
+
+#### Added
+
+- Deteccion de menor en wizard de registro — Alert warning condicional + campos opcionales de representante legal (UC-006 FE-4)
+- Tests de frontera para `calculateAge`: ano bisiesto Feb 29, edad exacta 17/18
+- Parsing de fecha timezone-safe en `calculateAge` usando constructor de fecha local
+
+#### Changed
+
+- Campos de nombre de socio renombrados de `firstName`/`lastName` a `name`/`surnames` en schemas Zod, formularios y capa API alineando con nomenclatura canonica de la spec (UC-006, UC-011)
+- Eliminada capa de transformacion en `registration.api.ts` — construccion explicita del payload sin `legalRep`
+
+#### Fixed
+
+- Bug de timezone en `calculateAge` — comparaba fecha de nacimiento UTC con fecha local de hoy
+- Patron `.refine()` de Zod v4 — argumentos string literal convertidos a objetos `{ message }`
+- Datos de representante legal persistian en formulario al cambiar de menor a adulto (RHF `shouldUnregister: false`)
+
+#### Removed
+
+[Sin cambios]
+
+---
+
 ### 20260330-002-acester-CLAUDE
 
 - **Fecha de sesion:** 30 de marzo de 2026

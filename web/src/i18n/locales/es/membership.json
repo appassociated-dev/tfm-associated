@@ -38,10 +38,10 @@
       "dniDuplicateText": "Ya existe socio con DNI {{dni}} ({{name}}, #{{number}})",
       "dniLabel": "DNI/NIE",
       "dniPlaceholder": "12345678Z o X1234567L",
-      "firstNameLabel": "Nombre",
-      "firstNamePlaceholder": "Nombre del aspirante",
-      "lastNameLabel": "Apellidos",
-      "lastNamePlaceholder": "Apellidos del aspirante",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Nombre del aspirante",
+      "surnamesLabel": "Apellidos",
+      "surnamesPlaceholder": "Apellidos del aspirante",
       "birthDateLabel": "Fecha de nacimiento",
       "birthDatePlaceholder": "dd/mm/aaaa",
       "ageYearSingular": "año",
@@ -54,7 +54,11 @@
       "addressLabel": "Direccion",
       "postalCodeLabel": "Codigo postal",
       "postalCodePlaceholder": "28001",
-      "cityLabel": "Ciudad"
+      "cityLabel": "Ciudad",
+      "minorWarningTitle": "Socio menor de edad",
+      "minorWarningText": "Para menores de edad es necesario indicar un representante legal",
+      "legalRepNameLabel": "Nombre del representante legal",
+      "legalRepDocLabel": "DNI del representante legal"
     },
     "memberTypeStep": {
       "loadErrorTitle": "Error al cargar tipos de socio",
@@ -95,12 +99,14 @@
       "willCreateActive": "Se creara el socio en estado Activo",
       "willGenerateCharge": "Se generara cargo de inscripcion",
       "willAssignNumber": "Se asignará número de socio automáticamente",
-      "confirmRegistration": "Confirmar Alta"
+      "confirmRegistration": "Confirmar Alta",
+      "legalRepName": "Nombre representante legal",
+      "legalRepDoc": "DNI representante legal"
     },
     "validation": {
       "dniRequired": "DNI/NIE es obligatorio",
-      "firstNameRequired": "Nombre es obligatorio",
-      "lastNameRequired": "Apellidos es obligatorio",
+      "nameRequired": "Nombre es obligatorio",
+      "surnamesRequired": "Apellidos es obligatorio",
       "birthDateInvalid": "Fecha de nacimiento inválida",
       "birthDateRequired": "Fecha de nacimiento es obligatoria",
       "emailInvalid": "Email inválido",

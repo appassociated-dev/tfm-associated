@@ -236,7 +236,7 @@ describe('calculateAge', () => {
   it('deberia calcular la edad correctamente para una persona de 30 años', () => {
     // Fijar la fecha a 2026-06-15 para tests deterministas
     vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-06-15'));
+    vi.setSystemTime(new Date(2026, 5, 15)); // mes 0-indexado: 5 = junio
 
     const result = calculateAge('1996-01-01');
 
@@ -245,7 +245,7 @@ describe('calculateAge', () => {
 
   it('deberia retornar 0 para un bebe nacido hoy', () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-06-15'));
+    vi.setSystemTime(new Date(2026, 5, 15)); // mes 0-indexado: 5 = junio
 
     const result = calculateAge('2026-06-15');
 
@@ -267,7 +267,7 @@ describe('calculateAge', () => {
   it('deberia restar un año si el cumpleaños aun no ocurrio este año', () => {
     vi.useFakeTimers();
     // Fecha actual: 15 de marzo de 2026
-    vi.setSystemTime(new Date('2026-03-15'));
+    vi.setSystemTime(new Date(2026, 2, 15)); // mes 0-indexado: 2 = marzo
 
     // Nacido el 20 de diciembre de 1990 → cumple en diciembre, aun no cumplio
     const result = calculateAge('1990-12-20');
@@ -278,7 +278,7 @@ describe('calculateAge', () => {
   it('deberia contar el año si el cumpleaños ya paso este año', () => {
     vi.useFakeTimers();
     // Fecha actual: 15 de diciembre de 2026
-    vi.setSystemTime(new Date('2026-12-15'));
+    vi.setSystemTime(new Date(2026, 11, 15)); // mes 0-indexado: 11 = diciembre
 
     // Nacido el 1 de enero de 1990 → ya cumplio
     const result = calculateAge('1990-01-01');
@@ -289,7 +289,7 @@ describe('calculateAge', () => {
   it('deberia contar correctamente el dia exacto del cumpleaños', () => {
     vi.useFakeTimers();
     // Fecha actual: 15 de junio de 2026
-    vi.setSystemTime(new Date('2026-06-15'));
+    vi.setSystemTime(new Date(2026, 5, 15)); // mes 0-indexado: 5 = junio
 
     // Nacido el 15 de junio de 2000 → cumple HOY
     const result = calculateAge('2000-06-15');
@@ -299,10 +299,30 @@ describe('calculateAge', () => {
 
   it('deberia manejar formato ISO con hora', () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-06-15'));
+    vi.setSystemTime(new Date(2026, 5, 15)); // mes 0-indexado: 5 = junio
 
     const result = calculateAge('1996-01-01T00:00:00.000Z');
 
     expect(result).toBe(30);
+  });
+
+  it('deberia retornar 17 para persona nacida el 29-feb en año bisiesto cuando aun no cumplio en año no bisiesto', () => {
+    // Nacido 2008-02-29, fecha actual 28 de febrero de 2026 → aún no cumplió 18 años
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 1, 28)); // mes 0-indexado: 1 = febrero, día 28
+
+    const result = calculateAge('2008-02-29');
+
+    expect(result).toBe(17);
+  });
+
+  it('deberia retornar 18 para persona nacida el 29-feb en año bisiesto cuando ya cumplio en año no bisiesto', () => {
+    // Nacido 2008-02-29, fecha actual 1 de marzo de 2026 → ya cumplió 18 años
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 2, 1)); // mes 0-indexado: 2 = marzo, día 1
+
+    const result = calculateAge('2008-02-29');
+
+    expect(result).toBe(18);
   });
 });

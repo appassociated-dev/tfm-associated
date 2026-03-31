@@ -6,25 +6,27 @@ import i18n from '@/i18n/i18n';
 
 export const personalDataSchema = z.object({
   dni: z.string().min(1, i18n.t('membership:registration.validation.dniRequired')).max(20),
-  firstName: z
+  name: z.string().min(1, i18n.t('membership:registration.validation.nameRequired')).max(100),
+  surnames: z
     .string()
-    .min(1, i18n.t('membership:registration.validation.firstNameRequired'))
-    .max(100),
-  lastName: z
-    .string()
-    .min(1, i18n.t('membership:registration.validation.lastNameRequired'))
+    .min(1, i18n.t('membership:registration.validation.surnamesRequired'))
     .max(200),
-  birthDate: z
-    .string()
-    .refine(
-      (val) => !isNaN(Date.parse(val)),
-      i18n.t('membership:registration.validation.birthDateInvalid'),
-    ),
+  birthDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: i18n.t('membership:registration.validation.birthDateInvalid'),
+  }),
   email: z.string().email(i18n.t('membership:registration.validation.emailInvalid')),
   phone: z.string().max(20).nullable(),
   address: z.string().max(300).nullable(),
   postalCode: z.string().max(10).nullable(),
   city: z.string().max(100).nullable(),
+  /**
+   * UI-only fields — used for displaying and carrying legal representative data through the
+   * registration wizard (e.g. to the confirmation step). These fields are NOT sent to the
+   * backend: `registration.api.ts` constructs the API payload explicitly and omits them.
+   * They are also defined in `personalDataFormSchema` for form validation purposes.
+   */
+  legalRepresentativeName: z.string().max(200).optional(),
+  legalRepresentativeDocumentNumber: z.string().max(20).optional(),
 });
 
 // === Schema de tipo de socio (selector del paso 2) ===
@@ -53,8 +55,8 @@ export const registrationChargeSchema = z.object({
 
 export const simpleRegistrationRequestSchema = z.object({
   dni: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
+  name: z.string(),
+  surnames: z.string(),
   birthDate: z.string(),
   email: z.string().email(),
   phone: z.string().nullable(),
@@ -118,34 +120,30 @@ export const preconditionsResponseSchema = z.object({
 
 export const personalDataFormSchema = z.object({
   dni: z.string().min(1, i18n.t('membership:registration.validation.dniRequired')).max(20),
-  firstName: z
+  name: z.string().min(1, i18n.t('membership:registration.validation.nameRequired')).max(100),
+  surnames: z
     .string()
-    .min(1, i18n.t('membership:registration.validation.firstNameRequired'))
-    .max(100),
-  lastName: z
-    .string()
-    .min(1, i18n.t('membership:registration.validation.lastNameRequired'))
+    .min(1, i18n.t('membership:registration.validation.surnamesRequired'))
     .max(200),
   birthDate: z
     .string({ error: i18n.t('membership:registration.validation.birthDateRequired') })
     .nullable()
-    .refine(
-      (val) => val !== null && val.trim() !== '',
-      i18n.t('membership:registration.validation.birthDateRequired'),
-    ),
+    .refine((val) => val !== null && val.trim() !== '', {
+      message: i18n.t('membership:registration.validation.birthDateRequired'),
+    }),
   email: z
     .string()
     .min(1, i18n.t('membership:registration.validation.emailRequired'))
     .email(i18n.t('membership:registration.validation.emailInvalidForm')),
   phone: z.string().max(20),
   address: z.string().max(300),
-  postalCode: z
-    .string()
-    .refine(
-      (val) => !val || /^\d{5}$/.test(val),
-      i18n.t('membership:registration.validation.postalCodeFormat'),
-    ),
+  postalCode: z.string().refine((val) => !val || /^\d{5}$/.test(val), {
+    message: i18n.t('membership:registration.validation.postalCodeFormat'),
+  }),
   city: z.string().max(100),
+  // Campos opcionales para representante legal (solo cuando el socio es menor de edad)
+  legalRepresentativeName: z.string().max(200).optional(),
+  legalRepresentativeDocumentNumber: z.string().max(20).optional(),
 });
 
 export type PersonalDataFormValues = z.infer<typeof personalDataFormSchema>;
