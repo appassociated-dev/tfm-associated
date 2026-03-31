@@ -1,6 +1,6 @@
 {
   "name": "associated-api",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Associated API — NestJS backend with DDD modular monolith",
   "scripts": {
