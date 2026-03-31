@@ -19,5 +19,5 @@ export interface FiscalYearOpenedPayload {
  * Contiene información sobre el periodo y las transiciones aplicadas.
  */
 export class FiscalYearOpenedEvent extends DomainEvent<FiscalYearOpenedPayload> {
-  readonly eventType = 'fiscal-year.opened';
+  readonly eventType = 'FiscalYearOpened';
 }

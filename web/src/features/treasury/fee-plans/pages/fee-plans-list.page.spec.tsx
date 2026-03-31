@@ -189,7 +189,7 @@ describe('FeePlansListPage', () => {
 
     it('deberia mostrar guion en periodicidad para plan ONE_TIME', async () => {
       // Arrange
-      const plans = [buildFeePlan({ type: 'ONE_TIME', frequency: null, billingMonths: [] })];
+      const plans = [buildFeePlan({ type: 'ONE_TIME', frequency: 'ANNUAL', billingMonths: [] })];
       server.use(
         http.get('*/v1/treasury/fee-plans', () => {
           return HttpResponse.json(apiResponse(plans));

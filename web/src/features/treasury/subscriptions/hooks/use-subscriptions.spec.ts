@@ -34,7 +34,7 @@ describe('useSubscriptions', () => {
     // Assert
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data?.activeSubscription).not.toBeNull();
-    expect(result.current.data?.memberName).toBeDefined();
+    expect(result.current.data?.memberAccountId).toBeDefined();
   });
 
   it('deberia retornar socio sin suscripcion activa', async () => {
@@ -42,7 +42,7 @@ describe('useSubscriptions', () => {
     const data = buildMemberSubscriptionsResponse({
       memberId: ACCOUNT_ID,
       activeSubscription: null,
-      closedSubscriptions: [buildSubscription({ cancelReason: 'MEMBER_LEAVE' })],
+      history: [buildSubscription({ cancelReason: 'MEMBER_LEAVE' })],
     });
     server.use(
       http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -56,7 +56,7 @@ describe('useSubscriptions', () => {
     // Assert
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data?.activeSubscription).toBeNull();
-    expect(result.current.data?.closedSubscriptions).toHaveLength(1);
+    expect(result.current.data?.history).toHaveLength(1);
   });
 
   it('deberia retornar error cuando la API falla', async () => {

@@ -18,7 +18,10 @@ import {
   OptimisticLockingError,
 } from '../../domain/exceptions';
 import { ErrorReporter, ERROR_REPORTER } from '../../../shared/domain';
-import { MEMBER_OUTBOX_PUBLISHER, MemberOutboxPublisher } from '../ports/member-outbox.publisher';
+import {
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 
 /**
  * Handler del comando de actualización de datos de socio (UC-006).
@@ -34,8 +37,8 @@ export class UpdateMemberHandler implements ICommandHandler<UpdateMemberCommand>
     private readonly memberTypeRepository: MemberTypeRepository,
     @Inject(ERROR_REPORTER)
     private readonly errorReporter: ErrorReporter,
-    @Inject(MEMBER_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: MemberOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
   ) {}
 
   async execute(command: UpdateMemberCommand): Promise<MemberResponseDto> {

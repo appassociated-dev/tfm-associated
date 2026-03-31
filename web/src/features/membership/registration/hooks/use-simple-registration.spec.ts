@@ -26,8 +26,8 @@ vi.mock('@mantine/notifications', () => ({
 
 const registrationInput: SimpleRegistrationRequest = {
   dni: '12345678A',
-  firstName: 'Maria',
-  lastName: 'Garcia Lopez',
+  name: 'Maria',
+  surnames: 'Garcia Lopez',
   birthDate: '1990-05-15',
   email: 'maria@test.es',
   phone: '+34612345678',
@@ -39,8 +39,8 @@ const registrationInput: SimpleRegistrationRequest = {
 
 const registrationInput2: SimpleRegistrationRequest = {
   dni: 'X1234567B',
-  firstName: 'Pedro',
-  lastName: 'Martinez Ruiz',
+  name: 'Pedro',
+  surnames: 'Martinez Ruiz',
   birthDate: '1985-10-20',
   email: 'pedro@test.es',
   phone: null,

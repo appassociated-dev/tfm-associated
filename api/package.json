@@ -1,6 +1,6 @@
 {
   "name": "associated-api",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Associated API — NestJS backend with DDD modular monolith",
   "scripts": {
@@ -33,6 +33,7 @@
     "@nestjs/schedule": "^5.0.0",
     "@nestjs/swagger": "^11.0.0",
     "@nestjs/terminus": "^11.0.0",
+    "@nestjs/throttler": "^6.5.0",
     "@prisma/adapter-pg": "^7.4.2",
     "@prisma/client": "^7.4.2",
     "@sentry/nestjs": "^10.42.0",

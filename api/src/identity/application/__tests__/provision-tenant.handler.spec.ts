@@ -10,6 +10,7 @@ import type { TenantRepository } from '../../domain/repositories/tenant.reposito
 import type { DatabaseProvisioningPort } from '../ports/database-provisioning.port';
 import type { TenantCredentialPort } from '../ports/tenant-credential.port';
 import type { ErrorReporter } from '../../../shared/domain';
+import type { IntegrationEventPublisher } from '../../../shared/application/ports/integration-event.publisher';
 
 // Mock de argon2 para evitar cómputo real de hashing en tests unitarios
 vi.mock('argon2', () => ({
@@ -22,6 +23,7 @@ describe('ProvisionTenantHandler', () => {
   let databaseProvisioningService: Record<string, ReturnType<typeof vi.fn>>;
   let tenantCredentialPort: Record<string, ReturnType<typeof vi.fn>>;
   let errorReporter: Record<string, ReturnType<typeof vi.fn>>;
+  let publisher: Record<string, ReturnType<typeof vi.fn>>;
 
   const validCommand: ProvisionTenantCommand = new ProvisionTenantCommand(
     'Peña El Buen Gusto',
@@ -74,11 +76,16 @@ describe('ProvisionTenantHandler', () => {
       setContext: vi.fn(),
     };
 
+    publisher = {
+      publish: vi.fn().mockResolvedValue(undefined),
+    };
+
     handler = new ProvisionTenantHandler(
       tenantRepository as unknown as TenantRepository,
       databaseProvisioningService as unknown as DatabaseProvisioningPort,
       tenantCredentialPort as unknown as TenantCredentialPort,
       errorReporter as unknown as ErrorReporter,
+      publisher as unknown as IntegrationEventPublisher,
     );
   });
 
@@ -116,6 +123,12 @@ describe('ProvisionTenantHandler', () => {
     // Verificar que tenantRepository.save fue llamado
     expect(tenantRepository.save).toHaveBeenCalledOnce();
 
+    // Verificar que publisher.publish fue llamado con tenantId=null y eventos
+    expect(publisher.publish).toHaveBeenCalledOnce();
+    const [publishedTenantId, publishedEvents] = publisher.publish.mock.calls[0];
+    expect(publishedTenantId).toBeNull();
+    expect(publishedEvents).toHaveLength(2);
+
     // Verificar respuesta
     expect(result.tenantId).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
@@ -124,19 +137,20 @@ describe('ProvisionTenantHandler', () => {
     expect(result.adminUserId).toBe('admin-user-id-123');
   });
 
-  it('debería emitir TenantProvisionedEvent y UserCreatedEvent con datos completos', async () => {
+  it('debería publicar TenantProvisionedEvent y UserCreatedEvent con datos completos', async () => {
     await handler.execute(validCommand);
 
-    // El tenant guardado debe tener ambos eventos registrados
-    const savedTenant = tenantRepository.save.mock.calls[0][0];
-    const events = savedTenant.pullDomainEvents();
+    // publisher.publish debe haberse llamado con tenantId=null (provisión sin contexto de tenant)
+    expect(publisher.publish).toHaveBeenCalledOnce();
+    const [tenantId, events] = publisher.publish.mock.calls[0];
+    expect(tenantId).toBeNull();
 
     expect(events).toHaveLength(2);
 
     // Primer evento: TenantProvisionedEvent con adminUserId y adminEmail
     const tenantEvent = events[0] as TenantProvisionedEvent;
     expect(tenantEvent).toBeInstanceOf(TenantProvisionedEvent);
-    expect(tenantEvent.eventType).toBe('tenant.provisioned');
+    expect(tenantEvent.eventType).toBe('TenantProvisioned');
     expect(tenantEvent.payload.adminUserId).toBe('admin-user-id-123');
     expect(tenantEvent.payload.adminEmail).toBe('admin@pena.es');
     expect(tenantEvent.payload.organizationName).toBe('Peña El Buen Gusto');
@@ -145,10 +159,19 @@ describe('ProvisionTenantHandler', () => {
     // Segundo evento: UserCreatedEvent
     const userEvent = events[1] as UserCreatedEvent;
     expect(userEvent).toBeInstanceOf(UserCreatedEvent);
-    expect(userEvent.eventType).toBe('user.created');
+    expect(userEvent.eventType).toBe('UserCreated');
     expect(userEvent.payload.userId).toBe('admin-user-id-123');
     expect(userEvent.payload.email).toBe('admin@pena.es');
     expect(userEvent.payload.role).toBe('PRESIDENT');
+  });
+
+  it('no debería llamar a publisher.publish si la saga falla', async () => {
+    const dbError = new Error('CREATE DATABASE failed');
+    databaseProvisioningService.createDatabase.mockRejectedValue(dbError);
+
+    await expect(handler.execute(validCommand)).rejects.toThrow(TenantProvisioningFailedError);
+
+    expect(publisher.publish).not.toHaveBeenCalled();
   });
 
   it('debería rechazar si el CIF ya existe', async () => {

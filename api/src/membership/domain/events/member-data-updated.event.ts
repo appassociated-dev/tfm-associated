@@ -15,5 +15,5 @@ export interface MemberDataUpdatedPayload {
  * Consumido por BC-Treasury (actualizar IBAN si cambió) y BC-Communication (actualizar email si cambió).
  */
 export class MemberDataUpdatedEvent extends DomainEvent<MemberDataUpdatedPayload> {
-  readonly eventType = 'member.data-updated';
+  readonly eventType = 'MemberDataUpdated';
 }

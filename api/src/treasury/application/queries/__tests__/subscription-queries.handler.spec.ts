@@ -8,6 +8,7 @@ import { FeePlanRepository } from '../../../domain/repositories/fee-plan.reposit
 import { MemberAccount } from '../../../domain/aggregates/member-account';
 import { FeePlan } from '../../../domain/aggregates/fee-plan';
 import { FeeSubscription } from '../../../domain/entities/fee-subscription';
+import { Charge } from '../../../domain/entities/charge';
 import { Discount } from '../../../domain/value-objects/discount';
 import { MemberAccountNotFoundError, SubscriptionNotFoundError } from '../../../domain/exceptions';
 
@@ -85,6 +86,64 @@ function createMemberAccountWithoutActive(): MemberAccount {
   });
 }
 
+/** Crea un MemberAccount con suscripción activa y 2 cargos PENDING. */
+function createMemberAccountWithPendingCharges(): MemberAccount {
+  const charge1 = Charge.reconstitute({
+    id: 'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    subscriptionId: null,
+    baseAmount: 12000,
+    finalAmount: 12000,
+    description: 'Cargo pendiente 1',
+    fiscalYearId: null,
+    billingMonth: 1,
+    billingYear: 2026,
+    issueDate: new Date('2026-01-01'),
+    dueDate: new Date('2026-02-01'),
+    status: 'PENDING',
+    paidAmount: 0,
+    isProrated: false,
+    isManual: true,
+    createdAt: new Date(),
+  });
+  const charge2 = Charge.reconstitute({
+    id: 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    subscriptionId: null,
+    baseAmount: 12000,
+    finalAmount: 12000,
+    description: 'Cargo pendiente 2',
+    fiscalYearId: null,
+    billingMonth: 2,
+    billingYear: 2026,
+    issueDate: new Date('2026-02-01'),
+    dueDate: new Date('2026-03-01'),
+    status: 'PENDING',
+    paidAmount: 0,
+    isProrated: false,
+    isManual: true,
+    createdAt: new Date(),
+  });
+  return MemberAccount.reconstitute({
+    id: MEMBER_ACCOUNT_ID,
+    memberId: MEMBER_ID,
+    tenantId: TENANT_ID,
+    subscriptions: [createActiveSubscription()],
+    charges: [charge1, charge2],
+    createdAt: new Date(),
+  });
+}
+
+/** Crea un MemberAccount con suscripción activa y sin cargos pendientes. */
+function createMemberAccountWithNoPendingCharges(): MemberAccount {
+  return MemberAccount.reconstitute({
+    id: MEMBER_ACCOUNT_ID,
+    memberId: MEMBER_ID,
+    tenantId: TENANT_ID,
+    subscriptions: [createActiveSubscription()],
+    charges: [],
+    createdAt: new Date(),
+  });
+}
+
 // =============================================================================
 // GetSubscriptionsHandler
 // =============================================================================
@@ -110,6 +169,7 @@ describe('GetSubscriptionsHandler', () => {
       findById: vi.fn().mockResolvedValue(createFeePlan()),
       findByCode: vi.fn(),
       findAll: vi.fn(),
+      findAllWithCount: vi.fn(),
       existsByCode: vi.fn(),
       hasActiveSubscriptions: vi.fn(),
     };
@@ -174,6 +234,7 @@ describe('GetActiveSubscriptionHandler', () => {
       findById: vi.fn().mockResolvedValue(createFeePlan()),
       findByCode: vi.fn(),
       findAll: vi.fn(),
+      findAllWithCount: vi.fn(),
       existsByCode: vi.fn(),
       hasActiveSubscriptions: vi.fn(),
     };
@@ -218,5 +279,37 @@ describe('GetActiveSubscriptionHandler', () => {
     const query = new GetActiveSubscriptionQuery(TENANT_ID, MEMBER_ACCOUNT_ID);
 
     await expect(handler.execute(query)).rejects.toThrow(MemberAccountNotFoundError);
+  });
+
+  // --- pendingChargesCount (REQ-SPU-001) ---
+
+  it('debería incluir pendingChargesCount=2 cuando la cuenta tiene 2 cargos pendientes', async () => {
+    // Arrange
+    (memberAccountRepository.findById as ReturnType<typeof vi.fn>).mockResolvedValue(
+      createMemberAccountWithPendingCharges(),
+    );
+
+    const query = new GetActiveSubscriptionQuery(TENANT_ID, MEMBER_ACCOUNT_ID);
+
+    // Act
+    const result = await handler.execute(query);
+
+    // Assert
+    expect(result.pendingChargesCount).toBe(2);
+  });
+
+  it('debería incluir pendingChargesCount=0 cuando la cuenta no tiene cargos pendientes', async () => {
+    // Arrange
+    (memberAccountRepository.findById as ReturnType<typeof vi.fn>).mockResolvedValue(
+      createMemberAccountWithNoPendingCharges(),
+    );
+
+    const query = new GetActiveSubscriptionQuery(TENANT_ID, MEMBER_ACCOUNT_ID);
+
+    // Act
+    const result = await handler.execute(query);
+
+    // Assert
+    expect(result.pendingChargesCount).toBe(0);
   });
 });

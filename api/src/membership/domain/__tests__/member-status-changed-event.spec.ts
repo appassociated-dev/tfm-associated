@@ -12,9 +12,14 @@ describe('MemberStatusChangedEvent', () => {
       changedAt: new Date('2025-01-15T10:00:00Z'),
     };
 
-    const event = new MemberStatusChangedEvent(payload);
+    const event = new MemberStatusChangedEvent({
+      payload,
+      aggregateId: payload.memberId,
+      aggregateType: 'Member',
+      boundedContext: 'BC-Membership',
+    });
 
-    expect(event.eventType).toBe('member.status-changed');
+    expect(event.eventType).toBe('MemberStatusChanged');
     expect(event.payload).toEqual(payload);
   });
 });

@@ -4,7 +4,7 @@ import { RecordPaymentHandler } from '../record-payment.handler';
 import { RecordPaymentCommand } from '../record-payment.command';
 import { MemberAccountRepository } from '../../../domain/repositories/member-account.repository';
 import { PaymentRepository } from '../../../domain/repositories/payment.repository';
-import { TreasuryOutboxPublisher } from '../../ports/treasury-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { MemberAccount } from '../../../domain/aggregates/member-account';
 import { Charge } from '../../../domain/entities/charge';
 import {
@@ -77,7 +77,7 @@ describe('RecordPaymentHandler', () => {
   let handler: RecordPaymentHandler;
   let memberAccountRepository: MemberAccountRepository;
   let paymentRepository: PaymentRepository;
-  let outboxPublisher: TreasuryOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
 
   beforeEach(() => {
     memberAccountRepository = {
@@ -134,8 +134,8 @@ describe('RecordPaymentHandler', () => {
     expect(outboxPublisher.publish).toHaveBeenCalledWith(
       TENANT_ID,
       expect.arrayContaining([
-        expect.objectContaining({ eventType: 'payment.recorded' }),
-        expect.objectContaining({ eventType: 'receipt.generated' }),
+        expect.objectContaining({ eventType: 'PaymentRecorded' }),
+        expect.objectContaining({ eventType: 'ReceiptGenerated' }),
       ]),
     );
   });
@@ -209,8 +209,8 @@ describe('RecordPaymentHandler', () => {
     expect(outboxPublisher.publish).toHaveBeenCalledWith(
       TENANT_ID,
       expect.arrayContaining([
-        expect.objectContaining({ eventType: 'payment.recorded' }),
-        expect.objectContaining({ eventType: 'receipt.generated' }),
+        expect.objectContaining({ eventType: 'PaymentRecorded' }),
+        expect.objectContaining({ eventType: 'ReceiptGenerated' }),
       ]),
     );
   });

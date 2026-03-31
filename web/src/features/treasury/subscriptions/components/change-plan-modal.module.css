@@ -1,0 +1,19 @@
+/* Estilos del modal de cambio de plan de cuota */
+
+/* === Tipografia numerica === */
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.tabular-nums-right {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* === Separador del resumen de importes === */
+
+.amount-divider {
+  border-top: 1px solid var(--mantine-color-gray-3);
+  padding-top: 4px;
+}

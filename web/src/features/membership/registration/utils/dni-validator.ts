@@ -127,7 +127,13 @@ export function validateIdentityDocument(document: string): ValidationResult {
  * Tiene en cuenta si ya pasó el cumpleaños en el año actual.
  */
 export function calculateAge(birthDate: string): number {
-  const birth = new Date(birthDate);
+  // Normalizar: extraer solo la parte de fecha (YYYY-MM-DD) antes de cualquier 'T'
+  const datePart = birthDate.split('T')[0];
+  // Parsear como fecha local para evitar el desfase UTC+1/+2 en España
+  const parts = datePart.split('-');
+  if (parts.length !== 3) return -1;
+  const [year, month, day] = parts.map(Number);
+  const birth = new Date(year, month - 1, day);
 
   // Verificar que la fecha es válida
   if (isNaN(birth.getTime())) {

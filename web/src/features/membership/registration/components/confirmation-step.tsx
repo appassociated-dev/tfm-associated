@@ -52,11 +52,11 @@ export function ConfirmationStep({
   // Edad calculada
   const age = useMemo(() => calculateAge(personalData.birthDate), [personalData.birthDate]);
 
-  // Fecha de nacimiento formateada
-  const birthDateFormatted = useMemo(
-    () => formatDateLong(new Date(personalData.birthDate)),
-    [personalData.birthDate],
-  );
+  // Fecha de nacimiento formateada — parseo local para evitar desfase UTC+1/+2
+  const birthDateFormatted = useMemo(() => {
+    const [year, month, day] = personalData.birthDate.split('-').map(Number);
+    return formatDateLong(new Date(year, month - 1, day));
+  }, [personalData.birthDate]);
 
   // Fecha de hoy formateada
   const todayFormatted = useMemo(() => formatDateLong(new Date()), []);
@@ -70,12 +70,16 @@ export function ConfirmationStep({
 
           <SummaryRow
             label={t('registration.confirmationStep.fullName')}
-            value={`${personalData.firstName} ${personalData.lastName}`}
+            value={`${personalData.name} ${personalData.surnames}`}
           />
           <SummaryRow label={t('registration.confirmationStep.dniNie')} value={personalData.dni} />
           <SummaryRow
             label={t('registration.confirmationStep.birthDate')}
-            value={`${birthDateFormatted} (${age} ${age === 1 ? t('registration.personalDataStep.ageYearSingular') : t('registration.personalDataStep.ageYearPlural')})`}
+            value={
+              age >= 0
+                ? `${birthDateFormatted} (${age} ${age === 1 ? t('registration.personalDataStep.ageYearSingular') : t('registration.personalDataStep.ageYearPlural')})`
+                : birthDateFormatted
+            }
           />
           <SummaryRow label={t('registration.confirmationStep.email')} value={personalData.email} />
           {personalData.phone && (
@@ -98,6 +102,23 @@ export function ConfirmationStep({
           )}
           {personalData.city && (
             <SummaryRow label={t('registration.confirmationStep.city')} value={personalData.city} />
+          )}
+
+          {/* Sección de representante legal — solo visible si el socio es menor de edad */}
+          {personalData.legalRepresentativeName && (
+            <>
+              <Divider />
+              <SummaryRow
+                label={t('registration.confirmationStep.legalRepName')}
+                value={personalData.legalRepresentativeName}
+              />
+            </>
+          )}
+          {personalData.legalRepresentativeDocumentNumber && (
+            <SummaryRow
+              label={t('registration.confirmationStep.legalRepDoc')}
+              value={personalData.legalRepresentativeDocumentNumber}
+            />
           )}
 
           <Divider />

@@ -11,9 +11,9 @@ import {
   PaymentRepository,
 } from '../../domain/repositories/payment.repository';
 import {
-  TREASURY_OUTBOX_PUBLISHER,
-  TreasuryOutboxPublisher,
-} from '../ports/treasury-outbox.publisher';
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 import { MemberAccountId } from '../../domain/value-objects/member-account-id';
 import { ChargeId } from '../../domain/value-objects/charge-id';
 import { Money } from '../../domain/value-objects/money';
@@ -46,8 +46,8 @@ export class RecordPaymentHandler implements ICommandHandler<RecordPaymentComman
     private readonly memberAccountRepository: MemberAccountRepository,
     @Inject(PAYMENT_REPOSITORY)
     private readonly paymentRepository: PaymentRepository,
-    @Inject(TREASURY_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: TreasuryOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
   ) {}
 
   async execute(command: RecordPaymentCommand): Promise<PaymentResponseDto> {
@@ -133,10 +133,15 @@ export class RecordPaymentHandler implements ICommandHandler<RecordPaymentComman
     const events = [
       ...memberAccount.pullDomainEvents(),
       new ReceiptGeneratedEvent({
-        receiptId: payment.receiptNumber?.value ?? payment.id.toValue(),
-        paymentId: payment.id.toValue(),
-        receiptNumber: payment.receiptNumber?.value ?? 'PENDING',
-        issueDate: new Date(),
+        payload: {
+          receiptId: payment.receiptNumber?.value ?? payment.id.toValue(),
+          paymentId: payment.id.toValue(),
+          receiptNumber: payment.receiptNumber?.value ?? 'PENDING',
+          issueDate: new Date(),
+        },
+        aggregateId: payment.id.toValue(),
+        aggregateType: 'Payment',
+        boundedContext: 'BC-Treasury',
       }),
     ];
     if (events.length > 0) {

@@ -17,9 +17,9 @@ import {
 } from '../../domain/ports/fiscal-year-query.port';
 import { MEMBER_QUERY_PORT, MemberQueryPort } from '../../domain/ports/member-query.port';
 import {
-  TREASURY_OUTBOX_PUBLISHER,
-  TreasuryOutboxPublisher,
-} from '../ports/treasury-outbox.publisher';
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 import { ChargeGenerator, ActiveSubscriptionData } from '../../domain/services/charge-generator';
 import { Charge } from '../../domain/entities/charge';
 import { ChargeDescription } from '../../domain/value-objects/charge-description';
@@ -60,8 +60,8 @@ export class GenerateMonthlyChargesHandler implements ICommandHandler<GenerateMo
     private readonly fiscalYearQueryPort: FiscalYearQueryPort,
     @Inject(MEMBER_QUERY_PORT)
     private readonly memberQueryPort: MemberQueryPort,
-    @Inject(TREASURY_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: TreasuryOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
     @Inject(ERROR_REPORTER)
     private readonly errorReporter: ErrorReporter,
   ) {}
@@ -206,14 +206,19 @@ export class GenerateMonthlyChargesHandler implements ICommandHandler<GenerateMo
 
             batchEvents.push(
               new ChargeGeneratedEvent({
-                chargeId: charge.id.toValue(),
-                memberAccountId: chargeInput.memberAccountId,
-                memberId: chargeInput.memberId,
-                subscriptionId: chargeInput.subscriptionId,
-                amount: chargeInput.finalAmount.amount,
-                billingMonth: chargeInput.billingMonth,
-                billingYear: chargeInput.billingYear,
-                dueDate: chargeInput.dueDate,
+                payload: {
+                  chargeId: charge.id.toValue(),
+                  memberAccountId: chargeInput.memberAccountId,
+                  memberId: chargeInput.memberId,
+                  subscriptionId: chargeInput.subscriptionId,
+                  amount: chargeInput.finalAmount.amount,
+                  billingMonth: chargeInput.billingMonth,
+                  billingYear: chargeInput.billingYear,
+                  dueDate: chargeInput.dueDate,
+                },
+                aggregateId: chargeInput.memberAccountId,
+                aggregateType: 'MemberAccount',
+                boundedContext: 'BC-Treasury',
               }),
             );
           } catch (error) {
@@ -289,15 +294,20 @@ export class GenerateMonthlyChargesHandler implements ICommandHandler<GenerateMo
     const totalAmount = allCharges.reduce((sum, c) => sum + c.finalAmount.amount, 0);
 
     const completionEvent = new MonthlyGenerationCompletedEvent({
-      tenantId,
-      month,
-      year,
-      totalSubscriptions: subscriptionsEvaluated,
-      chargesGenerated: allCharges.length,
-      totalAmount,
-      duplicatesSkipped: totalDuplicatesSkipped,
-      errorsCount: allErrors.length,
-      durationMs: Date.now() - startTime,
+      payload: {
+        tenantId,
+        month,
+        year,
+        totalSubscriptions: subscriptionsEvaluated,
+        chargesGenerated: allCharges.length,
+        totalAmount,
+        duplicatesSkipped: totalDuplicatesSkipped,
+        errorsCount: allErrors.length,
+        durationMs: Date.now() - startTime,
+      },
+      aggregateId: tenantId,
+      aggregateType: 'Tenant',
+      boundedContext: 'BC-Treasury',
     });
 
     await this.outboxPublisher.publish(tenantId, [completionEvent]);

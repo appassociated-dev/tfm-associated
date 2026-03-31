@@ -12,14 +12,37 @@ describe('TenantProvisionedEvent', () => {
   };
 
   it('debería crear el evento con un payload válido', () => {
-    const event = new TenantProvisionedEvent(validPayload);
+    const event = new TenantProvisionedEvent({
+      payload: validPayload,
+      aggregateId: validPayload.tenantId,
+      aggregateType: 'Tenant',
+      boundedContext: 'BC-Identity',
+    });
 
     expect(event.payload).toEqual(validPayload);
   });
 
-  it('debería tener eventType "tenant.provisioned"', () => {
-    const event = new TenantProvisionedEvent(validPayload);
+  it('debería tener eventType "TenantProvisioned"', () => {
+    const event = new TenantProvisionedEvent({
+      payload: validPayload,
+      aggregateId: validPayload.tenantId,
+      aggregateType: 'Tenant',
+      boundedContext: 'BC-Identity',
+    });
 
-    expect(event.eventType).toBe('tenant.provisioned');
+    expect(event.eventType).toBe('TenantProvisioned');
+  });
+
+  it('debería tener aggregateId, aggregateType y boundedContext correctos', () => {
+    const event = new TenantProvisionedEvent({
+      payload: validPayload,
+      aggregateId: validPayload.tenantId,
+      aggregateType: 'Tenant',
+      boundedContext: 'BC-Identity',
+    });
+
+    expect(event.aggregateId).toBe(validPayload.tenantId);
+    expect(event.aggregateType).toBe('Tenant');
+    expect(event.boundedContext).toBe('BC-Identity');
   });
 });

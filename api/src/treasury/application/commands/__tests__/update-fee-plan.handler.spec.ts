@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { UpdateFeePlanHandler } from '../update-fee-plan.handler';
 import { UpdateFeePlanCommand } from '../update-fee-plan.command';
 import { FeePlanRepository } from '../../../domain/repositories/fee-plan.repository';
-import { TreasuryOutboxPublisher } from '../../ports/treasury-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { FeePlan } from '../../../domain/aggregates/fee-plan';
 import { FeePlanNotFoundError } from '../../../domain/exceptions';
 
@@ -42,7 +42,7 @@ function validCommand(overrides: Partial<UpdateFeePlanCommand> = {}): UpdateFeeP
 describe('UpdateFeePlanHandler', () => {
   let handler: UpdateFeePlanHandler;
   let feePlanRepository: FeePlanRepository;
-  let outboxPublisher: TreasuryOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
 
   beforeEach(() => {
     feePlanRepository = {
@@ -51,6 +51,7 @@ describe('UpdateFeePlanHandler', () => {
       findById: vi.fn().mockResolvedValue(createExistingFeePlan()),
       findByCode: vi.fn().mockResolvedValue(null),
       findAll: vi.fn().mockResolvedValue([]),
+      findAllWithCount: vi.fn(),
       existsByCode: vi.fn().mockResolvedValue(false),
       hasActiveSubscriptions: vi.fn().mockResolvedValue(false),
     };

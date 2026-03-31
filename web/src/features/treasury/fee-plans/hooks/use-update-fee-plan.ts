@@ -4,6 +4,7 @@ import { notifications } from '@mantine/notifications';
 import i18n from '@/i18n/i18n';
 import { updateFeePlan } from '../api/fee-plan.api';
 import type { UpdateFeePlanInput } from '../schemas/fee-plan.schemas';
+import { handleMutationError } from '@/shared/utils/handle-mutation-error';
 
 /** Hook para actualizar un plan de cuota existente. */
 export function useUpdateFeePlan() {
@@ -21,6 +22,10 @@ export function useUpdateFeePlan() {
         color: 'green',
         autoClose: 4000,
       });
+    },
+    onError: (error: unknown) => {
+      // Delegamos al manejador compartido — sin handlers de dominio especificos para esta mutacion
+      handleMutationError(error);
     },
   });
 }

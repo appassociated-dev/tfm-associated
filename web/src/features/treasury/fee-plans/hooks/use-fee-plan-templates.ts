@@ -3,6 +3,7 @@ import { notifications } from '@mantine/notifications';
 
 import i18n from '@/i18n/i18n';
 import { getTemplates, importTemplate } from '../api/fee-plan.api';
+import { handleMutationError } from '@/shared/utils/handle-mutation-error';
 
 /** Hook para obtener plantillas predefinidas segun tipo de colectividad. */
 export function useFeePlanTemplates(collectivityType: string) {
@@ -27,6 +28,18 @@ export function useImportTemplate() {
           count: data.length,
         }),
         color: 'green',
+      });
+    },
+    onError: (error: unknown) => {
+      // 422 indica que no hay plantilla disponible para el tipo de colectividad
+      handleMutationError(error, {
+        422: () => {
+          notifications.show({
+            title: i18n.t('treasury:feePlans.notifications.importError.title'),
+            message: i18n.t('treasury:feePlans.notifications.importError.message'),
+            color: 'red',
+          });
+        },
       });
     },
   });

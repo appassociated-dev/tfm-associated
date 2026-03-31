@@ -12,6 +12,7 @@ import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw/server';
 import { ApiError } from './api-error';
 import { apiResponse } from '@/test/msw/utils';
+import { STORAGE_KEYS } from '@/shared/constants/storage-keys';
 
 // === Estado simulado de tokens ===
 // En producción, getAccessToken/setTokens están vinculados al estado
@@ -221,7 +222,7 @@ describe('HttpClient', () => {
   describe('Request Interceptor — X-Tenant-Id header', () => {
     it('debería inyectar X-Tenant-Id desde localStorage', async () => {
       // Arrange
-      localStorage.setItem('associated_tenant_id', 'tenant-uuid-001');
+      localStorage.setItem(STORAGE_KEYS.TENANT_ID, 'tenant-uuid-001');
       let capturedTenantId: string | null = null;
 
       server.use(
@@ -259,7 +260,7 @@ describe('HttpClient', () => {
     it('debería enviar ambos headers (Auth + Tenant) cuando ambos existen', async () => {
       // Arrange
       currentAccessToken = 'my-token';
-      localStorage.setItem('associated_tenant_id', 'tenant-42');
+      localStorage.setItem(STORAGE_KEYS.TENANT_ID, 'tenant-42');
 
       let capturedAuth: string | null = null;
       let capturedTenant: string | null = null;
@@ -578,7 +579,7 @@ describe('HttpClient', () => {
     it('debería refrescar token y reintentar la petición original en 401', async () => {
       // Arrange
       currentAccessToken = 'expired-token';
-      localStorage.setItem('associated_refresh_token', 'my-refresh-token');
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'my-refresh-token');
 
       // Mock de refreshTokens: retorna nuevos tokens.
       // NOTA: setTokens() (mockeado arriba) actualizará currentAccessToken,
@@ -621,13 +622,13 @@ describe('HttpClient', () => {
       expect(mockRefreshTokens).toHaveBeenCalledWith('my-refresh-token');
       // setTokens actualizó currentAccessToken
       expect(currentAccessToken).toBe('new-access-token');
-      expect(localStorage.getItem('associated_refresh_token')).toBe('new-refresh-token');
+      expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBe('new-refresh-token');
     });
 
     it('NO debería intentar refresh en endpoints de /auth/ (prevenir loop infinito)', async () => {
       // Arrange
       currentAccessToken = 'some-token';
-      localStorage.setItem('associated_refresh_token', 'some-refresh');
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'some-refresh');
 
       server.use(
         http.post('*/v1/auth/login', () => {
@@ -748,8 +749,8 @@ describe('HttpClient', () => {
     it('debería limpiar estado y redirigir a /login cuando refresh falla', async () => {
       // Arrange
       currentAccessToken = 'expired-token';
-      localStorage.setItem('associated_refresh_token', 'expired-refresh');
-      localStorage.setItem('associated_tenant_id', 'tenant-123');
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'expired-refresh');
+      localStorage.setItem(STORAGE_KEYS.TENANT_ID, 'tenant-123');
 
       mockRefreshTokens.mockRejectedValue(new Error('Refresh token expired'));
 
@@ -774,8 +775,8 @@ describe('HttpClient', () => {
 
       // Assert — Se limpió todo el estado de auth
       expect(currentAccessToken).toBeNull(); // setTokens(null) fue llamado
-      expect(localStorage.getItem('associated_refresh_token')).toBeNull();
-      expect(localStorage.getItem('associated_tenant_id')).toBeNull();
+      expect(localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)).toBeNull();
+      expect(localStorage.getItem(STORAGE_KEYS.TENANT_ID)).toBeNull();
       expect(locationHrefSpy).toHaveBeenCalledWith('/login');
 
       consoleSpy.mockRestore();
@@ -858,7 +859,7 @@ describe('HttpClient', () => {
     it('debería encolar peticiones 401 concurrentes y solo hacer UN refresh', async () => {
       // Arrange
       currentAccessToken = 'expired-token';
-      localStorage.setItem('associated_refresh_token', 'valid-refresh');
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'valid-refresh');
 
       let refreshCallCount = 0;
       mockRefreshTokens.mockImplementation(async () => {
@@ -935,7 +936,7 @@ describe('HttpClient', () => {
     it('debería rechazar TODAS las peticiones encoladas si el refresh falla', async () => {
       // Arrange
       currentAccessToken = 'dead-token';
-      localStorage.setItem('associated_refresh_token', 'dead-refresh');
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'dead-refresh');
 
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -979,7 +980,7 @@ describe('HttpClient', () => {
     it('debería usar el nuevo token en las peticiones reintentadas', async () => {
       // Arrange
       currentAccessToken = 'old-token';
-      localStorage.setItem('associated_refresh_token', 'valid-refresh');
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'valid-refresh');
 
       mockRefreshTokens.mockResolvedValue({
         accessToken: 'brand-new-token',
@@ -1029,7 +1030,7 @@ describe('HttpClient', () => {
     it('NO debería reintentar refresh si la petición ya es un retry', async () => {
       // Arrange
       currentAccessToken = 'expired-token';
-      localStorage.setItem('associated_refresh_token', 'valid-refresh');
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, 'valid-refresh');
 
       // El refresh devuelve un token que el server TAMBIÉN rechaza con 401
       mockRefreshTokens.mockResolvedValue({

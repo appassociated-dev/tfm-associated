@@ -1,4 +1,11 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Inject } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpStatus,
+  Inject,
+  HttpException,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { ErrorReporter, ERROR_REPORTER } from '../../domain/ports/error-reporter.port';
 
@@ -153,8 +160,29 @@ export class DomainExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    // Caso 3: Error genérico no manejado → re-lanzar para que NestJS lo gestione
-    throw exception;
+    // Caso 3: HttpException de NestJS (guards, pipes, throttler) → JSON
+    if (exception instanceof HttpException) {
+      this.handleHttpException(exception, response);
+      return;
+    }
+
+    // Caso 4: Error genérico no manejado → responder con 500 en el formato estándar
+    // y reportar al observability reporter (no re-lanzar, Express devolvería formato no estándar).
+    const unhandledError = exception instanceof Error ? exception : new Error(String(exception));
+    this.reportError(
+      unhandledError,
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      'INTERNAL_SERVER_ERROR',
+      null,
+    );
+
+    response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Internal server error',
+        details: null,
+      },
+    });
   }
 
   /** Maneja excepciones que extienden DomainException. */
@@ -183,6 +211,51 @@ export class DomainExceptionFilter implements ExceptionFilter {
         code: error.code,
         message: error.message,
         details: null,
+      },
+    });
+  }
+
+  /** Maneja HttpException de NestJS (guards, pipes, throttler). */
+  private handleHttpException(exception: HttpException, response: Response): void {
+    const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
+
+    // Extraer mensaje y detalles del response de HttpException.
+    // Cuando ValidationPipe lanza BadRequestException, getResponse() devuelve
+    // { message: string[], error: 'Bad Request', statusCode: 400 } — el campo
+    // message es un array de errores de validación y NO debe llamarse .toString().
+    let message: string;
+    let details: Record<string, unknown> | null = null;
+
+    if (typeof exceptionResponse === 'string') {
+      message = exceptionResponse;
+    } else {
+      const rawMessage = (exceptionResponse as Record<string, unknown>).message;
+      if (Array.isArray(rawMessage) && rawMessage.length > 0) {
+        // Caso ValidationPipe: message es un array de errores → preservar en details
+        message = rawMessage[0] as string;
+        details = { errors: rawMessage };
+      } else if (Array.isArray(rawMessage)) {
+        // Array vacío → tratar como mensaje simple sin details
+        message = exception.message;
+      } else {
+        message = (rawMessage as string | undefined) ?? exception.message;
+      }
+    }
+
+    // Derivar código del nombre de la clase (e.g., UnauthorizedException → UNAUTHORIZED)
+    const code = exception.constructor.name
+      .replace(/Exception$/, '')
+      .replace(/([a-z])([A-Z])/g, '$1_$2')
+      .toUpperCase();
+
+    this.reportError(exception, status, code, details);
+
+    response.status(status).json({
+      error: {
+        code,
+        message,
+        details,
       },
     });
   }

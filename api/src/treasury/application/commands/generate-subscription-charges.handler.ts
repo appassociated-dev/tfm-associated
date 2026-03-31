@@ -16,9 +16,9 @@ import {
   FiscalYearQueryPort,
 } from '../../domain/ports/fiscal-year-query.port';
 import {
-  TREASURY_OUTBOX_PUBLISHER,
-  TreasuryOutboxPublisher,
-} from '../ports/treasury-outbox.publisher';
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 import { ProrataCalculator } from '../../domain/services/prorata-calculator';
 import { Charge } from '../../domain/entities/charge';
 import { ChargeDescription } from '../../domain/value-objects/charge-description';
@@ -50,8 +50,8 @@ export class GenerateSubscriptionChargesHandler implements ICommandHandler<Gener
     private readonly chargeRepository: ChargeRepository,
     @Inject(FISCAL_YEAR_QUERY_PORT)
     private readonly fiscalYearQueryPort: FiscalYearQueryPort,
-    @Inject(TREASURY_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: TreasuryOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
   ) {}
 
   async execute(command: GenerateSubscriptionChargesCommand): Promise<ChargeResponseDto[]> {
@@ -164,14 +164,19 @@ export class GenerateSubscriptionChargesHandler implements ICommandHandler<Gener
 
       events.push(
         new ChargeGeneratedEvent({
-          chargeId: charge.id.toValue(),
-          memberAccountId,
-          memberId: account.memberId,
-          subscriptionId,
-          amount: proratedCharge.finalAmount.amount,
-          billingMonth: proratedCharge.billingMonth,
-          billingYear,
-          dueDate,
+          payload: {
+            chargeId: charge.id.toValue(),
+            memberAccountId,
+            memberId: account.memberId,
+            subscriptionId,
+            amount: proratedCharge.finalAmount.amount,
+            billingMonth: proratedCharge.billingMonth,
+            billingYear,
+            dueDate,
+          },
+          aggregateId: memberAccountId,
+          aggregateType: 'MemberAccount',
+          boundedContext: 'BC-Treasury',
         }),
       );
     }

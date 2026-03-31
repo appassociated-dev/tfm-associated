@@ -160,6 +160,54 @@ describe('useUpdateFeePlan', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
   });
 
+  it('deberia mostrar notificacion roja generica para error 500', async () => {
+    // Arrange
+    server.use(
+      http.put('*/v1/treasury/fee-plans/:id', () => {
+        return HttpResponse.json({ message: 'Server Error' }, { status: 500 });
+      }),
+    );
+
+    // Act
+    const { result } = renderHook(() => useUpdateFeePlan());
+
+    await act(async () => {
+      try {
+        await result.current.mutateAsync({ id: PLAN_ID, input: { name: 'Test' } });
+      } catch {
+        // Se espera que falle
+      }
+    });
+
+    // Assert — error generico: notificacion roja con mensaje generico
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(mockNotificationsShow).toHaveBeenCalledWith(expect.objectContaining({ color: 'red' }));
+  });
+
+  it('deberia mostrar notificacion roja generica para error de red', async () => {
+    // Arrange
+    server.use(
+      http.put('*/v1/treasury/fee-plans/:id', () => {
+        return HttpResponse.error();
+      }),
+    );
+
+    // Act
+    const { result } = renderHook(() => useUpdateFeePlan());
+
+    await act(async () => {
+      try {
+        await result.current.mutateAsync({ id: PLAN_ID, input: { name: 'Test' } });
+      } catch {
+        // Se espera que falle
+      }
+    });
+
+    // Assert — fallo de red: notificacion roja generica
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(mockNotificationsShow).toHaveBeenCalledWith(expect.objectContaining({ color: 'red' }));
+  });
+
   it('deberia tener isPending en false antes de mutar', () => {
     // Act
     const { result } = renderHook(() => useUpdateFeePlan());

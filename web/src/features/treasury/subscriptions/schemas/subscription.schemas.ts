@@ -11,35 +11,52 @@ export const cancelReasonSchema = z.enum([
 
 export const effectiveDateTypeSchema = z.enum(['IMMEDIATE', 'NEXT_MONTH', 'NEXT_FISCAL_YEAR']);
 
-// === Schema de suscripcion ===
+// === Schema de suscripcion (REQ-ZOD-001) ===
+// Alineado con SubscriptionResponseDto del backend.
+// Campos eliminados (phantom): feePlanType, baseAmount, chargesGenerated, totalCollected
+// Campos añadidos: effectiveAmountFormatted, isActive, createdAt
+// Campos opcionales: feePlanName, feePlanCode (@ApiPropertyOptional en DTO)
 
 export const feeSubscriptionSchema = z.object({
   id: z.string().uuid(),
   feePlanId: z.string().uuid(),
-  feePlanName: z.string(),
-  feePlanCode: z.string(),
-  feePlanType: z.enum(['ONE_TIME', 'RECURRING']),
-  baseAmount: z.number().min(0),
-  typeDiscount: z.number().min(0).max(1).nullable(),
-  personalDiscount: z.number().min(0).max(1).nullable(),
+  // @ApiPropertyOptional en DTO — puede no estar presente
+  feePlanName: z.string().optional(),
+  feePlanCode: z.string().optional(),
+  // No nullable en DTO (typeDiscount!: number) — siempre presente como número
+  typeDiscount: z.number().min(0).max(1),
+  // No nullable en DTO (personalDiscount!: number) — siempre presente como número
+  personalDiscount: z.number().min(0).max(1),
   personalDiscountReason: z.string().nullable(),
   effectiveAmount: z.number().min(0),
+  /** Importe efectivo formateado con moneda (ej: "95.00 EUR"). Siempre presente en DTO. */
+  effectiveAmountFormatted: z.string(),
+  /** Indica si la suscripcion esta activa. Siempre presente en DTO. */
+  isActive: z.boolean(),
   registrationDate: z.string().datetime(),
   leaveDate: z.string().datetime().nullable(),
-  cancelReason: cancelReasonSchema.nullable(),
-  chargesGenerated: z.number().int().min(0),
-  totalCollected: z.number().min(0),
+  // Lenient: backend puede enviar valores nuevos de cancelReason no conocidos por el frontend
+  cancelReason: z.string().nullable(),
+  /** Fecha de creacion (Date serializado como ISO string). Siempre presente en DTO. */
+  createdAt: z.string().datetime(),
+  // Campo opcional: cantidad de cargos pendientes de la suscripcion (REQ-SPU-001)
+  pendingChargesCount: z.number().int().min(0).optional(),
 });
 
-// === Schema respuesta suscripciones de un socio ===
+// === Schema respuesta suscripciones de un socio (REQ-ZOD-002) ===
+// Alineado con SubscriptionHistoryResponseDto del backend.
+// Campos eliminados (phantom): memberName, memberTypeId, memberTypeName, closedSubscriptions
+// Campos añadidos: memberAccountId
+// Renombrado: closedSubscriptions -> history
 
 export const memberSubscriptionsResponseSchema = z.object({
-  memberId: z.string().uuid(),
-  memberName: z.string(),
-  memberTypeId: z.string().uuid(),
-  memberTypeName: z.string(),
+  /** UUID de la cuenta de socio (memberAccount). */
+  memberAccountId: z.string().uuid(),
+  // Lenient: schema de respuesta no impone UUID estricto para evitar crash con valores inesperados
+  memberId: z.string(),
   activeSubscription: feeSubscriptionSchema.nullable(),
-  closedSubscriptions: z.array(feeSubscriptionSchema),
+  /** Historial de suscripciones cerradas (antes: closedSubscriptions). */
+  history: z.array(feeSubscriptionSchema),
 });
 
 // === Schemas de input ===

@@ -1,5 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ArgumentsHost, HttpStatus } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  HttpStatus,
+  HttpException,
+  UnauthorizedException as NestUnauthorized,
+  ForbiddenException as NestForbidden,
+  BadRequestException as NestBadRequest,
+} from '@nestjs/common';
 import {
   DomainExceptionFilter,
   ConflictException,
@@ -203,14 +210,32 @@ describe('DomainExceptionFilter', () => {
     });
   });
 
-  // --- Errores genéricos (re-lanzar) ---
+  // --- Errores genéricos (caso 4: sin code, sin HttpException) ---
 
   describe('Errores sin code', () => {
-    it('debería re-lanzar errores sin propiedad code', () => {
-      const { host } = createMockHost();
+    it('debería responder 500 con formato estándar para errores no manejados', () => {
+      const { host, status, json } = createMockHost();
       const error = new Error('Error genérico sin code');
 
-      expect(() => filter.catch(error, host)).toThrow('Error genérico sin code');
+      filter.catch(error, host);
+
+      expect(status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(json).toHaveBeenCalledWith({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Internal server error',
+          details: null,
+        },
+      });
+    });
+
+    it('debería reportar errores no manejados al ErrorReporter como excepción', () => {
+      const { host } = createMockHost();
+      const error = new TypeError('Cannot read properties of undefined');
+
+      filter.catch(error, host);
+
+      expect(errorReporter.captureException).toHaveBeenCalled();
     });
   });
 
@@ -236,6 +261,136 @@ describe('DomainExceptionFilter', () => {
       filter.catch(error, host);
 
       expect(errorReporter.captureException).toHaveBeenCalled();
+    });
+  });
+
+  // --- HttpException de NestJS ---
+
+  describe('HttpException de NestJS', () => {
+    it('debería manejar UnauthorizedException como JSON con status 401', () => {
+      const { host, status, json } = createMockHost();
+      const exception = new NestUnauthorized('Token inválido');
+
+      filter.catch(exception, host);
+
+      expect(status).toHaveBeenCalledWith(HttpStatus.UNAUTHORIZED);
+      expect(json).toHaveBeenCalledWith({
+        error: {
+          code: 'UNAUTHORIZED',
+          message: expect.any(String),
+          details: null,
+        },
+      });
+    });
+
+    it('debería manejar ForbiddenException como JSON con status 403', () => {
+      const { host, status, json } = createMockHost();
+      const exception = new NestForbidden('Sin permisos');
+
+      filter.catch(exception, host);
+
+      expect(status).toHaveBeenCalledWith(HttpStatus.FORBIDDEN);
+      expect(json).toHaveBeenCalledWith({
+        error: {
+          code: 'FORBIDDEN',
+          message: expect.any(String),
+          details: null,
+        },
+      });
+    });
+
+    it('debería manejar BadRequestException como JSON con status 400', () => {
+      const { host, status, json } = createMockHost();
+      const exception = new NestBadRequest('Datos incorrectos');
+
+      filter.catch(exception, host);
+
+      expect(status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(json).toHaveBeenCalledWith({
+        error: {
+          code: 'BAD_REQUEST',
+          message: expect.any(String),
+          details: null,
+        },
+      });
+    });
+
+    it('debería manejar BadRequestException con array de errores (ValidationPipe)', () => {
+      const { host, status, json } = createMockHost();
+      // NestJS ValidationPipe lanza: new BadRequestException(['error1', 'error2'])
+      // getResponse() devuelve: { message: ['error1', 'error2'], error: 'Bad Request', statusCode: 400 }
+      const exception = new NestBadRequest({
+        message: ['field must be a string', 'email must be an email'],
+        error: 'Bad Request',
+        statusCode: 400,
+      });
+
+      filter.catch(exception, host);
+
+      expect(status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(json).toHaveBeenCalledWith({
+        error: {
+          code: 'BAD_REQUEST',
+          message: 'field must be a string',
+          details: { errors: ['field must be a string', 'email must be an email'] },
+        },
+      });
+    });
+
+    it('debería manejar BadRequestException con array directo (como ValidationPipe real)', () => {
+      const { host, status, json } = createMockHost();
+      // NestJS ValidationPipe lanza: new BadRequestException(['error1', 'error2'])
+      // getResponse() devuelve: { message: ['error1', 'error2'], error: 'Bad Request', statusCode: 400 }
+      const exception = new NestBadRequest(['field must be a string', 'email must be an email']);
+
+      filter.catch(exception, host);
+
+      expect(status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(json).toHaveBeenCalledWith({
+        error: {
+          code: 'BAD_REQUEST',
+          message: 'field must be a string',
+          details: { errors: ['field must be a string', 'email must be an email'] },
+        },
+      });
+    });
+
+    it('debería manejar HttpException genérica con status custom (429)', () => {
+      const { host, status, json } = createMockHost();
+      const exception = new HttpException('Rate limited', 429);
+
+      filter.catch(exception, host);
+
+      expect(status).toHaveBeenCalledWith(429);
+      expect(json).toHaveBeenCalledWith({
+        error: {
+          code: 'HTTP',
+          message: 'Rate limited',
+          details: null,
+        },
+      });
+    });
+
+    it('debería reportar HttpException 5xx como excepción al ErrorReporter', () => {
+      const { host } = createMockHost();
+      const exception = new HttpException('Internal error', 500);
+
+      filter.catch(exception, host);
+
+      expect(errorReporter.captureException).toHaveBeenCalled();
+    });
+
+    it('debería reportar HttpException 4xx como warning al ErrorReporter', () => {
+      const { host } = createMockHost();
+      const exception = new NestUnauthorized('Token expirado');
+
+      filter.catch(exception, host);
+
+      expect(errorReporter.captureMessage).toHaveBeenCalledWith(
+        expect.any(String),
+        'warning',
+        expect.objectContaining({ code: 'UNAUTHORIZED' }),
+      );
     });
   });
 });

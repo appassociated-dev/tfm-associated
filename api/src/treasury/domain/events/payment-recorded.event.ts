@@ -20,5 +20,5 @@ export interface PaymentRecordedPayload {
  * para enviar recibo por email.
  */
 export class PaymentRecordedEvent extends DomainEvent<PaymentRecordedPayload> {
-  readonly eventType = 'payment.recorded';
+  readonly eventType = 'PaymentRecorded';
 }

@@ -10,14 +10,24 @@ describe('AuthenticationFailedEvent', () => {
   };
 
   it('debería crear el evento con un payload válido', () => {
-    const event = new AuthenticationFailedEvent(validPayload);
+    const event = new AuthenticationFailedEvent({
+      payload: validPayload,
+      aggregateId: 'user-123',
+      aggregateType: 'User',
+      boundedContext: 'BC-Identity',
+    });
 
     expect(event.payload).toEqual(validPayload);
   });
 
-  it('debería tener eventType "identity.authentication.failed"', () => {
-    const event = new AuthenticationFailedEvent(validPayload);
+  it('debería tener eventType "AuthenticationFailed"', () => {
+    const event = new AuthenticationFailedEvent({
+      payload: validPayload,
+      aggregateId: 'user-123',
+      aggregateType: 'User',
+      boundedContext: 'BC-Identity',
+    });
 
-    expect(event.eventType).toBe('identity.authentication.failed');
+    expect(event.eventType).toBe('AuthenticationFailed');
   });
 });

@@ -12,6 +12,8 @@ import {
   Button,
 } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
+
+import classes from './change-plan-modal.module.css';
 import { useFeePlans } from '../../fee-plans/hooks/use-fee-plans';
 import type { FeePlan } from '../../fee-plans/schemas/fee-plan.schemas';
 import { useChangePlan } from '../hooks/use-change-plan';
@@ -23,6 +25,7 @@ interface ChangePlanModalProps {
   opened: boolean;
   onClose: () => void;
   memberAccountId: string;
+  memberTypeId: string;
   subscription: FeeSubscription;
 }
 
@@ -31,6 +34,7 @@ export function ChangePlanModal({
   opened,
   onClose,
   memberAccountId,
+  memberTypeId,
   subscription,
 }: ChangePlanModalProps) {
   const { t } = useTranslation('treasury');
@@ -38,7 +42,7 @@ export function ChangePlanModal({
   const [effectiveDateType, setEffectiveDateType] = useState<EffectiveDateType>('IMMEDIATE');
   const [keepPendingCharges, setKeepPendingCharges] = useState(true);
 
-  const { data: feePlans, isLoading: plansLoading } = useFeePlans({ active: true });
+  const { data: feePlans, isLoading: plansLoading } = useFeePlans({ active: true, memberTypeId });
   const changePlanMutation = useChangePlan(memberAccountId);
 
   // Planes disponibles excluyendo el plan actual
@@ -63,7 +67,8 @@ export function ChangePlanModal({
     [availablePlans, selectedPlanId],
   );
 
-  // Preview del nuevo importe efectivo manteniendo descuentos actuales
+  // Preview del nuevo importe efectivo manteniendo descuentos actuales.
+  // Usa selectedPlan.amount como base (FeePlan siempre tiene amount — D2 design).
   const newBreakdown = useMemo(() => {
     if (!selectedPlan) return null;
     try {
@@ -76,19 +81,6 @@ export function ChangePlanModal({
       return null;
     }
   }, [selectedPlan, subscription.typeDiscount, subscription.personalDiscount]);
-
-  // Breakdown del plan actual
-  const currentBreakdown = useMemo(() => {
-    try {
-      return calculateEffectiveAmount(
-        subscription.baseAmount,
-        subscription.typeDiscount,
-        subscription.personalDiscount,
-      );
-    } catch {
-      return null;
-    }
-  }, [subscription.baseAmount, subscription.typeDiscount, subscription.personalDiscount]);
 
   const handleSubmit = () => {
     if (!selectedPlanId) return;
@@ -141,7 +133,7 @@ export function ChangePlanModal({
       size="lg"
     >
       <Stack gap="md">
-        {/* Seccion: Plan actual */}
+        {/* Seccion: Plan actual — muestra effectiveAmountFormatted del DTO (D2 design) */}
         <div>
           <Text fw={600} size="sm" c="dimmed" mb={4}>
             {t('subscriptions.changePlanModal.currentPlan')}
@@ -154,19 +146,11 @@ export function ChangePlanModal({
           </Group>
           <Group gap="lg" mt={4}>
             <Text size="sm">
-              {t('subscriptions.changePlanModal.baseAmountLabel')}{' '}
-              <Text component="span" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {formatMoney(subscription.baseAmount)}
+              {t('subscriptions.changePlanModal.effectiveAmountLabel')}{' '}
+              <Text component="span" fw={600} className={classes['tabular-nums']}>
+                {formatMoney(subscription.effectiveAmount)}
               </Text>
             </Text>
-            {currentBreakdown && (
-              <Text size="sm">
-                {t('subscriptions.changePlanModal.effectiveAmountLabel')}{' '}
-                <Text component="span" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  {formatMoney(currentBreakdown.effectiveAmount)}
-                </Text>
-              </Text>
-            )}
           </Group>
           {subscription.typeDiscount != null && (
             <Text size="xs" c="dimmed" mt={2}>
@@ -190,7 +174,7 @@ export function ChangePlanModal({
           searchable
         />
 
-        {/* Preview del nuevo importe efectivo */}
+        {/* Preview del nuevo importe efectivo — usa selectedPlan.amount como base */}
         {newBreakdown && selectedPlan && (
           <div>
             <Text fw={600} size="sm" c="dimmed" mb={4}>
@@ -199,11 +183,7 @@ export function ChangePlanModal({
             <Stack gap={2}>
               <Group justify="space-between">
                 <Text size="sm">{t('subscriptions.changePlanModal.baseAmount')}</Text>
-                <Text
-                  size="sm"
-                  fw={500}
-                  style={{ fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}
-                >
+                <Text size="sm" fw={500} className={classes['tabular-nums-right']}>
                   {formatMoney(newBreakdown.baseAmount)}
                 </Text>
               </Group>
@@ -214,11 +194,7 @@ export function ChangePlanModal({
                       percent: Math.round(newBreakdown.typeDiscount * 100),
                     })}
                   </Text>
-                  <Text
-                    size="sm"
-                    c="red"
-                    style={{ fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}
-                  >
+                  <Text size="sm" c="red" className={classes['tabular-nums-right']}>
                     -{formatMoney(newBreakdown.baseAmount - newBreakdown.afterTypeDiscount)}
                   </Text>
                 </Group>
@@ -230,28 +206,16 @@ export function ChangePlanModal({
                       percent: Math.round(newBreakdown.personalDiscount * 100),
                     })}
                   </Text>
-                  <Text
-                    size="sm"
-                    c="red"
-                    style={{ fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}
-                  >
+                  <Text size="sm" c="red" className={classes['tabular-nums-right']}>
                     -{formatMoney(newBreakdown.afterTypeDiscount - newBreakdown.effectiveAmount)}
                   </Text>
                 </Group>
               )}
-              <Group
-                justify="space-between"
-                mt={4}
-                style={{ borderTop: '1px solid var(--mantine-color-gray-3)', paddingTop: 4 }}
-              >
+              <Group justify="space-between" mt={4} className={classes['amount-divider']}>
                 <Text size="sm" fw={700}>
                   {t('subscriptions.changePlanModal.effectiveAmount')}
                 </Text>
-                <Text
-                  size="sm"
-                  fw={700}
-                  style={{ fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}
-                >
+                <Text size="sm" fw={700} className={classes['tabular-nums-right']}>
                   {formatMoney(newBreakdown.effectiveAmount)}
                 </Text>
               </Group>
@@ -278,6 +242,15 @@ export function ChangePlanModal({
             ]}
           />
         </div>
+
+        {/* Alerta de cargos pendientes (REQ-SPU-002): solo visible cuando hay cargos pendientes */}
+        {subscription.pendingChargesCount != null && subscription.pendingChargesCount > 0 && (
+          <Alert color="orange" variant="light">
+            {t('subscriptions.changePlanModal.pendingChargesWarning', {
+              count: subscription.pendingChargesCount,
+            })}
+          </Alert>
+        )}
 
         {/* Alerta informativa */}
         <Alert color="blue" variant="light" title={t('subscriptions.changePlanModal.infoTitle')}>

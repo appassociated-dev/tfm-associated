@@ -6,6 +6,7 @@ import {
   HealthCheckResult,
   HealthIndicatorService,
 } from '@nestjs/terminus';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Public } from '../../../identity/infrastructure/auth/public.decorator';
 import { PrismaMainService } from '../persistence/prisma-main.service';
 
@@ -18,7 +19,12 @@ import { PrismaMainService } from '../persistence/prisma-main.service';
  * - Docker HEALTHCHECK para restart automatico
  * - Host nginx para upstream health
  * - Herramientas de monitoreo externas
+ *
+ * @SkipThrottle({ default: true, login: true }) excluye este controlador de TODOS
+ * los throttlers (default y login) definidos en AppModule (REQ-RL-004).
+ * Sin los nombres explícitos, @SkipThrottle() solo skipea 'default'.
  */
+@SkipThrottle({ default: true, login: true })
 @ApiTags('Health')
 @Controller('v1/health')
 export class HealthController {

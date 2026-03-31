@@ -50,6 +50,9 @@ export class GetActiveSubscriptionHandler implements IQueryHandler<GetActiveSubs
     const feePlan = await this.feePlanRepository.findById(activeSubscription.feePlanId);
     const planInfo = feePlan ? { name: feePlan.name, code: feePlan.code.value } : undefined;
 
-    return SubscriptionResponseDto.fromDomain(activeSubscription, planInfo);
+    // Calcular cargos pendientes de la cuenta (REQ-SPU-001)
+    const pendingChargesCount = account.getPendingCharges().length;
+
+    return SubscriptionResponseDto.fromDomain(activeSubscription, planInfo, pendingChargesCount);
   }
 }

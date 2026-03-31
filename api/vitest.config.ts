@@ -25,7 +25,7 @@ export default defineConfig({
 
     // Patrones de archivos de test
     include: ['**/*.spec.ts', '**/*.test.ts'],
-    exclude: ['**/node_modules/**', '**/dist/**', '**/*.integration-spec.ts'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/*.integration-spec.ts', '**/*.e2e-spec.ts'],
 
     // SWC + threads para evitar el fallback lento de esbuild con decorators
     pool: 'threads',

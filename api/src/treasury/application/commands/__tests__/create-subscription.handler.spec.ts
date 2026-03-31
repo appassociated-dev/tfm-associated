@@ -5,7 +5,7 @@ import { MemberAccountRepository } from '../../../domain/repositories/member-acc
 import { FeePlanRepository } from '../../../domain/repositories/fee-plan.repository';
 import { MemberTypeFeePlanRepository } from '../../../domain/repositories/member-type-fee-plan.repository';
 import { MemberQueryPort } from '../../../domain/ports/member-query.port';
-import { TreasuryOutboxPublisher } from '../../ports/treasury-outbox.publisher';
+import { IntegrationEventPublisher } from '../../../../shared/application/ports/integration-event.publisher';
 import { MemberAccount } from '../../../domain/aggregates/member-account';
 import { FeePlan } from '../../../domain/aggregates/fee-plan';
 import { MemberTypeFeePlan } from '../../../domain/entities/member-type-fee-plan';
@@ -84,7 +84,7 @@ describe('CreateSubscriptionHandler', () => {
   let feePlanRepository: FeePlanRepository;
   let memberTypeFeePlanRepository: MemberTypeFeePlanRepository;
   let memberQueryPort: MemberQueryPort;
-  let outboxPublisher: TreasuryOutboxPublisher;
+  let outboxPublisher: IntegrationEventPublisher;
 
   beforeEach(() => {
     memberAccountRepository = {
@@ -102,6 +102,7 @@ describe('CreateSubscriptionHandler', () => {
       findById: vi.fn().mockResolvedValue(createActiveFeePlan()),
       findByCode: vi.fn(),
       findAll: vi.fn(),
+      findAllWithCount: vi.fn(),
       existsByCode: vi.fn(),
       hasActiveSubscriptions: vi.fn(),
     };

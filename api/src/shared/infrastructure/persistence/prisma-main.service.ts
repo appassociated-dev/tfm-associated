@@ -63,6 +63,22 @@ export class PrismaMainService implements OnModuleInit, OnModuleDestroy {
     return this._client.$executeRawUnsafe(query, ...values);
   }
 
+  /**
+   * Delega $transaction al cliente Prisma subyacente para transacciones interactivas.
+   * El callback recibe un tx client con el mismo API que PrismaClient
+   * pero sin los métodos de control de ciclo de vida ($connect, $disconnect, etc.).
+   */
+  async $transaction<T>(
+    fn: (
+      tx: Omit<
+        PrismaClient,
+        '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+      >,
+    ) => Promise<T>,
+  ): Promise<T> {
+    return this._client.$transaction(fn);
+  }
+
   /** Conecta al iniciar el módulo NestJS. */
   async onModuleInit(): Promise<void> {
     await this.$connect();

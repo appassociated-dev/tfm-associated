@@ -116,7 +116,16 @@ describe('useVoluntaryLeave', () => {
     // Arrange
     server.use(
       http.post('*/v1/members/:memberId/voluntary-leave', () => {
-        return HttpResponse.json({ message: 'Estado invalido' }, { status: 422 });
+        return HttpResponse.json(
+          {
+            error: {
+              code: 'INVALID_STATE',
+              message: 'Estado invalido',
+              details: null,
+            },
+          },
+          { status: 422 },
+        );
       }),
     );
 
@@ -142,8 +151,8 @@ describe('useVoluntaryLeave', () => {
     });
   });
 
-  it('no deberia mostrar notificacion especial para errores distintos a 422', async () => {
-    // Arrange
+  it('deberia mostrar notificacion roja generica para errores distintos a 422', async () => {
+    // Arrange — 500 no es especifico de dominio: debe mostrarse el fallback generico
     server.use(
       http.post('*/v1/members/:memberId/voluntary-leave', () => {
         return HttpResponse.json({ message: 'Server Error' }, { status: 500 });
@@ -161,13 +170,15 @@ describe('useVoluntaryLeave', () => {
       }
     });
 
-    // Assert — no deberia haber notificacion roja especifica de 422
+    // Assert — debe mostrar notificacion roja generica (common:errors.*), NO la de 422
     await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(mockNotificationsShow).toHaveBeenCalledWith(expect.objectContaining({ color: 'red' }));
+    // Verifica que NO es la notificacion especifica del error 422
     const calls = mockNotificationsShow.mock.calls;
-    const errorCalls = calls.filter(
+    const stateErrorCalls = calls.filter(
       (call) => (call[0] as { title: string }).title === 'Error de estado',
     );
-    expect(errorCalls).toHaveLength(0);
+    expect(stateErrorCalls).toHaveLength(0);
   });
 
   it('deberia tener isPending en false antes de mutar', () => {

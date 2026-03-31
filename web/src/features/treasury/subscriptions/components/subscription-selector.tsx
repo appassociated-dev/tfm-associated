@@ -14,6 +14,8 @@ import {
 } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
+import classes from './subscription-selector.module.css';
+
 import { formatMoney } from '@/shared/utils/format-money';
 import { useFeePlans } from '@/features/treasury/fee-plans/hooks/use-fee-plans';
 import type { FeePlan } from '@/features/treasury/fee-plans/schemas/fee-plan.schemas';
@@ -23,7 +25,7 @@ import { calculateEffectiveAmount, type DiscountBreakdown } from '../utils/disco
 // === Tipos ===
 
 export interface SubscriptionSelectorProps {
-  /** ID del tipo de socio (reservado para filtrado futuro). */
+  /** ID del tipo de socio. Se pasa al backend para filtrar planes vinculados (REQ-SPU-007). */
   memberTypeId: string;
   /** Descuento por tipo de socio (0-1, null si no aplica). */
   typeDiscount: number | null;
@@ -37,9 +39,19 @@ export interface SubscriptionSelectorProps {
 
 // === Constantes ===
 
-const PLAN_TYPE_LABEL_KEYS: Record<string, string> = {
+// Claves de i18n para las etiquetas de tipo de plan (namespace 'treasury')
+type PlanTypeLabelKey = 'planType.recurring' | 'planType.oneTime';
+type PlanTypeDescriptionKey = 'planType.recurringDescription' | 'planType.oneTimeDescription';
+
+const PLAN_TYPE_LABEL_KEYS: Record<string, PlanTypeLabelKey> = {
   RECURRING: 'planType.recurring',
   ONE_TIME: 'planType.oneTime',
+};
+
+// Etiquetas descriptivas para el tipo de facturación (REQ-SPU-003)
+const PLAN_TYPE_DESCRIPTION_KEYS: Record<string, PlanTypeDescriptionKey> = {
+  RECURRING: 'planType.recurringDescription',
+  ONE_TIME: 'planType.oneTimeDescription',
 };
 
 const PLAN_TYPE_COLORS: Record<string, string> = {
@@ -52,9 +64,10 @@ const PLAN_TYPE_COLORS: Record<string, string> = {
 /**
  * Selector reutilizable de plan de cuota con cálculo de descuento en tiempo real.
  * Usado en la página de suscripciones (UC-018) y en el wizard de alta de socio (UC-011).
+ * Filtra los planes por memberTypeId para mostrar solo los vinculados al tipo de socio (REQ-SPU-007).
  */
 export function SubscriptionSelector({
-  memberTypeId: _memberTypeId,
+  memberTypeId,
   typeDiscount,
   onSelect,
 }: SubscriptionSelectorProps) {
@@ -64,9 +77,8 @@ export function SubscriptionSelector({
   const [personalDiscountPercent, setPersonalDiscountPercent] = useState<number | string>('');
   const [personalDiscountReason, setPersonalDiscountReason] = useState('');
 
-  // Datos: planes activos
-  // TODO: filtrar por memberTypeId cuando el backend soporte el parámetro
-  const { data: plans, isLoading, isError, refetch } = useFeePlans({ active: true });
+  // Datos: planes activos filtrados por tipo de socio (REQ-SPU-007)
+  const { data: plans, isLoading, isError, refetch } = useFeePlans({ active: true, memberTypeId });
 
   // Descuento personal como fracción (0-1) o null
   const personalDiscountFraction = useMemo(() => {
@@ -248,11 +260,8 @@ function PlanCard({ plan, typeDiscount, isSelected, onSelect }: PlanCardProps) {
       padding="md"
       radius="md"
       withBorder
-      style={{
-        cursor: 'pointer',
-        borderColor: isSelected ? 'var(--mantine-color-brand-6)' : undefined,
-        borderWidth: isSelected ? 2 : undefined,
-      }}
+      className={classes['plan-card']}
+      data-selected={isSelected ? 'true' : undefined}
       onClick={onSelect}
     >
       <Stack gap="xs">
@@ -261,14 +270,22 @@ function PlanCard({ plan, typeDiscount, isSelected, onSelect }: PlanCardProps) {
           <Text fw={600} size="md">
             {plan.name}
           </Text>
-          <Badge variant="light" radius="sm" color={PLAN_TYPE_COLORS[plan.type] ?? 'gray'}>
-            {t((PLAN_TYPE_LABEL_KEYS[plan.type] ?? plan.type) as never)}
-          </Badge>
+          {/* Tipo de facturación: badge abreviado + etiqueta descriptiva (REQ-SPU-003) */}
+          <Stack gap={2} align="flex-end">
+            <Badge variant="light" radius="sm" color={PLAN_TYPE_COLORS[plan.type] ?? 'gray'}>
+              {t(PLAN_TYPE_LABEL_KEYS[plan.type] ?? ('planType.recurring' as PlanTypeLabelKey))}
+            </Badge>
+            {PLAN_TYPE_DESCRIPTION_KEYS[plan.type] && (
+              <Text size="xs" c="dimmed">
+                {t(PLAN_TYPE_DESCRIPTION_KEYS[plan.type])}
+              </Text>
+            )}
+          </Stack>
         </Group>
 
         {/* Importe base */}
         <Group gap="xs" align="baseline">
-          <Text size="sm" c="dimmed" style={{ fontVariantNumeric: 'tabular-nums' }}>
+          <Text size="sm" c="dimmed" className={classes['tabular-nums']}>
             {t('subscriptions.selector.base')} {formatMoney(plan.amount)}
           </Text>
         </Group>
@@ -276,13 +293,20 @@ function PlanCard({ plan, typeDiscount, isSelected, onSelect }: PlanCardProps) {
         {/* Importe con descuento por tipo (si aplica) */}
         {amountWithTypeDiscount !== null && (
           <Group gap="xs" align="baseline">
-            <Text size="sm" fw={500} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <Text size="sm" fw={500} className={classes['tabular-nums']}>
               {t('subscriptions.selector.withTypeDiscount', {
                 percent: Math.round((typeDiscount ?? 0) * 100),
               })}{' '}
               {formatMoney(amountWithTypeDiscount)}
             </Text>
           </Group>
+        )}
+
+        {/* Badge "Recomendado" — visible cuando el plan es el predeterminado para el tipo de socio (REQ-SPU-004) */}
+        {plan.isDefault && (
+          <Badge variant="light" radius="sm" color="green" size="xs">
+            {t('subscriptions.selector.recommended')}
+          </Badge>
         )}
 
         {/* Badge de seleccionado */}
@@ -351,12 +375,7 @@ function DiscountBreakdownPreview({ breakdown }: DiscountBreakdownPreviewProps) 
         )}
 
         {/* Separador visual */}
-        <div
-          style={{
-            borderTop: '1px solid var(--mantine-color-gray-3)',
-            margin: '4px 0',
-          }}
-        />
+        <div className={classes['breakdown-divider']} />
 
         {/* Importe efectivo */}
         <BreakdownRow
@@ -371,14 +390,7 @@ function DiscountBreakdownPreview({ breakdown }: DiscountBreakdownPreviewProps) 
           <Text size="sm" c="dimmed">
             {t('subscriptions.selector.discountTotal')}
           </Text>
-          <Text
-            size="sm"
-            fw={500}
-            style={{
-              fontVariantNumeric: 'tabular-nums',
-              textAlign: 'right',
-            }}
-          >
+          <Text size="sm" fw={500} className={classes['tabular-nums-right']}>
             {breakdown.totalDiscountPercent} %
           </Text>
         </Group>
@@ -415,10 +427,7 @@ function BreakdownRow({
         size={isHighlighted ? 'md' : 'sm'}
         fw={isBold || isHighlighted ? 600 : undefined}
         c={isHighlighted ? 'brand' : isDeduction ? 'red' : undefined}
-        style={{
-          fontVariantNumeric: 'tabular-nums',
-          textAlign: 'right',
-        }}
+        className={classes['tabular-nums-right']}
       >
         {prefix}
         {formatMoney(displayAmount)}

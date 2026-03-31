@@ -1,6 +1,6 @@
 {
   "name": "associated",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Lightweight ERP for Spanish collectivities (associations, clubs, federations)",
   "workspaces": [
@@ -29,7 +29,7 @@
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{json,yml,yaml,md}": [
+    "!(spec/**)*.{json,yml,yaml,md}": [
       "prettier --write"
     ]
   },

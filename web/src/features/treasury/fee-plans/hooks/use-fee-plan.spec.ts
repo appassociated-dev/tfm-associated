@@ -64,8 +64,9 @@ describe('useFeePlan', () => {
 
     // Assert
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    // linkedMemberTypes es opcional en el schema — el campo se provee en este test explicitamente
     expect(result.current.data?.linkedMemberTypes).toHaveLength(1);
-    expect(result.current.data?.linkedMemberTypes[0].memberTypeName).toBe('Socio Adulto');
+    expect(result.current.data?.linkedMemberTypes?.[0].memberTypeName).toBe('Socio Adulto');
   });
 
   it('deberia retornar error cuando la API falla', async () => {

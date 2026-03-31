@@ -97,18 +97,27 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
-/// Evento de outbox para comunicación cross-BC (ADR-008).
+/// Evento de outbox para Integration Events cross-BC (ADR-008, RNF-067).
+/// Procesada por OutboxProcessor con at-least-once delivery. ENT-006.
 model OutboxEvent {
-  id          String    @id @default(uuid()) @db.Uuid
-  eventType   String    @map("event_type") @db.VarChar(200)
-  payload     Json
-  tenantId    String?   @map("tenant_id") @db.Uuid
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
-  processedAt DateTime? @map("processed_at") @db.Timestamptz()
-  retryCount  Int       @default(0) @map("retry_count")
-  nextRetryAt DateTime? @map("next_retry_at") @db.Timestamptz()
-  lastError   String?   @map("last_error") @db.Text
+  id             String    @id @default(uuid()) @db.Uuid
+  tenantId       String?   @map("tenant_id") @db.Uuid
+  boundedContext String    @map("bounded_context") @db.VarChar(100)
+  eventType      String    @map("event_type") @db.VarChar(200)
+  aggregateId    String    @map("aggregate_id") @db.Uuid
+  aggregateType  String    @map("aggregate_type") @db.VarChar(100)
+  payload        Json
+  actorId        String?   @map("actor_id") @db.Uuid
+  status         String    @default("pending") @map("status") @db.VarChar(20)
+  retryCount     Int       @default(0) @map("retry_count")
+  maxRetries     Int       @default(3) @map("max_retries")
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  processingStartedAt  DateTime? @map("processing_started_at") @db.Timestamptz()
+  processedAt          DateTime? @map("processed_at") @db.Timestamptz()
 
-  @@index([processedAt, retryCount, nextRetryAt])
+  @@index([status, createdAt])
+  @@index([tenantId])
+  @@index([boundedContext, status])
+  @@index([aggregateId])
   @@map("outbox_events")
 }

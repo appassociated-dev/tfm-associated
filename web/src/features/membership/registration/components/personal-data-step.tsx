@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,21 +35,24 @@ function getToday(): Date {
  */
 export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataStepProps) {
   const { t } = useTranslation('membership');
-  const { register, control, watch, trigger, formState } = useForm<PersonalDataFormValues>({
-    resolver: zodResolver(personalDataFormSchema),
-    mode: 'onBlur',
-    defaultValues: {
-      dni: initialValues?.dni ?? '',
-      firstName: initialValues?.firstName ?? '',
-      lastName: initialValues?.lastName ?? '',
-      birthDate: initialValues?.birthDate ?? null,
-      email: initialValues?.email ?? '',
-      phone: initialValues?.phone ?? '',
-      address: initialValues?.address ?? '',
-      postalCode: initialValues?.postalCode ?? '',
-      city: initialValues?.city ?? '',
-    },
-  });
+  const { register, control, watch, trigger, formState, setValue } =
+    useForm<PersonalDataFormValues>({
+      resolver: zodResolver(personalDataFormSchema),
+      mode: 'onBlur',
+      defaultValues: {
+        dni: initialValues?.dni ?? '',
+        name: initialValues?.name ?? '',
+        surnames: initialValues?.surnames ?? '',
+        birthDate: initialValues?.birthDate ?? null,
+        email: initialValues?.email ?? '',
+        phone: initialValues?.phone ?? '',
+        address: initialValues?.address ?? '',
+        postalCode: initialValues?.postalCode ?? '',
+        city: initialValues?.city ?? '',
+        legalRepresentativeName: undefined,
+        legalRepresentativeDocumentNumber: undefined,
+      },
+    });
 
   // CRITICO: destructurar formState ANTES del useEffect para que el Proxy de RHF registre la subscription
   const { errors } = formState;
@@ -76,12 +79,23 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
     // Mantine 8 DateInput devuelve string "YYYY-MM-DD" en onChange
     const dateStr = typeof currentBirthDate === 'string' ? currentBirthDate : '';
     if (!dateStr) return null;
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return null;
-    const isoStr = date.toISOString().split('T')[0];
-    const age = calculateAge(isoStr);
+    // dateStr ya es "YYYY-MM-DD" desde Mantine DateInput — pasar directo a calculateAge
+    const age = calculateAge(dateStr);
     return age >= 0 ? age : null;
   }, [currentBirthDate]);
+
+  // Detectar si el socio es menor de edad para mostrar campos de representante legal
+  const isMinor = computedAge !== null && computedAge < 18;
+
+  // Limpiar datos del representante legal cuando el socio deja de ser menor de edad
+  const prevIsMinorRef = useRef(isMinor);
+  useEffect(() => {
+    if (prevIsMinorRef.current && !isMinor) {
+      setValue('legalRepresentativeName', undefined);
+      setValue('legalRepresentativeDocumentNumber', undefined);
+    }
+    prevIsMinorRef.current = isMinor;
+  }, [isMinor, setValue]);
 
   // Indicador visual del campo DNI (derecha del input)
   const dniRightSection = useMemo(() => {
@@ -139,20 +153,22 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
 
   // Notificar al padre cada vez que cambia la validez del formulario
   const watchedDni = watch('dni');
-  const watchedFirstName = watch('firstName');
-  const watchedLastName = watch('lastName');
+  const watchedName = watch('name');
+  const watchedSurnames = watch('surnames');
   const watchedBirthDate = watch('birthDate');
   const watchedEmail = watch('email');
   const watchedPhone = watch('phone');
   const watchedAddress = watch('address');
   const watchedPostalCode = watch('postalCode');
   const watchedCity = watch('city');
+  const watchedLegalRepName = watch('legalRepresentativeName');
+  const watchedLegalRepDoc = watch('legalRepresentativeDocumentNumber');
 
   useEffect(() => {
     const hasRequiredFields =
       watchedDni.trim() !== '' &&
-      watchedFirstName.trim() !== '' &&
-      watchedLastName.trim() !== '' &&
+      watchedName.trim() !== '' &&
+      watchedSurnames.trim() !== '' &&
       watchedBirthDate !== null &&
       watchedBirthDate !== '' &&
       watchedEmail.trim() !== '';
@@ -178,14 +194,17 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       const birthDateIso = watchedBirthDate ?? '';
       const personalData: PersonalData = {
         dni: watchedDni.trim(),
-        firstName: watchedFirstName.trim(),
-        lastName: watchedLastName.trim(),
+        name: watchedName.trim(),
+        surnames: watchedSurnames.trim(),
         birthDate: birthDateIso,
         email: watchedEmail.trim(),
         phone: watchedPhone.trim() || null,
         address: watchedAddress.trim() || null,
         postalCode: watchedPostalCode.trim() || null,
         city: watchedCity.trim() || null,
+        // Incluir datos del representante legal si el socio es menor de edad
+        legalRepresentativeName: watchedLegalRepName?.trim() || undefined,
+        legalRepresentativeDocumentNumber: watchedLegalRepDoc?.trim() || undefined,
       };
       onValidChange(personalData);
     } else {
@@ -193,14 +212,16 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
     }
   }, [
     watchedDni,
-    watchedFirstName,
-    watchedLastName,
+    watchedName,
+    watchedSurnames,
     watchedBirthDate,
     watchedEmail,
     watchedPhone,
     watchedAddress,
     watchedPostalCode,
     watchedCity,
+    watchedLegalRepName,
+    watchedLegalRepDoc,
     errors,
     dniClientValidation?.valid,
     dniCheck,
@@ -236,20 +257,20 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
       <Grid>
         <Grid.Col span={6}>
           <TextInput
-            label={t('registration.personalDataStep.firstNameLabel')}
-            placeholder={t('registration.personalDataStep.firstNamePlaceholder')}
+            label={t('registration.personalDataStep.nameLabel')}
+            placeholder={t('registration.personalDataStep.namePlaceholder')}
             required
-            {...register('firstName')}
-            error={errors.firstName?.message}
+            {...register('name')}
+            error={errors.name?.message}
           />
         </Grid.Col>
         <Grid.Col span={6}>
           <TextInput
-            label={t('registration.personalDataStep.lastNameLabel')}
-            placeholder={t('registration.personalDataStep.lastNamePlaceholder')}
+            label={t('registration.personalDataStep.surnamesLabel')}
+            placeholder={t('registration.personalDataStep.surnamesPlaceholder')}
             required
-            {...register('lastName')}
-            error={errors.lastName?.message}
+            {...register('surnames')}
+            error={errors.surnames?.message}
           />
         </Grid.Col>
       </Grid>
@@ -286,6 +307,33 @@ export function PersonalDataStep({ initialValues, onValidChange }: PersonalDataS
           </Text>
         )}
       </Group>
+
+      {/* Advertencia y campos de representante legal para socios menores de edad (UC-006 FE-4) */}
+      {isMinor && (
+        <Alert
+          color="yellow"
+          title={t('registration.personalDataStep.minorWarningTitle')}
+          variant="light"
+        >
+          {t('registration.personalDataStep.minorWarningText')}
+        </Alert>
+      )}
+      {isMinor && (
+        <>
+          <TextInput
+            label={t('registration.personalDataStep.legalRepNameLabel')}
+            placeholder={t('registration.personalDataStep.optionalPlaceholder')}
+            {...register('legalRepresentativeName')}
+            error={errors.legalRepresentativeName?.message}
+          />
+          <TextInput
+            label={t('registration.personalDataStep.legalRepDocLabel')}
+            placeholder={t('registration.personalDataStep.optionalPlaceholder')}
+            {...register('legalRepresentativeDocumentNumber')}
+            error={errors.legalRepresentativeDocumentNumber?.message}
+          />
+        </>
+      )}
 
       {/* Email — Issue P2-8: consulta de unicidad */}
       <TextInput

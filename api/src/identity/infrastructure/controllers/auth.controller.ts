@@ -1,6 +1,7 @@
 import { Controller, Post, Get, Body, Req, HttpCode, HttpStatus } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 import { Public } from '../auth/public.decorator';
 import { RequestWithUser } from '../../../shared/infrastructure/types/request-with-user';
@@ -11,6 +12,7 @@ import { SwitchTenantCommand } from '../../application/commands/switch-tenant.co
 import { GetCurrentUserQuery } from '../../application/queries/get-current-user.query';
 import { LoginRequestDto } from '../../application/dtos/login-request.dto';
 import { LoginResponseDto } from '../../application/dtos/login-response.dto';
+import { LogoutRequestDto } from '../../application/dtos/logout-request.dto';
 import { RefreshRequestDto } from '../../application/dtos/refresh-request.dto';
 import { RefreshResponseDto } from '../../application/dtos/refresh-response.dto';
 import { SwitchTenantRequestDto } from '../../application/dtos/switch-tenant-request.dto';
@@ -38,8 +40,10 @@ export class AuthController {
   /**
    * Autenticar usuario con email y contraseña.
    * Retorna tokens JWT y datos del usuario con su tenant activo.
+   * Rate limiting estricto: 5 intentos por 10 min por IP, bloqueo 15 min (REQ-RL-002).
    */
   @Public()
+  @Throttle({ login: { ttl: 600_000, limit: 5, blockDuration: 900_000 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Autenticar usuario' })
@@ -62,8 +66,10 @@ export class AuthController {
 
   /**
    * Renovar access token usando un refresh token válido.
+   * Rate limiting moderado: 10 intentos por 10 min por IP (REQ-RL-002).
    */
   @Public()
+  @Throttle({ login: { ttl: 600_000, limit: 10 } })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Renovar access token' })
@@ -82,11 +88,13 @@ export class AuthController {
    * Cerrar sesión invalidando el refresh token proporcionado.
    */
   @Post('logout')
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Cerrar sesión' })
+  @ApiBody({ type: LogoutRequestDto })
   @ApiResponse({ status: 204, description: 'Sesión cerrada' })
-  async logout(@Req() req: RequestWithUser, @Body() body: { refreshToken: string }): Promise<void> {
-    const command = new LogoutCommand(req.user.userId, body.refreshToken);
+  async logout(@Req() req: RequestWithUser, @Body() dto: LogoutRequestDto): Promise<void> {
+    const command = new LogoutCommand(req.user.userId, dto.refreshToken);
     await this.commandBus.execute(command);
   }
 
@@ -95,6 +103,7 @@ export class AuthController {
    * Genera nuevos tokens con el contexto del nuevo tenant.
    */
   @Post('switch-tenant')
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Cambiar de tenant activo' })
   @ApiResponse({
@@ -115,6 +124,7 @@ export class AuthController {
    * Obtener el perfil del usuario autenticado con su tenant y permisos.
    */
   @Get('me')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Obtener perfil del usuario actual' })
   @ApiResponse({
     status: 200,

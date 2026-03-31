@@ -197,6 +197,62 @@ describe('useImportTemplate', () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
   });
 
+  it('deberia mostrar notificacion roja de dominio para error 422 (plantilla no disponible)', async () => {
+    // Arrange
+    server.use(
+      http.post('*/v1/treasury/fee-plans/import-template', () => {
+        return HttpResponse.json(
+          { error: { code: 'TEMPLATE_NOT_FOUND', message: 'Sin plantilla', details: null } },
+          { status: 422 },
+        );
+      }),
+    );
+
+    // Act
+    const { result } = renderHook(() => useImportTemplate());
+
+    await act(async () => {
+      try {
+        await result.current.mutateAsync('INVALID_TYPE');
+      } catch {
+        // Se espera que falle
+      }
+    });
+
+    // Assert — 422: notificacion roja de dominio especifica para importacion
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(mockNotificationsShow).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Error al importar plantilla',
+        color: 'red',
+      }),
+    );
+  });
+
+  it('deberia mostrar notificacion roja generica para error 500', async () => {
+    // Arrange
+    server.use(
+      http.post('*/v1/treasury/fee-plans/import-template', () => {
+        return HttpResponse.json({ message: 'Server Error' }, { status: 500 });
+      }),
+    );
+
+    // Act
+    const { result } = renderHook(() => useImportTemplate());
+
+    await act(async () => {
+      try {
+        await result.current.mutateAsync('SPORTS_CLUB');
+      } catch {
+        // Se espera que falle
+      }
+    });
+
+    // Assert — error generico: notificacion roja con mensaje generico
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(mockNotificationsShow).toHaveBeenCalledWith(expect.objectContaining({ color: 'red' }));
+  });
+
   it('deberia tener isPending en false antes de mutar', () => {
     // Act
     const { result } = renderHook(() => useImportTemplate());

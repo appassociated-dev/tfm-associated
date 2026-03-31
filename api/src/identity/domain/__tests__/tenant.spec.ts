@@ -33,12 +33,17 @@ describe('Tenant', () => {
   it('debería permitir registrar eventos de dominio via registerProvisionedEvent', () => {
     const tenant = Tenant.create(validProps);
     const event = new TenantProvisionedEvent({
-      tenantId: tenant.id.toValue(),
-      organizationName: tenant.name,
-      organizationType: tenant.type.value,
-      adminUserId: 'admin-123',
-      adminEmail: 'admin@test.es',
-      cif: tenant.cif.value,
+      payload: {
+        tenantId: tenant.id.toValue(),
+        organizationName: tenant.name,
+        organizationType: tenant.type.value,
+        adminUserId: 'admin-123',
+        adminEmail: 'admin@test.es',
+        cif: tenant.cif.value,
+      },
+      aggregateId: tenant.id.toValue(),
+      aggregateType: 'Tenant',
+      boundedContext: 'BC-Identity',
     });
 
     tenant.registerProvisionedEvent(event);
@@ -46,7 +51,7 @@ describe('Tenant', () => {
 
     expect(events).toHaveLength(1);
     expect(events[0]).toBeInstanceOf(TenantProvisionedEvent);
-    expect(events[0].eventType).toBe('tenant.provisioned');
+    expect(events[0].eventType).toBe('TenantProvisioned');
   });
 
   it('debería generar un slug correcto a partir del nombre', () => {
@@ -175,12 +180,17 @@ describe('Tenant', () => {
   it('debería incluir datos correctos en el payload del TenantProvisionedEvent registrado', () => {
     const tenant = Tenant.create(validProps);
     const event = new TenantProvisionedEvent({
-      tenantId: tenant.id.toValue(),
-      organizationName: tenant.name,
-      organizationType: tenant.type.value,
-      adminUserId: 'admin-user-id',
-      adminEmail: 'admin@pena.es',
-      cif: tenant.cif.value,
+      payload: {
+        tenantId: tenant.id.toValue(),
+        organizationName: tenant.name,
+        organizationType: tenant.type.value,
+        adminUserId: 'admin-user-id',
+        adminEmail: 'admin@pena.es',
+        cif: tenant.cif.value,
+      },
+      aggregateId: tenant.id.toValue(),
+      aggregateType: 'Tenant',
+      boundedContext: 'BC-Identity',
     });
     tenant.registerProvisionedEvent(event);
     const events = tenant.pullDomainEvents();

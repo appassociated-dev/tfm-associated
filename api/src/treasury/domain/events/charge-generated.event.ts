@@ -18,5 +18,5 @@ export interface ChargeGeneratedPayload {
  * para enviar aviso de cargo al socio.
  */
 export class ChargeGeneratedEvent extends DomainEvent<ChargeGeneratedPayload> {
-  readonly eventType = 'charge.generated';
+  readonly eventType = 'ChargeGenerated';
 }

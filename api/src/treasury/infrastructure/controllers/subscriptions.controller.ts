@@ -13,7 +13,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { RequirePermissions } from '../../../shared/infrastructure/guards/require-permissions.decorator';
 import { CreateSubscriptionDto } from '../../application/dtos/create-subscription.dto';
@@ -40,6 +40,7 @@ import { GetActiveSubscriptionQuery } from '../../application/queries/get-active
  * ANTES de las rutas con parámetro (:id) para evitar conflictos de enrutamiento.
  */
 @ApiTags('Subscriptions')
+@ApiBearerAuth()
 @Controller('v1/treasury/member-accounts/:accountId/subscriptions')
 export class SubscriptionsController {
   constructor(

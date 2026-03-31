@@ -26,6 +26,12 @@ export interface FeePlanRepository {
   /** Obtiene todos los planes de cuota. */
   findAll(): Promise<FeePlan[]>;
 
+  /**
+   * Obtiene todos los planes de cuota junto con su conteo de suscripciones activas.
+   * Las suscripciones activas son las que tienen status ACTIVE (AD-1).
+   */
+  findAllWithCount(): Promise<{ feePlan: FeePlan; activeSubscriptionsCount: number }[]>;
+
   /** Verifica si ya existe un plan de cuota con el código dado. */
   existsByCode(code: FeePlanCode): Promise<boolean>;
 

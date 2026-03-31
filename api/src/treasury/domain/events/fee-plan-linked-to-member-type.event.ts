@@ -12,5 +12,5 @@ export interface FeePlanLinkedToMemberTypePayload {
  * Evento de dominio emitido cuando se vincula un plan de cuota a un tipo de socio.
  */
 export class FeePlanLinkedToMemberTypeEvent extends DomainEvent<FeePlanLinkedToMemberTypePayload> {
-  readonly eventType = 'fee-plan.linked-to-member-type';
+  readonly eventType = 'FeePlanLinkedToMemberType';
 }

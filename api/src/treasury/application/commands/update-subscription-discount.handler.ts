@@ -11,9 +11,9 @@ import {
   MemberAccountRepository,
 } from '../../domain/repositories/member-account.repository';
 import {
-  TREASURY_OUTBOX_PUBLISHER,
-  TreasuryOutboxPublisher,
-} from '../ports/treasury-outbox.publisher';
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 import { MemberAccountId } from '../../domain/value-objects/member-account-id';
 import { SubscriptionId } from '../../domain/value-objects/subscription-id';
 import { Discount } from '../../domain/value-objects/discount';
@@ -36,8 +36,8 @@ export class UpdateSubscriptionDiscountHandler implements ICommandHandler<Update
     private readonly memberAccountRepository: MemberAccountRepository,
     @Inject(FEE_PLAN_REPOSITORY)
     private readonly feePlanRepository: FeePlanRepository,
-    @Inject(TREASURY_OUTBOX_PUBLISHER)
-    private readonly outboxPublisher: TreasuryOutboxPublisher,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly outboxPublisher: IntegrationEventPublisher,
   ) {}
 
   async execute(command: UpdateSubscriptionDiscountCommand): Promise<SubscriptionResponseDto> {

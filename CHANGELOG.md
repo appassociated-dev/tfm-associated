@@ -7,7 +7,158 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-[Vacio pendiente de iniciar nuevas sesiones]
+[Vacío pendiente de iniciar nuevas sesiones]
+
+---
+
+## [0.1.1] - 2026-03-31
+
+- **Fecha de release:** 31 de marzo de 2026
+- **Tipo:** Patch
+- **Periodo de desarrollo:** 28/03/2026 – 31/03/2026
+- **Commits:** 28 commits desde `e6c80a1` hasta `0d88fc2`
+- **Tests:** 2442/2442 tests pasando (100%) — API: 1330 (139 suites), Web: 1112 (73 suites)
+- **Sesiones de trabajo:**
+  - [doc/agents-sessions/20260331-003-acester-CLAUDECODE.md](doc/agents-sessions/20260331-003-acester-CLAUDECODE.md)
+  - [doc/agents-sessions/20260331-002-acester-CLAUDE.md](doc/agents-sessions/20260331-002-acester-CLAUDE.md)
+  - [doc/agents-sessions/20260331-001-acester-CLAUDE.md](doc/agents-sessions/20260331-001-acester-CLAUDE.md)
+  - [doc/agents-sessions/20260330-003-acester-CLAUDE.md](doc/agents-sessions/20260330-003-acester-CLAUDE.md)
+  - [doc/agents-sessions/20260330-002-acester-CLAUDE.md](doc/agents-sessions/20260330-002-acester-CLAUDE.md)
+  - [doc/agents-sessions/20260330-001-acester-CLAUDE.md](doc/agents-sessions/20260330-001-acester-CLAUDE.md)
+  - [doc/agents-sessions/20260329-002-acester-CLAUDE.md](doc/agents-sessions/20260329-002-acester-CLAUDE.md)
+  - [doc/agents-sessions/20260329-001-acester-CLAUDE.md](doc/agents-sessions/20260329-001-acester-CLAUDE.md)
+  - [doc/agents-sessions/20260329-001-acester-CLAUDECODE.md](doc/agents-sessions/20260329-001-acester-CLAUDECODE.md)
+  - [doc/agents-sessions/20260328-002-acester-CLAUDECODE.md](doc/agents-sessions/20260328-002-acester-CLAUDECODE.md)
+  - [doc/agents-sessions/20260328-001-acester-CLAUDECODE.md](doc/agents-sessions/20260328-001-acester-CLAUDECODE.md)
+
+### Added
+
+**Backend - Domain Events Infrastructure (ADR-008)**
+
+- `IntegrationEventPublisher` + `PrismaIntegrationEventPublisher` para outbox en main DB (ENT-006)
+- `DomainAuditPublisher` + `PrismaDomainAuditPublisher` para audit-only en tenant DB (ENT-017)
+- `EventReconstitutionRegistry` para reconstitucion tipada de eventos desde JSON (24 tipos en 3 BCs)
+- `OutboxProcessorModule` (`@Global`): polling 5s, batch 50, mutex, stale recovery
+- 7 `@EventsHandler` cross-BC en BC-Treasury: `OnMemberRegistered`, `OnMemberDeactivated`, `OnMemberReinstated`, `OnFiscalYearOpened`, `OnMemberTypeChanged` + 2 stubs (ADR-008, UC-006/007/010/011/013)
+- `OnPaymentRecordedMembershipHandler` en BC-Membership: actualiza morosidad PENDING_PAYMENT → ACTIVE (ADR-008, UC-021)
+- RNF-067 "Entrega Garantizada de Integration Events" con criterios at-least-once delivery, retry policy y stale recovery
+- 30+ unit tests + integration tests para infraestructura de eventos
+
+**Backend - Rate Limiting (RNF-011)**
+
+- `@nestjs/throttler`: login 5 req/10min (blockDuration 15min), default 100 req/min
+- `ThrottlerGuard` global (`APP_GUARD`), `@Throttle` en login/refresh, `@SkipThrottle` en health
+- 17 tests (10 unit + 7 integration)
+
+**Frontend - Leave Flow Completion (UC-013)**
+
+- `NonpaymentLeavePage`: `useDisclosure` fix, doble confirmacion, timeline, notificacion enriquecida
+- Hook `useNonpaymentLeave` + CSS module + claves i18n
+- Boton "Baja por impago" en `LeaveActions` con navegacion
+
+**Frontend - Mutation Error Handling (RNF-049)**
+
+- Utilidad compartida `handleMutationError` con `DomainErrorHandlers` tipados
+- `onError` implementado en 6 hooks: `useReinstateMember`, `useVoluntaryLeave`, `useUpdateFeePlan`, `useActivateFeePlan`, `useDeactivateFeePlan`, `useImportTemplate`
+- Claves i18n de error en `membership.json` y `treasury.json`
+
+**Frontend - Subscription Plan UX (UC-017, UC-018)**
+
+- `activeSubscriptionsCount` en `FeePlanResponseDto` con `_count` filtrado por status ACTIVE (REQ-SPU-008, REQ-SPU-009)
+- `pendingChargesCount` en `SubscriptionResponseDto` (REQ-SPU-001)
+- Filtro `?memberTypeId=` en `GET /v1/treasury/fee-plans` con validacion UUID (REQ-SPU-005)
+- Badge "Recomendado", labels pago periodico/unico, alerta cargos pendientes con plural i18n
+
+**Frontend - Domain Validation & Naming (UC-006, UC-011)**
+
+- Deteccion de menor en wizard de registro con campos de representante legal
+- `calculateAge` con parsing timezone-safe y tests de frontera (ano bisiesto, edad exacta 17/18)
+- Campos renombrados `firstName`/`lastName` → `name`/`surnames` alineando con spec
+
+**Frontend - Structural Quality**
+
+- Claves localStorage centralizadas en `storage-keys.ts`
+- Selector de tenant sin slug tecnico (solo nombre y rol)
+
+**Frontend - Zod Schema Contract Sync**
+
+- 5 schemas Zod auditados y sincronizados con DTOs backend
+- 7 campos phantom eliminados de `feeSubscriptionSchema` y `memberSubscriptionsResponseSchema`
+- Runtime bug `MemberSubscriptionsPage` resuelto (pagina rota contra API real)
+
+**Backend - Swagger UI (RNFT-057)**
+
+- API key security scheme en `DocumentBuilder` + persistent authorization
+- Bearer auth decorators en 8 controllers
+- `DomainExceptionFilter`: JSON responses, `BadRequestException` array handling, 500 fallback con Sentry
+
+### Changed
+
+- `DomainEvent` base class: 4 nuevos campos (`aggregateId`, `aggregateType`, `boundedContext`, `actorId`), constructor migrado a params object
+- 24 subclases `DomainEvent` actualizadas (5 Identity, 9 Membership, 10 Treasury): `eventType` en PascalCase, nuevo constructor
+- `OutboxProcessorService` reescrito: polling 5s, batch 50, mutex, stale recovery con `processingStartedAt`
+- BC-Membership (6 handlers) y BC-Treasury (12 handlers) migrados a `INTEGRATION_EVENT_PUBLISHER` compartido
+- Schemas Prisma main y tenant reescritos per ENT-006 y ENT-017 con migraciones correspondientes
+- ADR-004 y ADR-008 reescritos: estrategia dual Domain Events (audit) + Integration Events (outbox)
+- Campos de nombre renombrados `firstName`/`lastName` → `name`/`surnames` en schemas Zod, formularios y capa API
+- `feePlanSchema` Zod: `activeSubscriptionsCount` ahora required (no optional)
+- `SubscriptionSelector` pasa `memberTypeId` a `useFeePlans` (eliminado TODO)
+- `ListFeePlansHandler` inyecta `MemberTypeFeePlanRepository` para composicion en memoria (AD-5)
+- `useDeactivateFeePlan` refactorizado a `handleMutationError`
+- `nonpayment-leave.page.tsx`: `useDisclosure` fix, logica boton, doble confirmacion, timeline, notificacion enriquecida, estilos inline → CSS module
+- localStorage centralizado en `storage-keys.ts`
+- Selector de tenant: solo nombre y rol (eliminado slug tecnico)
+- Icono baja: `IconUserMinus` → `IconUserOff`
+
+### Fixed
+
+**Swagger UI**
+
+- API key + Bearer auth + persistent authorization + JSON exception responses (REQ-SWAGGER-001..005)
+- `DomainExceptionFilter`: `BadRequestException` array handling, 500 fallback con Sentry
+- `AuthController` `@ApiBearerAuth` posicionado a nivel de metodo para controllers mixtos publico/protegido
+
+**Domain Events**
+
+- Stale recovery usaba `createdAt` en vez de `processingStartedAt`
+- `updateMany` sin filtro `status: 'pending'` podia actualizar rows `processed`/`failed`
+- Serializacion Date en `OnFiscalYearOpenedTreasuryHandler`: `.getMonth()` sobre string retornaba NaN
+- Stub handlers con `constructor(unknown)` rompia NestJS DI
+- `try/catch` en `OnMemberDeactivatedTreasuryHandler` movido dentro del loop para aislamiento per-subscripcion
+- Ternary muerto `defaultPlan ? 0 : 0` reemplazado por constante con TODO
+- 5 tests con `eventType` en formato legacy actualizados a PascalCase
+
+**Frontend Schemas & Validation**
+
+- `typeDiscount`/`personalDiscount` corregidos a non-nullable
+- `createdAt` corregido a `.datetime()`
+- `memberAccountId` en mocks corregido a UUID valido
+- `frequency` nullable eliminado del response schema
+- Patron `.refine()` de Zod v4: string literal → `{ message }`
+- `calculateAge`: bug de timezone comparando UTC vs local
+
+**Frontend UX**
+
+- `findAllWithCount` filtro `status: notIn COMPLETED/CANCELLED` → `equals: 'ACTIVE'` (DB tiene ACTIVE/CLOSED)
+- `pendingChargesCount` contaba cargos de toda la cuenta, corregido scope al plan
+- i18n plural: "1 cargos pendientes" → keys `_one`/`_other`
+- Datos de representante legal persistian al cambiar de menor a adulto (`shouldUnregister`)
+- Error silencioso en 6 hooks de mutacion (errores non-422 no notificados al usuario)
+- Modal baja permanecia abierto al recibir error
+- `memberId` undefined resultaba en no-op silencioso
+- Tests que afirmaban error silencioso como comportamiento correcto
+
+**Spec & Docs**
+
+- Trazabilidad rota ENT-006/ENT-017: RNF-015 reemplazado por RNF-067
+- Anchor roto en indice ADR-008
+
+### Removed
+
+- Campos phantom de `feeSubscriptionSchema`: `feePlanType`, `baseAmount`, `chargesGenerated`, `totalCollected`
+- Campos phantom de `memberSubscriptionsResponseSchema`: `memberName`, `memberTypeId`, `memberTypeName`, `closedSubscriptions`
+- `PrismaMemberOutboxPublisher` + port de BC-Membership (reemplazado por publisher compartido)
+- `PrismaTreasuryOutboxPublisher` + port de BC-Treasury (reemplazado por publisher compartido)
 
 ---
 

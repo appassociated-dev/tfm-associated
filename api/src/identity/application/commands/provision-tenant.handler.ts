@@ -10,6 +10,10 @@ import {
 } from '../ports/database-provisioning.port';
 import { TENANT_CREDENTIAL_PORT, type TenantCredentialPort } from '../ports/tenant-credential.port';
 import { ERROR_REPORTER, ErrorReporter } from '../../../shared/domain';
+import {
+  INTEGRATION_EVENT_PUBLISHER,
+  IntegrationEventPublisher,
+} from '../../../shared/application/ports/integration-event.publisher';
 import { Cif } from '../../domain/value-objects/cif';
 import { Tenant } from '../../domain/aggregates/tenant';
 import { TenantProvisionedEvent } from '../../domain/events/tenant-provisioned.event';
@@ -34,6 +38,8 @@ export class ProvisionTenantHandler implements ICommandHandler<ProvisionTenantCo
     private readonly tenantCredentialPort: TenantCredentialPort,
     @Inject(ERROR_REPORTER)
     private readonly errorReporter: ErrorReporter,
+    @Inject(INTEGRATION_EVENT_PUBLISHER)
+    private readonly publisher: IntegrationEventPublisher,
   ) {}
 
   async execute(command: ProvisionTenantCommand): Promise<TenantProvisionedResponseDto> {
@@ -128,25 +134,38 @@ export class ProvisionTenantHandler implements ICommandHandler<ProvisionTenantCo
       currentStep = 'emitEvents';
       tenant.registerProvisionedEvent(
         new TenantProvisionedEvent({
-          tenantId: tenant.id.toValue(),
-          organizationName: tenant.name,
-          organizationType: tenant.type.value,
-          adminUserId,
-          adminEmail: command.adminEmail,
-          cif: tenant.cif.value,
+          payload: {
+            tenantId: tenant.id.toValue(),
+            organizationName: tenant.name,
+            organizationType: tenant.type.value,
+            adminUserId,
+            adminEmail: command.adminEmail,
+            cif: tenant.cif.value,
+          },
+          aggregateId: tenant.id.toValue(),
+          aggregateType: 'Tenant',
+          boundedContext: 'BC-Identity',
         }),
       );
       tenant.registerProvisionedEvent(
         new UserCreatedEvent({
-          userId: adminUserId,
-          email: command.adminEmail,
-          role: 'PRESIDENT',
-          tenantId: tenant.id.toValue(),
-          createdAt: new Date(),
+          payload: {
+            userId: adminUserId,
+            email: command.adminEmail,
+            role: 'PRESIDENT',
+            tenantId: tenant.id.toValue(),
+            createdAt: new Date(),
+          },
+          aggregateId: adminUserId,
+          aggregateType: 'User',
+          boundedContext: 'BC-Identity',
         }),
       );
 
-      // 4. Retornar respuesta exitosa
+      // 4. Publicar eventos de dominio al outbox (tenantId=null: provisión sin contexto de tenant)
+      await this.publisher.publish(null, tenant.pullDomainEvents());
+
+      // 5. Retornar respuesta exitosa
       return new TenantProvisionedResponseDto(tenant.id.toValue(), tenant.slug.value, adminUserId);
     } catch (error) {
       // 5. Compensación: rollback de la infraestructura creada

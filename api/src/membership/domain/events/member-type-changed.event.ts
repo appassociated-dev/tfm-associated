@@ -16,5 +16,5 @@ export interface MemberTypeChangedPayload {
  * Típicamente ocurre durante la apertura de un nuevo ejercicio fiscal.
  */
 export class MemberTypeChangedEvent extends DomainEvent<MemberTypeChangedPayload> {
-  readonly eventType = 'member-type.changed';
+  readonly eventType = 'MemberTypeChanged';
 }

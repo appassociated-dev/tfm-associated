@@ -16,11 +16,27 @@ export const feePlanSchema = z.object({
   description: z.string().nullable(),
   type: planTypeSchema,
   amount: z.number().int().min(0),
-  frequency: frequencySchema.nullable(),
+  /** Importe formateado con moneda (REQ-ZOD-004). Siempre presente en FeePlanResponseDto. */
+  amountFormatted: z.string(),
+  /** Código ISO 4217 de moneda (REQ-ZOD-004). Siempre presente en FeePlanResponseDto. */
+  currency: z.string(),
+  // NOTA: se mantiene el enum estricto (no z.string()) aunque el backend podría enviar valores
+  // nuevos en el futuro. El motivo es que el tipo inferido Frequency fluye hacia fee-plan-edit-modal
+  // y fee-plan-form.tsx, que lo usan como defaultValue del form y en switch/case. Cambiar a
+  // z.string() rompería el tipado en fee-plan-form.tsx (defaultValues.frequency: string | null
+  // no sería asignable a Frequency | ''). Si el backend añade un valor nuevo al enum, actualizar
+  // frequencySchema aquí y en los switch cases de fee-plans-list.page.tsx e import-template-modal.tsx.
+  frequency: frequencySchema,
   billingMonths: z.array(z.number().int().min(1).max(12)),
   active: z.boolean(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  /** Cantidad de suscripciones activas vinculadas (REQ-SPU-008). Siempre presente en el listado. */
+  activeSubscriptionsCount: z.number().int().min(0),
+  /** Plan por defecto para el tipo de socio filtrado (REQ-SPU-006). Solo presente cuando se filtra por memberTypeId. */
+  isDefault: z.boolean().optional(),
+  /** Orden de presentación para el tipo de socio filtrado (REQ-SPU-006). Solo presente cuando se filtra por memberTypeId. */
+  displayOrder: z.number().int().min(0).optional(),
 });
 
 // === Schema vinculación plan ↔ tipo socio ===
@@ -37,7 +53,8 @@ export const memberTypeFeePlanSchema = z.object({
 // === Schema plan con vinculaciones ===
 
 export const feePlanDetailSchema = feePlanSchema.extend({
-  linkedMemberTypes: z.array(memberTypeFeePlanSchema),
+  // @ApiPropertyOptional en DTO — puede no estar presente cuando el backend omite la relacion
+  linkedMemberTypes: z.array(memberTypeFeePlanSchema).optional(),
 });
 
 // === Schema listado paginado ===

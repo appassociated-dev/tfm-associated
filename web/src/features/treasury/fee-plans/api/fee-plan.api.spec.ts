@@ -111,7 +111,7 @@ describe('Fee Plan API', () => {
       // Arrange
       const plans = [
         buildFeePlan({ type: 'RECURRING', frequency: 'MONTHLY', billingMonths: [1, 4, 7, 10] }),
-        buildFeePlan({ type: 'ONE_TIME', frequency: null, billingMonths: [] }),
+        buildFeePlan({ type: 'ONE_TIME', frequency: 'ANNUAL', billingMonths: [] }),
       ];
 
       server.use(
@@ -128,7 +128,7 @@ describe('Fee Plan API', () => {
       expect(result[0].frequency).toBe('MONTHLY');
       expect(result[0].billingMonths).toEqual([1, 4, 7, 10]);
       expect(result[1].type).toBe('ONE_TIME');
-      expect(result[1].frequency).toBeNull();
+      expect(result[1].frequency).toBe('ANNUAL');
     });
 
     it('debería devolver array vacío si no hay planes', async () => {
@@ -218,10 +218,11 @@ describe('Fee Plan API', () => {
       // Act
       const result = await getFeePlan('f0000001-0000-4000-8000-000000000001');
 
-      // Assert
+      // Assert — linkedMemberTypes es opcional en el schema (DTO @ApiPropertyOptional),
+      // pero este test provee el campo explicitamente, por lo que el acceso es seguro
       expect(result.linkedMemberTypes).toHaveLength(2);
-      expect(result.linkedMemberTypes[0].isDefault).toBe(true);
-      expect(result.linkedMemberTypes[1].memberTypeName).toBe('Socio Juvenil');
+      expect(result.linkedMemberTypes![0].isDefault).toBe(true);
+      expect(result.linkedMemberTypes![1].memberTypeName).toBe('Socio Juvenil');
     });
 
     it('debería propagar error 404 si el plan no existe', async () => {
@@ -279,7 +280,7 @@ describe('Fee Plan API', () => {
     it('debería enviar payload de plan ONE_TIME sin frequency (triangulación)', async () => {
       // Arrange
       let capturedBody: Record<string, unknown> | undefined;
-      const created = buildFeePlan({ type: 'ONE_TIME', frequency: null });
+      const created = buildFeePlan({ type: 'ONE_TIME', frequency: 'ANNUAL' });
 
       server.use(
         http.post('*/v1/treasury/fee-plans', async ({ request }) => {

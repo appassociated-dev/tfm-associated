@@ -10,8 +10,8 @@ import type { PersonalData, MemberType } from '../schemas/member-registration.sc
 
 const personalData: PersonalData = {
   dni: '12345678Z',
-  firstName: 'Juan',
-  lastName: 'García López',
+  name: 'Juan',
+  surnames: 'García López',
   birthDate: '1990-05-15',
   email: 'juan@ejemplo.com',
   phone: '+34 612 345 678',
@@ -61,7 +61,7 @@ describe('ConfirmationStep', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers({ shouldAdvanceTime: true });
-    vi.setSystemTime(new Date('2026-06-15'));
+    vi.setSystemTime(new Date(2026, 5, 15)); // mes 0-indexado: 5 = junio
   });
 
   afterEach(() => {
@@ -85,8 +85,8 @@ describe('ConfirmationStep', () => {
     it('deberia renderizar datos de un segundo aspirante (triangulacion)', () => {
       const secondPersonalData: PersonalData = {
         dni: '87654321X',
-        firstName: 'Ana',
-        lastName: 'Martín Ruiz',
+        name: 'Ana',
+        surnames: 'Martín Ruiz',
         birthDate: '2000-03-10',
         email: 'ana@ejemplo.com',
         phone: null,
@@ -221,7 +221,7 @@ describe('ConfirmationStep', () => {
           address: null,
           postalCode: null,
           city: null,
-        },
+        } as PersonalData,
       });
 
       expect(screen.queryByText('+34 612 345 678')).not.toBeInTheDocument();
@@ -235,6 +235,29 @@ describe('ConfirmationStep', () => {
 
       expect(screen.getByText('Cuota de inscripcion')).toBeInTheDocument();
       expect(screen.getByText('Determinada por el plan vigente')).toBeInTheDocument();
+    });
+  });
+
+  describe('representante legal', () => {
+    it('deberia mostrar datos del representante cuando estan presentes', () => {
+      const personalDataWithRep: PersonalData = {
+        ...personalData,
+        legalRepresentativeName: 'Padre García',
+        legalRepresentativeDocumentNumber: '87654321X',
+      };
+
+      renderStep({ personalData: personalDataWithRep });
+
+      expect(screen.getByText('Padre García')).toBeInTheDocument();
+      expect(screen.getByText('87654321X')).toBeInTheDocument();
+    });
+
+    it('deberia NO mostrar seccion de representante cuando no hay datos', () => {
+      // El fixture base personalData no tiene legalRepresentativeName
+      renderStep();
+
+      // No debe existir texto de representante legal en el resumen
+      expect(screen.queryByText(/representante/i)).not.toBeInTheDocument();
     });
   });
 });

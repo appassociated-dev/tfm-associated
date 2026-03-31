@@ -15,5 +15,5 @@ export interface TenantProvisionedPayload {
  * Contiene la información necesaria para que otros BCs reaccionen.
  */
 export class TenantProvisionedEvent extends DomainEvent<TenantProvisionedPayload> {
-  readonly eventType = 'tenant.provisioned';
+  readonly eventType = 'TenantProvisioned';
 }
