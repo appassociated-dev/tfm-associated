@@ -76,9 +76,8 @@ describe('MemberSubscriptionsPage', () => {
       });
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
-        memberName: 'Juan Garcia',
         activeSubscription,
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -105,13 +104,11 @@ describe('MemberSubscriptionsPage', () => {
       const activeSubscription = buildSubscription({
         feePlanName: 'Cuota Trimestral',
         feePlanCode: 'CUOTA-TRIM',
-        feePlanType: 'RECURRING',
       });
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
-        memberName: 'Maria Lopez',
         activeSubscription,
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -130,20 +127,19 @@ describe('MemberSubscriptionsPage', () => {
         expect(screen.getByText('Cuota Trimestral')).toBeInTheDocument();
       });
       expect(screen.getByText('CUOTA-TRIM')).toBeInTheDocument();
-      expect(screen.getByText('Periódico')).toBeInTheDocument();
+      // feePlanType badge eliminado: campo no presente en SubscriptionResponseDto (REQ-ZOD-001)
     });
 
-    it('deberia mostrar badge de tipo "Unica" para plan ONE_TIME', async () => {
+    it('deberia mostrar el codigo del plan para plan ONE_TIME', async () => {
       // Arrange
       const activeSubscription = buildSubscription({
         feePlanName: 'Inscripcion',
         feePlanCode: 'INSCRIP',
-        feePlanType: 'ONE_TIME',
       });
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription,
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -161,7 +157,8 @@ describe('MemberSubscriptionsPage', () => {
       await waitFor(() => {
         expect(screen.getByText('Inscripcion')).toBeInTheDocument();
       });
-      expect(screen.getByText('Única')).toBeInTheDocument();
+      expect(screen.getByText('INSCRIP')).toBeInTheDocument();
+      // feePlanType badge eliminado: campo no presente en SubscriptionResponseDto (REQ-ZOD-001)
     });
   });
 
@@ -172,9 +169,8 @@ describe('MemberSubscriptionsPage', () => {
       // Arrange
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
-        memberName: 'Maria Lopez',
         activeSubscription: null,
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -199,7 +195,7 @@ describe('MemberSubscriptionsPage', () => {
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription: null,
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -225,7 +221,7 @@ describe('MemberSubscriptionsPage', () => {
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription: null,
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -256,7 +252,7 @@ describe('MemberSubscriptionsPage', () => {
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription: buildSubscription(),
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -285,7 +281,7 @@ describe('MemberSubscriptionsPage', () => {
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription: buildSubscription(),
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -317,7 +313,7 @@ describe('MemberSubscriptionsPage', () => {
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription: null,
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -352,7 +348,7 @@ describe('MemberSubscriptionsPage', () => {
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription,
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -386,7 +382,7 @@ describe('MemberSubscriptionsPage', () => {
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription: buildSubscription(),
-        closedSubscriptions: [closedSub],
+        history: [closedSub],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -418,7 +414,7 @@ describe('MemberSubscriptionsPage', () => {
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription: null,
-        closedSubscriptions: [closedSub],
+        history: [closedSub],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -444,7 +440,7 @@ describe('MemberSubscriptionsPage', () => {
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription: null,
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -469,15 +465,13 @@ describe('MemberSubscriptionsPage', () => {
       // Arrange
       const closedSub = buildSubscription({
         feePlanName: 'Plan Antiguo',
-        baseAmount: 8000,
         leaveDate: '2025-10-01T00:00:00.000Z',
         cancelReason: 'EXEMPTION',
-        chargesGenerated: 5,
       });
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription: buildSubscription(),
-        closedSubscriptions: [closedSub],
+        history: [closedSub],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -497,9 +491,10 @@ describe('MemberSubscriptionsPage', () => {
       // Click en la fila del timeline para expandir
       await user.click(screen.getByText('Plan Antiguo'));
 
-      // Assert: desglose expandido muestra cargos generados
+      // Assert: desglose expandido muestra el importe efectivo del DTO
+      // chargesGenerated eliminado: campo no presente en SubscriptionResponseDto (REQ-ZOD-001)
       await waitFor(() => {
-        expect(screen.getByText('Cargos generados')).toBeInTheDocument();
+        expect(screen.getByText('Exención')).toBeInTheDocument();
       });
     });
   });
@@ -507,13 +502,13 @@ describe('MemberSubscriptionsPage', () => {
   // --- Cabecera ---
 
   describe('cabecera', () => {
-    it('deberia mostrar el nombre del socio en la cabecera', async () => {
-      // Arrange
+    it('deberia mostrar el titulo de suscripciones en la cabecera', async () => {
+      // memberName eliminado del DTO (REQ-ZOD-002) — la cabecera ya no muestra el nombre del socio
+      // La pagina muestra el titulo de la seccion como identificador
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
-        memberName: 'Juan Garcia',
         activeSubscription: buildSubscription(),
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -527,10 +522,10 @@ describe('MemberSubscriptionsPage', () => {
         path: `/members/${VALID_UUID}/subscriptions`,
       });
 
-      // Assert
+      // Assert — el titulo principal siempre esta presente (aparece en breadcrumb y titulo)
       await waitFor(() => {
-        const nameElements = screen.getAllByText('Juan Garcia');
-        expect(nameElements.length).toBeGreaterThanOrEqual(1);
+        const elements = screen.getAllByText('Suscripciones');
+        expect(elements.length).toBeGreaterThanOrEqual(1);
       });
     });
 
@@ -539,7 +534,7 @@ describe('MemberSubscriptionsPage', () => {
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
         activeSubscription: buildSubscription(),
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {
@@ -590,9 +585,8 @@ describe('MemberSubscriptionsPage', () => {
       let callCount = 0;
       const data = buildMemberSubscriptionsResponse({
         memberId: VALID_UUID,
-        memberName: 'Ana Martinez',
         activeSubscription: buildSubscription({ feePlanName: 'Cuota Anual' }),
-        closedSubscriptions: [],
+        history: [],
       });
       server.use(
         http.get('*/v1/treasury/member-accounts/:memberId/subscriptions', () => {

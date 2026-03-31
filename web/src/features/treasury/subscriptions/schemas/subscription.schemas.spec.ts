@@ -15,23 +15,24 @@ import {
 
 const VALID_UUID = '550e8400-e29b-41d4-a716-446655440000';
 const VALID_UUID_2 = '660e8400-e29b-41d4-a716-446655440001';
+const VALID_UUID_3 = '770e8400-e29b-41d4-a716-446655440002';
 
+// Fixture alineado con SubscriptionResponseDto (REQ-ZOD-001)
 const validSubscription = {
   id: VALID_UUID,
   feePlanId: VALID_UUID_2,
   feePlanName: 'Cuota Anual',
   feePlanCode: 'CUOTA-ANUAL',
-  feePlanType: 'RECURRING' as const,
-  baseAmount: 12000,
   typeDiscount: 0.3,
   personalDiscount: 0.1,
   personalDiscountReason: 'Socio fundador',
   effectiveAmount: 7560,
+  effectiveAmountFormatted: '75.60 EUR',
+  isActive: true,
   registrationDate: '2026-01-01T00:00:00.000Z',
   leaveDate: null,
   cancelReason: null,
-  chargesGenerated: 3,
-  totalCollected: 22680,
+  createdAt: '2026-01-01T00:00:00.000Z',
 };
 
 const validCreateInput = {
@@ -84,15 +85,29 @@ describe('effectiveDateTypeSchema', () => {
 });
 
 describe('feeSubscriptionSchema', () => {
-  it('deberia aceptar datos validos de suscripcion', () => {
+  it('deberia aceptar shape del DTO real (REQ-ZOD-001)', () => {
+    // Fixture alineado con SubscriptionResponseDto
     const result = feeSubscriptionSchema.parse(validSubscription);
 
     expect(result.id).toBe(VALID_UUID);
     expect(result.feePlanName).toBe('Cuota Anual');
-    expect(result.baseAmount).toBe(12000);
-    expect(result.typeDiscount).toBe(0.3);
-    expect(result.personalDiscount).toBe(0.1);
-    expect(result.effectiveAmount).toBe(7560);
+    expect(result.effectiveAmountFormatted).toBe('75.60 EUR');
+    expect(result.isActive).toBe(true);
+    expect(result.createdAt).toBe('2026-01-01T00:00:00.000Z');
+  });
+
+  it('deberia rechazar suscripcion sin effectiveAmountFormatted', () => {
+    const invalid = { ...validSubscription };
+    delete (invalid as Record<string, unknown>).effectiveAmountFormatted;
+
+    expect(() => feeSubscriptionSchema.parse(invalid)).toThrow(ZodError);
+  });
+
+  it('deberia rechazar suscripcion sin isActive', () => {
+    const invalid = { ...validSubscription };
+    delete (invalid as Record<string, unknown>).isActive;
+
+    expect(() => feeSubscriptionSchema.parse(invalid)).toThrow(ZodError);
   });
 
   it('deberia rechazar suscripcion sin campos obligatorios', () => {
@@ -101,18 +116,22 @@ describe('feeSubscriptionSchema', () => {
     expect(() => feeSubscriptionSchema.parse(invalid)).toThrow(ZodError);
   });
 
-  it('deberia aceptar typeDiscount nullable', () => {
-    const withNull = { ...validSubscription, typeDiscount: null };
-    const result = feeSubscriptionSchema.parse(withNull);
+  it('deberia aceptar feePlanName ausente (opcional en DTO)', () => {
+    // feePlanName es @ApiPropertyOptional en DTO
+    const withoutName = { ...validSubscription };
+    delete (withoutName as Record<string, unknown>).feePlanName;
+    const result = feeSubscriptionSchema.parse(withoutName);
 
-    expect(result.typeDiscount).toBeNull();
+    expect(result.feePlanName).toBeUndefined();
   });
 
-  it('deberia aceptar personalDiscount nullable', () => {
-    const withNull = { ...validSubscription, personalDiscount: null };
-    const result = feeSubscriptionSchema.parse(withNull);
+  it('deberia aceptar feePlanCode ausente (opcional en DTO)', () => {
+    // feePlanCode es @ApiPropertyOptional en DTO
+    const withoutCode = { ...validSubscription };
+    delete (withoutCode as Record<string, unknown>).feePlanCode;
+    const result = feeSubscriptionSchema.parse(withoutCode);
 
-    expect(result.personalDiscount).toBeNull();
+    expect(result.feePlanCode).toBeUndefined();
   });
 
   it('deberia aceptar leaveDate nullable', () => {
@@ -130,12 +149,6 @@ describe('feeSubscriptionSchema', () => {
     const result = feeSubscriptionSchema.parse(withReason);
 
     expect(result.cancelReason).toBe('PLAN_CHANGE');
-  });
-
-  it('deberia rechazar baseAmount negativo', () => {
-    const invalid = { ...validSubscription, baseAmount: -100 };
-
-    expect(() => feeSubscriptionSchema.parse(invalid)).toThrow(ZodError);
   });
 
   it('deberia rechazar typeDiscount mayor a 1', () => {
@@ -156,6 +169,28 @@ describe('feeSubscriptionSchema', () => {
     const result = feeSubscriptionSchema.parse(validSubscription);
 
     expect(result.pendingChargesCount).toBeUndefined();
+  });
+
+  it('deberia silenciosamente ignorar campos fantasma del schema anterior (strip)', () => {
+    // Zod 4 strip mode — campos no declarados se eliminan, no se rechazan
+    const withPhantom = {
+      ...validSubscription,
+      feePlanType: 'RECURRING',
+      baseAmount: 12000,
+      chargesGenerated: 3,
+      totalCollected: 36000,
+    };
+    const result = feeSubscriptionSchema.safeParse(withPhantom);
+
+    // Parse debe tener exito (Zod 4 strip, no strict)
+    expect(result.success).toBe(true);
+    if (result.success) {
+      // Los campos fantasma no deben aparecer en el resultado
+      expect((result.data as Record<string, unknown>).feePlanType).toBeUndefined();
+      expect((result.data as Record<string, unknown>).baseAmount).toBeUndefined();
+      expect((result.data as Record<string, unknown>).chargesGenerated).toBeUndefined();
+      expect((result.data as Record<string, unknown>).totalCollected).toBeUndefined();
+    }
   });
 });
 
@@ -233,8 +268,58 @@ describe('updateDiscountInputSchema', () => {
 });
 
 describe('memberSubscriptionsResponseSchema', () => {
-  it('deberia aceptar respuesta con suscripcion activa', () => {
+  it('deberia aceptar shape SubscriptionHistoryResponseDto (REQ-ZOD-002)', () => {
+    // Fixture alineado con SubscriptionHistoryResponseDto
     const response = {
+      memberAccountId: VALID_UUID_3,
+      memberId: VALID_UUID,
+      activeSubscription: validSubscription,
+      history: [],
+    };
+    const result = memberSubscriptionsResponseSchema.parse(response);
+
+    expect(result.memberAccountId).toBe(VALID_UUID_3);
+    expect(result.memberId).toBe(VALID_UUID);
+    expect(result.activeSubscription).not.toBeNull();
+    expect(result.history).toHaveLength(0);
+  });
+
+  it('deberia aceptar activeSubscription null y history vacio', () => {
+    const response = {
+      memberAccountId: VALID_UUID_3,
+      memberId: VALID_UUID,
+      activeSubscription: null,
+      history: [],
+    };
+    const result = memberSubscriptionsResponseSchema.parse(response);
+
+    expect(result.activeSubscription).toBeNull();
+    expect(result.history).toEqual([]);
+  });
+
+  it('deberia aceptar history con suscripciones cerradas', () => {
+    const closedSub = {
+      ...validSubscription,
+      leaveDate: '2026-06-01T00:00:00.000Z',
+      cancelReason: 'PLAN_CHANGE',
+      isActive: false,
+    };
+    const response = {
+      memberAccountId: VALID_UUID_3,
+      memberId: VALID_UUID,
+      activeSubscription: null,
+      history: [closedSub],
+    };
+    const result = memberSubscriptionsResponseSchema.parse(response);
+
+    expect(result.history).toHaveLength(1);
+    expect(result.history[0].cancelReason).toBe('PLAN_CHANGE');
+  });
+
+  it('deberia fallar con shape antiguo (closedSubscriptions y memberName ausentes del nuevo schema)', () => {
+    // El shape antiguo tenia memberName, memberTypeId, memberTypeName, closedSubscriptions
+    // Ahora falta memberAccountId e history — la validacion debe fallar
+    const oldShape = {
       memberId: VALID_UUID,
       memberName: 'Juan Garcia',
       memberTypeId: VALID_UUID_2,
@@ -242,30 +327,19 @@ describe('memberSubscriptionsResponseSchema', () => {
       activeSubscription: validSubscription,
       closedSubscriptions: [],
     };
-    const result = memberSubscriptionsResponseSchema.parse(response);
+    const result = memberSubscriptionsResponseSchema.safeParse(oldShape);
 
-    expect(result.activeSubscription).not.toBeNull();
-    expect(result.closedSubscriptions).toHaveLength(0);
+    // memberAccountId e history son requeridos — debe fallar
+    expect(result.success).toBe(false);
   });
 
-  it('deberia aceptar respuesta sin suscripcion activa', () => {
-    const response = {
+  it('deberia rechazar respuesta sin memberAccountId', () => {
+    const invalid = {
       memberId: VALID_UUID,
-      memberName: 'Juan Garcia',
-      memberTypeId: VALID_UUID_2,
-      memberTypeName: 'Socio Numerario',
       activeSubscription: null,
-      closedSubscriptions: [
-        {
-          ...validSubscription,
-          leaveDate: '2026-06-01T00:00:00.000Z',
-          cancelReason: 'PLAN_CHANGE',
-        },
-      ],
+      history: [],
     };
-    const result = memberSubscriptionsResponseSchema.parse(response);
 
-    expect(result.activeSubscription).toBeNull();
-    expect(result.closedSubscriptions).toHaveLength(1);
+    expect(() => memberSubscriptionsResponseSchema.parse(invalid)).toThrow(ZodError);
   });
 });

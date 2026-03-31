@@ -67,7 +67,8 @@ export function ChangePlanModal({
     [availablePlans, selectedPlanId],
   );
 
-  // Preview del nuevo importe efectivo manteniendo descuentos actuales
+  // Preview del nuevo importe efectivo manteniendo descuentos actuales.
+  // Usa selectedPlan.amount como base (FeePlan siempre tiene amount — D2 design).
   const newBreakdown = useMemo(() => {
     if (!selectedPlan) return null;
     try {
@@ -80,19 +81,6 @@ export function ChangePlanModal({
       return null;
     }
   }, [selectedPlan, subscription.typeDiscount, subscription.personalDiscount]);
-
-  // Breakdown del plan actual
-  const currentBreakdown = useMemo(() => {
-    try {
-      return calculateEffectiveAmount(
-        subscription.baseAmount,
-        subscription.typeDiscount,
-        subscription.personalDiscount,
-      );
-    } catch {
-      return null;
-    }
-  }, [subscription.baseAmount, subscription.typeDiscount, subscription.personalDiscount]);
 
   const handleSubmit = () => {
     if (!selectedPlanId) return;
@@ -145,7 +133,7 @@ export function ChangePlanModal({
       size="lg"
     >
       <Stack gap="md">
-        {/* Seccion: Plan actual */}
+        {/* Seccion: Plan actual — muestra effectiveAmountFormatted del DTO (D2 design) */}
         <div>
           <Text fw={600} size="sm" c="dimmed" mb={4}>
             {t('subscriptions.changePlanModal.currentPlan')}
@@ -158,19 +146,11 @@ export function ChangePlanModal({
           </Group>
           <Group gap="lg" mt={4}>
             <Text size="sm">
-              {t('subscriptions.changePlanModal.baseAmountLabel')}{' '}
+              {t('subscriptions.changePlanModal.effectiveAmountLabel')}{' '}
               <Text component="span" fw={600} className={classes['tabular-nums']}>
-                {formatMoney(subscription.baseAmount)}
+                {formatMoney(subscription.effectiveAmount)}
               </Text>
             </Text>
-            {currentBreakdown && (
-              <Text size="sm">
-                {t('subscriptions.changePlanModal.effectiveAmountLabel')}{' '}
-                <Text component="span" fw={600} className={classes['tabular-nums']}>
-                  {formatMoney(currentBreakdown.effectiveAmount)}
-                </Text>
-              </Text>
-            )}
           </Group>
           {subscription.typeDiscount != null && (
             <Text size="xs" c="dimmed" mt={2}>
@@ -194,7 +174,7 @@ export function ChangePlanModal({
           searchable
         />
 
-        {/* Preview del nuevo importe efectivo */}
+        {/* Preview del nuevo importe efectivo — usa selectedPlan.amount como base */}
         {newBreakdown && selectedPlan && (
           <div>
             <Text fw={600} size="sm" c="dimmed" mb={4}>

@@ -30,6 +30,8 @@ export const personalDataSchema = z.object({
 });
 
 // === Schema de tipo de socio (selector del paso 2) ===
+// Campos obligatorios: los que usa el wizard de alta (subset estrecho).
+// Campos opcionales: resto de MemberTypeResponseDto que no usa el wizard (REQ-ZOD-005).
 
 export const memberTypeSchema = z.object({
   id: z.string().uuid(),
@@ -41,6 +43,13 @@ export const memberTypeSchema = z.object({
   votingRight: z.boolean(),
   eligibleForOffice: z.boolean(),
   active: z.boolean(),
+  // Campos presentes en MemberTypeResponseDto, no usados por el wizard — se añaden como opcionales
+  minimumSeniorityForVoting: z.number().int().optional(),
+  minimumSeniorityForOffice: z.number().int().optional(),
+  automaticTransitionTargetId: z.string().uuid().nullable().optional(),
+  rulesConfig: z.unknown().nullable().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 });
 
 // === Schema de cargo de inscripción (paso 3) ===
@@ -82,6 +91,8 @@ export const registrationResponseSchema = z.object({
       status: z.string(),
     })
     .nullable(),
+  /** Aviso no bloqueante de email duplicado (REQ-ZOD-006). Presente en SimpleRegistrationResponseDto. */
+  emailWarning: z.string().optional(),
 });
 
 // === Schema de verificación de unicidad de DNI ===

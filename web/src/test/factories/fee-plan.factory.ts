@@ -31,6 +31,8 @@ export function buildFeePlan(overrides?: Partial<FeePlan>): FeePlan {
     description: null,
     type: 'RECURRING',
     amount: 12000,
+    amountFormatted: '120.00 EUR',
+    currency: 'EUR',
     frequency: 'ANNUAL',
     billingMonths: [1],
     active: true,

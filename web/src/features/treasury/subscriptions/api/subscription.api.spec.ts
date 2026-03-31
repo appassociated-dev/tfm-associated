@@ -42,17 +42,16 @@ function buildSubscription(overrides?: Partial<FeeSubscription>): FeeSubscriptio
     feePlanId: deterministicUuid('f0000001', subCounter),
     feePlanName: `Plan de Cuota ${subCounter}`,
     feePlanCode: `CUOTA-${String(subCounter).padStart(3, '0')}`,
-    feePlanType: 'RECURRING',
-    baseAmount: 12000,
-    typeDiscount: null,
-    personalDiscount: null,
+    typeDiscount: 0,
+    personalDiscount: 0,
     personalDiscountReason: null,
     effectiveAmount: 12000,
+    effectiveAmountFormatted: '120.00 EUR',
+    isActive: true,
     registrationDate: '2026-01-01T00:00:00.000Z',
     leaveDate: null,
     cancelReason: null,
-    chargesGenerated: 3,
-    totalCollected: 36000,
+    createdAt: '2026-01-01T00:00:00.000Z',
     ...overrides,
   };
 }
@@ -62,12 +61,10 @@ function buildMemberSubscriptionsResponse(
 ): MemberSubscriptionsResponse {
   subCounter++;
   return {
+    memberAccountId: deterministicUuid('c0000001', subCounter),
     memberId: deterministicUuid('d0000001', subCounter),
-    memberName: 'Socio Test',
-    memberTypeId: deterministicUuid('c0000001', subCounter),
-    memberTypeName: 'Socio Ordinario',
     activeSubscription: buildSubscription(),
-    closedSubscriptions: [],
+    history: [],
     ...overrides,
   };
 }
@@ -118,7 +115,7 @@ describe('Subscription API', () => {
 
       const response = buildMemberSubscriptionsResponse({
         activeSubscription: activeSub,
-        closedSubscriptions: [closedSub],
+        history: [closedSub],
       });
 
       server.use(
@@ -133,15 +130,15 @@ describe('Subscription API', () => {
       // Assert
       expect(result.activeSubscription?.personalDiscount).toBe(0.15);
       expect(result.activeSubscription?.effectiveAmount).toBe(10200);
-      expect(result.closedSubscriptions).toHaveLength(1);
-      expect(result.closedSubscriptions[0].cancelReason).toBe('PLAN_CHANGE');
+      expect(result.history).toHaveLength(1);
+      expect(result.history[0].cancelReason).toBe('PLAN_CHANGE');
     });
 
     it('debería parsear respuesta sin suscripción activa', async () => {
       // Arrange
       const response = buildMemberSubscriptionsResponse({
         activeSubscription: null,
-        closedSubscriptions: [buildSubscription({ cancelReason: 'MEMBER_LEAVE' })],
+        history: [buildSubscription({ cancelReason: 'MEMBER_LEAVE' })],
       });
 
       server.use(
@@ -155,7 +152,7 @@ describe('Subscription API', () => {
 
       // Assert
       expect(result.activeSubscription).toBeNull();
-      expect(result.closedSubscriptions).toHaveLength(1);
+      expect(result.history).toHaveLength(1);
     });
 
     it('debería propagar error 404 si la cuenta no existe', async () => {

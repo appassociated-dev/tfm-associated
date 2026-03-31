@@ -40,32 +40,21 @@ export function UpdateDiscountModal({
 
   const updateDiscountMutation = useUpdateDiscount(memberAccountId);
 
-  // Desglose actual
-  const currentBreakdown = useMemo(() => {
-    try {
-      return calculateEffectiveAmount(
-        subscription.baseAmount,
-        subscription.typeDiscount,
-        subscription.personalDiscount,
-      );
-    } catch {
-      return null;
-    }
-  }, [subscription.baseAmount, subscription.typeDiscount, subscription.personalDiscount]);
-
-  // Desglose con nuevo descuento (en tiempo real)
+  // Desglose del nuevo descuento en tiempo real.
+  // Usa effectiveAmount como base de calculo (sin baseAmount — D2 design):
+  // el DTO proporciona efectiveAmount calculado, que usamos como referencia aproximada.
   const newBreakdown = useMemo(() => {
     const newDiscount = personalPercent > 0 ? personalPercent / 100 : null;
     try {
       return calculateEffectiveAmount(
-        subscription.baseAmount,
+        subscription.effectiveAmount,
         subscription.typeDiscount,
         newDiscount,
       );
     } catch {
       return null;
     }
-  }, [subscription.baseAmount, subscription.typeDiscount, personalPercent]);
+  }, [subscription.effectiveAmount, subscription.typeDiscount, personalPercent]);
 
   // Validacion: descuento combinado < 100%
   const typeFactor = 1 - (subscription.typeDiscount ?? 0);
@@ -116,76 +105,37 @@ export function UpdateDiscountModal({
       size="lg"
     >
       <Stack gap="md">
-        {/* Desglose actual del descuento */}
+        {/* Descuento actual — muestra effectiveAmount del DTO directamente (D2 design) */}
         <div>
           <Text fw={600} size="sm" c="dimmed" mb={4}>
             {t('subscriptions.updateDiscountModal.currentDiscount')}
           </Text>
-          {currentBreakdown && (
-            <Stack gap={2}>
-              <Group justify="space-between">
-                <Text size="sm">{t('subscriptions.updateDiscountModal.baseAmount')}</Text>
-                <Text
-                  size="sm"
-                  fw={500}
-                  style={{ fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}
-                >
-                  {formatMoney(currentBreakdown.baseAmount)}
-                </Text>
-              </Group>
-              {currentBreakdown.typeDiscount != null && (
-                <Group justify="space-between">
-                  <Text size="sm" c="dimmed">
-                    {t('subscriptions.updateDiscountModal.typeDiscountWithPercent', {
-                      percent: Math.round(currentBreakdown.typeDiscount * 100),
-                    })}
-                  </Text>
-                  <Text
-                    size="sm"
-                    c="red"
-                    style={{ fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}
-                  >
-                    -{formatMoney(currentBreakdown.baseAmount - currentBreakdown.afterTypeDiscount)}
-                  </Text>
-                </Group>
-              )}
-              {currentBreakdown.personalDiscount != null && (
-                <Group justify="space-between">
-                  <Text size="sm" c="dimmed">
-                    {t('subscriptions.updateDiscountModal.personalDiscountWithPercent', {
-                      percent: Math.round(currentBreakdown.personalDiscount * 100),
-                    })}
-                  </Text>
-                  <Text
-                    size="sm"
-                    c="red"
-                    style={{ fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}
-                  >
-                    -
-                    {formatMoney(
-                      currentBreakdown.afterTypeDiscount - currentBreakdown.effectiveAmount,
-                    )}
-                  </Text>
-                </Group>
-              )}
-              <Group
-                justify="space-between"
-                mt={4}
-                style={{ borderTop: '1px solid var(--mantine-color-gray-3)', paddingTop: 4 }}
+          <Stack gap={2}>
+            <Group justify="space-between">
+              <Text size="sm">{t('subscriptions.updateDiscountModal.currentEffectiveAmount')}</Text>
+              <Text
+                size="sm"
+                fw={500}
+                style={{ fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}
               >
-                <Text size="sm" fw={700}>
-                  {t('subscriptions.updateDiscountModal.currentEffectiveAmount')}
-                </Text>
-                <Text
-                  size="sm"
-                  fw={700}
-                  style={{ fontVariantNumeric: 'tabular-nums', textAlign: 'right' }}
-                >
-                  {formatMoney(currentBreakdown.effectiveAmount)}
-                </Text>
-              </Group>
-            </Stack>
-          )}
+                {formatMoney(subscription.effectiveAmount)}
+              </Text>
+            </Group>
+            {subscription.typeDiscount != null && subscription.typeDiscount > 0 && (
+              <Text size="xs" c="dimmed">
+                {t('subscriptions.updateDiscountModal.typeDiscountWithPercent', {
+                  percent: Math.round(subscription.typeDiscount * 100),
+                })}
+              </Text>
+            )}
+            {subscription.personalDiscount != null && subscription.personalDiscount > 0 && (
+              <Text size="xs" c="dimmed">
+                {t('subscriptions.updateDiscountModal.personalDiscountWithPercent', {
+                  percent: Math.round(subscription.personalDiscount * 100),
+                })}
+              </Text>
+            )}
+          </Stack>
         </div>
 
         {/* Input de nuevo descuento personal */}

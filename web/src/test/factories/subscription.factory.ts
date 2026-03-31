@@ -1,5 +1,6 @@
 // Factories de datos de suscripciones.
 // Producen objetos que pasan los Zod schemas de subscription.schemas.ts.
+// Alineados con SubscriptionResponseDto y SubscriptionHistoryResponseDto (REQ-ZOD-001, REQ-ZOD-002).
 
 import type {
   FeeSubscription,
@@ -19,6 +20,7 @@ function deterministicUuid(prefix: string, counter: number): string {
 
 /**
  * Construye una FeeSubscription con defaults deterministas.
+ * Alineado con SubscriptionResponseDto — sin campos fantasma.
  * Importes en centavos (12000 = 120.00 EUR).
  */
 export function buildSubscription(overrides?: Partial<FeeSubscription>): FeeSubscription {
@@ -28,35 +30,33 @@ export function buildSubscription(overrides?: Partial<FeeSubscription>): FeeSubs
     feePlanId: deterministicUuid('b0000001', subscriptionCounter),
     feePlanName: `Plan de Cuota ${subscriptionCounter}`,
     feePlanCode: `CUOTA-${String(subscriptionCounter).padStart(3, '0')}`,
-    feePlanType: 'RECURRING',
-    baseAmount: 12000,
-    typeDiscount: null,
-    personalDiscount: null,
+    typeDiscount: 0,
+    personalDiscount: 0,
     personalDiscountReason: null,
     effectiveAmount: 12000,
+    effectiveAmountFormatted: '120.00 EUR',
+    isActive: true,
     registrationDate: '2026-01-01T00:00:00.000Z',
     leaveDate: null,
     cancelReason: null,
-    chargesGenerated: 3,
-    totalCollected: 36000,
+    createdAt: '2026-01-01T00:00:00.000Z',
     ...overrides,
   };
 }
 
 /**
  * Construye una respuesta completa de suscripciones de un socio.
+ * Alineado con SubscriptionHistoryResponseDto — sin campos fantasma.
  */
 export function buildMemberSubscriptionsResponse(
   overrides?: Partial<MemberSubscriptionsResponse>,
 ): MemberSubscriptionsResponse {
   subscriptionCounter++;
   return {
-    memberId: deterministicUuid('c0000001', subscriptionCounter),
-    memberName: `Socio Test ${subscriptionCounter}`,
-    memberTypeId: deterministicUuid('d0000001', subscriptionCounter),
-    memberTypeName: 'Socio Numerario',
+    memberAccountId: deterministicUuid('c0000001', subscriptionCounter),
+    memberId: deterministicUuid('d0000001', subscriptionCounter),
     activeSubscription: buildSubscription(),
-    closedSubscriptions: [],
+    history: [],
     ...overrides,
   };
 }

@@ -28,6 +28,8 @@ const validFeePlan = {
   activeSubscriptionsCount: 0,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
+  amountFormatted: '120.00 EUR',
+  currency: 'EUR',
 };
 
 const validCreateInput = {
@@ -109,16 +111,16 @@ describe('feePlanSchema', () => {
     expect(result.description).toBeNull();
   });
 
-  it('deberia aceptar plan con frequency nullable (para ONE_TIME)', () => {
+  it('deberia aceptar plan ONE_TIME con frequency valida', () => {
     const oneTimePlan = {
       ...validFeePlan,
       type: 'ONE_TIME',
-      frequency: null,
+      frequency: 'ANNUAL' as const,
       billingMonths: [],
     };
     const result = feePlanSchema.parse(oneTimePlan);
 
-    expect(result.frequency).toBeNull();
+    expect(result.frequency).toBe('ANNUAL');
     expect(result.type).toBe('ONE_TIME');
   });
 
@@ -166,6 +168,30 @@ describe('feePlanSchema', () => {
 
     expect(result.isDefault).toBeUndefined();
     expect(result.displayOrder).toBeUndefined();
+  });
+
+  it('deberia aceptar amountFormatted y currency requeridos', () => {
+    // [RED] Campos presentes en FeePlanResponseDto pero ausentes del schema anterior
+    const result = feePlanSchema.parse(validFeePlan);
+
+    expect(result.amountFormatted).toBe('120.00 EUR');
+    expect(result.currency).toBe('EUR');
+  });
+
+  it('deberia rechazar plan sin amountFormatted', () => {
+    // amountFormatted es requerido — el DTO siempre lo incluye
+    const invalid = { ...validFeePlan };
+    delete (invalid as Record<string, unknown>).amountFormatted;
+
+    expect(() => feePlanSchema.parse(invalid)).toThrow(ZodError);
+  });
+
+  it('deberia rechazar plan sin currency', () => {
+    // currency es requerido — el DTO siempre lo incluye
+    const invalid = { ...validFeePlan };
+    delete (invalid as Record<string, unknown>).currency;
+
+    expect(() => feePlanSchema.parse(invalid)).toThrow(ZodError);
   });
 });
 
@@ -251,8 +277,9 @@ describe('feePlanDetailSchema', () => {
     };
     const result = feePlanDetailSchema.parse(planDetail);
 
+    // linkedMemberTypes es opcional en el schema — se provee en este test, acceso seguro
     expect(result.linkedMemberTypes).toHaveLength(1);
-    expect(result.linkedMemberTypes[0].memberTypeName).toBe('Socio Numerario');
+    expect(result.linkedMemberTypes![0].memberTypeName).toBe('Socio Numerario');
   });
 
   it('deberia aceptar plan con linkedMemberTypes vacio', () => {
@@ -263,5 +290,24 @@ describe('feePlanDetailSchema', () => {
     const result = feePlanDetailSchema.parse(planDetail);
 
     expect(result.linkedMemberTypes).toEqual([]);
+  });
+
+  it('deberia heredar amountFormatted y currency via extend', () => {
+    // feePlanDetailSchema extiende feePlanSchema — los campos nuevos se heredan automaticamente
+    const planDetail = {
+      ...validFeePlan,
+      linkedMemberTypes: [],
+    };
+    const result = feePlanDetailSchema.parse(planDetail);
+
+    expect(result.amountFormatted).toBe('120.00 EUR');
+    expect(result.currency).toBe('EUR');
+  });
+
+  it('deberia aceptar plan sin linkedMemberTypes (campo @ApiPropertyOptional en DTO)', () => {
+    // linkedMemberTypes es opcional: el backend puede omitirlo en algunos endpoints
+    const result = feePlanDetailSchema.parse(validFeePlan);
+
+    expect(result.linkedMemberTypes).toBeUndefined();
   });
 });

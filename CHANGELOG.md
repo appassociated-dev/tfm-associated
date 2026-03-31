@@ -7,6 +7,46 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### 20260331-002-acester-CLAUDE
+
+- **Fecha de sesion:** 31 de marzo de 2026
+- **Hora de inicio:** 10:24
+- **Hora de ultimos trabajos:** 13:39
+- **Documento de sesion:** [doc/agents-sessions/20260331-002-acester-CLAUDE.md](doc/agents-sessions/20260331-002-acester-CLAUDE.md)
+- **SDD Change:** `zod-schema-contract-sync` — Explore + Propose + Spec + Design + Tasks + Apply + Judgment Day + Verify + Archive ✅ COMPLETADO
+
+#### Added
+
+[Sin cambios]
+
+#### Changed
+
+- SDD Explore `zod-schema-contract-sync`: auditados 5 ficheros Zod contra DTOs backend — 2 gaps CRITICOS (ZodError en runtime), 2 MEDIOS, 1 LOW; 13 schemas sincronizados correctamente
+- SDD Propose `zod-schema-contract-sync`: alcance definido (16 ficheros), enfoque DTO-as-authority con schema-first en cascada; descubierto runtime bug critico en MemberSubscriptionsPage (7 campos phantom — pagina rota contra API real)
+- SDD Spec `zod-schema-contract-sync`: 8 requisitos (REQ-ZOD-001 a REQ-ZOD-008), 15 escenarios GIVEN/WHEN/THEN verificados contra DTOs reales del backend
+- SDD Design `zod-schema-contract-sync`: 5 decisiones arquitectonicas (D1–D5) — eliminacion de campos phantom, sustitucion de baseAmount por effectiveAmountFormatted, reconstruccion de memberSubscriptionsResponseSchema, optionals aditivos en memberTypeSchema, campos de presentacion en feePlanSchema; 16 ficheros en scope
+- SDD Tasks `zod-schema-contract-sync`: 9 fases, 31 tareas con estructura TDD RED/GREEN; descubiertos 4 puntos adicionales de impacto (helpers inline phantom en subscription.api.spec.ts, derive de memberTypeId en MemberSubscriptionsPage, 2 call sites de baseAmount en UpdateDiscountModal, asercion directa a memberName en use-subscriptions.spec.ts)
+- SDD Apply `zod-schema-contract-sync`: 8 fases TDD ejecutadas — schemas Zod del frontend alineados con DTOs del backend; bug de runtime en MemberSubscriptionsPage resuelto (7 campos phantom eliminados); 16+ ficheros modificados; 1113 tests pasan, 0 errores typecheck, 0 errores lint
+- Judgment Day `zod-schema-contract-sync`: revision adversarial dual en 5 rondas — APROBADO ✅; 11 correcciones aplicadas (precisiones de schema: non-nullable, `.datetime()`, `z.unknown()`, UUIDs validos, frequency nullable, asercion stale); estado final: 1111 tests pasan, tsc clean, lint clean
+- SDD Verify `zod-schema-contract-sync`: validacion formal PASS WITH WARNINGS — 1112/1112 tests, tsc clean, 15/15 escenarios Spec, 8/8 requisitos (REQ-ZOD-001 a REQ-ZOD-008); WARNING: workaround `memberTypeId=''` por limitacion del DTO backend (no regresion, documentado con TODO)
+- SDD Archive `zod-schema-contract-sync`: ciclo SDD completo archivado en engram — 9 artefactos persistidos (explore #968 a archive-report); 21 ficheros modificados, 1112 tests, tsc clean; listo para commit y merge
+
+#### Fixed
+
+- Mocks inline de `FeePlan` en `deactivate-fee-plan-modal.spec.tsx` corregidos tras añadir campos required en `feePlanSchema` (typecheck)
+- Asercion stale en `fee-plan.api.spec.ts:131` — `toBeNull` corregido a `toBe('ANNUAL')` (detectado en JD ronda 4)
+- `typeDiscount`/`personalDiscount` en subscription schema — corregidos a non-nullable (detectado en JD ronda 1)
+- `createdAt` en schema — corregido a `.datetime()` (detectado en JD ronda 1)
+- `memberAccountId` en mocks de spec — corregido a UUID valido (detectado en JD rondas 1–3)
+- `frequency` nullable eliminado del response schema (detectado en JD ronda 3)
+
+#### Removed
+
+- Campos phantom de `feeSubscriptionSchema`: `feePlanType`, `baseAmount`, `chargesGenerated`, `totalCollected` (no existian en el DTO del backend)
+- Campos phantom de `memberSubscriptionsResponseSchema`: `memberName`, `memberTypeId`, `memberTypeName`, `closedSubscriptions` (no existian en el DTO del backend)
+
+---
+
 ### 20260331-001-acester-CLAUDE (retroactivo)
 
 - **Fecha de sesion:** 31 de marzo de 2026
