@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
+import { SkipThrottle } from '@nestjs/throttler';
 import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { ProvisionTenantDto } from '../../application/dtos/provision-tenant.dto';
 import { TenantProvisionedResponseDto } from '../../application/dtos/tenant-provisioned-response.dto';
@@ -37,6 +38,7 @@ import { Public } from '../auth/public.decorator';
  *
  * Refs: UC-001 (provisión de tenant), ADR-006 (JWT + Passport), ADR-007 (RBAC Guards)
  */
+@SkipThrottle({ default: true, login: true })
 @ApiTags('Tenants')
 @ApiSecurity('api-key')
 @Controller('v1/tenants')
